@@ -1,167 +1,163 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELKA 👑 JOBNET</title>
+  <meta charset="UTF-8">
+  <title>ELKA 👑 JOBNET</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: white;
-}
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      padding: 10px;
+    }
 
-header {
-  background: #22c55e;
-  padding: 15px;
-  text-align: center;
-  font-weight: bold;
-}
+    h1 {
+      text-align: center;
+      background: #22c55e;
+      padding: 12px;
+      border-radius: 10px;
+    }
 
-.container {
-  padding: 15px;
-}
+    .box {
+      background: #1e293b;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 12px;
+    }
 
-.card {
-  background: #1e293b;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-}
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+      font-size: 16px;
+    }
 
-input {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-}
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #22c55e;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #22c55e;
-  color: white;
-  font-weight: bold;
-}
+    button:active {
+      opacity: 0.8;
+    }
 
-.job {
-  background: #334155;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-}
-</style>
+    li {
+      margin-top: 8px;
+      padding: 8px;
+      background: #334155;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>ELKA 👑 JOBNET</header>
+<h1>ELKA 👑 JOBNET</h1>
 
-<div class="container">
-
-<div class="card">
+<div class="box">
   <h3>👋 Bienvenue</h3>
-  <p>Publie un travail ou trouve un job facilement.</p>
+  <p>Publie un travail ou trouve un job facilement. Entre ton numéro et commence.</p>
 </div>
 
-<div class="card">
+<div class="box">
   <h3>📱 Créer un compte</h3>
-  <input id="phone" placeholder="Ton numéro">
-  <button onclick="createAccount()">S'inscrire</button>
+  <input id="phone" placeholder="Ex: 70xxxxxx">
+  <button onclick="register()">S'inscrire</button>
 </div>
 
-<div class="card">
+<div class="box">
   <h3>💼 Publier un travail</h3>
-  <input id="jobInput" placeholder="Ex: Livraison - 2000 FCFA">
-  <button onclick="addJob()">Publier</button>
+  <input id="title" placeholder="Ex: Livraison colis - 2000 FCFA">
+  <button onclick="publishJob()">Publier</button>
 </div>
 
-<div class="card">
+<div class="box">
   <h3>📋 Travaux disponibles</h3>
-  <div id="jobsList"></div>
-</div>
-
+  <ul id="jobs"></ul>
 </div>
 
 <script>
-// 🔴 COLLE TES INFOS SUPABASE ICI
-const SUPABASE_URL = "https://bxshoemyyhanjshruvzu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_NSQgLTogfv0jhM03RO2Row_t75tAQfF";
+  // 🔥 MET TES INFOS ICI
+  const SUPABASE_URL = "https://bxshoemyyhanjshruvzu.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_NSQgLTogfv0jhM03RO2Row_t75tAQfF";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 👉 créer compte
-async function createAccount() {
-  const phone = document.getElementById("phone").value;
+  let currentUser = "";
 
-  if (!phone) {
-    alert("Entre ton numéro");
-    return;
-  }
+  // 🔐 inscription simple
+  function register() {
+    const phone = document.getElementById("phone").value;
 
-  const { error } = await supabase.from("users").insert([
-    { phone: phone }
-  ]);
+    if (!phone) {
+      alert("Entre ton numéro");
+      return;
+    }
 
-  if (error) {
-    alert("Erreur: " + error.message);
-  } else {
+    currentUser = phone;
     alert("Compte créé !");
   }
-}
 
-// 👉 ajouter job
-async function addJob() {
-  const job = document.getElementById("jobInput").value;
+  // 📤 publier job
+  async function publishJob() {
+    const title = document.getElementById("title").value;
 
-  if (!job) {
-    alert("Entre un travail");
-    return;
+    if (!title || !currentUser) {
+      alert("Remplis ton numéro et le travail !");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("emplois")
+      .insert([{ title: title, phone: currentUser }]);
+
+    if (error) {
+      alert("Erreur: " + error.message);
+    } else {
+      alert("Travail publié !");
+      document.getElementById("title").value = "";
+      loadJobs();
+    }
   }
 
-  const { error } = await supabase.from("jobs").insert([
-    { title: job }
-  ]);
+  // 📥 charger jobs
+  async function loadJobs() {
+    const { data, error } = await supabase
+      .from("emplois")
+      .select("*")
+      .order("id", { ascending: false });
 
-  if (error) {
-    alert("Erreur: " + error.message);
-  } else {
-    document.getElementById("jobInput").value = "";
-    loadJobs();
-  }
-}
+    if (error) {
+      console.log(error);
+      return;
+    }
 
-// 👉 afficher jobs
-async function loadJobs() {
-  const { data, error } = await supabase
-    .from("jobs")
-    .select("*")
-    .order("id", { ascending: false });
+    const list = document.getElementById("jobs");
+    list.innerHTML = "";
 
-  const list = document.getElementById("jobsList");
-  list.innerHTML = "";
-
-  if (data) {
     data.forEach(job => {
-      const div = document.createElement("div");
-      div.className = "job";
-      div.innerText = job.title;
-      list.appendChild(div);
+      const li = document.createElement("li");
+      li.textContent = job.title + " - 📞 " + job.phone;
+      list.appendChild(li);
     });
   }
-}
 
-// charger au démarrage
-loadJobs();
-
+  // 🔄 charger au démarrage
+  loadJobs();
 </script>
 
 </body>
