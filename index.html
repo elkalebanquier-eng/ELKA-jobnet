@@ -31,13 +31,7 @@ body {
 .hidden{display:none;}
 
 h1 {
-  animation: float 3s infinite;
-}
-
-@keyframes float {
-  0%{transform:translateY(0);}
-  50%{transform:translateY(-10px);}
-  100%{transform:translateY(0);}
+  text-align:center;
 }
 
 /* NAV */
@@ -48,16 +42,19 @@ h1 {
   background:#111;
 }
 
+/* BUTTON */
 .btn {
   padding:12px;
   border:none;
-  border-radius:15px;
+  border-radius:12px;
   margin:5px;
+  width:100%;
 }
 
 .btn-primary {
   background:#22c55e;
   color:black;
+  font-weight:bold;
 }
 
 /* CARD */
@@ -66,6 +63,12 @@ h1 {
   margin:10px;
   padding:15px;
   border-radius:15px;
+  animation: fade 0.5s;
+}
+
+@keyframes fade {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1;}
 }
 
 /* GRID */
@@ -93,6 +96,26 @@ input, textarea {
   background:#111;
   padding:10px;
 }
+
+.bottom button {
+  background:none;
+  border:none;
+  color:white;
+  font-size:18px;
+}
+
+/* NOTIF */
+#notif {
+  position:fixed;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#22c55e;
+  color:black;
+  padding:10px 20px;
+  border-radius:20px;
+  display:none;
+}
 </style>
 </head>
 
@@ -101,6 +124,8 @@ input, textarea {
 <div id="loader">
   <h1>ELKA 🍏</h1>
 </div>
+
+<div id="notif"></div>
 
 <div id="app" class="hidden">
 
@@ -112,12 +137,15 @@ input, textarea {
 
 <!-- HOME -->
 <div id="home">
-  <h1>ELKA 🍏</h1>
-  <p>JOBNET Afrique</p>
+  <h1>JOBNET Afrique</h1>
 
-  <button class="btn btn-primary" onclick="showPage('services')">Explorer</button>
+  <button class="btn btn-primary" onclick="showPage('servicesPage')">Explorer</button>
   <button class="btn" onclick="showPage('publish')">Publier</button>
+</div>
 
+<!-- SERVICES -->
+<div id="servicesPage" class="hidden">
+  <h2 style="text-align:center;">Services</h2>
   <div class="grid" id="services"></div>
 </div>
 
@@ -127,7 +155,7 @@ input, textarea {
 
   <input id="title" placeholder="Titre">
   <textarea id="desc" placeholder="Description"></textarea>
-  <input id="price" placeholder="Prix">
+  <input id="price" placeholder="Prix FCFA">
 
   <button class="btn btn-primary" onclick="addService()">Publier</button>
 </div>
@@ -141,13 +169,14 @@ input, textarea {
 <!-- PAYMENT -->
 <div id="payment" class="hidden">
   <h2>Paiement</h2>
-  <button class="btn btn-primary" onclick="pay()">Payer</button>
+  <p id="payInfo"></p>
+  <button class="btn btn-primary" onclick="pay()">Confirmer paiement</button>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom">
   <button onclick="showPage('home')">🏠</button>
-  <button onclick="showPage('services')">📦</button>
+  <button onclick="showPage('servicesPage')">📦</button>
   <button onclick="showPage('publish')">➕</button>
   <button onclick="showPage('profile')">👤</button>
 </div>
@@ -163,14 +192,22 @@ setTimeout(()=>{
 
 // NAVIGATION
 function showPage(page){
-  ["home","publish","profile","payment"].forEach(p=>{
+  ["home","servicesPage","publish","profile","payment"].forEach(p=>{
     document.getElementById(p).classList.add("hidden");
   });
   document.getElementById(page).classList.remove("hidden");
 }
 
-// DATA
-let services=[];
+// NOTIFICATION
+function showNotif(msg){
+  let n = document.getElementById("notif");
+  n.innerText = msg;
+  n.style.display="block";
+  setTimeout(()=> n.style.display="none",2000);
+}
+
+// STORAGE
+let services = JSON.parse(localStorage.getItem("services")) || [];
 
 // ADD SERVICE
 function addService(){
@@ -178,10 +215,16 @@ function addService(){
   let desc=document.getElementById("desc").value;
   let price=document.getElementById("price").value;
 
-  services.push({title,desc,price});
-  renderServices();
+  if(!title || !price){
+    showNotif("Remplis les champs !");
+    return;
+  }
 
-  alert("Service publié 🚀");
+  services.push({title,desc,price});
+  localStorage.setItem("services", JSON.stringify(services));
+
+  renderServices();
+  showNotif("Service publié 🚀");
 }
 
 // DISPLAY
@@ -189,28 +232,35 @@ function renderServices(){
   let container=document.getElementById("services");
   container.innerHTML="";
 
-  services.forEach(s=>{
+  services.forEach((s,i)=>{
     container.innerHTML+=`
       <div class="card">
         <h3>${s.title}</h3>
         <p>${s.desc}</p>
         <b>${s.price} FCFA</b><br>
-        <button onclick="buy()">Acheter</button>
+        <button class="btn btn-primary" onclick="buy(${i})">Acheter</button>
       </div>
     `;
   });
 }
 
 // BUY
-function buy(){
+function buy(index){
+  let s = services[index];
+  document.getElementById("payInfo").innerText =
+    s.title + " - " + s.price + " FCFA";
+
   showPage("payment");
 }
 
 // PAY
 function pay(){
-  alert("Paiement réussi 💰");
+  showNotif("Paiement réussi 💰");
   showPage("home");
 }
+
+// INIT
+renderServices();
 </script>
 
 </body>
