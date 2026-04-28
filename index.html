@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ELKA 🍏 JOBNET</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin:0;
+  font-family:'Sora',sans-serif;
+  background:#0f172a;
+  color:white;
+}
+
+/* LOADER */
+#loader {
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:black;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+.hidden{display:none;}
+
+h1 {
+  animation: float 3s infinite;
+}
+
+@keyframes float {
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-10px);}
+  100%{transform:translateY(0);}
+}
+
+/* NAV */
+.nav {
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  background:#111;
+}
+
+.btn {
+  padding:12px;
+  border:none;
+  border-radius:15px;
+  margin:5px;
+}
+
+.btn-primary {
+  background:#22c55e;
+  color:black;
+}
+
+/* CARD */
+.card {
+  background:#1e293b;
+  margin:10px;
+  padding:15px;
+  border-radius:15px;
+}
+
+/* GRID */
+.grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+/* INPUT */
+input, textarea {
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin:5px 0;
+}
+
+/* BOTTOM NAV */
+.bottom {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:#111;
+  padding:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader">
+  <h1>ELKA 🍏</h1>
+</div>
+
+<div id="app" class="hidden">
+
+<!-- NAV -->
+<div class="nav">
+  <div>ELKA 🍏</div>
+  <div>🔔</div>
+</div>
+
+<!-- HOME -->
+<div id="home">
+  <h1>ELKA 🍏</h1>
+  <p>JOBNET Afrique</p>
+
+  <button class="btn btn-primary" onclick="showPage('services')">Explorer</button>
+  <button class="btn" onclick="showPage('publish')">Publier</button>
+
+  <div class="grid" id="services"></div>
+</div>
+
+<!-- PUBLISH -->
+<div id="publish" class="hidden">
+  <h2>Publier service</h2>
+
+  <input id="title" placeholder="Titre">
+  <textarea id="desc" placeholder="Description"></textarea>
+  <input id="price" placeholder="Prix">
+
+  <button class="btn btn-primary" onclick="addService()">Publier</button>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="hidden">
+  <h2>Profil</h2>
+  <p>Utilisateur ELKA</p>
+</div>
+
+<!-- PAYMENT -->
+<div id="payment" class="hidden">
+  <h2>Paiement</h2>
+  <button class="btn btn-primary" onclick="pay()">Payer</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom">
+  <button onclick="showPage('home')">🏠</button>
+  <button onclick="showPage('services')">📦</button>
+  <button onclick="showPage('publish')">➕</button>
+  <button onclick="showPage('profile')">👤</button>
+</div>
+
+</div>
+
+<script>
+// LOADER
+setTimeout(()=>{
+  document.getElementById("loader").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+},1500);
+
+// NAVIGATION
+function showPage(page){
+  ["home","publish","profile","payment"].forEach(p=>{
+    document.getElementById(p).classList.add("hidden");
+  });
+  document.getElementById(page).classList.remove("hidden");
+}
+
+// DATA
+let services=[];
+
+// ADD SERVICE
+function addService(){
+  let title=document.getElementById("title").value;
+  let desc=document.getElementById("desc").value;
+  let price=document.getElementById("price").value;
+
+  services.push({title,desc,price});
+  renderServices();
+
+  alert("Service publié 🚀");
+}
+
+// DISPLAY
+function renderServices(){
+  let container=document.getElementById("services");
+  container.innerHTML="";
+
+  services.forEach(s=>{
+    container.innerHTML+=`
+      <div class="card">
+        <h3>${s.title}</h3>
+        <p>${s.desc}</p>
+        <b>${s.price} FCFA</b><br>
+        <button onclick="buy()">Acheter</button>
+      </div>
+    `;
+  });
+}
+
+// BUY
+function buy(){
+  showPage("payment");
+}
+
+// PAY
+function pay(){
+  alert("Paiement réussi 💰");
+  showPage("home");
+}
+</script>
+
+</body>
+</html>
