@@ -1,267 +1,109 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELKA 🍏 JOBNET</title>
 
-<title>ELKA 🍏 JOBNET</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
+    body {
+      background: #0f172a;
+      color: white;
+    }
 
-<style>
-body {
-  margin:0;
-  font-family:'Sora',sans-serif;
-  background:#0f172a;
-  color:white;
-}
+    header {
+      background: #16a34a;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
 
-/* LOADER */
-#loader {
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:black;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
-}
+    .container {
+      padding: 20px;
+    }
 
-.hidden{display:none;}
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
 
-h1 {
-  text-align:center;
-}
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-/* NAV */
-.nav {
-  display:flex;
-  justify-content:space-between;
-  padding:15px;
-  background:#111;
-}
+    .btn:hover {
+      background: #15803d;
+    }
 
-/* BUTTON */
-.btn {
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  margin:5px;
-  width:100%;
-}
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
 
-.btn-primary {
-  background:#22c55e;
-  color:black;
-  font-weight:bold;
-}
-
-/* CARD */
-.card {
-  background:#1e293b;
-  margin:10px;
-  padding:15px;
-  border-radius:15px;
-  animation: fade 0.5s;
-}
-
-@keyframes fade {
-  from {opacity:0; transform:translateY(10px);}
-  to {opacity:1;}
-}
-
-/* GRID */
-.grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-}
-
-/* INPUT */
-input, textarea {
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  margin:5px 0;
-}
-
-/* BOTTOM NAV */
-.bottom {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  background:#111;
-  padding:10px;
-}
-
-.bottom button {
-  background:none;
-  border:none;
-  color:white;
-  font-size:18px;
-}
-
-/* NOTIF */
-#notif {
-  position:fixed;
-  top:10px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#22c55e;
-  color:black;
-  padding:10px 20px;
-  border-radius:20px;
-  display:none;
-}
-</style>
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: gray;
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="loader">
-  <h1>ELKA 🍏</h1>
-</div>
+  <header>
+    ELKA 🍏 JOBNET
+  </header>
 
-<div id="notif"></div>
+  <div class="container">
 
-<div id="app" class="hidden">
+    <div class="card">
+      <h2>Créer un compte</h2>
+      <input type="text" placeholder="Votre numéro">
+      <button class="btn">S'inscrire</button>
+    </div>
 
-<!-- NAV -->
-<div class="nav">
-  <div>ELKA 🍏</div>
-  <div>🔔</div>
-</div>
+    <div class="card">
+      <h2>Publier un travail</h2>
+      <input type="text" placeholder="Quel travail ?">
+      <button class="btn">Publier</button>
+    </div>
 
-<!-- HOME -->
-<div id="home">
-  <h1>JOBNET Afrique</h1>
+    <div class="card">
+      <h2>Travaux disponibles</h2>
+      <p>• Nettoyage maison - 2000 FCFA</p>
+      <p>• Livraison colis - 1500 FCFA</p>
+      <p>• Réparation téléphone - 5000 FCFA</p>
+    </div>
 
-  <button class="btn btn-primary" onclick="showPage('servicesPage')">Explorer</button>
-  <button class="btn" onclick="showPage('publish')">Publier</button>
-</div>
+  </div>
 
-<!-- SERVICES -->
-<div id="servicesPage" class="hidden">
-  <h2 style="text-align:center;">Services</h2>
-  <div class="grid" id="services"></div>
-</div>
-
-<!-- PUBLISH -->
-<div id="publish" class="hidden">
-  <h2>Publier service</h2>
-
-  <input id="title" placeholder="Titre">
-  <textarea id="desc" placeholder="Description"></textarea>
-  <input id="price" placeholder="Prix FCFA">
-
-  <button class="btn btn-primary" onclick="addService()">Publier</button>
-</div>
-
-<!-- PROFILE -->
-<div id="profile" class="hidden">
-  <h2>Profil</h2>
-  <p>Utilisateur ELKA</p>
-</div>
-
-<!-- PAYMENT -->
-<div id="payment" class="hidden">
-  <h2>Paiement</h2>
-  <p id="payInfo"></p>
-  <button class="btn btn-primary" onclick="pay()">Confirmer paiement</button>
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottom">
-  <button onclick="showPage('home')">🏠</button>
-  <button onclick="showPage('servicesPage')">📦</button>
-  <button onclick="showPage('publish')">➕</button>
-  <button onclick="showPage('profile')">👤</button>
-</div>
-
-</div>
-
-<script>
-// LOADER
-setTimeout(()=>{
-  document.getElementById("loader").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-},1500);
-
-// NAVIGATION
-function showPage(page){
-  ["home","servicesPage","publish","profile","payment"].forEach(p=>{
-    document.getElementById(p).classList.add("hidden");
-  });
-  document.getElementById(page).classList.remove("hidden");
-}
-
-// NOTIFICATION
-function showNotif(msg){
-  let n = document.getElementById("notif");
-  n.innerText = msg;
-  n.style.display="block";
-  setTimeout(()=> n.style.display="none",2000);
-}
-
-// STORAGE
-let services = JSON.parse(localStorage.getItem("services")) || [];
-
-// ADD SERVICE
-function addService(){
-  let title=document.getElementById("title").value;
-  let desc=document.getElementById("desc").value;
-  let price=document.getElementById("price").value;
-
-  if(!title || !price){
-    showNotif("Remplis les champs !");
-    return;
-  }
-
-  services.push({title,desc,price});
-  localStorage.setItem("services", JSON.stringify(services));
-
-  renderServices();
-  showNotif("Service publié 🚀");
-}
-
-// DISPLAY
-function renderServices(){
-  let container=document.getElementById("services");
-  container.innerHTML="";
-
-  services.forEach((s,i)=>{
-    container.innerHTML+=`
-      <div class="card">
-        <h3>${s.title}</h3>
-        <p>${s.desc}</p>
-        <b>${s.price} FCFA</b><br>
-        <button class="btn btn-primary" onclick="buy(${i})">Acheter</button>
-      </div>
-    `;
-  });
-}
-
-// BUY
-function buy(index){
-  let s = services[index];
-  document.getElementById("payInfo").innerText =
-    s.title + " - " + s.price + " FCFA";
-
-  showPage("payment");
-}
-
-// PAY
-function pay(){
-  showNotif("Paiement réussi 💰");
-  showPage("home");
-}
-
-// INIT
-renderServices();
-</script>
+  <footer>
+    © 2026 ELKA JOBNET - Afrique
+  </footer>
 
 </body>
 </html>
