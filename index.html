@@ -1,109 +1,170 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ELKA 🍏 JOBNET</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELKA 👑 JOBNET</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#0f172a;
+  color:white;
+}
 
-    body {
-      background: #0f172a;
-      color: white;
-    }
+header {
+  background:#16a34a;
+  padding:15px;
+  text-align:center;
+  font-weight:bold;
+  font-size:20px;
+}
 
-    header {
-      background: #16a34a;
-      padding: 15px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-    }
+.container {
+  padding:15px;
+}
 
-    .container {
-      padding: 20px;
-    }
+.card {
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
 
-    .card {
-      background: #1e293b;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-    }
+input {
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  margin-bottom:10px;
+}
 
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      background: #16a34a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      margin-top: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+button {
+  width:100%;
+  padding:12px;
+  background:#22c55e;
+  border:none;
+  border-radius:8px;
+  color:white;
+  font-weight:bold;
+}
 
-    .btn:hover {
-      background: #15803d;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-      color: gray;
-    }
-  </style>
+.job {
+  background:#334155;
+  padding:10px;
+  border-radius:8px;
+  margin-top:8px;
+}
+.small {
+  font-size:12px;
+  color:#94a3b8;
+}
+</style>
 </head>
 
 <body>
 
-  <header>
-    ELKA 🍏 JOBNET
-  </header>
+<header>ELKA 👑 JOBNET</header>
 
-  <div class="container">
+<div class="container">
 
-    <div class="card">
-      <h2>Créer un compte</h2>
-      <input type="text" placeholder="Votre numéro">
-      <button class="btn">S'inscrire</button>
-    </div>
+<div class="card">
+<h3>👋 Bienvenue</h3>
+<p class="small">
+Publie un travail ou trouve un job facilement.  
+Entre juste ton numéro et commence.
+</p>
+</div>
 
-    <div class="card">
-      <h2>Publier un travail</h2>
-      <input type="text" placeholder="Quel travail ?">
-      <button class="btn">Publier</button>
-    </div>
+<div class="card">
+<h3>📱 Créer un compte</h3>
+<input id="phoneInput" placeholder="Votre numéro">
+<button onclick="saveUser()">S'inscrire</button>
+</div>
 
-    <div class="card">
-      <h2>Travaux disponibles</h2>
-      <p>• Nettoyage maison - 2000 FCFA</p>
-      <p>• Livraison colis - 1500 FCFA</p>
-      <p>• Réparation téléphone - 5000 FCFA</p>
-    </div>
+<div class="card">
+<h3>💼 Publier un travail</h3>
+<input id="jobInput" placeholder="Ex: Livraison, ménage...">
+<button onclick="publierJob()">Publier</button>
+</div>
 
-  </div>
+<div class="card">
+<h3>📋 Travaux disponibles</h3>
+<div id="jobsList"></div>
+</div>
 
-  <footer>
-    © 2026 ELKA JOBNET - Afrique
-  </footer>
+</div>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = "https://bxshoemyyhanjshruvzu.supabase.co";
+const supabaseKey = "sb_publishable_NSQgLTogfv0jhM03RO2Row_t75tAQfF";
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// sauvegarder numéro
+function saveUser(){
+  const phone = document.getElementById("phoneInput").value;
+  if(!phone){
+    alert("Entre ton numéro");
+    return;
+  }
+  localStorage.setItem("phone", phone);
+  alert("Compte enregistré !");
+}
+
+// publier job
+async function publierJob(){
+  const title = document.getElementById("jobInput").value;
+  const phone = localStorage.getItem("phone");
+
+  if(!title){
+    alert("Entre un travail");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("jobs")
+    .insert([{ title:title, phone:phone }]);
+
+  if(error){
+    alert("Erreur envoi");
+    console.log(error);
+  } else {
+    document.getElementById("jobInput").value="";
+    chargerJobs();
+  }
+}
+
+// charger jobs
+async function chargerJobs(){
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  const container = document.getElementById("jobsList");
+  container.innerHTML="";
+
+  if(data){
+    data.forEach(job=>{
+      const div = document.createElement("div");
+      div.className="job";
+      div.innerHTML = `
+        <strong>${job.title}</strong><br>
+        <span class="small">${job.phone || "Numéro non fourni"}</span>
+      `;
+      container.appendChild(div);
+    });
+  }
+}
+
+// auto load
+chargerJobs();
+</script>
 
 </body>
 </html>
