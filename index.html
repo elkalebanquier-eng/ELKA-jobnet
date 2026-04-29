@@ -1,164 +1,173 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>ELKA 👑 JOBNET</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JOBNET Sécurisé</title>
+    <style>
+        :root { --blue: #0084ff; --green: #25d366; --bg: #000; --card: #121212; --border: #222; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+        .screen { display: none; height: 100vh; width: 100vw; position: fixed; flex-direction: column; }
+        .active { display: flex; }
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      padding: 10px;
-    }
+        /* Auth */
+        .auth-box { margin: auto; width: 85%; text-align: center; }
+        input { width: 100%; padding: 18px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 16px; }
+        .btn-blue { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--blue); color: #fff; font-weight: bold; cursor: pointer; }
 
-    h1 {
-      text-align: center;
-      background: #22c55e;
-      padding: 12px;
-      border-radius: 10px;
-    }
+        /* Feed TikTok */
+        .feed { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .job-card { height: 100vh; scroll-snap-align: start; background-size: cover; background-position: center; position: relative; background-color: #222; }
+        .overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,1) 20%, transparent 70%); padding: 25px 25px 120px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .wa-btn { background: var(--green); color: #fff; padding: 16px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; font-weight: bold; gap: 10px; }
+        
+        .delete-btn { position: absolute; top: 30px; right: 25px; background: rgba(255,0,0,0.7); border: none; color: white; padding: 12px; border-radius: 50%; z-index: 10; }
 
-    .box {
-      background: #1e293b;
-      padding: 15px;
-      margin-top: 15px;
-      border-radius: 12px;
-    }
+        /* Outils & Profil */
+        .scroll-box { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .tool-card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border); }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #22c55e;
-      border: none;
-      border-radius: 8px;
-      margin-top: 10px;
-      color: white;
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    button:active {
-      opacity: 0.8;
-    }
-
-    li {
-      margin-top: 8px;
-      padding: 8px;
-      background: #334155;
-      border-radius: 6px;
-    }
-  </style>
+        /* Nav */
+        nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.9); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        .nav-item { text-align: center; color: #666; font-size: 10px; cursor: pointer; }
+        .nav-item.active { color: #fff; }
+        .plus { background: var(--blue); color: white; padding: 5px 20px; border-radius: 10px; font-size: 24px; font-weight: bold; }
+    </style>
 </head>
-
 <body>
 
-<h1>ELKA 👑 JOBNET</h1>
+    <div id="scrAuth" class="screen active">
+        <div class="auth-box">
+            <h1 style="font-size:40px; color:var(--blue)">JOBNET</h1>
+            <p style="color:#666; margin-bottom:20px;">Connexion par numéro WhatsApp</p>
+            <input type="text" id="uName" placeholder="Nom Complet">
+            <input type="tel" id="uPhone" placeholder="Numéro WhatsApp (ex: 22370...)">
+            <button class="btn-blue" onclick="App.login()">ENTRER</button>
+        </div>
+    </div>
 
-<div class="box">
-  <h3>👋 Bienvenue</h3>
-  <p>Publie un travail ou trouve un job facilement. Entre ton numéro et commence.</p>
-</div>
+    <div id="scrHome" class="screen">
+        <div class="feed" id="jobFeed"></div>
+    </div>
 
-<div class="box">
-  <h3>📱 Créer un compte</h3>
-  <input id="phone" placeholder="Ex: 70xxxxxx">
-  <button onclick="register()">S'inscrire</button>
-</div>
+    <div id="scrTools" class="screen">
+        <div class="scroll-box">
+            <h2>Calculateur & Aide 📐</h2>
+            <div class="tool-card">
+                <h4>Dosage Ciment</h4>
+                <input type="number" id="lM" placeholder="Longueur mur (m)">
+                <input type="number" id="hM" placeholder="Hauteur mur (m)">
+                <button class="btn-blue" onclick="Tools.calc()">Calculer sacs</button>
+                <div id="resC" style="display:none; margin-top:10px; color:var(--blue); font-weight:bold;"></div>
+            </div>
+        </div>
+    </div>
 
-<div class="box">
-  <h3>💼 Publier un travail</h3>
-  <input id="title" placeholder="Ex: Livraison colis - 2000 FCFA">
-  <button onclick="publishJob()">Publier</button>
-</div>
+    <div id="scrProfile" class="screen">
+        <div class="scroll-box" style="text-align:center;">
+            <div id="pAvatar" style="width:100px; height:100px; background:var(--blue); border-radius:50%; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:40px;">👤</div>
+            <h2 id="pNameDisp">---</h2>
+            <p id="pPhoneDisp" style="color:var(--green);"></p>
+            <div style="margin:20px 0; padding:20px; background:var(--card); border-radius:15px; border:1px solid var(--border);">
+                <b>Tes publications :</b> <span id="myCount">0</span>
+            </div>
+            <button class="btn-blue" style="background:none; border:1px solid red; color:red;" onclick="App.logout()">Quitter</button>
+        </div>
+    </div>
 
-<div class="box">
-  <h3>📋 Travaux disponibles</h3>
-  <ul id="jobs"></ul>
-</div>
+    <nav id="navbar" style="display:none;">
+        <div class="nav-item active" id="nH" onclick="App.show('scrHome','nH')">🏠<br>Jobs</div>
+        <div class="nav-item" id="nT" onclick="App.show('scrTools','nT')">📐<br>Outils</div>
+        <div class="plus" onclick="Jobs.add()">+</div>
+        <div class="nav-item" id="nP" onclick="App.show('scrProfile','nP')">👤<br>Profil</div>
+    </nav>
 
-<script>
-  // 🔥 MET TES INFOS ICI
-  const SUPABASE_URL = "https://bxshoemyyhanjshruvzu.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_NSQgLTogfv0jhM03RO2Row_t75tAQfF";
+    <script>
+        const App = {
+            user: JSON.parse(localStorage.getItem('user_v4')),
+            login() {
+                const n = document.getElementById('uName').value;
+                const p = document.getElementById('uPhone').value.replace(/\D/g,'');
+                if(n && p) {
+                    this.user = { n, p };
+                    localStorage.setItem('user_v4', JSON.stringify(this.user));
+                    this.init();
+                }
+            },
+            init() {
+                if(!this.user) return;
+                document.getElementById('scrAuth').classList.remove('active');
+                document.getElementById('navbar').style.display = 'flex';
+                document.getElementById('pNameDisp').innerText = this.user.n;
+                document.getElementById('pPhoneDisp').innerText = "+" + this.user.p;
+                Jobs.render();
+                this.show('scrHome', 'nH');
+            },
+            show(id, btn) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.getElementById(btn).classList.add('active');
+            },
+            logout() { localStorage.clear(); location.reload(); }
+        };
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const Jobs = {
+            items: JSON.parse(localStorage.getItem('jobs_v4')) || [
+                { id: 1, owner: "Admin", txt: "Bienvenue sur JOBNET Mali !", ph: "22370000000", img: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?w=600" }
+            ],
+            render() {
+                const feed = document.getElementById('jobFeed');
+                feed.innerHTML = "";
+                let count = 0;
+                this.items.forEach((j, i) => {
+                    const isOwner = (App.user && j.ph === App.user.p);
+                    if(isOwner) count++;
 
-  let currentUser = "";
+                    feed.innerHTML += `
+                        <div class="job-card" style="background-image:url('${j.img}')">
+                            ${isOwner ? `<button class="delete-btn" onclick="Jobs.del(${i})">🗑️</button>` : ''}
+                            <div class="overlay">
+                                <h2>@${j.owner}</h2>
+                                <p style="margin-bottom:15px; font-size:18px;">${j.txt}</p>
+                                <a href="https://wa.me/${j.ph}" class="wa-btn">💬 WHATSAPP DIRECT</a>
+                            </div>
+                        </div>`;
+                });
+                document.getElementById('myCount').innerText = count;
+            },
+            add() {
+                const t = prompt("Titre de votre annonce ?");
+                if(t) {
+                    this.items.unshift({
+                        owner: App.user.n,
+                        txt: t,
+                        ph: App.user.p,
+                        img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600"
+                    });
+                    this.save();
+                }
+            },
+            del(i) { if(confirm("Supprimer votre annonce ?")) { this.items.splice(i,1); this.save(); } },
+            save() { localStorage.setItem('jobs_v4', JSON.stringify(this.items)); this.render(); }
+        };
 
-  // 🔐 inscription simple
-  function register() {
-    const phone = document.getElementById("phone").value;
+        const Tools = {
+            calc() {
+                const l = document.getElementById('lM').value;
+                const h = document.getElementById('hM').value;
+                if(l && h) {
+                    const s = Math.ceil((l * h) * 0.55);
+                    const r = document.getElementById('resC');
+                    r.style.display = "block";
+                    r.innerText = "Besoin estimé : " + s + " sacs de ciment.";
+                }
+            }
+        };
 
-    if (!phone) {
-      alert("Entre ton numéro");
-      return;
-    }
-
-    currentUser = phone;
-    alert("Compte créé !");
-  }
-
-  // 📤 publier job
-  async function publishJob() {
-    const title = document.getElementById("title").value;
-
-    if (!title || !currentUser) {
-      alert("Remplis ton numéro et le travail !");
-      return;
-    }
-
-    const { error } = await supabase
-      .from("emplois")
-      .insert([{ title: title, phone: currentUser }]);
-
-    if (error) {
-      alert("Erreur: " + error.message);
-    } else {
-      alert("Travail publié !");
-      document.getElementById("title").value = "";
-      loadJobs();
-    }
-  }
-
-  // 📥 charger jobs
-  async function loadJobs() {
-    const { data, error } = await supabase
-      .from("emplois")
-      .select("*")
-      .order("id", { ascending: false });
-
-    if (error) {
-      console.log(error);
-      return;
-    }
-
-    const list = document.getElementById("jobs");
-    list.innerHTML = "";
-
-    data.forEach(job => {
-      const li = document.createElement("li");
-      li.textContent = job.title + " - 📞 " + job.phone;
-      list.appendChild(li);
-    });
-  }
-
-  // 🔄 charger au démarrage
-  loadJobs();
-</script>
-
+        window.onload = () => { if(App.user) App.init(); };
+    </script>
 </body>
 </html>
