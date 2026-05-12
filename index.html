@@ -2,214 +2,504 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ELKA 👑</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES Infos - Version Finale</title>
     <style>
-        :root { --blue: #0084ff; --green: #25d366; --bg: #000; --card: #121212; --border: #222; --bot: #673ab7; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
-
-        /* ANIMATION TITRE ELKA */
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .animated-title { color: var(--blue); font-size: 50px; font-weight: 900; animation: float 3s ease-in-out infinite; text-shadow: 0 0 20px rgba(0, 132, 255, 0.5); margin-bottom: 10px; text-align: center; }
-
-        .screen { display: none; height: 100vh; width: 100vw; position: fixed; flex-direction: column; }
-        .active { display: flex; }
-
-        /* FORMULAIRES */
-        .box { margin: auto; width: 88%; text-align: center; overflow-y: auto; max-height: 90vh; padding: 20px 0; }
-        input, select, textarea { width: 100%; padding: 15px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 16px; outline: none; }
-        .btn-main { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--blue); color: #fff; font-weight: bold; cursor: pointer; }
-
-        /* FEED TIKTOK UNIVERSEL */
-        .feed { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .job-card { height: 100vh; scroll-snap-align: start; background-size: cover; background-position: center; position: relative; background-color: #111; }
-        .overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,1) 25%, transparent 80%); padding: 25px 25px 120px; display: flex; flex-direction: column; justify-content: flex-end; }
-        .wa-btn { background: var(--green); color: #fff; padding: 16px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; font-weight: bold; gap: 10px; }
-
-        /* OUTILS & PROFIL */
-        .scroll-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
-        .tool-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .chat-box { height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px; background: #080808; border-radius: 10px; margin-bottom: 10px; }
-        .bubble { padding: 10px; border-radius: 12px; font-size: 14px; max-width: 85%; }
-        .sent { background: var(--blue); align-self: flex-end; }
-        .bot { background: var(--bot); align-self: flex-start; }
-
-        /* NAVIGATION */
-        nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.95); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
-        .nav-item { text-align: center; color: #666; font-size: 10px; cursor: pointer; }
-        .nav-item.active { color: #fff; }
-        .plus { background: var(--blue); width: 60px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #075E54; text-align: center; margin-bottom: 10px; }
+        h3 { color: #333; margin-bottom: 20px; text-align: center; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
+        button { width: 100%; padding: 15px; background: #075E54; color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; margin-top: 10px; }
+        .logout-btn { background: #dc3545; }
+        .message { padding: 12px; border-radius: 10px; margin: 15px 0; text-align: center; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .profile-header { text-align: center; padding: 20px; background: #075E54; color: white; border-radius: 15px; margin-bottom: 20px; }
+        .profile-pic { width: 100px; height: 100px; border-radius: 50%; background: white; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-pic .default-icon { font-size: 50px; color: #075E54; }
+        .menu-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .nav-item { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #666; }
+        .nav-item.active { color: #075E54; font-weight: bold; }
+        .page { display: none; margin-bottom: 70px; }
+        .page.active-page { display: block; }
+        .annonce { border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-bottom: 15px; background: white; }
+        .annonce-photo { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+        .annonce-video { width: 100%; max-height: 250px; border-radius: 10px; margin-bottom: 10px; background: #000; }
+        .annonce-titre { font-size: 18px; font-weight: bold; margin: 10px 0 5px; }
+        .annonce-prix { color: #075E54; font-weight: bold; font-size: 16px; margin: 5px 0; }
+        .annonce-vendeur { color: #666; font-size: 12px; margin-top: 5px; }
+        .badge-video { background: #dc3545; color: white; padding: 2px 8px; border-radius: 5px; font-size: 10px; display: inline-block; margin-top: 5px; }
+        .modal-photo { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-photo img { max-width: 100%; max-height: 90%; object-fit: contain; }
+        .modal-photo .close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
+        .preview-img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
+        .preview-video { width: 100%; max-height: 200px; margin-top: 10px; border-radius: 10px; }
+        .info-item { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; }
+        .loading { display: none; text-align: center; padding: 20px; color: #666; font-style: italic; background: #f0f2f5; border-radius: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="scrAuth" class="screen active">
-        <div class="box">
-            <h1 class="animated-title">ELKA 👑</h1>
-            <p style="color:#666; margin-bottom:20px;">Le Réseau Universel du BTP</p>
-            <input type="text" id="uName" placeholder="Nom Complet">
-            <select id="uType">
-                <option value="Ouvrier">Je suis un Travailleur</option>
-                <option value="Recruteur">Je suis un Recruteur</option>
-            </select>
-            <input type="text" id="uJob" placeholder="Métier (Maçon, Plombier...)">
-            <input type="text" id="uCity" placeholder="Ville">
-            <input type="tel" id="uPhone" placeholder="WhatsApp (ex: 223...)">
-            <textarea id="uBio" placeholder="Bio / Expérience..."></textarea>
-            <button class="btn-main" onclick="App.login()">ACTIVER MON PROFIL</button>
+<div class="container">
+    
+    <!-- PAGE CONNEXION -->
+    <div id="pageConnexion" class="page active-page">
+        <div class="card">
+            <h1>🔐 AES Infos</h1>
+            <h3>Accédez à l'information</h3>
+            <input type="tel" id="numero" placeholder="📱 Votre numéro (ex: 70123456)">
+            <input type="password" id="code" placeholder="🔑 Code à 8 chiffres" maxlength="8">
+            <button id="accederBtn">▶️ Accéder aux infos</button>
+            <div id="connexionMessage"></div>
         </div>
     </div>
-
-    <div id="scrHome" class="screen">
-        <div class="feed" id="jobFeed"></div>
+    
+    <!-- PAGE ACCUEIL -->
+    <div id="pageAccueil" class="page">
+        <div class="card">
+            <h1>📰 AES Infos</h1>
+            <p style="text-align: center;">Bienvenue <span id="userNumeroDisplay"></span></p>
+        </div>
+        <div class="card">
+            <h3>📍 Dernières infos</h3>
+            <div class="info-item"><b>📢 Bienvenue sur AES Infos</b><p>Votre source d'information gratuite</p></div>
+            <div class="info-item"><b>🛒 Marketplace</b><p>Publiez vos annonces avec photos et vidéos</p></div>
+        </div>
     </div>
-
-    <div id="scrTools" class="screen">
-        <div class="scroll-area">
-            <h2 style="margin-bottom:15px;">Outils Experts 🛠️</h2>
-            <div class="tool-card">
-                <h4>Calculateur Ciment</h4>
-                <input type="number" id="lM" placeholder="Longueur mur (m)">
-                <input type="number" id="hM" placeholder="Hauteur mur (m)">
-                <button class="btn-main" onclick="Tools.calc()">Calculer</button>
-                <div id="resC" style="display:none; margin-top:10px; color:var(--blue); font-weight:bold;"></div>
+    
+    <!-- PAGE MARKETPLACE -->
+    <div id="pageMarket" class="page">
+        <div class="card">
+            <h1>🛍️ Marketplace</h1>
+            <button id="btnNouvelleAnnonce" style="background: #25D366;">➕ Publier une annonce</button>
+        </div>
+        <div class="card">
+            <h3>📦 Annonces récentes</h3>
+            <div id="annoncesContainer"></div>
+        </div>
+    </div>
+    
+    <!-- PAGE PROFIL -->
+    <div id="pageProfil" class="page">
+        <div class="profile-header">
+            <div class="profile-pic" id="profilePicContainer">
+                <div class="default-icon" id="defaultProfileIcon">👤</div>
+                <img id="profileImg" style="display:none;">
             </div>
-            <div class="tool-card">
-                <h4>Assistant ELKA IA</h4>
-                <div id="aiHistory" class="chat-box"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="aiIn" placeholder="Question...">
-                    <button onclick="Tools.askAI()" style="background:var(--bot); border:none; padding:10px; border-radius:10px; color:white;">OK</button>
+            <button id="btnChangerPhoto" style="background: transparent; border: 1px solid white; width: auto; padding: 5px 15px;">📷 Changer photo</button>
+            <input type="file" id="inputPhotoProfil" accept="image/*" style="display: none;">
+            <h2 id="profilNom">Utilisateur</h2>
+            <p id="profilNumero"></p>
+        </div>
+        <div class="card">
+            <div class="menu-item" id="modeEconomieBtn">
+                <span>⚡ Mode économie</span>
+                <span id="economieStatus">🔘 Désactivé</span>
+            </div>
+            <button id="deconnexionBtn" class="logout-btn">🚪 Se déconnecter</button>
+        </div>
+    </div>
+    
+    <!-- MODAL ANNONCE -->
+    <div id="modalAnnonce" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:1000; padding:20px; overflow-y:auto;">
+        <div class="card" style="margin-top:50px;">
+            <h3>📝 Nouvelle annonce</h3>
+            <input type="text" id="titreAnnonce" placeholder="Titre">
+            <textarea id="descAnnonce" placeholder="Description" rows="3"></textarea>
+            <input type="text" id="prixAnnonce" placeholder="Prix (FCFA)">
+            
+            <label style="margin-top: 10px;">📷 Photo (optionnelle)</label>
+            <input type="file" id="photoAnnonce" accept="image/*">
+            <div id="previewAnnonce"></div>
+            
+            <label style="margin-top: 10px;">🎬 Vidéo (optionnelle)</label>
+            <input type="file" id="videoAnnonce" accept="video/*">
+            <div id="previewVideo"></div>
+            
+            <button id="publierAnnonceBtn">📤 Publier</button>
+            <button id="fermerModalBtn">Fermer</button>
+            <div id="uploadLoading" class="loading">⏳ Upload en cours...</div>
+        </div>
+    </div>
+    
+    <!-- MODALE POUR AGRANDIR PHOTO -->
+    <div id="modalPhoto" class="modal-photo">
+        <span class="close">&times;</span>
+        <img id="modalPhotoImg" src="">
+    </div>
+    
+    <div class="nav-bar">
+        <div class="nav-item" data-page="accueil">🏠 Accueil</div>
+        <div class="nav-item" data-page="market">🛍️ Market</div>
+        <div class="nav-item" data-page="profil">👤 Profil</div>
+    </div>
+</div>
+
+<script>
+    // ==================== CONFIGURATION ====================
+    // IMAGEKIT POUR LES PHOTOS
+    const IMAGEKIT = {
+        privateKey: "private_wdbU/56ZJc6qodZOvCg9ztG0YF8="
+    };
+    
+    // CLOUDINARY POUR LES VIDÉOS
+    const CLOUDINARY = {
+        cloudName: "dvmpv8pdi",
+        uploadPreset: "aes_uploads"  // Le preset que tu as créé
+    };
+    
+    // ==================== STOCKAGE LOCAL ====================
+    function getUtilisateurs() {
+        const users = localStorage.getItem('aes_utilisateurs');
+        return users ? JSON.parse(users) : [];
+    }
+    
+    function sauvegarderUtilisateur(numero, code) {
+        const users = getUtilisateurs();
+        if (!users.find(u => u.numero === numero)) {
+            users.push({ numero, code, photoUrl: null });
+            localStorage.setItem('aes_utilisateurs', JSON.stringify(users));
+        }
+    }
+    
+    function verifierConnexion(numero, code) {
+        return getUtilisateurs().find(u => u.numero === numero && u.code === code);
+    }
+    
+    function mettreAJourUtilisateur(numero, updates) {
+        const users = getUtilisateurs();
+        const index = users.findIndex(u => u.numero === numero);
+        if (index !== -1) {
+            users[index] = { ...users[index], ...updates };
+            localStorage.setItem('aes_utilisateurs', JSON.stringify(users));
+        }
+    }
+    
+    function getUtilisateur(numero) {
+        return getUtilisateurs().find(u => u.numero === numero);
+    }
+    
+    function getAnnonces() {
+        const annonces = localStorage.getItem('aes_annonces');
+        return annonces ? JSON.parse(annonces) : [];
+    }
+    
+    function sauvegarderAnnonce(annonce) {
+        const annonces = getAnnonces();
+        annonces.unshift(annonce);
+        localStorage.setItem('aes_annonces', JSON.stringify(annonces));
+    }
+    
+    // ==================== UPLOAD PHOTOS (ImageKit) ====================
+    async function uploadImage(fichier, dossier, numeroUser) {
+        if (!fichier) return null;
+        const formData = new FormData();
+        formData.append('file', fichier);
+        formData.append('fileName', `${dossier}/${numeroUser}_${Date.now()}.jpg`);
+        
+        try {
+            const response = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+                method: 'POST',
+                headers: { 'Authorization': 'Basic ' + btoa(IMAGEKIT.privateKey + ':') },
+                body: formData
+            });
+            const result = await response.json();
+            return response.ok ? result.url : null;
+        } catch (error) {
+            console.error('Upload photo error:', error);
+            return null;
+        }
+    }
+    
+    // ==================== UPLOAD VIDEOS (Cloudinary) ====================
+    async function uploadVideo(file) {
+        if (!file) return null;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY.uploadPreset);
+        
+        try {
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/video/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.secure_url) {
+                return result.secure_url;
+            } else {
+                console.error('Erreur Cloudinary:', result);
+                return null;
+            }
+        } catch (error) {
+            console.error('Erreur réseau:', error);
+            return null;
+        }
+    }
+    
+    // ==================== VARIABLES ====================
+    let utilisateurActuel = null;
+    let modeEconomie = false;
+    
+    // Éléments DOM
+    const pageConnexion = document.getElementById('pageConnexion');
+    const pageAccueil = document.getElementById('pageAccueil');
+    const pageMarket = document.getElementById('pageMarket');
+    const pageProfil = document.getElementById('pageProfil');
+    const pages = [pageConnexion, pageAccueil, pageMarket, pageProfil];
+    
+    // ==================== FONCTIONS ====================
+    function afficherPage(pageName) {
+        pages.forEach(p => p.classList.remove('active-page'));
+        if (pageName === 'accueil') pageAccueil.classList.add('active-page');
+        if (pageName === 'market') { pageMarket.classList.add('active-page'); chargerAnnonces(); }
+        if (pageName === 'profil') { pageProfil.classList.add('active-page'); chargerProfil(); }
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.toggle('active', item.getAttribute('data-page') === pageName);
+        });
+    }
+    
+    function agrandirPhoto(url) {
+        const modal = document.getElementById('modalPhoto');
+        const img = document.getElementById('modalPhotoImg');
+        img.src = url;
+        modal.style.display = 'flex';
+    }
+    
+    function chargerProfil() {
+        if (utilisateurActuel) {
+            const user = getUtilisateur(utilisateurActuel);
+            document.getElementById('profilNom').textContent = user?.numero || 'Utilisateur';
+            document.getElementById('profilNumero').textContent = user?.numero;
+            
+            const profileImg = document.getElementById('profileImg');
+            const defaultIcon = document.getElementById('defaultProfileIcon');
+            
+            if (user?.photoUrl) {
+                profileImg.src = user.photoUrl;
+                profileImg.style.display = 'block';
+                defaultIcon.style.display = 'none';
+            } else {
+                profileImg.style.display = 'none';
+                defaultIcon.style.display = 'flex';
+            }
+            
+            const savedMode = localStorage.getItem(`modeEconomie_${utilisateurActuel}`);
+            modeEconomie = savedMode === 'true';
+            document.getElementById('economieStatus').innerHTML = modeEconomie ? '🔘 Activé' : '🔘 Désactivé';
+        }
+    }
+    
+    function chargerAnnonces() {
+        const annonces = getAnnonces();
+        const container = document.getElementById('annoncesContainer');
+        if (!container) return;
+        
+        if (annonces.length === 0) {
+            container.innerHTML = '<p style="text-align:center;">Aucune annonce. Soyez le premier à publier !</p>';
+            return;
+        }
+        
+        container.innerHTML = annonces.map((annonce, index) => {
+            let mediaHtml = '';
+            
+            if (annonce.videoUrl && !modeEconomie) {
+                mediaHtml = `<video class="annonce-video" controls src="${annonce.videoUrl}">Votre navigateur ne supporte pas la vidéo</video>`;
+            } else if (annonce.photoUrl) {
+                mediaHtml = `<img src="${annonce.photoUrl}" class="annonce-photo" onclick="agrandirPhoto('${annonce.photoUrl}')" alt="Photo">`;
+            } else if (annonce.videoUrl && modeEconomie) {
+                mediaHtml = `<div style="background:#eee; padding:20px; text-align:center; border-radius:10px;">🎬 Vidéo disponible (Mode économie activé)</div>`;
+            } else {
+                mediaHtml = `<div style="background:#eee; padding:50px; text-align:center; border-radius:10px;">📷 Aucune image</div>`;
+            }
+            
+            return `
+                <div class="annonce">
+                    ${mediaHtml}
+                    <div class="annonce-titre">${annonce.titre}</div>
+                    <div class="annonce-description">${annonce.description.substring(0, 100)}${annonce.description.length > 100 ? '...' : ''}</div>
+                    <div class="annonce-prix">💰 ${annonce.prix} FCFA</div>
+                    <div class="annonce-vendeur">📞 ${annonce.vendeur}</div>
+                    ${annonce.videoUrl ? '<div class="badge-video">🎬 Vidéo</div>' : ''}
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="scrProfile" class="screen">
-        <div class="scroll-area">
-            <div style="text-align:center; padding:20px 0;">
-                <div id="pAvatar" style="width:90px; height:90px; background:var(--blue); border-radius:50%; margin:auto; display:flex; align-items:center; justify-content:center; font-size:35px; border:3px solid #fff;">👤</div>
-                <h2 id="pNameDisp" style="margin-top:10px;">---</h2>
-                <span id="pTypeBadge" style="background:var(--blue); padding:4px 15px; border-radius:20px; font-size:12px;">---</span>
-            </div>
-            <div class="tool-card">
-                <p>📍 <b>Ville :</b> <span id="pCityDisp">---</span></p>
-                <p>🏗️ <b>Métier :</b> <span id="pJobDisp">---</span></p>
-                <p>📞 <b>WhatsApp :</b> <span id="pPhoneDisp" style="color:var(--green)">---</span></p>
-            </div>
-            <div class="tool-card">
-                <p id="pBioDisp" style="font-size:14px; color:#ccc;">---</p>
-            </div>
-            <button class="btn-main" style="background:none; border:1px solid red; color:red;" onclick="App.logout()">DÉCONNEXION</button>
-        </div>
-    </div>
-
-    <nav id="navbar" style="display:none;">
-        <div class="nav-item active" id="nH" onclick="App.show('scrHome','nH')">🏠<br>Jobs</div>
-        <div class="nav-item" id="nT" onclick="App.show('scrTools','nT')">🛠️<br>Outils</div>
-        <div class="plus" onclick="Jobs.add()">+</div>
-        <div class="nav-item" id="nP" onclick="App.show('scrProfile','nP')">👤<br>Profil</div>
-    </nav>
-
-    <script>
-        // --- CONNEXION SUPABASE ---
-        const SB_URL = "https://fzzufcjxrhzqnnosyshs.supabase.co";
-        const SB_KEY = "sb_publishable_fnlkfz0WDO6ng0o4EO-9ug_mSbEPmYN";
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
-        const App = {
-            user: JSON.parse(localStorage.getItem('elka_v6_user')),
-            login() {
-                const n = document.getElementById('uName').value, p = document.getElementById('uPhone').value.replace(/\D/g,''), 
-                      j = document.getElementById('uJob').value, c = document.getElementById('uCity').value, 
-                      t = document.getElementById('uType').value, b = document.getElementById('uBio').value;
-                if(n && p && j) {
-                    this.user = { n, p, j, c, t, b };
-                    localStorage.setItem('elka_v6_user', JSON.stringify(this.user));
-                    this.init();
-                } else { alert("Veuillez remplir Nom, Métier et WhatsApp."); }
-            },
-            init() {
-                if(!this.user) return;
-                document.getElementById('scrAuth').classList.remove('active');
-                document.getElementById('navbar').style.display = 'flex';
-                document.getElementById('pNameDisp').innerText = this.user.n;
-                document.getElementById('pTypeBadge').innerText = this.user.t;
-                document.getElementById('pCityDisp').innerText = this.user.c || "Mali";
-                document.getElementById('pJobDisp').innerText = this.user.j;
-                document.getElementById('pPhoneDisp').innerText = "+" + this.user.p;
-                document.getElementById('pBioDisp').innerText = this.user.b || "Pas de bio.";
-                Jobs.load();
-                this.show('scrHome', 'nH');
-            },
-            show(id, btn) {
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById(id).classList.add('active');
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                if(btn) document.getElementById(btn).classList.add('active');
-            },
-            logout() { localStorage.clear(); location.reload(); }
-        };
-
-        const Jobs = {
-            async load() {
-                const { data, error } = await supabaseClient.from('jobs').select('*').order('created_at', { ascending: false });
-                if(!error) this.render(data);
-            },
-            render(list) {
-                const feed = document.getElementById('jobFeed');
-                feed.innerHTML = list.length ? "" : "<p style='text-align:center; padding-top:100px;'>Aucune annonce en ligne...</p>";
-                list.forEach(j => {
-                    feed.innerHTML += `
-                        <div class="job-card" style="background-image:url('${j.img}')">
-                            <div class="overlay">
-                                <h2 style="font-size:28px;">@${j.owner}</h2>
-                                <p style="color:var(--blue); font-weight:bold; margin-bottom:5px;">📍 ${j.city}</p>
-                                <p style="font-size:17px; margin-bottom:20px; opacity:0.9;">${j.txt}</p>
-                                <a href="https://wa.me/${j.ph}?text=Bonjour ${j.owner}, je vous contacte via ELKA 👑." class="wa-btn">
-                                    DISCUTER SUR WHATSAPP
-                                </a>
-                            </div>
-                        </div>`;
-                });
-            },
-            async add() {
-                const txt = prompt("Votre annonce ou besoin urgent :");
-                if(txt) {
-                    const { error } = await supabaseClient.from('jobs').insert([
-                        { owner: App.user.n, txt: txt, city: App.user.c, ph: App.user.p }
-                    ]);
-                    if(!error) this.load(); else alert("Erreur lors de la publication.");
-                }
+            `;
+        }).join('');
+    }
+    
+    // ==================== ÉVÈNEMENTS ====================
+    document.getElementById('accederBtn').onclick = () => {
+        const numero = document.getElementById('numero').value.trim();
+        const code = document.getElementById('code').value.trim();
+        const messageDiv = document.getElementById('connexionMessage');
+        
+        if (!numero || !code) {
+            messageDiv.innerHTML = '<div class="message error">❌ Entrez numéro et code</div>';
+            return;
+        }
+        if (code.length !== 8) {
+            messageDiv.innerHTML = '<div class="message error">❌ Code doit faire 8 chiffres</div>';
+            return;
+        }
+        
+        let user = verifierConnexion(numero, code);
+        if (!user) {
+            sauvegarderUtilisateur(numero, code);
+            messageDiv.innerHTML = '<div class="message success">✅ Compte créé ! Bienvenue</div>';
+        } else {
+            messageDiv.innerHTML = '<div class="message success">✅ Connexion réussie</div>';
+        }
+        
+        utilisateurActuel = numero;
+        document.getElementById('userNumeroDisplay').textContent = numero;
+        setTimeout(() => afficherPage('accueil'), 1000);
+    };
+    
+    document.getElementById('btnChangerPhoto').onclick = () => document.getElementById('inputPhotoProfil').click();
+    
+    document.getElementById('inputPhotoProfil').onchange = async (e) => {
+        const fichier = e.target.files[0];
+        if (!fichier || !utilisateurActuel) return;
+        
+        const urlPhoto = await uploadImage(fichier, 'profils', utilisateurActuel);
+        if (urlPhoto) {
+            mettreAJourUtilisateur(utilisateurActuel, { photoUrl: urlPhoto });
+            chargerProfil();
+            alert('✅ Photo de profil mise à jour !');
+        } else {
+            alert('❌ Erreur upload photo');
+        }
+    };
+    
+    document.getElementById('btnNouvelleAnnonce').onclick = () => {
+        if (!utilisateurActuel) { alert('Connectez-vous d\'abord'); return; }
+        document.getElementById('modalAnnonce').style.display = 'block';
+    };
+    
+    document.getElementById('fermerModalBtn').onclick = () => {
+        document.getElementById('modalAnnonce').style.display = 'none';
+        document.getElementById('titreAnnonce').value = '';
+        document.getElementById('descAnnonce').value = '';
+        document.getElementById('prixAnnonce').value = '';
+        document.getElementById('photoAnnonce').value = '';
+        document.getElementById('videoAnnonce').value = '';
+        document.getElementById('previewAnnonce').innerHTML = '';
+        document.getElementById('previewVideo').innerHTML = '';
+        document.getElementById('uploadLoading').style.display = 'none';
+    };
+    
+    document.getElementById('photoAnnonce').onchange = (e) => {
+        const fichier = e.target.files[0];
+        if (fichier) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('previewAnnonce').innerHTML = `<img src="${event.target.result}" class="preview-img">`;
+            };
+            reader.readAsDataURL(fichier);
+        }
+    };
+    
+    document.getElementById('videoAnnonce').onchange = (e) => {
+        const fichier = e.target.files[0];
+        if (fichier) {
+            const url = URL.createObjectURL(fichier);
+            document.getElementById('previewVideo').innerHTML = `<video class="preview-video" controls><source src="${url}" type="video/mp4"></video>`;
+        }
+    };
+    
+    document.getElementById('publierAnnonceBtn').onclick = async () => {
+        const titre = document.getElementById('titreAnnonce').value;
+        const description = document.getElementById('descAnnonce').value;
+        const prix = document.getElementById('prixAnnonce').value;
+        const fichierPhoto = document.getElementById('photoAnnonce').files[0];
+        const fichierVideo = document.getElementById('videoAnnonce').files[0];
+        
+        if (!titre || !description || !prix) {
+            alert('Veuillez remplir tous les champs');
+            return;
+        }
+        
+        const loadingDiv = document.getElementById('uploadLoading');
+        loadingDiv.style.display = 'block';
+        
+        let photoUrl = null;
+        let videoUrl = null;
+        
+        if (fichierPhoto) {
+            photoUrl = await uploadImage(fichierPhoto, 'annonces', utilisateurActuel);
+            if (!photoUrl) {
+                alert('❌ Erreur upload photo');
+                loadingDiv.style.display = 'none';
+                return;
             }
-        };
-
-        const Tools = {
-            calc() {
-                const l = document.getElementById('lM').value, h = document.getElementById('hM').value;
-                if(l && h) {
-                    const s = Math.ceil((l * h) * 0.55);
-                    const r = document.getElementById('resC');
-                    r.style.display = "block"; r.innerText = "Besoin : " + s + " sacs de ciment.";
-                }
-            },
-            askAI() {
-                const i = document.getElementById('aiIn'), h = document.getElementById('aiHistory');
-                if(!i.value) return;
-                h.innerHTML += `<div class="bubble sent">${i.value}</div>`;
-                let q = i.value.toLowerCase(); i.value = "";
-                setTimeout(() => {
-                    let r = "Assistant ELKA 👑 : Je vous aide pour vos questions techniques.";
-                    if(q.includes("dosage")) r = "Dosage : 1 sac de ciment (50kg) + 2 brouettes de sable + 3 de gravier.";
-                    h.innerHTML += `<div class="bubble bot">${r}</div>`;
-                    h.scrollTop = h.scrollHeight;
-                }, 600);
+        }
+        
+        if (fichierVideo) {
+            videoUrl = await uploadVideo(fichierVideo);
+            if (!videoUrl) {
+                alert('❌ Erreur upload vidéo. Vérifie ta connexion');
+                loadingDiv.style.display = 'none';
+                return;
             }
+        }
+        
+        sauvegarderAnnonce({
+            titre, description, prix, photoUrl, videoUrl,
+            vendeur: utilisateurActuel,
+            date: new Date().toISOString()
+        });
+        
+        loadingDiv.style.display = 'none';
+        document.getElementById('fermerModalBtn').click();
+        chargerAnnonces();
+        alert('✅ Annonce publiée !');
+    };
+    
+    document.getElementById('modeEconomieBtn').onclick = () => {
+        if (!utilisateurActuel) return;
+        modeEconomie = !modeEconomie;
+        localStorage.setItem(`modeEconomie_${utilisateurActuel}`, modeEconomie);
+        document.getElementById('economieStatus').innerHTML = modeEconomie ? '🔘 Activé' : '🔘 Désactivé';
+        alert(modeEconomie ? 'Mode économie activé : les vidéos sont masquées' : 'Mode économie désactivé : les vidéos sont visibles');
+        chargerAnnonces();
+    };
+    
+    document.getElementById('deconnexionBtn').onclick = () => {
+        utilisateurActuel = null;
+        document.getElementById('numero').value = '';
+        document.getElementById('code').value = '';
+        pages.forEach(p => p.classList.remove('active-page'));
+        pageConnexion.classList.add('active-page');
+    };
+    
+    document.querySelector('.modal-photo .close').onclick = () => {
+        document.getElementById('modalPhoto').style.display = 'none';
+    };
+    document.getElementById('modalPhoto').onclick = (e) => {
+        if (e.target === document.getElementById('modalPhoto')) {
+            document.getElementById('modalPhoto').style.display = 'none';
+        }
+    };
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.onclick = () => {
+            if (!utilisateurActuel && item.getAttribute('data-page') !== 'accueil') {
+                alert('Veuillez vous connecter');
+                return;
+            }
+            afficherPage(item.getAttribute('data-page'));
         };
+    });
+    
+    window.agrandirPhoto = agrandirPhoto;
+</script>
 
-        window.onload = () => { if(App.user) App.init(); };
-    </script>
 </body>
 </html>
