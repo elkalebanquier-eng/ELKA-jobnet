@@ -3,8 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#070709">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Preconnect pour vitesse maximale -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="preconnect" href="https://market-94bd8-default-rtdb.europe-west1.firebasedatabase.app">
+<link rel="preconnect" href="https://res.cloudinary.com">
+<link rel="preconnect" href="https://ik.imagekit.io">
 <title>AES👑 Vidéos</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <style>
@@ -32,12 +43,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .savatar img{width:100%;height:100%;object-fit:cover;}
 .sname{font-size:10px;color:var(--muted);max-width:56px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* FEED */
-#feed{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;}
-#feed::-webkit-scrollbar{display:none;}
-.vcard{height:100vh;width:100%;scroll-snap-align:start;position:relative;background:#000;overflow:hidden;}
-.vcard video{width:100%;height:100%;object-fit:cover;display:block;}
+/* PERFORMANCE — GPU acceleration */
+.vcard{
+  height:100vh;width:100%;scroll-snap-align:start;
+  position:relative;background:#000;overflow:hidden;
+  will-change:transform;
+  contain:layout style paint;
+}
+.vcard video{width:100%;height:100%;object-fit:cover;display:block;will-change:transform;}
 .vcard::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.2) 35%,transparent 58%),linear-gradient(to bottom,rgba(0,0,0,0.45) 0%,transparent 18%);}
+#feed{
+  flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
 .vprogress{position:absolute;bottom:76px;left:0;right:0;height:1.5px;background:rgba(255,255,255,0.08);z-index:10;}
 .vpfill{height:100%;background:var(--gold);width:0%;}
 .vinfo{position:absolute;bottom:88px;left:14px;right:70px;z-index:10;}
@@ -63,6 +82,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .aav img{width:100%;height:100%;object-fit:cover;}
 .tapind{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:68px;height:68px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;font-size:26px;z-index:20;pointer-events:none;opacity:0;transition:transform 0.12s,opacity 0.25s;}
 .tapind.show{transform:translate(-50%,-50%) scale(1);opacity:1;}
+.heart-anim{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:90px;z-index:25;pointer-events:none;opacity:0;transition:transform 0.2s,opacity 0.4s;}
+.heart-anim.show{transform:translate(-50%,-50%) scale(1);opacity:1;}
 
 /* BOTTOM NAV */
 #bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:200;height:68px;background:rgba(7,7,9,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom);}
@@ -72,54 +93,81 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .nbtn .ni{font-size:21px;line-height:1;}
 .npost{width:50px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;color:#000;box-shadow:0 4px 18px rgba(201,168,76,0.3);transition:transform 0.15s;}
 .npost:active{transform:scale(0.88);}
+.notif-dot{position:absolute;top:2px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg);}
 
 /* MARKETPLACE */
-#marketScreen{overflow-y:auto;padding-bottom:80px;}
+#marketScreen{overflow-y:auto;padding-bottom:80px;padding-top:0;}
 #marketScreen::-webkit-scrollbar{display:none;}
 .market-header{padding:80px 16px 14px;display:flex;align-items:center;justify-content:space-between;}
 .market-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .market-add-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:8px 16px;border-radius:20px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;}
+.market-filters{padding:0 14px 10px;display:flex;gap:8px;align-items:center;}
+.market-filter-inp{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
+.market-filter-inp::placeholder{color:var(--muted);}
+.market-price-btn{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:8px 11px;font-size:12px;cursor:pointer;color:var(--muted);white-space:nowrap;}
 .market-cats{display:flex;gap:8px;padding:0 16px 14px;overflow-x:auto;scrollbar-width:none;}
 .market-cats::-webkit-scrollbar{display:none;}
 .mcat{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;}
 .mcat.active{background:rgba(201,168,76,0.15);border-color:var(--gold);color:var(--gold);}
-.market-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 12px 12px;}
-.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.15s;}
-.prod-card:active{transform:scale(0.97);}
-.prod-img{width:100%;aspect-ratio:1;background:var(--surface2);position:relative;overflow:hidden;}
-.prod-img img{width:100%;height:100%;object-fit:cover;}
-.prod-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;}
-.prod-badge{position:absolute;top:8px;right:8px;background:var(--gold);color:#000;font-size:10px;font-weight:700;border-radius:10px;padding:2px 7px;}
-.prod-body{padding:10px 12px 12px;}
-.prod-name{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.prod-price{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--gold);}
-.prod-price span{font-size:11px;font-weight:400;color:var(--muted);margin-left:4px;}
-.prod-seller{display:flex;align-items:center;gap:6px;margin-top:8px;}
-.prod-seller-av{width:20px;height:20px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;flex-shrink:0;}
+.market-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 12px 12px;}
+.prod-card{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;position:relative;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
+.prod-card:active{transform:scale(0.96);box-shadow:0 1px 6px rgba(0,0,0,0.5);}
+.prod-sold-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.55);z-index:5;display:flex;align-items:center;justify-content:center;border-radius:18px;}
+.prod-sold-badge{background:var(--red);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:5px 14px;border-radius:20px;transform:rotate(-12deg);letter-spacing:1px;}
+.prod-img{width:100%;aspect-ratio:3/4;background:var(--surface2);position:relative;overflow:hidden;}
+.prod-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
+.prod-card:active .prod-img img{transform:scale(1.04);}
+.prod-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;background:linear-gradient(135deg,var(--surface2),#1e1e24);}
+.prod-badge{position:absolute;top:9px;right:9px;background:rgba(7,7,9,0.75);backdrop-filter:blur(8px);color:var(--gold);font-size:11px;font-weight:700;border-radius:10px;padding:3px 8px;border:1px solid rgba(201,168,76,0.2);}
+.prod-fav{position:absolute;top:9px;left:9px;width:30px;height:30px;border-radius:50%;background:rgba(7,7,9,0.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;z-index:3;border:1px solid rgba(255,255,255,0.08);}
+.prod-img-gradient{position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(to top,rgba(7,7,9,0.85),transparent);pointer-events:none;}
+.prod-price-overlay{position:absolute;bottom:9px;left:9px;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.8);}
+.prod-price-overlay small{font-size:10px;font-weight:500;opacity:0.8;margin-left:2px;}
+.prod-body{padding:9px 11px 12px;}
+.prod-name{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35;}
+.prod-location{font-size:10px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:3px;}
+.prod-seller{display:flex;align-items:center;gap:6px;}
+.prod-seller-av{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;overflow:hidden;flex-shrink:0;}
 .prod-seller-av img{width:100%;height:100%;object-fit:cover;}
-.prod-seller-name{font-size:11px;color:var(--muted);}
-.prod-contact-btn{width:100%;background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.3);color:#25d366;border-radius:10px;padding:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.prod-seller-name{font-size:10px;color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* PRODUCT MODAL */
 #productModal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);align-items:flex-end;}
 #productModal.active{display:flex;}
-.pmod-sheet{width:100%;max-height:94vh;overflow-y:auto;background:var(--surface);border-radius:26px 26px 0 0;padding:0 0 38px;border-top:1px solid rgba(201,168,76,0.12);}
+.pmod-sheet{width:100%;max-height:96vh;overflow-y:auto;background:var(--surface);border-radius:26px 26px 0 0;padding:0 0 40px;border-top:1px solid rgba(201,168,76,0.12);}
 .pmod-sheet::-webkit-scrollbar{display:none;}
-.pmod-img{width:100%;aspect-ratio:4/3;background:var(--surface2);position:relative;overflow:hidden;}
+.pmod-img{width:100%;aspect-ratio:1;background:var(--surface2);position:relative;overflow:hidden;}
 .pmod-img img{width:100%;height:100%;object-fit:cover;}
-.pmod-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;}
-.pmod-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:#fff;border:1px solid rgba(255,255,255,0.2);}
+.pmod-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;background:linear-gradient(135deg,var(--surface2),#1e1e24);}
+.pmod-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(7,7,9,0.7);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:#fff;border:1px solid rgba(255,255,255,0.15);}
+.pmod-img-gradient{position:absolute;bottom:0;left:0;right:0;height:40%;background:linear-gradient(to top,rgba(7,7,9,0.9),transparent);pointer-events:none;}
+.pmod-price-hero{position:absolute;bottom:16px;left:18px;font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.6);}
+.pmod-price-hero small{font-size:14px;font-weight:500;opacity:0.8;margin-left:3px;}
 .pmod-body{padding:18px 18px 0;}
 .pmod-name{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:6px;}
-.pmod-price{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:var(--gold);margin-bottom:12px;}
+.pmod-price{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:var(--gold);margin-bottom:4px;}
+.pmod-location{font-size:12px;color:var(--muted);margin-bottom:12px;}
 .pmod-desc{font-size:13px;color:rgba(240,238,233,0.7);line-height:1.6;margin-bottom:16px;}
 .pmod-seller-row{display:flex;align-items:center;gap:10px;padding:14px;background:var(--surface2);border-radius:14px;margin-bottom:16px;}
 .pmod-seller-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#000;overflow:hidden;flex-shrink:0;}
 .pmod-seller-av img{width:100%;height:100%;object-fit:cover;}
 .pmod-seller-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;}
 .pmod-seller-label{font-size:11px;color:var(--muted);}
-.pmod-wa{width:100%;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;border:none;padding:14px;border-radius:14px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;}
+.pmod-actions{display:flex;gap:8px;margin-bottom:10px;}
+.pmod-wa{flex:1;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;border:none;padding:14px;border-radius:14px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.pmod-sold-btn{background:rgba(224,85,85,0.15);color:var(--red);border:1px solid rgba(224,85,85,0.3);padding:12px 16px;border-radius:14px;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
 .pmod-share{width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:12px;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+.pmod-delete{width:100%;background:rgba(224,85,85,0.1);color:var(--red);border:1px solid rgba(224,85,85,0.2);padding:11px;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;}
+
+/* PRICE FILTER MODAL */
+#priceModal{display:none;position:fixed;inset:0;z-index:520;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);align-items:flex-end;}
+#priceModal.active{display:flex;}
+.price-sheet{width:100%;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 18px 38px;border-top:1px solid var(--border);}
+.price-sheet h3{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--gold2);margin-bottom:16px;}
+.price-row{display:flex;gap:10px;margin-bottom:14px;}
+.price-inp{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;}
+.price-inp:focus{border-color:rgba(201,168,76,0.4);}
+.price-apply{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:13px;border-radius:13px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
 
 /* ADD PRODUCT MODAL */
 #addProductModal{display:none;position:fixed;inset:0;z-index:550;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);align-items:flex-end;}
@@ -206,17 +254,86 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .pav-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--bg);}
 .pname{font-family:'Syne',sans-serif;font-weight:800;font-size:21px;color:var(--gold2);margin-bottom:3px;}
 .phandle{font-size:12px;color:var(--muted);margin-bottom:10px;}
-.pbio{font-size:13px;color:rgba(240,238,233,0.65);line-height:1.5;max-width:260px;margin:0 auto 16px;}
+.pbio{font-size:13px;color:rgba(240,238,233,0.65);line-height:1.5;max-width:260px;margin:0 auto 10px;}
+.pedit-btn{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);color:var(--gold);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:14px;}
 .pstats{display:flex;justify-content:center;margin-bottom:16px;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--surface2);}
-.pstat{flex:1;text-align:center;padding:12px 0;border-right:1px solid var(--border);}
+.pstat{flex:1;text-align:center;padding:12px 0;border-right:1px solid var(--border);cursor:pointer;}
 .pstat:last-child{border-right:none;}
 .pstat-n{font-family:'Syne',sans-serif;font-weight:700;font-size:19px;color:var(--gold2);}
 .pstat-l{font-size:10px;color:var(--muted);margin-top:2px;}
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px;}
 .pgitem{aspect-ratio:9/16;background:var(--surface2);position:relative;overflow:hidden;cursor:pointer;}
 .pgitem video{width:100%;height:100%;object-fit:cover;}
-.pgoverlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);display:flex;align-items:flex-end;padding:5px;}
+.pgoverlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);display:flex;align-items:flex-end;padding:5px;justify-content:space-between;}
 .pgviews{font-size:10px;font-weight:600;color:#fff;}
+.pg-del-btn{width:22px;height:22px;border-radius:50%;background:rgba(224,85,85,0.8);display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;border:none;color:#fff;}
+
+/* EDIT PROFILE MODAL */
+#editProfileModal{display:none;position:fixed;inset:0;z-index:560;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:flex-end;}
+#editProfileModal.active{display:flex;}
+.epmod-sheet{width:100%;background:var(--surface);border-radius:28px 28px 0 0;padding:22px 20px 40px;border-top:1px solid rgba(201,168,76,0.15);}
+.epmod-title{font-family:'Syne',sans-serif;font-weight:700;font-size:19px;color:var(--gold2);margin-bottom:18px;text-align:center;}
+
+/* FOLLOWERS/FOLLOWING MODAL */
+#followModal{display:none;position:fixed;inset:0;z-index:560;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);align-items:flex-end;}
+#followModal.active{display:flex;}
+.fmod-sheet{width:100%;height:70vh;background:var(--surface);border-radius:26px 26px 0 0;display:flex;flex-direction:column;border-top:1px solid var(--border);}
+.fmod-head{padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.fmod-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;}
+.fmod-list{flex:1;overflow-y:auto;padding:10px 14px;}
+.fmod-list::-webkit-scrollbar{display:none;}
+.fmod-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border);}
+.fmod-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#000;overflow:hidden;flex-shrink:0;}
+.fmod-av img{width:100%;height:100%;object-fit:cover;}
+.fmod-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;}
+.fmod-handle{font-size:11px;color:var(--muted);}
+
+/* NOTIFICATIONS */
+#notifScreen{overflow-y:auto;padding-bottom:80px;}
+#notifScreen::-webkit-scrollbar{display:none;}
+.notif-header{padding:80px 18px 14px;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.notif-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.notif-item.unread{background:rgba(201,168,76,0.04);}
+.notif-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#000;overflow:hidden;flex-shrink:0;}
+.notif-av img{width:100%;height:100%;object-fit:cover;}
+.notif-text{flex:1;font-size:12.5px;line-height:1.4;}
+.notif-text b{color:var(--gold2);}
+.notif-time{font-size:10px;color:var(--muted);}
+.notif-icon{font-size:18px;}
+
+/* DM (messagerie) */
+#dmScreen{overflow-y:auto;padding-bottom:80px;}
+#dmScreen::-webkit-scrollbar{display:none;}
+.dm-header{padding:80px 18px 14px;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.dm-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.dm-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:#000;overflow:hidden;flex-shrink:0;position:relative;}
+.dm-av img{width:100%;height:100%;object-fit:cover;}
+.dm-online{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid var(--bg);}
+.dm-info{flex:1;min-width:0;}
+.dm-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:2px;}
+.dm-preview{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dm-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.dm-time{font-size:10px;color:var(--muted);}
+.dm-unread{width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* CHAT */
+#chatScreen{display:none;position:fixed;inset:0;z-index:300;background:var(--bg);flex-direction:column;}
+#chatScreen.active{display:flex;}
+.chat-header{padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top));background:rgba(7,7,9,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0;}
+.chat-back{font-size:22px;cursor:pointer;}
+.chat-hav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#000;overflow:hidden;flex-shrink:0;}
+.chat-hav img{width:100%;height:100%;object-fit:cover;}
+.chat-hname{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;flex:1;}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.chat-messages::-webkit-scrollbar{display:none;}
+.msg-bubble{max-width:72%;padding:9px 13px;border-radius:18px;font-size:13px;line-height:1.4;word-break:break-word;}
+.msg-bubble.me{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;align-self:flex-end;border-bottom-right-radius:4px;}
+.msg-bubble.them{background:var(--surface2);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;}
+.msg-time{font-size:9px;color:var(--muted);margin-top:2px;text-align:right;}
+.msg-them-time{text-align:left;}
+.chat-inp-row{padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom));display:flex;gap:9px;align-items:center;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0;}
+.chat-inp{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:22px;padding:10px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.chat-send{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;color:#000;border:none;flex-shrink:0;}
 
 /* SEARCH */
 #searchScreen{overflow-y:auto;padding-bottom:80px;}
@@ -227,10 +344,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .slabel{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;padding:0 14px 9px;}
 .stags{display:flex;flex-wrap:wrap;gap:7px;padding:0 14px 16px;}
 .stag{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;cursor:pointer;}
+.s-tabs{display:flex;gap:0;padding:0 14px 12px;}
+.s-tab{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+.s-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
 .egrid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:0 2px 2px;}
 .eitem{aspect-ratio:4/5;background:var(--surface2);position:relative;overflow:hidden;cursor:pointer;}
 .eitem video{width:100%;height:100%;object-fit:cover;}
 .ecaption{position:absolute;bottom:0;left:0;right:0;padding:7px;background:linear-gradient(to top,rgba(0,0,0,0.7),transparent);font-size:10px;font-weight:600;}
+.accounts-list{padding:0 14px;}
+.account-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.acc-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:#000;overflow:hidden;flex-shrink:0;}
+.acc-av img{width:100%;height:100%;object-fit:cover;}
+.acc-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;}
+.acc-handle{font-size:11px;color:var(--muted);}
+.acc-follow{background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;}
 
 /* STORY VIEWER */
 #storyViewer{display:none;position:fixed;inset:0;z-index:600;background:#000;flex-direction:column;}
@@ -244,13 +371,74 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .svname{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;flex:1;}
 .svclose{font-size:20px;cursor:pointer;}
 .svcontent{flex:1;position:relative;overflow:hidden;background:#111;}
-.svcontent img,.svcontent video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.svtl,.svtr{position:absolute;top:0;bottom:0;width:40%;z-index:10;cursor:pointer;}
-.svtl{left:0;}.svtr{right:0;}
+.svcontent img,.svcontent video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;pointer-events:none;}
+.sv-text-overlay{position:absolute;bottom:60px;left:0;right:0;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8);padding:0 20px;z-index:10;pointer-events:none;}
+.sv-del{position:absolute;bottom:14px;right:14px;background:rgba(224,85,85,0.8);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;z-index:15;}
+
+/* STORY ADD TEXT */
+#storyTextModal{display:none;position:fixed;inset:0;z-index:650;background:rgba(0,0,0,0.9);flex-direction:column;align-items:center;justify-content:center;}
+#storyTextModal.active{display:flex;}
+.story-text-inp{width:90%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:16px;padding:14px 16px;color:#fff;font-family:'Syne',sans-serif;font-size:18px;font-weight:600;text-align:center;outline:none;margin-bottom:16px;}
+.story-text-actions{display:flex;gap:10px;}
+.story-text-btn{padding:11px 24px;border-radius:22px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;border:none;}
+
+/* INFOS NEWS */
+#infosScreen{display:none;flex-direction:column;overflow:hidden;padding-bottom:0;}
+#infosScreen.active{display:flex;}
+#newsList{overflow-y:auto;padding:12px 14px 90px;flex:1;-webkit-overflow-scrolling:touch;}
+#newsList::-webkit-scrollbar{display:none;}
+.news-sources-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px;}
+.news-sources-row::-webkit-scrollbar{display:none;}
+.nsrc{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;color:var(--muted);}
+.nsrc.active{background:rgba(201,168,76,0.15);border-color:var(--gold);color:var(--gold);}
+@keyframes ticker{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* Article card grande */
+.art-card-big{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:14px;transition:transform 0.15s;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
+.art-card-big:active{transform:scale(0.98);}
+.art-card-big-img{width:100%;aspect-ratio:16/9;background:var(--surface2);overflow:hidden;position:relative;}
+.art-card-big-img img{width:100%;height:100%;object-fit:cover;}
+.art-card-big-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,var(--surface2),#1e1e24);}
+.art-source-badge{position:absolute;top:10px;left:10px;background:rgba(7,7,9,0.8);backdrop-filter:blur(8px);color:var(--gold);font-size:10px;font-weight:700;border-radius:10px;padding:3px 9px;border:1px solid rgba(201,168,76,0.2);}
+.art-new-badge{position:absolute;top:10px;right:10px;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:3px 9px;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.art-card-big-body{padding:14px 16px 16px;}
+.art-card-big-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;line-height:1.35;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.art-card-big-desc{font-size:12.5px;color:rgba(240,238,233,0.65);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px;}
+.art-card-big-meta{display:flex;align-items:center;justify-content:space-between;}
+.art-date{font-size:10px;color:var(--muted);}
+.art-actions{display:flex;gap:10px;align-items:center;}
+.art-action{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;}
+.art-action.liked{color:var(--red);}
+
+/* Article card petite */
+.art-card-sm{display:flex;gap:11px;background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;cursor:pointer;margin-bottom:10px;padding:10px;transition:transform 0.15s;}
+.art-card-sm:active{transform:scale(0.98);}
+.art-card-sm-img{width:82px;height:82px;border-radius:12px;background:var(--surface2);overflow:hidden;flex-shrink:0;}
+.art-card-sm-img img{width:100%;height:100%;object-fit:cover;}
+.art-card-sm-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;}
+.art-card-sm-body{flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;}
+.art-card-sm-src{font-size:10px;color:var(--gold);font-weight:600;margin-bottom:3px;}
+.art-card-sm-title{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.art-card-sm-date{font-size:10px;color:var(--muted);margin-top:4px;}
+
+.lang-btn{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:all 0.2s;}
+.lang-btn.active{background:rgba(201,168,76,0.15);border-color:var(--gold);color:var(--gold);}
 
 /* TOAST */
 #toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(14px);background:rgba(16,16,19,0.96);border:1px solid rgba(201,168,76,0.2);color:var(--text);padding:9px 18px;border-radius:28px;font-size:12.5px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s,transform 0.3s;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* CONFIRM MODAL */
+#confirmModal{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
+#confirmModal.active{display:flex;}
+.confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px 20px;width:88%;max-width:320px;}
+.confirm-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;}
+.confirm-msg{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+.confirm-btns{display:flex;gap:10px;}
+.confirm-ok{flex:1;background:var(--red);color:#fff;border:none;padding:12px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+.confirm-cancel{flex:1;background:var(--surface2);color:var(--muted);border:1px solid var(--border);padding:12px;border-radius:12px;font-size:14px;cursor:pointer;}
+
 .feedph{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;color:var(--muted);}
 .spinner{width:36px;height:36px;border:2.5px solid #1a1a1e;border-top-color:var(--gold);border-radius:50%;animation:rot 0.75s linear infinite;}
 .ph-icon{font-size:44px;}.ph-msg{font-family:'Syne',sans-serif;font-weight:600;font-size:16px;color:var(--text);}.ph-sub{font-size:12px;}
@@ -279,41 +467,68 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 </div>
 
 <div id="searchScreen" class="screen">
-  <div class="sfull"><span>🔍</span><input type="text" id="searchInput" placeholder="Rechercher..." oninput="filterSearch(this.value)"></div>
-  <div class="slabel">🔥 Tendances</div>
-  <div class="stags">
-    <div class="stag">#Afrique</div><div class="stag">#Burkina</div><div class="stag">#Music</div>
-    <div class="stag">#Dance</div><div class="stag">#Mali</div><div class="stag">#AES</div>
+  <div class="sfull"><span>🔍</span><input type="text" id="searchInput" placeholder="Rechercher vidéos, comptes..." oninput="filterSearch(this.value)"></div>
+  <div class="s-tabs">
+    <div class="s-tab active" onclick="switchSearchTab('videos',this)">🎬 Vidéos</div>
+    <div class="s-tab" onclick="switchSearchTab('accounts',this)">👤 Comptes</div>
+    <div class="s-tab" onclick="switchSearchTab('tags',this)">🔥 Tags</div>
   </div>
-  <div class="slabel">🎬 Explorer</div>
-  <div class="egrid" id="exploreGrid"></div>
+  <div id="searchVideos">
+    <div class="egrid" id="exploreGrid"></div>
+  </div>
+  <div id="searchAccounts" style="display:none;">
+    <div class="accounts-list" id="accountsList"></div>
+  </div>
+  <div id="searchTags" style="display:none;">
+    <div class="stags" id="tagsList">
+      <div class="stag" onclick="searchByTag('#Afrique')">#Afrique</div>
+      <div class="stag" onclick="searchByTag('#Burkina')">#Burkina</div>
+      <div class="stag" onclick="searchByTag('#Music')">#Music</div>
+      <div class="stag" onclick="searchByTag('#Dance')">#Dance</div>
+      <div class="stag" onclick="searchByTag('#Mali')">#Mali</div>
+      <div class="stag" onclick="searchByTag('#AES')">#AES</div>
+      <div class="stag" onclick="searchByTag('#Niger')">#Niger</div>
+      <div class="stag" onclick="searchByTag('#Ouagadougou')">#Ouagadougou</div>
+    </div>
+  </div>
 </div>
 
-<!-- MARKETPLACE -->
 <div id="marketScreen" class="screen">
   <div class="market-header">
     <div class="market-title">🛍️ Marketplace</div>
     <button class="market-add-btn" onclick="needAuth(openAddProduct)">+ Vendre</button>
   </div>
+  <div class="market-filters">
+    <input type="text" class="market-filter-inp" id="marketSearch" placeholder="🔍 Rechercher un produit..." oninput="filterMarketSearch(this.value)">
+    <button class="market-price-btn" onclick="openPriceModal()">💰 Prix</button>
+  </div>
   <div class="market-cats" id="marketCats">
-    <div class="mcat active" onclick="filterMarket('tous')">Tous</div>
-    <div class="mcat" onclick="filterMarket('electronique')">📱 Électronique</div>
-    <div class="mcat" onclick="filterMarket('vetements')">👗 Vêtements</div>
-    <div class="mcat" onclick="filterMarket('alimentation')">🍎 Alimentation</div>
-    <div class="mcat" onclick="filterMarket('services')">🔧 Services</div>
-    <div class="mcat" onclick="filterMarket('agriculture')">🌾 Agriculture</div>
-    <div class="mcat" onclick="filterMarket('autre')">📦 Autre</div>
+    <div class="mcat active" onclick="filterMarket('tous',this)">Tous</div>
+    <div class="mcat" onclick="filterMarket('electronique',this)">📱 Électronique</div>
+    <div class="mcat" onclick="filterMarket('vetements',this)">👗 Vêtements</div>
+    <div class="mcat" onclick="filterMarket('alimentation',this)">🍎 Alimentation</div>
+    <div class="mcat" onclick="filterMarket('services',this)">🔧 Services</div>
+    <div class="mcat" onclick="filterMarket('agriculture',this)">🌾 Agriculture</div>
+    <div class="mcat" onclick="filterMarket('autre',this)">📦 Autre</div>
   </div>
   <div class="market-grid" id="marketGrid">
     <div style="grid-column:span 2;padding:30px;text-align:center;color:var(--muted);">
-      <div class="spinner" style="margin:0 auto 12px;"></div>
-      Chargement...
+      <div class="spinner" style="margin:0 auto 12px;"></div>Chargement...
     </div>
   </div>
 </div>
 
+<div id="notifScreen" class="screen">
+  <div class="notif-header">🔔 Notifications</div>
+  <div id="notifList"></div>
+</div>
+
+<div id="dmScreen" class="screen">
+  <div class="dm-header">💬 Messages</div>
+  <div id="dmList"></div>
+</div>
+
 <div id="profileScreen" class="screen">
-  <div style="height:68px"></div>
   <div class="phero">
     <div class="pav-wrap" onclick="needAuth(()=>document.getElementById('avatarInput').click())">
       <div class="pav" id="profileAvEl">?</div>
@@ -323,19 +538,110 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="pname" id="profileNameEl">Invité</div>
     <div class="phandle" id="profileHandleEl">@inconnu</div>
     <div class="pbio" id="profileBioEl">Crée un compte pour profiter de toutes les fonctionnalités 🌍</div>
+    <button class="pedit-btn" id="editProfileBtn" style="display:none" onclick="openEditProfile()">✏️ Modifier le profil</button>
     <div class="pstats">
-      <div class="pstat"><div class="pstat-n" id="pVids">0</div><div class="pstat-l">Vidéos</div></div>
-      <div class="pstat"><div class="pstat-n" id="pLks">0</div><div class="pstat-l">Likes</div></div>
-      <div class="pstat"><div class="pstat-n" id="pFollowers">0</div><div class="pstat-l">Abonnés</div></div>
+      <div class="pstat" onclick="openFollowModal('videos')"><div class="pstat-n" id="pVids">0</div><div class="pstat-l">Vidéos</div></div>
+      <div class="pstat" onclick="openFollowModal('followers')"><div class="pstat-n" id="pFollowers">0</div><div class="pstat-l">Abonnés</div></div>
+      <div class="pstat" onclick="openFollowModal('following')"><div class="pstat-n" id="pFollowingCount">0</div><div class="pstat-l">Abonnements</div></div>
     </div>
-    <div style="border:1.5px dashed rgba(201,168,76,0.2);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:rgba(201,168,76,0.02);margin-bottom:14px;" onclick="needAuth(()=>document.getElementById('statusInput').click())">
-      <input type="file" id="statusInput" accept="image/*,video/*" style="display:none" onchange="uploadStatus(this)">
+    <div style="border:1.5px dashed rgba(201,168,76,0.2);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:rgba(201,168,76,0.02);margin-bottom:14px;position:relative;" onclick="needAuth(()=>document.getElementById('statusInput').click())">
+      <input type="file" id="statusInput" accept="image/*,video/*" style="display:none;position:absolute;" onchange="openStoryTextModal(this)">
       <div style="width:46px;height:46px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📸</div>
       <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;">Ajouter un statut</div><div style="font-size:12px;color:var(--muted);">Photo ou vidéo · visible 24h</div></div>
     </div>
     <button class="mbtn2" id="logoutBtn" style="display:none;max-width:180px;margin:0 auto;" onclick="doLogout()">🚪 Déconnexion</button>
+    <!-- Sélecteur langue -->
+    <div style="margin-top:14px;padding:0 4px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center;" id="langLabel">🌍 Choisir la langue</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;" id="langBtns">
+        <button class="lang-btn active" onclick="setLang('fr')" data-lang="fr">🇫🇷 Français</button>
+        <button class="lang-btn" onclick="setLang('bm')" data-lang="bm">🌍 Bambara</button>
+        <button class="lang-btn" onclick="setLang('mos')" data-lang="mos">🌍 Mooré</button>
+        <button class="lang-btn" onclick="setLang('dyu')" data-lang="dyu">🌍 Dioula</button>
+        <button class="lang-btn" onclick="setLang('ha')" data-lang="ha">🌍 Haoussa</button>
+      </div>
+    </div>
   </div>
   <div class="pgrid" id="profileGrid"></div>
+</div>
+
+<div id="infosScreen" class="screen">
+  <!-- Header fixe -->
+  <div style="position:sticky;top:0;z-index:50;background:rgba(7,7,9,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 16px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">📰 Actualités AES</div>
+      <div id="newsRefreshBtn" onclick="loadNews(true)" style="width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;">🔄</div>
+    </div>
+    <div class="news-sources-row" id="newsSourcesRow">
+      <div class="nsrc active" onclick="filterNews('all',this)">Tout</div>
+      <div class="nsrc" onclick="filterNews('rfi',this)">🔴 RFI</div>
+      <div class="nsrc" onclick="filterNews('bbc',this)">🟠 BBC</div>
+      <div class="nsrc" onclick="filterNews('ja',this)">🟡 J.Afrique</div>
+    </div>
+  </div>
+  <!-- Breaking news ticker -->
+  <div id="newsTicker" style="display:none;background:linear-gradient(90deg,var(--gold),var(--gold2));padding:7px 16px;overflow:hidden;">
+    <div id="newsTickerText" style="color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;white-space:nowrap;animation:ticker 20s linear infinite;">⚡ Chargement des dernières infos...</div>
+  </div>
+  <div id="newsList">
+    <div class="feedph" style="height:60vh;"><div class="spinner"></div><span>Chargement des infos...</span></div>
+  </div>
+</div>
+
+<!-- ARTICLE SCREEN (plein écran, pas de redirection) -->
+<div id="articleScreen" style="display:none;position:fixed;inset:0;z-index:450;background:var(--bg);flex-direction:column;overflow:hidden;">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:11px;padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top));background:rgba(7,7,9,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0;">
+    <div onclick="closeArticle()" style="font-size:24px;cursor:pointer;color:var(--gold);">‹</div>
+    <div id="artSourceBadge" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);color:var(--gold);font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;flex-shrink:0;"></div>
+    <div style="flex:1;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="artHeaderTitle"></div>
+    <div onclick="shareArticle()" style="width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;">↗️</div>
+  </div>
+  <!-- Contenu scrollable -->
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;" id="articleContent">
+    <!-- Image hero -->
+    <div id="artImg" style="width:100%;aspect-ratio:16/9;background:var(--surface2);overflow:hidden;flex-shrink:0;position:relative;">
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;">📰</div>
+    </div>
+    <!-- Corps -->
+    <div style="padding:20px 18px 30px;">
+      <!-- Source + heure exacte -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <div id="artSourceLabel" style="font-size:11px;font-weight:700;color:var(--gold);"></div>
+        <div style="width:3px;height:3px;border-radius:50%;background:var(--muted);"></div>
+        <div id="artExactDate" style="font-size:11px;color:var(--muted);"></div>
+        <div style="width:3px;height:3px;border-radius:50%;background:var(--muted);"></div>
+        <div id="artTimeAgo" style="font-size:11px;color:var(--muted);"></div>
+      </div>
+      <!-- Titre -->
+      <div id="artTitle" style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;line-height:1.3;margin-bottom:14px;color:var(--text);"></div>
+      <!-- Image inline si existe -->
+      <div id="artImgInline" style="display:none;width:100%;border-radius:14px;overflow:hidden;margin-bottom:16px;">
+        <img id="artImgInlineImg" src="" alt="" style="width:100%;object-fit:cover;">
+        <div style="padding:6px 10px;background:var(--surface2);font-size:10px;color:var(--muted);" id="artImgCaption"></div>
+      </div>
+      <!-- Contenu complet de l'article -->
+      <div id="artFullContent" style="font-size:15px;color:rgba(240,238,233,0.85);line-height:1.8;font-family:'DM Sans',sans-serif;"></div>
+      <!-- Séparateur -->
+      <div style="height:1px;background:var(--border);margin:20px 0;"></div>
+      <!-- Actions likes/commentaires -->
+      <div style="display:flex;gap:10px;margin-bottom:18px;">
+        <button id="artLikeBtn" onclick="toggleArticleLike()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px;border-radius:14px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:600;">
+          <span id="artLikeIcon">🤍</span><span id="artLikeCount">0</span> J'aime
+        </button>
+        <button onclick="focusArtComment()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px;border-radius:14px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:600;">
+          💬 <span id="artComCount">0</span>
+        </button>
+      </div>
+      <!-- Section commentaires -->
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:12px;">💬 Commentaires</div>
+      <div id="artComList" style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:8px;align-items:center;padding-bottom:env(safe-area-inset-bottom);">
+        <input type="text" id="artComInput" placeholder="Ton commentaire sur cet article..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:22px;padding:10px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+        <button onclick="sendArticleComment()" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#000;font-size:15px;cursor:pointer;flex-shrink:0;">➤</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -344,6 +650,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="nbtn" id="nb-search" onclick="showScreen('search')"><div class="ni">🔍</div><span>Explorer</span></div>
   <div class="npost" onclick="needAuth(openModal)">➕</div>
   <div class="nbtn" id="nb-market" onclick="showScreen('market')"><div class="ni">🛍️</div><span>Marché</span></div>
+  <div class="nbtn" id="nb-infos" onclick="showScreen('infos')"><div class="ni">📰</div><span>Infos</span><div class="notif-dot" id="newsDot" style="display:none;"></div></div>
   <div class="nbtn" id="nb-profile" onclick="showScreen('profile')"><div class="ni">👤</div><span>Profil</span></div>
 </div>
 
@@ -412,6 +719,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="pmod-body">
       <div class="pmod-name" id="pmodName">...</div>
       <div class="pmod-price" id="pmodPrice">0 FCFA</div>
+      <div class="pmod-location" id="pmodLocation"></div>
       <div class="pmod-desc" id="pmodDesc">...</div>
       <div class="pmod-seller-row">
         <div class="pmod-seller-av" id="pmodSellerAv">K</div>
@@ -420,8 +728,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
           <div class="pmod-seller-label">Vendeur</div>
         </div>
       </div>
-      <button class="pmod-wa" id="pmodWaBtn">💚 Contacter sur WhatsApp</button>
+      <div class="pmod-actions">
+        <button class="pmod-wa" id="pmodWaBtn">💚 WhatsApp</button>
+        <button class="pmod-sold-btn" id="pmodSoldBtn" onclick="toggleSold()">✅ Vendu</button>
+      </div>
       <button class="pmod-share" onclick="shareProduct()">↗️ Partager ce produit</button>
+      <button class="pmod-delete" id="pmodDeleteBtn" style="display:none" onclick="deleteProduct()">🗑️ Supprimer ce produit</button>
     </div>
   </div>
 </div>
@@ -449,6 +761,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <option value="agriculture">🌾 Agriculture</option>
       <option value="autre">📦 Autre</option>
     </select>
+    <input type="text" class="minp" id="prodLocation" placeholder="📍 Ville / Localisation (ex: Ouagadougou)">
     <input type="text" class="minp" id="prodPhone" placeholder="Ton numéro WhatsApp (ex: +22670000000)">
     <div class="mprog" id="prodProg">
       <div class="mprog-bg"><div class="mprog-fill" id="prodProgFill"></div></div>
@@ -456,6 +769,42 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
     <button class="mbtn" id="addProdBtn" onclick="submitProduct()">🚀 Publier le produit</button>
     <button class="mbtn2" onclick="closeAddProduct()">Annuler</button>
+  </div>
+</div>
+
+<!-- PRICE FILTER MODAL -->
+<div id="priceModal">
+  <div class="price-sheet">
+    <h3>💰 Filtrer par prix</h3>
+    <div class="price-row">
+      <input type="number" class="price-inp" id="priceMin" placeholder="Min (FCFA)">
+      <input type="number" class="price-inp" id="priceMax" placeholder="Max (FCFA)">
+    </div>
+    <button class="price-apply" onclick="applyPriceFilter()">Appliquer</button>
+    <button class="mbtn2" style="margin-top:8px;" onclick="clearPriceFilter()">Réinitialiser</button>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div id="editProfileModal">
+  <div class="epmod-sheet">
+    <div class="epmod-title">✏️ Modifier le profil</div>
+    <input type="text" class="auth-inp" id="editName" placeholder="Ton nom">
+    <input type="text" class="auth-inp" id="editPhone" placeholder="Numéro WhatsApp">
+    <textarea class="minp" id="editBio" rows="3" placeholder="Ta bio..."></textarea>
+    <button class="mbtn" onclick="saveProfile()">💾 Sauvegarder</button>
+    <button class="mbtn2" onclick="document.getElementById('editProfileModal').classList.remove('active')">Annuler</button>
+  </div>
+</div>
+
+<!-- FOLLOWERS/FOLLOWING MODAL -->
+<div id="followModal">
+  <div class="fmod-sheet">
+    <div class="fmod-head">
+      <div class="fmod-title" id="followModalTitle">Abonnés</div>
+      <div class="cclose" onclick="document.getElementById('followModal').classList.remove('active')">✕</div>
+    </div>
+    <div class="fmod-list" id="followList"></div>
   </div>
 </div>
 
@@ -468,8 +817,45 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="svclose" onclick="closeStory()">✕</div>
   </div>
   <div class="svcontent" id="svcontent">
-    <div class="svtl" onclick="closeStory()"></div>
-    <div class="svtr" onclick="closeStory()"></div>
+    <div class="svtl" onclick="prevStory()"></div>
+    <div class="svtr" onclick="nextStory()"></div>
+  </div>
+  <button class="sv-del" id="svDelBtn" style="display:none" onclick="deleteStory()">🗑️ Supprimer</button>
+</div>
+
+<!-- STORY TEXT MODAL -->
+<div id="storyTextModal">
+  <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--gold2);margin-bottom:20px;">Ajouter un texte</div>
+  <input type="text" class="story-text-inp" id="storyTextInp" placeholder="Ton texte sur la story...">
+  <div class="story-text-actions">
+    <button class="story-text-btn" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);" onclick="uploadStatusFinal('')">Ignorer</button>
+    <button class="story-text-btn" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;" onclick="uploadStatusFinal(document.getElementById('storyTextInp').value)">Ajouter ✓</button>
+  </div>
+</div>
+
+<!-- CHAT SCREEN -->
+<div id="chatScreen">
+  <div class="chat-header">
+    <div class="chat-back" onclick="closeChatScreen()">‹</div>
+    <div class="chat-hav" id="chatHav">?</div>
+    <div class="chat-hname" id="chatHname">...</div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-inp-row">
+    <input type="text" class="chat-inp" id="chatInp" placeholder="Écris un message..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="chat-send" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Confirmer</div>
+    <div class="confirm-msg" id="confirmMsg">Es-tu sûr(e) ?</div>
+    <div class="confirm-btns">
+      <button class="confirm-ok" id="confirmOk">Oui, supprimer</button>
+      <button class="confirm-cancel" onclick="document.getElementById('confirmModal').classList.remove('active')">Annuler</button>
+    </div>
   </div>
 </div>
 
@@ -491,9 +877,9 @@ firebase.initializeApp({
 const db = firebase.database();
 
 // ════════════════════════
-//  CLOUDINARY (vidéos)
+//  CLOUDINARY
 // ════════════════════════
-function clUpload(file, onP) {
+function clUpload(file,onP){
   return new Promise((res,rej)=>{
     const fd=new FormData();fd.append('file',file);fd.append('upload_preset','ml_default');
     const xhr=new XMLHttpRequest();
@@ -505,9 +891,9 @@ function clUpload(file, onP) {
 }
 
 // ════════════════════════
-//  IMAGEKIT (photos)
+//  IMAGEKIT
 // ════════════════════════
-async function ikUpload(file, folder, onP) {
+async function ikUpload(file,folder,onP){
   const expire=Math.floor(Date.now()/1000)+2400;
   const token=Math.random().toString(36).slice(2);
   const sig=await hmacSHA1('private_wdbU/56ZJc6qodZOvCg9ztG0YF8=',token+expire);
@@ -535,10 +921,11 @@ async function hmacSHA1(key,msg){
 // ════════════════════════
 let currentUser = JSON.parse(localStorage.getItem('aes_user')||'null');
 let liked       = JSON.parse(localStorage.getItem('aes_liked')||'[]');
-let comments    = JSON.parse(localStorage.getItem('aes_coms')||'{}');
+let favorites   = JSON.parse(localStorage.getItem('aes_favs')||'[]');
 let following   = JSON.parse(localStorage.getItem('aes_following')||'{}');
 let allVids     = [];
 let allProds    = [];
+let allUsers    = {};
 let curVidId    = null;
 let storyTmr    = null;
 let authMode    = 'login';
@@ -546,12 +933,22 @@ let pendingAction = null;
 let feedMode    = 'forYou';
 let curProd     = null;
 let prodPhotoFile = null;
+let statusFile  = null;
+let priceMin    = null;
+let priceMax    = null;
+let currentCat  = 'tous';
+let curChatUid  = null;
+let curChatName = null;
+let curStories  = [];
+let curStoryIdx = 0;
+let notifCount  = 0;
+let searchTab   = 'videos';
 
 // ════════════════════════
 //  AUTH
 // ════════════════════════
 function openAuth(reason){
-  if(reason)document.getElementById('authSubText').innerText=reason;
+  if(reason&&typeof reason==='string')document.getElementById('authSubText').innerText=reason;
   document.getElementById('authModal').classList.add('active');
 }
 function closeAuth(){document.getElementById('authModal').classList.remove('active');}
@@ -586,12 +983,13 @@ async function doAuth(){
     currentUser=user;
   }
   localStorage.setItem('aes_user',JSON.stringify(currentUser));
-  // Load following
   const fSnap=await db.ref('following/'+currentUser.uid).once('value');
   following=fSnap.val()||{};
   localStorage.setItem('aes_following',JSON.stringify(following));
   closeAuth();applyUserUI();
-  showToast('👋 Bienvenue '+currentUser.name+' !');
+  showToast(t('auth_welcome')+currentUser.name+' !');
+  startNotifListener();
+  loadNotifs();loadDMs();
   if(pendingAction){pendingAction();pendingAction=null;}
 }
 function doLogout(){
@@ -609,6 +1007,7 @@ function applyUserUI(){
   document.getElementById('loginTopBtn').innerText=isLogged?('👤 '+currentUser.name.split(' ')[0]):'Connexion';
   document.getElementById('loginTopBtn').onclick=isLogged?()=>showScreen('profile'):openAuth;
   document.getElementById('logoutBtn').style.display=isLogged?'block':'none';
+  document.getElementById('editProfileBtn').style.display=isLogged?'block':'none';
   document.getElementById('feedTabs').style.display=isLogged?'flex':'none';
   if(isLogged){
     document.getElementById('profileAvEl').innerHTML=currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:currentUser.name[0].toUpperCase();
@@ -624,32 +1023,59 @@ function applyUserUI(){
 }
 
 // ════════════════════════
+//  EDIT PROFILE
+// ════════════════════════
+function openEditProfile(){
+  if(!currentUser)return;
+  document.getElementById('editName').value=currentUser.name||'';
+  document.getElementById('editPhone').value=currentUser.phone||'';
+  document.getElementById('editBio').value=currentUser.bio||'';
+  document.getElementById('editProfileModal').classList.add('active');
+}
+async function saveProfile(){
+  if(!currentUser)return;
+  const name=document.getElementById('editName').value.trim();
+  const phone=document.getElementById('editPhone').value.trim();
+  const bio=document.getElementById('editBio').value.trim();
+  if(!name){showToast('⚠️ Le nom est requis');return;}
+  currentUser.name=name;currentUser.phone=phone;currentUser.bio=bio;
+  localStorage.setItem('aes_user',JSON.stringify(currentUser));
+  await db.ref('users/'+currentUser.uid).update({name,phone,bio});
+  document.getElementById('editProfileModal').classList.remove('active');
+  applyUserUI();showToast('✅ Profil mis à jour !');
+}
+
+// ════════════════════════
 //  SCREEN NAV
 // ════════════════════════
 function showScreen(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
-  const m={home:'homeScreen',search:'searchScreen',market:'marketScreen',profile:'profileScreen'};
-  const nb={home:'nb-home',search:'nb-search',market:'nb-market',profile:'nb-profile'};
+  const m={home:'homeScreen',search:'searchScreen',market:'marketScreen',notif:'notifScreen',dm:'dmScreen',profile:'profileScreen',infos:'infosScreen'};
+  const nb={home:'nb-home',search:'nb-search',market:'nb-market',notif:'nb-notif',profile:'nb-profile',dm:'nb-dm',infos:'nb-infos'};
   if(m[n])document.getElementById(m[n]).classList.add('active');
   if(nb[n])document.getElementById(nb[n]).classList.add('active');
   document.getElementById('storiesWrap').style.display=n==='home'?'block':'none';
   if(n==='profile')renderProfile();
-  if(n==='search')renderExplore();
-  if(n==='market')loadMarket();
+  if(n==='search'){renderExplore();renderAccounts('');}
+  if(n==='market'){loadMarket();}
+  if(n==='notif'){loadNotifs();document.getElementById('notifDot').style.display='none';}
+  if(n==='dm')loadDMs();
+  if(n==='infos'){
+    document.getElementById('newsDot').style.display='none';
+    if(!allArticles.length)loadNews();
+    else applyNewsFilter();
+  }
 }
 
 // ════════════════════════
-//  FEED + FEED PERSO
+//  FEED — ultra rapide
 // ════════════════════════
 function switchFeed(mode){
   feedMode=mode;
-  document.querySelectorAll('.feed-tab').forEach((t,i)=>{
-    t.classList.toggle('active',(mode==='following'&&i===0)||(mode==='forYou'&&i===1));
-  });
+  document.querySelectorAll('.feed-tab').forEach((t,i)=>t.classList.toggle('active',(mode==='following'&&i===0)||(mode==='forYou'&&i===1)));
   renderFeedByMode();
 }
-
 function renderFeedByMode(){
   if(feedMode==='following'&&currentUser){
     const followedUids=Object.keys(following);
@@ -666,63 +1092,190 @@ function renderFeedByMode(){
 
 function loadFeed(){
   const feed=document.getElementById('feed');
-  feed.innerHTML='<div class="feedph"><div class="spinner"></div><span>Chargement...</span></div>';
-  db.ref('videos').orderByChild('createdAt').limitToLast(50).once('value')
-    .then(snap=>{
-      const raw=snap.val();
-      if(!raw){feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucune vidéo encore</div><div class="ph-sub">Sois le premier !</div></div>';return;}
-      allVids=Object.entries(raw).map(([id,v])=>({id,...v})).reverse();
-      renderFeedByMode();loadStories();
-    })
-    .catch(e=>feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur Firebase</div><div class="ph-sub">${esc(e.message)}</div></div>`);
+
+  // 1. Afficher le cache instantanément (< 5ms)
+  const cached=localStorage.getItem('aes_feed_cache');
+  if(cached){
+    try{
+      allVids=JSON.parse(cached);
+      if(allVids.length){
+        renderFeedByMode();
+        loadStories();
+        // Rafraîchir silencieusement en arrière-plan
+        refreshFeedSilent();
+        return;
+      }
+    }catch(e){}
+  }
+
+  // Pas de cache — afficher spinner
+  feed.innerHTML='<div class="feedph"><div class="spinner"></div><span>'+t('feed_loading')+'</span></div>';
+  fetchFeedFromFirebase();
 }
 
+function fetchFeedFromFirebase(){
+  const feed=document.getElementById('feed');
+  db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value')
+    .then(snap=>{
+      const raw=snap.val();
+      if(!raw){
+        feed.innerHTML=`<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">${t('feed_empty')}</div><div class="ph-sub">${t('feed_first')}</div></div>`;
+        return;
+      }
+      allVids=Object.entries(raw).map(([id,v])=>({id,...v})).reverse();
+      // Sauvegarder en cache
+      try{localStorage.setItem('aes_feed_cache',JSON.stringify(allVids));}catch(e){}
+      renderFeedByMode();
+      loadStories();
+    })
+    .catch(e=>feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">${esc(e.message)}</div></div>`);
+}
+
+function refreshFeedSilent(){
+  // Refresh en arrière-plan sans toucher l'UI
+  db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value').then(snap=>{
+    const raw=snap.val();if(!raw)return;
+    const fresh=Object.entries(raw).map(([id,v])=>({id,...v})).reverse();
+    // Vérifier s'il y a de nouvelles vidéos
+    if(fresh.length && fresh[0]?.id !== allVids[0]?.id){
+      allVids=fresh;
+      try{localStorage.setItem('aes_feed_cache',JSON.stringify(allVids));}catch(e){}
+      // Montrer le bouton "Nouvelles vidéos" au lieu de recharger
+      showNewVidsBtn();
+    }
+  }).catch(()=>{});
+}
+
+function showNewVidsBtn(){
+  const existing=document.getElementById('newVidsBtn');
+  if(existing)return;
+  const btn=document.createElement('div');
+  btn.id='newVidsBtn';
+  btn.style.cssText='position:fixed;top:120px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;padding:9px 20px;border-radius:24px;font-family:Syne,sans-serif;font-weight:700;font-size:13px;cursor:pointer;z-index:150;box-shadow:0 4px 18px rgba(201,168,76,0.4);white-space:nowrap;';
+  btn.innerText='🔄 Nouvelles vidéos';
+  btn.onclick=()=>{btn.remove();renderFeedByMode();document.getElementById('feed').scrollTop=0;};
+  document.body.appendChild(btn);
+  setTimeout(()=>{if(btn.parentNode)btn.remove();},8000);
+}
 function renderFeed(vids){
   const feed=document.getElementById('feed');
   if(!vids.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucun résultat</div></div>';return;}
-  feed.innerHTML=vids.map((v,i)=>{
-    const isLiked=liked.includes(v.id);
-    const init=(v.auteur||'A')[0].toUpperCase();
-    const tags=(v.desc||'').match(/#\w+/g)||[];
-    const desc=(v.desc||'').replace(/#\w+/g,'').trim();
-    const avH=v.authorAvatar?`<img src="${v.authorAvatar}" alt="">`:init;
-    const isFollowing=v.authorUid&&following[v.authorUid];
-    const isOwn=currentUser&&v.authorUid===currentUser.uid;
-    return `<div class="vcard" id="vc-${v.id}">
-      <video src="${v.videoUrl}" poster="${v.thumbnail||''}" loop playsinline preload="${i===0?'auto':'none'}" onclick="tapVid(this,'${v.id}',${i})"></video>
-      <div class="tapind" id="ti-${i}">⏸</div>
-      <div class="vprogress"><div class="vpfill" id="vp-${v.id}"></div></div>
-      <div class="vinfo">
-        <div class="vauthor-row">
-          <div class="vav">${avH}</div>
-          <div class="vname">@${esc(v.auteur||'anonyme')}</div>
-          ${!isOwn&&v.authorUid?`<button class="vfollow ${isFollowing?'following':''}" onclick="toggleFollow('${v.authorUid}','${esc(v.auteur||'')}',this)">${isFollowing?'✓ Suivi':'+ Suivre'}</button>`:''}
-        </div>
-        ${desc?`<div class="vdesc">${esc(desc)}</div>`:''}
-        ${tags.length?`<div class="vtags">${tags.map(t=>`<span class="vtag">${esc(t)}</span>`).join('')}</div>`:''}
-        <div class="vmusic"><div class="vdisc">🎵</div><span>Son original · ${esc(v.auteur||'anonyme')}</span></div>
+
+  // Rendu immédiat des 5 premières cartes, le reste en différé
+  const firstBatch=vids.slice(0,5);
+  const restBatch=vids.slice(5);
+
+  feed.innerHTML=firstBatch.map((v,i)=>buildVCard(v,i)).join('');
+
+  // Jouer la première vidéo immédiatement
+  const firstVid=feed.querySelector('video');
+  if(firstVid) firstVid.play().catch(()=>{});
+
+  initObserver();
+  initProgress();
+
+  // Charger les comptaires de la 1ère vidéo immédiatement
+  if(firstBatch[0]) loadOneCommentCount(firstBatch[0].id);
+
+  // Ajouter le reste en différé pour ne pas bloquer le rendu initial
+  if(restBatch.length){
+    requestAnimationFrame(()=>{
+      feed.innerHTML+=restBatch.map((v,i)=>buildVCard(v,i+5)).join('');
+      initObserver();
+      initProgress();
+      // Charger les comptaires du reste en lazy
+      setTimeout(()=>{
+        loadCommentCounts(restBatch);
+        if(currentUser) syncLikedFromFirebase(vids);
+      },500);
+    });
+  } else {
+    if(currentUser) setTimeout(()=>syncLikedFromFirebase(vids),300);
+  }
+}
+
+function buildVCard(v,i){
+  const isLiked=liked.includes(v.id);
+  const init=(v.auteur||'A')[0].toUpperCase();
+  const tags=(v.desc||'').match(/#\w+/g)||[];
+  const desc=(v.desc||'').replace(/#\w+/g,'').trim();
+  const avH=v.authorAvatar?`<img src="${v.authorAvatar}" alt="" loading="lazy">`:init;
+  const isFollowing=v.authorUid&&following[v.authorUid];
+  const isOwn=currentUser&&v.authorUid===currentUser.uid;
+  // Preload: auto pour i<2, metadata pour i<5, none pour le reste
+  const preload=i<2?'auto':i<5?'metadata':'none';
+  return `<div class="vcard" id="vc-${v.id}" ondblclick="doubleTapLike('${v.id}',${v.likes||0},${i})">
+    <video src="${v.videoUrl}" poster="${v.thumbnail||''}" loop playsinline preload="${preload}" onclick="tapVid(this,'${v.id}',${i})"></video>
+    <div class="tapind" id="ti-${i}">⏸</div>
+    <div class="heart-anim" id="ha-${i}">❤️</div>
+    <div class="vprogress"><div class="vpfill" id="vp-${v.id}"></div></div>
+    <div class="vinfo">
+      <div class="vauthor-row">
+        <div class="vav">${avH}</div>
+        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}')">@${esc(v.auteur||'anonyme')}</div>
+        ${!isOwn&&v.authorUid?`<button class="vfollow ${isFollowing?'following':''}" onclick="toggleFollow('${v.authorUid}','${esc(v.auteur||'')}',this)">${isFollowing?'✓ Suivi':'+ Suivre'}</button>`:''}
       </div>
-      <div class="vactions">
-        <div class="aav">${avH}</div>
-        <div class="aitem" onclick="needAuth(()=>toggleLike('${v.id}',${v.likes||0}))">
-          <div class="acircle ${isLiked?'liked':''}" id="lk-${v.id}">${isLiked?'❤️':'🤍'}</div>
-          <span id="lc-${v.id}">${fmt(v.likes||0)}</span>
-        </div>
-        <div class="aitem" onclick="openComments('${v.id}')">
-          <div class="acircle">💬</div>
-          <span id="cc-${v.id}">${fmt((comments[v.id]||[]).length)}</span>
-        </div>
-        <div class="aitem" onclick="shareVid('${v.videoUrl}')">
-          <div class="acircle">↗️</div><span>Partager</span>
-        </div>
-        <div class="aitem" onclick="downloadVid('${v.videoUrl}','${v.id}')">
-          <div class="acircle">⬇️</div><span>Sauver</span>
-        </div>
+      ${desc?`<div class="vdesc">${esc(desc)}</div>`:''}
+      ${tags.length?`<div class="vtags">${tags.map(tg=>`<span class="vtag" onclick="searchByTag('${esc(tg)}')">${esc(tg)}</span>`).join('')}</div>`:''}
+      <div class="vmusic"><div class="vdisc">🎵</div><span>Son original · ${esc(v.auteur||'anonyme')}</span></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <span class="vviews" style="font-size:10px;color:rgba(255,255,255,0.45);">👁 ${fmt(v.views||0)} vues</span>
       </div>
-    </div>`;
-  }).join('');
-  const first=feed.querySelector('video');if(first)first.play().catch(()=>{});
-  initObserver();initProgress();
+    </div>
+    <div class="vactions">
+      <div class="aav" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}')">${avH}</div>
+      <div class="aitem" onclick="needAuth(()=>toggleLike('${v.id}',${v.likes||0}))">
+        <div class="acircle ${isLiked?'liked':''}" id="lk-${v.id}">${isLiked?'❤️':'🤍'}</div>
+        <span id="lc-${v.id}">${fmt(v.likes||0)}</span>
+      </div>
+      <div class="aitem" onclick="openComments('${v.id}')">
+        <div class="acircle">💬</div>
+        <span id="cc-${v.id}">0</span>
+      </div>
+      <div class="aitem" onclick="shareVid('${v.videoUrl}')">
+        <div class="acircle">↗️</div><span>Partager</span>
+      </div>
+      <div class="aitem" onclick="downloadVid('${v.videoUrl}','${v.id}')">
+        <div class="acircle">⬇️</div><span>Sauver</span>
+      </div>
+      ${isOwn?`<div class="aitem" onclick="confirmDeleteVideo('${v.id}')"><div class="acircle" style="font-size:16px;">🗑️</div><span>Suppr.</span></div>`:''}
+    </div>
+  </div>`;
+}
+
+function loadOneCommentCount(vidId){
+  db.ref('comments/'+vidId).once('value').then(snap=>{
+    const el=document.getElementById('cc-'+vidId);
+    if(el) el.innerText=fmt(snap.numChildren());
+  });
+}
+
+function loadCommentCounts(vids){
+  // Charger par batch de 5 avec délai pour ne pas saturer Firebase
+  const batches=[];
+  for(let i=0;i<vids.length;i+=5) batches.push(vids.slice(i,i+5));
+  batches.forEach((batch,bi)=>{
+    setTimeout(()=>{
+      batch.forEach(v=>{
+        db.ref('comments/'+v.id).once('value').then(snap=>{
+          const el=document.getElementById('cc-'+v.id);
+          if(el) el.innerText=fmt(snap.numChildren());
+        });
+      });
+    }, bi*300);
+  });
+}
+
+// ════════════════════════
+//  DOUBLE TAP LIKE
+// ════════════════════════
+function doubleTapLike(id,cur,i){
+  if(!currentUser){needAuth(()=>{});return;}
+  if(!liked.includes(id)){
+    toggleLike(id,cur);
+  }
+  const ha=document.getElementById('ha-'+i);
+  if(ha){ha.classList.add('show');setTimeout(()=>ha.classList.remove('show'),700);}
 }
 
 // ════════════════════════
@@ -730,6 +1283,7 @@ function renderFeed(vids){
 // ════════════════════════
 async function toggleFollow(uid,name,btn){
   if(!currentUser){needAuth(()=>{});return;}
+  if(!uid)return;
   if(following[uid]){
     delete following[uid];
     await db.ref('following/'+currentUser.uid+'/'+uid).remove();
@@ -741,39 +1295,134 @@ async function toggleFollow(uid,name,btn){
     await db.ref('followers/'+uid+'/'+currentUser.uid).set(true);
     btn.innerText='✓ Suivi';btn.classList.add('following');
     showToast('✅ Abonné à @'+name);
+    await db.ref('notifications/'+uid).push({type:'follow',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});
   }
   localStorage.setItem('aes_following',JSON.stringify(following));
 }
 
 // ════════════════════════
+//  FOLLOWERS/FOLLOWING MODAL
+// ════════════════════════
+async function openFollowModal(type){
+  if(!currentUser)return;
+  const modal=document.getElementById('followModal');
+  const list=document.getElementById('followList');
+  const title=document.getElementById('followModalTitle');
+  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);">Chargement...</div>';
+  modal.classList.add('active');
+  if(type==='following'){
+    title.innerText='Abonnements';
+    const snap=await db.ref('following/'+currentUser.uid).once('value');
+    const uids=Object.keys(snap.val()||{});
+    document.getElementById('pFollowingCount').innerText=fmt(uids.length);
+    if(!uids.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);">Aucun abonnement</div>';return;}
+    list.innerHTML='';
+    for(const uid of uids){
+      const uSnap=await db.ref('users/'+uid).once('value');
+      const u=uSnap.val();if(!u)continue;
+      list.innerHTML+=renderFollowItem(u);
+    }
+  } else if(type==='followers'){
+    title.innerText='Abonnés';
+    const snap=await db.ref('followers/'+currentUser.uid).once('value');
+    const uids=Object.keys(snap.val()||{});
+    document.getElementById('pFollowers').innerText=fmt(uids.length);
+    if(!uids.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);">Aucun abonné</div>';return;}
+    list.innerHTML='';
+    for(const uid of uids){
+      const uSnap=await db.ref('users/'+uid).once('value');
+      const u=uSnap.val();if(!u)continue;
+      list.innerHTML+=renderFollowItem(u);
+    }
+  } else {
+    title.innerText='Mes vidéos';
+    modal.classList.remove('active');
+  }
+}
+function renderFollowItem(u){
+  const avH=u.avatar?`<img src="${u.avatar}" alt="">`:(u.name||'?')[0].toUpperCase();
+  return `<div class="fmod-item">
+    <div class="fmod-av">${avH}</div>
+    <div style="flex:1">
+      <div class="fmod-name">${esc(u.name||'')}</div>
+      <div class="fmod-handle">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div>
+    </div>
+    <button class="acc-follow" onclick="needAuth(()=>openDMWith('${u.uid}','${esc(u.name||'')}','${u.avatar||''}'))">💬 DM</button>
+  </div>`;
+}
+
+// ════════════════════════
 //  MARKETPLACE
 // ════════════════════════
-let currentCat='tous';
 function loadMarket(){
-  db.ref('products').orderByChild('createdAt').limitToLast(50).once('value').then(snap=>{
+  // Afficher le cache instantanément
+  const cached=localStorage.getItem('aes_market_cache');
+  if(cached){
+    try{
+      const c=JSON.parse(cached);
+      if(c.length){allProds=c;applyMarketFilters();}
+    }catch(e){}
+  }
+  // Refresh Firebase en arrière-plan
+  db.ref('products').orderByChild('createdAt').limitToLast(60).once('value').then(snap=>{
     const raw=snap.val()||{};
     allProds=Object.entries(raw).map(([id,p])=>({id,...p})).reverse();
-    renderMarket(allProds);
+    try{localStorage.setItem('aes_market_cache',JSON.stringify(allProds));}catch(e){}
+    applyMarketFilters();
   });
 }
-function filterMarket(cat){
+function filterMarket(cat,el){
   currentCat=cat;
   document.querySelectorAll('.mcat').forEach(c=>c.classList.remove('active'));
-  event.target.classList.add('active');
-  const filtered=cat==='tous'?allProds:allProds.filter(p=>p.cat===cat);
+  if(el)el.classList.add('active');
+  applyMarketFilters();
+}
+function filterMarketSearch(q){applyMarketFilters();}
+function applyMarketFilters(){
+  let filtered=currentCat==='tous'?[...allProds]:allProds.filter(p=>p.cat===currentCat);
+  const q=document.getElementById('marketSearch').value.trim().toLowerCase();
+  if(q)filtered=filtered.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q));
+  if(priceMin!==null)filtered=filtered.filter(p=>Number(p.price)>=priceMin);
+  if(priceMax!==null)filtered=filtered.filter(p=>Number(p.price)<=priceMax);
   renderMarket(filtered);
+}
+function openPriceModal(){document.getElementById('priceModal').classList.add('active');}
+function applyPriceFilter(){
+  const mn=document.getElementById('priceMin').value;
+  const mx=document.getElementById('priceMax').value;
+  priceMin=mn?Number(mn):null;priceMax=mx?Number(mx):null;
+  document.getElementById('priceModal').classList.remove('active');
+  applyMarketFilters();
+  showToast('💰 Filtre prix appliqué');
+}
+function clearPriceFilter(){
+  priceMin=null;priceMax=null;
+  document.getElementById('priceMin').value='';document.getElementById('priceMax').value='';
+  document.getElementById('priceModal').classList.remove('active');
+  applyMarketFilters();
 }
 function renderMarket(prods){
   const grid=document.getElementById('marketGrid');
-  if(!prods.length){grid.innerHTML='<div style="grid-column:span 2;padding:30px;text-align:center;color:var(--muted);font-size:13px;">Aucun produit dans cette catégorie</div>';return;}
+  if(!prods.length){grid.innerHTML='<div style="grid-column:span 2;padding:40px;text-align:center;color:var(--muted);font-size:13px;">😕 Aucun produit trouvé</div>';return;}
   grid.innerHTML=prods.map(p=>{
     const avH=p.sellerAvatar?`<img src="${p.sellerAvatar}" alt="">`:( p.sellerName||'V')[0].toUpperCase();
-    const imgH=p.imageUrl?`<img src="${p.imageUrl}" alt="">`:`<div class="prod-img-ph">${catEmoji(p.cat)}</div>`;
+    const imgH=p.imageUrl
+      ?`<img src="${p.imageUrl}" alt="" loading="lazy">`
+      :`<div class="prod-img-ph">${catEmoji(p.cat)}</div>`;
+    const isFav=favorites.includes(p.id);
+    const isSold=p.sold;
     return `<div class="prod-card" onclick="openProduct('${p.id}')">
-      <div class="prod-img">${imgH}<div class="prod-badge">${catEmoji(p.cat)}</div></div>
+      ${isSold?`<div class="prod-sold-overlay"><div class="prod-sold-badge">VENDU</div></div>`:''}
+      <div class="prod-img">
+        ${imgH}
+        <div class="prod-img-gradient"></div>
+        <div class="prod-price-overlay">${fmtPrice(p.price)}<small>FCFA</small></div>
+        <div class="prod-badge">${catEmoji(p.cat)}</div>
+        <div class="prod-fav" onclick="event.stopPropagation();toggleFav('${p.id}')" id="fav-${p.id}">${isFav?'❤️':'🤍'}</div>
+      </div>
       <div class="prod-body">
         <div class="prod-name">${esc(p.name)}</div>
-        <div class="prod-price">${fmtPrice(p.price)}<span>FCFA</span></div>
+        ${p.location?`<div class="prod-location">📍 ${esc(p.location)}</div>`:''}
         <div class="prod-seller">
           <div class="prod-seller-av">${avH}</div>
           <div class="prod-seller-name">@${esc(p.sellerName||'vendeur')}</div>
@@ -784,14 +1433,28 @@ function renderMarket(prods){
 }
 function catEmoji(cat){const m={electronique:'📱',vetements:'👗',alimentation:'🍎',services:'🔧',agriculture:'🌾',autre:'📦'};return m[cat]||'📦';}
 function fmtPrice(n){return Number(n).toLocaleString('fr-FR');}
+function toggleFav(id){
+  if(favorites.includes(id)){favorites=favorites.filter(x=>x!==id);showToast('💔 Retiré des favoris');}
+  else{favorites.push(id);showToast('❤️ Ajouté aux favoris');}
+  localStorage.setItem('aes_favs',JSON.stringify(favorites));
+  const el=document.getElementById('fav-'+id);
+  if(el)el.innerText=favorites.includes(id)?'❤️':'🤍';
+}
 
 function openProduct(id){
   const p=allProds.find(x=>x.id===id);if(!p)return;
   curProd=p;
   const imgEl=document.getElementById('pmodImg');
-  imgEl.innerHTML=p.imageUrl?`<img src="${p.imageUrl}" alt=""><div class="pmod-close" onclick="closeProductModal()">✕</div>`:`<div class="pmod-img-ph">${catEmoji(p.cat)}</div><div class="pmod-close" onclick="closeProductModal()">✕</div>`;
+  const imgContent=p.imageUrl
+    ?`<img src="${p.imageUrl}" alt="">`
+    :`<div class="pmod-img-ph">${catEmoji(p.cat)}</div>`;
+  imgEl.innerHTML=`${imgContent}
+    <div class="pmod-img-gradient"></div>
+    <div class="pmod-price-hero">${fmtPrice(p.price)}<small>FCFA</small></div>
+    <div class="pmod-close" onclick="closeProductModal()">✕</div>`;
   document.getElementById('pmodName').innerText=p.name||'';
-  document.getElementById('pmodPrice').innerText=fmtPrice(p.price)+' FCFA';
+  document.getElementById('pmodPrice').style.display='none'; // prix déjà sur la photo
+  document.getElementById('pmodLocation').innerText=p.location?'📍 '+p.location:'';
   document.getElementById('pmodDesc').innerText=p.desc||'Aucune description';
   const avEl=document.getElementById('pmodSellerAv');
   avEl.innerHTML=p.sellerAvatar?`<img src="${p.sellerAvatar}" alt="">`:( p.sellerName||'V')[0].toUpperCase();
@@ -800,12 +1463,34 @@ function openProduct(id){
   if(p.phone){
     const msg=encodeURIComponent(`Bonjour ! Je suis intéressé(e) par votre produit "${p.name}" à ${fmtPrice(p.price)} FCFA sur AES👑 Vidéos.`);
     waBtn.onclick=()=>window.open(`https://wa.me/${p.phone.replace(/[^0-9]/g,'')}?text=${msg}`);
-  } else {
-    waBtn.style.display='none';
-  }
+    waBtn.style.display='flex';
+  } else {waBtn.style.display='none';}
+  const soldBtn=document.getElementById('pmodSoldBtn');
+  const isOwn=currentUser&&p.sellerUid===currentUser.uid;
+  soldBtn.style.display=isOwn?'block':'none';
+  soldBtn.innerText=p.sold?'🔄 Remettre en vente':'✅ Marquer vendu';
+  const delBtn=document.getElementById('pmodDeleteBtn');
+  delBtn.style.display=isOwn?'block':'none';
   document.getElementById('productModal').classList.add('active');
 }
 function closeProductModal(){document.getElementById('productModal').classList.remove('active');curProd=null;}
+async function toggleSold(){
+  if(!curProd||!currentUser||curProd.sellerUid!==currentUser.uid)return;
+  const newVal=!curProd.sold;
+  await db.ref('products/'+curProd.id+'/sold').set(newVal);
+  curProd.sold=newVal;
+  const soldBtn=document.getElementById('pmodSoldBtn');
+  soldBtn.innerText=newVal?'🔄 Remettre en vente':'✅ Marquer vendu';
+  showToast(newVal?'✅ Marqué comme vendu !':'🔄 Remis en vente !');
+  loadMarket();
+}
+function deleteProduct(){
+  if(!curProd||!currentUser||curProd.sellerUid!==currentUser.uid)return;
+  showConfirm('Supprimer ce produit ?','Cette action est irréversible.',async()=>{
+    await db.ref('products/'+curProd.id).remove();
+    closeProductModal();loadMarket();showToast('🗑️ Produit supprimé');
+  });
+}
 function shareProduct(){
   if(!curProd)return;
   const txt=`${curProd.name} — ${fmtPrice(curProd.price)} FCFA sur AES👑 Vidéos`;
@@ -818,8 +1503,7 @@ function closeAddProduct(){
   document.getElementById('addProductModal').classList.remove('active');
   prodPhotoFile=null;
   document.getElementById('photoPick').innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)"><div class="photo-pick-ph"><span>📸</span>Photo du produit</div>`;
-  document.getElementById('prodName').value='';document.getElementById('prodPrice').value='';
-  document.getElementById('prodDesc').value='';document.getElementById('prodPhone').value='';
+  ['prodName','prodPrice','prodDesc','prodPhone','prodLocation'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prodProg').classList.remove('show');
   document.getElementById('addProdBtn').disabled=false;document.getElementById('addProdBtn').innerText='🚀 Publier le produit';
 }
@@ -838,6 +1522,7 @@ async function submitProduct(){
   const desc=document.getElementById('prodDesc').value.trim();
   const cat=document.getElementById('prodCat').value;
   const phone=document.getElementById('prodPhone').value.trim();
+  const location=document.getElementById('prodLocation').value.trim();
   if(!name||!price){showToast('⚠️ Nom et prix requis');return;}
   const btn=document.getElementById('addProdBtn');
   btn.disabled=true;btn.innerText='⏳ Publication...';
@@ -850,7 +1535,7 @@ async function submitProduct(){
     }
     document.getElementById('prodProgLabel').innerText='Sauvegarde...';
     await db.ref('products').push({
-      name,price:Number(price),desc,cat,phone,imageUrl,
+      name,price:Number(price),desc,cat,phone,imageUrl,location,sold:false,
       sellerName:currentUser.name,sellerAvatar:currentUser.avatar||'',
       sellerUid:currentUser.uid,createdAt:Date.now()
     });
@@ -864,6 +1549,9 @@ async function submitProduct(){
 // ════════════════════════
 //  STORIES
 // ════════════════════════
+let allStoryGroups = []; // tableau de groupes [{user, stories:[]}]
+let curGroupIdx = 0;
+
 function loadStories(){
   db.ref('stories').once('value').then(snap=>{
     const raw=snap.val()||{};
@@ -872,38 +1560,198 @@ function loadStories(){
     renderStories(list);
   });
 }
+
 function renderStories(list){
-  const row=document.getElementById('storiesRow');row.innerHTML='';
-  const addEl=document.createElement('div');addEl.className='sitem';
+  const row=document.getElementById('storiesRow');
+  row.innerHTML='';
+
+  // Bouton ajouter statut (toujours en premier)
+  const addEl=document.createElement('div');
+  addEl.className='sitem';
   const myAvH=currentUser?(currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:currentUser.name[0].toUpperCase()):'👤';
-  addEl.innerHTML=`<div class="sring" style="position:relative;background:var(--surface2);"><div class="savatar" id="myStoryAv">${myAvH}</div><div style="position:absolute;bottom:-1px;right:-1px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--bg);">+</div></div><span class="sname">Statut</span>`;
+  addEl.innerHTML=`<div class="sring" style="position:relative;background:var(--surface2);"><div class="savatar" id="myStoryAv">${myAvH}</div><div style="position:absolute;bottom:-1px;right:-1px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--bg);">+</div></div><span class="sname">Mon statut</span>`;
   addEl.onclick=()=>needAuth(()=>document.getElementById('statusInput').click());
   row.appendChild(addEl);
-  [...new Map(list.map(s=>[s.auteur,s])).values()].slice(0,8).forEach(s=>{
+
+  // Grouper par auteur — trier par date de la story la plus récente
+  const byAuthor={};
+  list.forEach(s=>{
+    const key=s.authorUid||s.auteur;
+    if(!byAuthor[key]) byAuthor[key]=[];
+    byAuthor[key].push(s);
+  });
+
+  // Trier chaque groupe par date croissante (la plus ancienne en premier dans le viewer)
+  Object.values(byAuthor).forEach(g=>g.sort((a,b)=>a.createdAt-b.createdAt));
+
+  // Ordre d'affichage :
+  // 1. Mes propres stories (si connecté)
+  // 2. Stories des abonnés (par date de la dernière story, la plus récente en premier)
+  // 3. Autres utilisateurs
+  const groups = Object.values(byAuthor);
+  const myUid = currentUser?.uid;
+
+  const sorted = [
+    ...groups.filter(g=>g[0].authorUid===myUid), // mes stories
+    ...groups.filter(g=>g[0].authorUid!==myUid && following[g[0].authorUid]), // abonnés
+    ...groups.filter(g=>g[0].authorUid!==myUid && !following[g[0].authorUid]) // autres
+  ].slice(0,12);
+
+  allStoryGroups = sorted;
+
+  sorted.forEach((stories, gIdx)=>{
+    const s=stories[stories.length-1]; // dernière story pour l'avatar
     const init=(s.auteur||'A')[0].toUpperCase();
     const avH=s.authorAvatar?`<img src="${s.authorAvatar}" alt="">`:init;
-    const el=document.createElement('div');el.className='sitem';
-    el.innerHTML=`<div class="sring"><div class="savatar">${avH}</div></div><span class="sname">${esc(s.auteur||'').slice(0,8)}</span>`;
-    el.onclick=()=>openStory(s);row.appendChild(el);
+    const isMe=s.authorUid===myUid;
+    const el=document.createElement('div');
+    el.className='sitem';
+    el.innerHTML=`
+      <div class="sring" style="${isMe?'background:linear-gradient(135deg,var(--gold),var(--gold2))':''}">
+        <div class="savatar">${avH}</div>
+      </div>
+      <span class="sname">${isMe?'Moi':esc(s.auteur||'').slice(0,8)}</span>`;
+    el.onclick=()=>openStoryGroup(gIdx, 0);
+    row.appendChild(el);
   });
 }
-function openStory(s){
-  const sv=document.getElementById('storyViewer');sv.classList.add('active');
-  const avH=s.authorAvatar?`<img src="${s.authorAvatar}" alt="">`:(s.auteur||'A')[0].toUpperCase();
-  document.getElementById('svav').innerHTML=avH;document.getElementById('svname').innerText=s.auteur||'anonyme';
-  const c=document.getElementById('svcontent');
-  c.innerHTML=(s.mediaType==='video'?`<video src="${s.mediaUrl}" autoplay loop muted playsinline></video>`:`<img src="${s.mediaUrl}">`)+`<div class="svtl" onclick="closeStory()"></div><div class="svtr" onclick="closeStory()"></div>`;
-  document.getElementById('svpbar').innerHTML=`<div class="svseg"><div class="svseg-fill" id="svfill"></div></div>`;
-  clearTimeout(storyTmr);
-  setTimeout(()=>{const f=document.getElementById('svfill');if(f)f.style.width='100%';},50);
-  storyTmr=setTimeout(closeStory,5200);
+
+function openStoryGroup(groupIdx, storyIdx){
+  curGroupIdx = groupIdx;
+  curStories = allStoryGroups[groupIdx] || [];
+  curStoryIdx = storyIdx;
+  if(!curStories.length) return;
+  showStory(curStories[storyIdx]);
 }
-function closeStory(){clearTimeout(storyTmr);document.getElementById('storyViewer').classList.remove('active');}
-async function uploadStatus(input){
-  const f=input.files[0];if(!f)return;showToast('⏳ Upload statut...');
+
+function showStory(s){
+  const sv=document.getElementById('storyViewer');
+  sv.classList.add('active');
+  const avH=s.authorAvatar?`<img src="${s.authorAvatar}" alt="">`:(s.auteur||'A')[0].toUpperCase();
+  document.getElementById('svav').innerHTML=avH;
+  document.getElementById('svname').innerText=s.auteur||'anonyme';
+  const c=document.getElementById('svcontent');
+  const mediaH=s.mediaType==='video'
+    ?`<video src="${s.mediaUrl}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`
+    :`<img src="${s.mediaUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`;
+  const textH=s.text?`<div class="sv-text-overlay">${esc(s.text)}</div>`:'';
+  c.innerHTML=mediaH+textH;
+
+  // Barre de progression — segments pour toutes les stories du groupe
+  document.getElementById('svpbar').innerHTML=curStories.map((_,i)=>`
+    <div class="svseg">
+      <div class="svseg-fill" style="width:${i<curStoryIdx?'100%':'0%'}" ${i===curStoryIdx?'id="svfill"':''}></div>
+    </div>`).join('');
+
+  const isOwn=currentUser&&s.authorUid===currentUser.uid;
+  const delBtn=document.getElementById('svDelBtn');
+  delBtn.style.display=isOwn?'block':'none';
+  if(isOwn)delBtn.onclick=()=>deleteStory(s.id);
+
+  // Lancer la progression
+  clearTimeout(storyTmr);
+  const dur=s.mediaType==='video'?6200:5000;
+  setTimeout(()=>{
+    const f=document.getElementById('svfill');
+    if(f){f.style.transition=`width ${dur}ms linear`;f.style.width='100%';}
+  },50);
+  storyTmr=setTimeout(nextStory, dur+100);
+}
+
+function prevStory(){
+  clearTimeout(storyTmr);
+  if(curStoryIdx>0){
+    // Story précédente dans le même groupe
+    curStoryIdx--;
+    showStory(curStories[curStoryIdx]);
+  } else if(curGroupIdx>0){
+    // Groupe précédent — aller à la dernière story de ce groupe
+    curGroupIdx--;
+    curStories=allStoryGroups[curGroupIdx];
+    curStoryIdx=curStories.length-1;
+    showStory(curStories[curStoryIdx]);
+  } else {
+    closeStory();
+  }
+}
+
+function nextStory(){
+  clearTimeout(storyTmr);
+  if(curStoryIdx<curStories.length-1){
+    // Story suivante dans le même groupe
+    curStoryIdx++;
+    showStory(curStories[curStoryIdx]);
+  } else if(curGroupIdx<allStoryGroups.length-1){
+    // Groupe suivant — commencer depuis la 1ère story
+    curGroupIdx++;
+    curStories=allStoryGroups[curGroupIdx];
+    curStoryIdx=0;
+    showStory(curStories[0]);
+  } else {
+    // Fin de toutes les stories
+    closeStory();
+  }
+}
+
+function closeStory(){
+  clearTimeout(storyTmr);
+  document.getElementById('storyViewer').classList.remove('active');
+}
+
+// Navigation par tap — gauche = précédent, droite = suivant
+function initStoryTap(){
+  const sv=document.getElementById('storyViewer');
+  let touchStartX=0;
+  sv.addEventListener('touchstart',e=>{
+    if(e.target.closest('.sv-del,.svheader,.svclose'))return;
+    touchStartX=e.touches[0].clientX;
+  },{passive:true});
+  sv.addEventListener('touchend',e=>{
+    if(e.target.closest('.sv-del,.svheader,.svclose'))return;
+    const dx=e.changedTouches[0].clientX-touchStartX;
+    if(Math.abs(dx)>40){dx<0?nextStory():prevStory();return;}
+    const tapX=e.changedTouches[0].clientX;
+    tapX<window.innerWidth*0.35?prevStory():nextStory();
+  },{passive:true});
+  sv.addEventListener('click',e=>{
+    if(e.target.closest('.sv-del,.svheader,.svclose'))return;
+    e.clientX<window.innerWidth*0.35?prevStory():nextStory();
+  });
+}
+async function deleteStory(id){
+  showConfirm('Supprimer ce statut ?','Il sera supprimé immédiatement.',async()=>{
+    await db.ref('stories/'+id).remove();
+    closeStory();loadStories();showToast('🗑️ Statut supprimé');
+  });
+}
+
+// Story text modal
+let pendingStatusFile=null;
+function openStoryTextModal(input){
+  const f=input.files[0];if(!f)return;
+  pendingStatusFile=f;
+  input.value=''; // reset pour pouvoir re-sélectionner le même fichier
+  document.getElementById('storyTextInp').value='';
+  document.getElementById('storyTextModal').classList.add('active');
+}
+async function uploadStatusFinal(text){
+  document.getElementById('storyTextModal').classList.remove('active');
+  if(!pendingStatusFile){showToast('⚠️ Aucun fichier sélectionné');return;}
+  if(!currentUser){showToast('⚠️ Connecte-toi d\'abord');return;}
+  const file=pendingStatusFile;
+  pendingStatusFile=null;
+  showToast('⏳ Upload statut...');
   try{
-    const url=await ikUpload(f,'stories',null);
-    await db.ref('stories').push({mediaUrl:url,mediaType:f.type.startsWith('video/')?'video':'image',auteur:currentUser.name,authorAvatar:currentUser.avatar||'',createdAt:Date.now()});
+    const url=await ikUpload(file,'stories',null);
+    await db.ref('stories').push({
+      mediaUrl:url,
+      mediaType:file.type.startsWith('video/')?'video':'image',
+      text:text||'',
+      auteur:currentUser.name,
+      authorAvatar:currentUser.avatar||'',
+      authorUid:currentUser.uid,
+      createdAt:Date.now()
+    });
     showToast('✅ Statut publié !');loadStories();
   }catch(e){showToast('❌ '+e.message);}
 }
@@ -918,7 +1766,27 @@ function tapVid(video,id,i){
 }
 function initObserver(){
   const obs=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{const v=e.target.querySelector('video');if(!v)return;if(e.isIntersecting)v.play().catch(()=>{});else v.pause();});
+    entries.forEach(e=>{
+      const v=e.target.querySelector('video');
+      if(!v)return;
+      if(e.isIntersecting){
+        v.play().catch(()=>{});
+        // Tracker la vue
+        const id=e.target.id.replace('vc-','');
+        const vid=allVids.find(x=>x.id===id);
+        if(vid) trackView(id, vid.authorUid||'');
+        // Charger le vrai compteur de vues depuis Firebase
+        db.ref('videos/'+id+'/views').once('value').then(snap=>{
+          const el=document.getElementById('vc-'+id);
+          if(el){
+            const viewEl=el.querySelector('.vviews');
+            if(viewEl) viewEl.innerText=fmt(snap.val()||0)+' vues';
+          }
+        });
+      } else {
+        v.pause();
+      }
+    });
   },{threshold:0.65});
   document.querySelectorAll('.vcard').forEach(c=>obs.observe(c));
 }
@@ -930,16 +1798,162 @@ function initProgress(){
 }
 
 // ════════════════════════
-//  LIKE
+//  VUES — compteur réel
 // ════════════════════════
-function toggleLike(id,cur){
-  const isLiked=liked.includes(id);const newN=isLiked?Math.max(0,cur-1):cur+1;
-  const circle=document.getElementById('lk-'+id);const countEl=document.getElementById('lc-'+id);
-  if(isLiked){liked=liked.filter(x=>x!==id);circle.innerText='🤍';circle.classList.remove('liked');}
-  else{liked.push(id);circle.innerText='❤️';circle.classList.add('liked');}
-  countEl.innerText=fmt(newN);localStorage.setItem('aes_liked',JSON.stringify(liked));
-  const vid=allVids.find(x=>x.id===id);if(vid)vid.likes=newN;
-  db.ref('videos/'+id+'/likes').set(newN);
+function trackView(vidId, authorUid){
+  // On incrémente la vue une seule fois par session par vidéo
+  const key = 'viewed_'+vidId;
+  if(sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key,'1');
+  db.ref('videos/'+vidId+'/views').transaction(v=>(v||0)+1);
+  // Notif vue pour le créateur (silencieuse, pas de push)
+  if(authorUid && currentUser && authorUid !== currentUser.uid){
+    db.ref('videos/'+vidId+'/viewers/'+currentUser.uid).set(true);
+  }
+}
+
+// ════════════════════════
+//  LIKE — vrai compteur Firebase
+// ════════════════════════
+function toggleLike(id, cur){
+  if(!currentUser) return;
+  const isLiked = liked.includes(id);
+  const circle = document.getElementById('lk-'+id);
+  const countEl = document.getElementById('lc-'+id);
+
+  if(isLiked){
+    // Unlike
+    liked = liked.filter(x=>x!==id);
+    circle.innerText='🤍';
+    circle.classList.remove('liked');
+    // Décrémenter dans Firebase avec transaction atomique
+    db.ref('videos/'+id+'/likes').transaction(v=>Math.max(0,(v||0)-1));
+    db.ref('videos/'+id+'/likedBy/'+currentUser.uid).remove();
+  } else {
+    // Like
+    liked.push(id);
+    circle.innerText='❤️';
+    circle.classList.add('liked');
+    // Incrémenter dans Firebase avec transaction atomique
+    db.ref('videos/'+id+'/likes').transaction(v=>(v||0)+1, (err, committed, snap)=>{
+      if(!err && committed && snap) countEl.innerText=fmt(snap.val()||0);
+    });
+    db.ref('videos/'+id+'/likedBy/'+currentUser.uid).set(true);
+    // Notif au créateur
+    const vid = allVids.find(x=>x.id===id);
+    if(vid && vid.authorUid && vid.authorUid!==currentUser.uid){
+      sendNotif(vid.authorUid, {
+        type:'like',
+        fromUid:currentUser.uid,
+        fromName:currentUser.name,
+        fromAvatar:currentUser.avatar||'',
+        vidId:id,
+        at:Date.now(),
+        read:false
+      });
+    }
+  }
+  localStorage.setItem('aes_liked', JSON.stringify(liked));
+  // Lire le vrai compteur depuis Firebase
+  db.ref('videos/'+id+'/likes').once('value').then(snap=>{
+    if(countEl) countEl.innerText = fmt(snap.val()||0);
+    const vid = allVids.find(x=>x.id===id);
+    if(vid) vid.likes = snap.val()||0;
+  });
+}
+
+// Vérifier si l'utilisateur a déjà liké (au chargement)
+async function syncLikedFromFirebase(vids){
+  if(!currentUser) return;
+  const checks = vids.slice(0,20).map(async v=>{
+    const snap = await db.ref('videos/'+v.id+'/likedBy/'+currentUser.uid).once('value');
+    if(snap.val() && !liked.includes(v.id)){
+      liked.push(v.id);
+      const circle = document.getElementById('lk-'+v.id);
+      if(circle){ circle.innerText='❤️'; circle.classList.add('liked'); }
+    }
+  });
+  await Promise.all(checks);
+  localStorage.setItem('aes_liked', JSON.stringify(liked));
+}
+
+// ════════════════════════
+//  NOTIFICATIONS — système complet temps réel
+// ════════════════════════
+let notifListener = null;
+
+function sendNotif(toUid, data){
+  db.ref('notifications/'+toUid).push(data);
+}
+
+function startNotifListener(){
+  if(!currentUser || notifListener) return;
+  // Écouter en temps réel les nouvelles notifs
+  notifListener = db.ref('notifications/'+currentUser.uid)
+    .orderByChild('at')
+    .limitToLast(1)
+    .on('child_added', snap=>{
+      const n = snap.val();
+      if(!n || n.read) return;
+      // Afficher le point rouge
+      document.getElementById('notifDot').style.display='block';
+      // Toast de notification en temps réel
+      const icons = {like:'❤️', comment:'💬', follow:'👤', dm:'💬'};
+      const msgs = {
+        like: `${n.fromName} a aimé ta vidéo`,
+        comment: `${n.fromName} a commenté`,
+        follow: `${n.fromName} s'est abonné(e)`,
+        dm: `${n.fromName} : ${(n.text||'').slice(0,30)}`
+      };
+      if(msgs[n.type]){
+        showNotifToast(icons[n.type]||'🔔', msgs[n.type]);
+      }
+    });
+}
+
+function stopNotifListener(){
+  if(notifListener && currentUser){
+    db.ref('notifications/'+currentUser.uid).off('child_added', notifListener);
+    notifListener = null;
+  }
+}
+
+// Toast de notification premium (différent du toast normal)
+function showNotifToast(icon, msg){
+  // Éviter les doublons rapides
+  const existing = document.getElementById('notifToast');
+  if(existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'notifToast';
+  el.style.cssText = `
+    position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);
+    background:rgba(16,16,19,0.97);border:1px solid rgba(201,168,76,0.3);
+    color:var(--text);padding:10px 16px;border-radius:28px;
+    font-size:13px;font-weight:500;z-index:999;opacity:0;
+    transition:opacity 0.3s,transform 0.3s;display:flex;align-items:center;gap:8px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;max-width:90vw;
+    cursor:pointer;
+  `;
+  el.innerHTML = `<span style="font-size:16px">${icon}</span><span>${esc(msg)}</span>`;
+  el.onclick = ()=>{ showScreen('notif'); el.remove(); };
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='1'; el.style.transform='translateX(-50%) translateY(0)'; },50);
+  setTimeout(()=>{
+    el.style.opacity='0';
+    el.style.transform='translateX(-50%) translateY(-20px)';
+    setTimeout(()=>el.remove(), 400);
+  }, 4000);
+}
+
+// ════════════════════════
+//  DELETE VIDEO
+// ════════════════════════
+function confirmDeleteVideo(id){
+  showConfirm('Supprimer cette vidéo ?','Elle sera retirée définitivement du feed.',async()=>{
+    await db.ref('videos/'+id).remove();
+    allVids=allVids.filter(v=>v.id!==id);
+    renderFeedByMode();showToast('🗑️ Vidéo supprimée');
+  });
 }
 
 // ════════════════════════
@@ -968,6 +1982,145 @@ async function sendComment(){
   renderComments(curVidId,Object.values(snap.val()||{}));
   const el=document.getElementById('cc-'+curVidId);
   if(el)el.innerText=fmt(Object.keys(snap.val()||{}).length);
+  const vid=allVids.find(v=>v.id===curVidId);
+  if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid){
+    db.ref('notifications/'+vid.authorUid).push({type:'comment',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,vidId:curVidId,at:Date.now(),read:false});
+  }
+}
+
+// ════════════════════════
+//  NOTIFICATIONS — affichage
+// ════════════════════════
+function loadNotifs(){
+  if(!currentUser){
+    document.getElementById('notifList').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);">Connecte-toi pour voir tes notifications</div>';
+    return;
+  }
+  db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(50).once('value').then(snap=>{
+    const raw=snap.val()||{};
+    const notifs=Object.entries(raw).map(([id,n])=>({id,...n})).reverse();
+    const unread=notifs.filter(n=>!n.read).length;
+    document.getElementById('notifDot').style.display=unread>0?'block':'none';
+    document.getElementById('notifList').innerHTML=notifs.length
+      ?notifs.map(n=>renderNotif(n)).join('')
+      :`<div style="padding:40px;text-align:center;color:var(--muted);">
+          <div style="font-size:42px;margin-bottom:12px;">🔔</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:15px;color:var(--text);margin-bottom:6px;">Aucune notification</div>
+          <div style="font-size:12px;">Publie des vidéos pour recevoir des likes et commentaires !</div>
+        </div>`;
+    // Marquer tout comme lu
+    notifs.forEach(n=>{if(!n.read) db.ref('notifications/'+currentUser.uid+'/'+n.id+'/read').set(true);});
+  });
+}
+
+function renderNotif(n){
+  const avH=n.fromAvatar?`<img src="${n.fromAvatar}" alt="">`:( n.fromName||'?')[0].toUpperCase();
+  const icons={like:'❤️',comment:'💬',follow:'👥',dm:'💬',view:'👁'};
+  const colors={like:'rgba(224,85,85,0.15)',comment:'rgba(201,168,76,0.1)',follow:'rgba(34,197,94,0.1)',dm:'rgba(201,168,76,0.1)'};
+  const texts={
+    like:`<b>${esc(n.fromName)}</b> a aimé ta vidéo ❤️`,
+    comment:`<b>${esc(n.fromName)}</b> a commenté : "<i>${esc((n.text||'').slice(0,40))}</i>"`,
+    follow:`<b>${esc(n.fromName)}</b> s'est abonné(e) à toi 👥`,
+    dm:`<b>${esc(n.fromName)}</b> t'a envoyé un message : "<i>${esc((n.text||'').slice(0,30))}</i>"`
+  };
+  const onclick = n.type==='dm'
+    ? `openDMWith('${n.fromUid||''}','${esc(n.fromName||'')}','')`
+    : n.vidId ? `goToVid('${n.vidId}')` : '';
+  return `<div class="notif-item ${n.read?'':'unread'}" onclick="${onclick}" style="${n.read?'':'background:'+( colors[n.type]||'rgba(201,168,76,0.04)')+';'}">
+    <div class="notif-av">${avH}</div>
+    <div class="notif-text">${texts[n.type]||'Nouvelle notification'}</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+      <div class="notif-icon">${icons[n.type]||'🔔'}</div>
+      <div class="notif-time">${timeAgo(n.at)}</div>
+      ${!n.read?'<div style="width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>':''}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════
+//  MESSAGERIE PRIVÉE
+// ════════════════════════
+function loadDMs(){
+  if(!currentUser){document.getElementById('dmList').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);">Connecte-toi pour voir tes messages</div>';return;}
+  db.ref('dms').orderByChild('updatedAt').limitToLast(20).once('value').then(snap=>{
+    const raw=snap.val()||{};
+    const convs=Object.entries(raw)
+      .filter(([key])=>key.includes(currentUser.uid))
+      .map(([key,v])=>({key,...v}))
+      .sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    if(!convs.length){document.getElementById('dmList').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);">Aucun message 💬<br><br><span style="font-size:12px">Appuie sur le nom d\'un créateur pour lui écrire</span></div>';return;}
+    document.getElementById('dmList').innerHTML=convs.map(c=>renderDMItem(c)).join('');
+  });
+}
+function dmKey(uid1,uid2){return [uid1,uid2].sort().join('_');}
+function renderDMItem(c){
+  const otherUid=c.key.replace(currentUser.uid,'').replace('_','');
+  const avH=c.otherAvatar?`<img src="${c.otherAvatar}" alt="">`:( c.otherName||'?')[0].toUpperCase();
+  const hasUnread=c.unread&&c.unread[currentUser.uid];
+  return `<div class="dm-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}')">
+    <div class="dm-av">${avH}</div>
+    <div class="dm-info">
+      <div class="dm-name">${esc(c.otherName||otherUid)}</div>
+      <div class="dm-preview">${esc(c.lastMsg||'...')}</div>
+    </div>
+    <div class="dm-meta">
+      <div class="dm-time">${timeAgo(c.updatedAt||Date.now())}</div>
+      ${hasUnread?`<div class="dm-unread">!</div>`:''}
+    </div>
+  </div>`;
+}
+function openDMWith(uid,name,avatar){
+  if(!currentUser){needAuth(()=>openDMWith(uid,name,avatar));return;}
+  if(!uid||uid===currentUser.uid)return;
+  openChat(uid,name,avatar);
+}
+function openChat(uid,name,avatar){
+  if(!currentUser)return;
+  curChatUid=uid;curChatName=name;
+  const avH=avatar?`<img src="${avatar}" alt="">`:( name||'?')[0].toUpperCase();
+  document.getElementById('chatHav').innerHTML=avH;
+  document.getElementById('chatHname').innerText=name||uid;
+  document.getElementById('chatScreen').classList.add('active');
+  loadMessages();
+}
+function closeChatScreen(){
+  document.getElementById('chatScreen').classList.remove('active');
+  curChatUid=null;curChatName=null;
+}
+function loadMessages(){
+  if(!currentUser||!curChatUid)return;
+  const key=dmKey(currentUser.uid,curChatUid);
+  db.ref('messages/'+key).orderByChild('at').limitToLast(50).once('value').then(snap=>{
+    const msgs=Object.values(snap.val()||{});
+    const mc=document.getElementById('chatMessages');
+    mc.innerHTML=msgs.length?msgs.map(m=>{
+      const isMe=m.from===currentUser.uid;
+      return `<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'}">
+        <div class="msg-bubble ${isMe?'me':'them'}">${esc(m.text)}</div>
+        <div class="msg-time ${isMe?'':'msg-them-time'}">${timeAgo(m.at)}</div>
+      </div>`;
+    }).join(''):'<div style="text-align:center;color:var(--muted);padding:28px;font-size:12px;">Début de la conversation 💬</div>';
+    mc.scrollTop=mc.scrollHeight;
+    // Mark unread as read
+    const key2=dmKey(currentUser.uid,curChatUid);
+    db.ref('dms/'+key2+'/unread/'+currentUser.uid).remove();
+  });
+}
+async function sendMessage(){
+  if(!currentUser||!curChatUid)return;
+  const inp=document.getElementById('chatInp');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  const key=dmKey(currentUser.uid,curChatUid);
+  const msg={from:currentUser.uid,to:curChatUid,text:txt,at:Date.now()};
+  await db.ref('messages/'+key).push(msg);
+  await db.ref('dms/'+key).update({
+    lastMsg:txt,updatedAt:Date.now(),
+    otherName:curChatName,otherAvatar:'',
+    [`unread/${curChatUid}`]:true
+  });
+  loadMessages();
+  db.ref('notifications/'+curChatUid).push({type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,at:Date.now(),read:false});
 }
 
 // ════════════════════════
@@ -988,6 +2141,24 @@ function onFileSelected(inp){
   document.getElementById('fchip').classList.add('show');
   document.getElementById('uzone').style.borderColor='var(--gold)';
 }
+// Watermark Cloudinary — transformations dans l'URL
+function addCloudinaryWatermark(url){
+  // Watermark texte "AES👑" en bas à droite + nom app en bas à gauche
+  const wm = [
+    'l_text:Arial_26_bold:AES%20%F0%9F%91%91',  // texte AES👑
+    'co_rgb:F0D080',   // couleur gold
+    'o_80',            // opacité 80%
+    'g_south_east',    // position bas droite
+    'x_16,y_16'        // marge
+  ].join(',');
+  return url.replace('/video/upload/', `/video/upload/${wm}/`);
+}
+
+function addCloudinaryThumbWatermark(url){
+  const wm = 'l_text:Arial_26_bold:AES%20%F0%9F%91%91,co_rgb:F0D080,o_80,g_south_east,x_16,y_16';
+  return url.replace('/video/upload/', `/video/upload/${wm}/`);
+}
+
 async function uploadVideo(){
   if(!selFile){showToast('⚠️ Choisis une vidéo');return;}
   const desc=document.getElementById('descInput').value.trim()||'';
@@ -995,10 +2166,23 @@ async function uploadVideo(){
   btn.disabled=true;btn.innerText='⏳ Upload...';
   document.getElementById('mprog').classList.add('show');setProg(5,'Envoi...');
   try{
-    const videoUrl=await clUpload(selFile,p=>setProg(5+p*0.82,`Envoi ${p}%...`));
-    setProg(90,'Sauvegarde...');
-    const thumb=videoUrl.replace('/video/upload/','/video/upload/so_0,w_480/').replace(/\.(mp4|mov|avi|webm)$/i,'.jpg');
-    await db.ref('videos').push({videoUrl,thumbnail:thumb,auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,desc,likes:0,createdAt:Date.now()});
+    const rawUrl=await clUpload(selFile,p=>setProg(5+p*0.82,`Envoi ${p}%...`));
+    setProg(88,'Watermark...');
+    // URL vidéo avec watermark intégré via Cloudinary
+    const videoUrl=addCloudinaryWatermark(rawUrl);
+    const thumb=rawUrl
+      .replace('/video/upload/','/video/upload/so_0,w_480/')
+      .replace(/\.(mp4|mov|avi|webm)$/i,'.jpg');
+    setProg(94,'Sauvegarde...');
+    await db.ref('videos').push({
+      videoUrl,           // URL avec watermark
+      rawUrl,             // URL originale (pour usage interne)
+      thumbnail:thumb,
+      auteur:currentUser.name,
+      authorAvatar:currentUser.avatar||'',
+      authorUid:currentUser.uid,
+      desc,likes:0,createdAt:Date.now()
+    });
     setProg(100,'✅ Publié !');showToast('🎉 Vidéo publiée !');
     setTimeout(()=>{closeModal();loadFeed();},900);
   }catch(e){
@@ -1024,41 +2208,190 @@ async function uploadAvatar(input){
 // ════════════════════════
 //  PROFILE
 // ════════════════════════
-function renderProfile(){
+async function renderProfile(){
   applyUserUI();
   if(!currentUser){document.getElementById('profileGrid').innerHTML='<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Connecte-toi pour voir tes vidéos</div>';return;}
   const mine=allVids.filter(v=>v.authorUid===currentUser.uid);
   document.getElementById('pVids').innerText=fmt(mine.length);
-  document.getElementById('pLks').innerText=fmt(mine.reduce((a,v)=>a+(v.likes||0),0));
-  document.getElementById('pFollowers').innerText=fmt(Object.keys(following).length);
+  const lkSnap=await db.ref('followers/'+currentUser.uid).once('value');
+  document.getElementById('pFollowers').innerText=fmt(lkSnap.numChildren());
+  document.getElementById('pFollowingCount').innerText=fmt(Object.keys(following).length);
   document.getElementById('profileGrid').innerHTML=mine.length
-    ?mine.map(v=>`<div class="pgitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span></div></div>`).join('')
+    ?mine.map(v=>`<div class="pgitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span><button class="pg-del-btn" onclick="event.stopPropagation();confirmDeleteVideo('${v.id}')">🗑</button></div></div>`).join('')
     :'<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Aucune vidéo publiée</div>';
 }
 
 // ════════════════════════
 //  SEARCH
 // ════════════════════════
+let searchTabCurrent='videos';
+function switchSearchTab(tab,el){
+  searchTabCurrent=tab;
+  document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('searchVideos').style.display=tab==='videos'?'block':'none';
+  document.getElementById('searchAccounts').style.display=tab==='accounts'?'block':'none';
+  document.getElementById('searchTags').style.display=tab==='tags'?'block':'none';
+  filterSearch(document.getElementById('searchInput').value);
+}
 function renderExplore(){
   document.getElementById('exploreGrid').innerHTML=allVids.slice(0,12).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');
 }
+async function renderAccounts(q){
+  const list=document.getElementById('accountsList');
+  list.innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px;">Chargement...</div>';
+  const snap=await db.ref('users').limitToFirst(30).once('value');
+  const users=Object.values(snap.val()||{});
+  const filtered=q?users.filter(u=>(u.name||'').toLowerCase().includes(q.toLowerCase())):users;
+  list.innerHTML=filtered.length?filtered.map(u=>{
+    const avH=u.avatar?`<img src="${u.avatar}" alt="">`:( u.name||'?')[0].toUpperCase();
+    const isFollowing=following[u.uid];
+    const isMe=currentUser&&u.uid===currentUser.uid;
+    return `<div class="account-item">
+      <div class="acc-av">${avH}</div>
+      <div style="flex:1">
+        <div class="acc-name">${esc(u.name||'')}</div>
+        <div class="acc-handle">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div>
+      </div>
+      ${!isMe?`<button class="acc-follow ${isFollowing?'following':''}" onclick="needAuth(()=>toggleFollowBtn('${u.uid}','${esc(u.name||'')}',this))">${isFollowing?'✓ Suivi':'+ Suivre'}</button>`:''}
+    </div>`;
+  }).join(''):'<div style="padding:16px;color:var(--muted);font-size:12px;text-align:center;">Aucun compte trouvé</div>';
+}
+async function toggleFollowBtn(uid,name,btn){
+  if(!currentUser){needAuth(()=>{});return;}
+  if(following[uid]){
+    delete following[uid];
+    await db.ref('following/'+currentUser.uid+'/'+uid).remove();
+    await db.ref('followers/'+uid+'/'+currentUser.uid).remove();
+    btn.innerText='+ Suivre';btn.classList.remove('following');
+  } else {
+    following[uid]=true;
+    await db.ref('following/'+currentUser.uid+'/'+uid).set(true);
+    await db.ref('followers/'+uid+'/'+currentUser.uid).set(true);
+    btn.innerText='✓ Suivi';btn.classList.add('following');
+    showToast('✅ Abonné à @'+name);
+    await db.ref('notifications/'+uid).push({type:'follow',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});
+  }
+  localStorage.setItem('aes_following',JSON.stringify(following));
+}
 function filterSearch(q){
-  if(!q){renderExplore();return;}
-  const f=allVids.filter(v=>(v.auteur||'').toLowerCase().includes(q.toLowerCase())||(v.desc||'').toLowerCase().includes(q.toLowerCase()));
-  document.getElementById('exploreGrid').innerHTML=f.map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');
+  if(searchTabCurrent==='videos'){
+    if(!q){renderExplore();return;}
+    const f=allVids.filter(v=>(v.auteur||'').toLowerCase().includes(q.toLowerCase())||(v.desc||'').toLowerCase().includes(q.toLowerCase()));
+    document.getElementById('exploreGrid').innerHTML=f.map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');
+  } else if(searchTabCurrent==='accounts'){
+    renderAccounts(q);
+  }
+}
+function searchByTag(tag){
+  showScreen('search');
+  document.getElementById('searchInput').value=tag;
+  switchSearchTab('videos',document.querySelectorAll('.s-tab')[0]);
+  filterSearch(tag);
 }
 function goToVid(id){showScreen('home');setTimeout(()=>{const el=document.getElementById('vc-'+id);if(el)el.scrollIntoView({behavior:'smooth'});},200);}
 
 // ════════════════════════
-//  SHARE + DOWNLOAD
+//  SHARE + DOWNLOAD WATERMARK
 // ════════════════════════
 async function shareVid(url){
-  if(navigator.share){try{await navigator.share({url});}catch{}}
+  if(navigator.share){try{await navigator.share({title:'AES👑 Vidéos',text:'Regarde cette vidéo sur AES👑 !',url});}catch{}}
   else{try{await navigator.clipboard.writeText(url);showToast('🔗 Lien copié !');}catch{}}
 }
-function downloadVid(url,id){
-  const a=document.createElement('a');a.href=url;a.download='aes_video_'+id+'.mp4';a.target='_blank';a.click();
-  showToast('⬇️ Téléchargement démarré !');
+
+async function downloadVid(url, id){
+  showToast('⏳ Préparation du téléchargement...');
+  try {
+    // Pour les vidéos : on télécharge l'URL Cloudinary qui a déjà le watermark intégré
+    // + on ajoute un overlay Canvas watermark sur la miniature pour feedback visuel
+    const a = document.createElement('a');
+    // Forcer le download via fetch blob pour contourner les restrictions CORS sur mobile
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    a.href = blobUrl;
+    a.download = 'AES_video_' + id + '.mp4';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(blobUrl), 5000);
+    showToast('⬇️ Téléchargement avec watermark AES👑 !');
+  } catch(e) {
+    // Fallback si CORS bloque le fetch
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'AES_video_' + id + '.mp4';
+    a.target = '_blank';
+    a.click();
+    showToast('⬇️ Téléchargement démarré !');
+  }
+}
+
+// Canvas watermark pour les screenshots/images
+async function downloadWithCanvasWatermark(imageUrl, filename){
+  showToast('⏳ Ajout du watermark...');
+  try{
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+
+      // Dessiner l'image originale
+      ctx.drawImage(img, 0, 0);
+
+      // === WATERMARK BAS DROITE ===
+      const fontSize = Math.max(18, img.width * 0.045);
+      ctx.font = `bold ${fontSize}px Arial`;
+
+      // Ombre portée pour lisibilité
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+
+      // Texte principal "AES👑"
+      ctx.fillStyle = '#F0D080';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('AES👑', img.width - 16, img.height - 16);
+
+      // Sous-texte "@aesvideos"
+      const fontSize2 = Math.max(12, img.width * 0.028);
+      ctx.font = `${fontSize2}px Arial`;
+      ctx.fillStyle = 'rgba(240,208,128,0.8)';
+      ctx.fillText('@aesvideos', img.width - 16, img.height - 16 - fontSize - 4);
+
+      // Reset shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+
+      // Download
+      canvas.toBlob(blob=>{
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename || 'AES_photo.jpg';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('⬇️ Photo sauvegardée avec watermark AES👑 !');
+      }, 'image/jpeg', 0.92);
+    };
+    img.onerror = ()=>{ showToast('❌ Erreur watermark'); };
+    img.src = imageUrl;
+  }catch(e){ showToast('❌ ' + e.message); }
+}
+
+// ════════════════════════
+//  CONFIRM MODAL
+// ════════════════════════
+function showConfirm(title,msg,onOk){
+  document.getElementById('confirmTitle').innerText=title;
+  document.getElementById('confirmMsg').innerText=msg;
+  document.getElementById('confirmModal').classList.add('active');
+  document.getElementById('confirmOk').onclick=()=>{document.getElementById('confirmModal').classList.remove('active');onOk();};
 }
 
 // ════════════════════════
@@ -1070,10 +2403,733 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function showToast(msg){const t=document.getElementById('toast');t.innerText=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ════════════════════════
-//  INIT
+//  ACTUALITÉS AES - RSS AUTO
 // ════════════════════════
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?api_key=&rss_url=';
+const NEWS_SOURCES = [
+  {
+    id:'rfi',
+    name:'RFI Afrique',
+    label:'🔴 RFI',
+    url:'https://www.rfi.fr/fr/afrique/rss',
+    color:'#e05555'
+  },
+  {
+    id:'bbc',
+    name:'BBC Afrique',
+    label:'🟠 BBC',
+    url:'https://feeds.bbci.co.uk/afrique/rss.xml',
+    color:'#c9a84c'
+  },
+  {
+    id:'ja',
+    name:'Jeune Afrique',
+    label:'🟡 J.Afrique',
+    url:'https://www.jeuneafrique.com/feed/',
+    color:'#22c55e'
+  }
+];
+
+let allArticles = [];
+let filteredArticles = [];
+let newsFilter = 'all';
+let newsLiked = JSON.parse(localStorage.getItem('aes_news_liked')||'[]');
+let lastNewsCount = parseInt(localStorage.getItem('aes_news_count')||'0');
+let curArticle = null;
+let newsInterval = null;
+
+async function fetchRSS(source){
+  try{
+    const url = RSS2JSON + encodeURIComponent(source.url);
+    const res = await fetch(url);
+    const data = await res.json();
+    if(data.status !== 'ok') return [];
+    return (data.items||[]).map(item=>({
+      id: btoa(encodeURIComponent(item.link||item.title||Math.random())).slice(0,16),
+      title: (item.title||'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#39;/g,"'").replace(/&quot;/g,'"'),
+      desc: (item.description||item.content||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim().slice(0,400),
+      fullContent: item.content || item.description || '',
+      link: item.link||'',
+      image: item.thumbnail||item.enclosure?.link||extractImg(item.content||item.description||''),
+      date: item.pubDate ? new Date(item.pubDate) : new Date(),
+      source: source.name,
+      sourceId: source.id,
+      sourceColor: source.color
+    }));
+  }catch(e){ return []; }
+}
+
+function extractImg(html){
+  const m = html.match(/<img[^>]+src="([^"]+)"/);
+  return m ? m[1] : '';
+}
+
+async function loadNews(forceRefresh=false){
+  const list = document.getElementById('newsList');
+  if(forceRefresh || !allArticles.length){
+    list.innerHTML='<div class="feedph" style="height:50vh;"><div class="spinner"></div><span>Actualisation...</span></div>';
+  }
+  try{
+    // Fetch toutes les sources en parallèle
+    const results = await Promise.all(NEWS_SOURCES.map(s=>fetchRSS(s)));
+    const flat = results.flat();
+    // Trier par date décroissante
+    flat.sort((a,b)=>b.date-a.date);
+    // Détecter nouvelles infos
+    if(flat.length > lastNewsCount && lastNewsCount > 0){
+      document.getElementById('newsDot').style.display='block';
+      showToast('🔴 '+( flat.length-lastNewsCount)+' nouvelles infos !');
+    }
+    lastNewsCount = flat.length;
+    localStorage.setItem('aes_news_count', String(flat.length));
+    allArticles = flat;
+    applyNewsFilter();
+    startNewsTicker();
+  }catch(e){
+    list.innerHTML=`<div class="feedph" style="height:50vh;"><div class="ph-icon">⚠️</div><div class="ph-msg">Impossible de charger</div><div class="ph-sub">Vérifie ta connexion</div></div>`;
+  }
+}
+
+function filterNews(f, el){
+  newsFilter = f;
+  document.querySelectorAll('.nsrc').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  applyNewsFilter();
+}
+
+function applyNewsFilter(){
+  filteredArticles = newsFilter==='all'
+    ? allArticles
+    : allArticles.filter(a=>a.sourceId===newsFilter);
+  renderNews(filteredArticles);
+}
+
+function renderNews(articles){
+  const list = document.getElementById('newsList');
+  if(!articles.length){
+    list.innerHTML='<div class="feedph" style="height:50vh;"><div class="ph-icon">📰</div><div class="ph-msg">Aucun article</div></div>';
+    return;
+  }
+  // Sauvegarder la position scroll avant de re-render
+  const savedScroll = list.scrollTop;
+  // 1er article = grande carte, reste = petites cartes
+  const [first, ...rest] = articles;
+  list.innerHTML = renderBigCard(first, true) + rest.map(a=>renderSmallCard(a)).join('');
+  // Restaurer la position scroll (0 si premier chargement)
+  list.scrollTop = savedScroll;
+}
+
+function renderBigCard(a, isFirst=false){
+  const isNew = (Date.now() - a.date.getTime()) < 3600000; // moins d'1h
+  const imgH = a.image
+    ? `<img src="${a.image}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-big-img-ph>📰</div>'">`
+    : `<div class="art-card-big-img-ph">📰</div>`;
+  const lk = newsLiked.includes(a.id);
+  const likes = getLikes(a.id);
+  return `<div class="art-card-big" onclick="openArticle('${a.id}')">
+    <div class="art-card-big-img">
+      ${imgH}
+      <div class="art-source-badge">${a.source}</div>
+      ${isNew?'<div class="art-new-badge">🔴 NOUVEAU</div>':''}
+    </div>
+    <div class="art-card-big-body">
+      <div class="art-card-big-title">${esc(a.title)}</div>
+      <div class="art-card-big-desc">${esc(a.desc)}</div>
+      <div class="art-card-big-meta">
+        <div class="art-date">🕐 ${newsTimeAgo(a.date)}</div>
+        <div class="art-actions">
+          <div class="art-action ${lk?'liked':''}" onclick="event.stopPropagation();quickLike('${a.id}',this)">
+            ${lk?'❤️':'🤍'} <span>${fmt(likes)}</span>
+          </div>
+          <div class="art-action" onclick="event.stopPropagation();openArticle('${a.id}');setTimeout(focusArtComment,400)">
+            💬 <span>${fmt(getComCount(a.id))}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSmallCard(a){
+  const imgH = a.image
+    ? `<img src="${a.image}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-sm-img-ph>📰</div>'">`
+    : `<div class="art-card-sm-img-ph">📰</div>`;
+  const lk = newsLiked.includes(a.id);
+  const likes = getLikes(a.id);
+  return `<div class="art-card-sm" onclick="openArticle('${a.id}')">
+    <div class="art-card-sm-img">${imgH}</div>
+    <div class="art-card-sm-body">
+      <div class="art-card-sm-src">${a.source}</div>
+      <div class="art-card-sm-title">${esc(a.title)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+        <div class="art-card-sm-date">${newsTimeAgo(a.date)}</div>
+        <div style="display:flex;gap:8px;">
+          <div class="art-action ${lk?'liked':''}" onclick="event.stopPropagation();quickLike('${a.id}',this)" style="font-size:11px;">
+            ${lk?'❤️':'🤍'} <span>${fmt(likes)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Likes articles — stockés dans Firebase
+function getLikes(artId){
+  const cached = JSON.parse(localStorage.getItem('aes_art_likes')||'{}');
+  return cached[artId]||0;
+}
+function getComCount(artId){
+  const cached = JSON.parse(localStorage.getItem('aes_art_coms')||'{}');
+  return cached[artId]||0;
+}
+async function syncLikesFromDB(){
+  // On charge les compteurs depuis Firebase pour les articles affichés
+  filteredArticles.slice(0,15).forEach(async a=>{
+    const snap = await db.ref('artLikes/'+a.id+'/count').once('value');
+    if(snap.val()!==null){
+      const cached = JSON.parse(localStorage.getItem('aes_art_likes')||'{}');
+      cached[a.id] = snap.val();
+      localStorage.setItem('aes_art_likes', JSON.stringify(cached));
+    }
+    const cSnap = await db.ref('artComments/'+a.id).once('value');
+    const cCached = JSON.parse(localStorage.getItem('aes_art_coms')||'{}');
+    cCached[a.id] = cSnap.numChildren();
+    localStorage.setItem('aes_art_coms', JSON.stringify(cCached));
+  });
+}
+
+function quickLike(artId, el){
+  needAuth(()=>{
+    const isLiked = newsLiked.includes(artId);
+    const cached = JSON.parse(localStorage.getItem('aes_art_likes')||'{}');
+    const cur = cached[artId]||0;
+    if(isLiked){
+      newsLiked = newsLiked.filter(x=>x!==artId);
+      cached[artId] = Math.max(0,cur-1);
+      el.classList.remove('liked');
+      el.innerHTML=`🤍 <span>${fmt(cached[artId])}</span>`;
+      db.ref('artLikes/'+artId+'/count').set(cached[artId]);
+    } else {
+      newsLiked.push(artId);
+      cached[artId] = cur+1;
+      el.classList.add('liked');
+      el.innerHTML=`❤️ <span>${fmt(cached[artId])}</span>`;
+      db.ref('artLikes/'+artId+'/count').set(cached[artId]);
+    }
+    localStorage.setItem('aes_news_liked', JSON.stringify(newsLiked));
+    localStorage.setItem('aes_art_likes', JSON.stringify(cached));
+  });
+}
+
+function openArticle(id){
+  const a = allArticles.find(x=>x.id===id);
+  if(!a) return;
+  curArticle = a;
+
+  // Header
+  document.getElementById('artSourceBadge').innerText = a.source;
+  document.getElementById('artHeaderTitle').innerText = a.title||'';
+
+  // Image hero
+  const imgEl = document.getElementById('artImg');
+  if(a.image){
+    imgEl.innerHTML=`<img src="${a.image}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(135deg,var(--surface2),#1e1e24)>📰</div>'">`;
+  } else {
+    imgEl.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(135deg,var(--surface2),#1e1e24);">📰</div>`;
+  }
+
+  // Source + heure EXACTE
+  document.getElementById('artSourceLabel').innerText = a.source;
+  document.getElementById('artExactDate').innerText = formatExactDate(a.date);
+  document.getElementById('artTimeAgo').innerText = newsTimeAgo(a.date);
+
+  // Titre
+  document.getElementById('artTitle').innerText = a.title||'';
+
+  // Contenu complet — on affiche tout ce qu'on a du RSS
+  const fullContent = document.getElementById('artFullContent');
+  const rawContent = a.fullContent || a.desc || '';
+  // Nettoyer le HTML du RSS et le formater proprement
+  const cleaned = rawContent
+    .replace(/<img[^>]*>/gi,'') // enlever les images inline (déjà en hero)
+    .replace(/<a[^>]*href="[^"]*"[^>]*>/gi,'<span style="color:var(--gold);font-weight:600;">')
+    .replace(/<\/a>/gi,'</span>')
+    .replace(/<h[1-6][^>]*>/gi,'<div style="font-family:Syne,sans-serif;font-weight:700;font-size:17px;margin:16px 0 8px;color:var(--gold2);">')
+    .replace(/<\/h[1-6]>/gi,'</div>')
+    .replace(/<p[^>]*>/gi,'<p style="margin-bottom:14px;">')
+    .replace(/<br\s*\/?>/gi,'<br>')
+    .replace(/<ul[^>]*>/gi,'<ul style="margin:10px 0 14px 18px;">')
+    .replace(/<li[^>]*>/gi,'<li style="margin-bottom:6px;">')
+    .replace(/style="[^"]*color:\s*#[0-9a-f]{3,6}[^"]*"/gi,'') // enlever les couleurs externes
+    || '<p style="margin-bottom:14px;">'+esc(a.desc||'Aucun contenu disponible.')+'</p>';
+
+  if(cleaned && cleaned !== '<p style="margin-bottom:14px;"></p>'){
+    fullContent.innerHTML = cleaned;
+  } else {
+    // Fallback : afficher la description proprement
+    const paras = (a.desc||'').split(/\n+/).filter(p=>p.trim());
+    fullContent.innerHTML = paras.map(p=>`<p style="margin-bottom:14px;">${esc(p)}</p>`).join('') || '<p style="color:var(--muted);font-style:italic;">Résumé non disponible. L\'article complet a été récupéré depuis '+esc(a.source)+'.</p>';
+  }
+
+  // Like state
+  const isLiked = newsLiked.includes(a.id);
+  const likes = getLikes(a.id);
+  document.getElementById('artLikeIcon').innerText = isLiked?'❤️':'🤍';
+  document.getElementById('artLikeCount').innerText = fmt(likes);
+
+  // Comments
+  loadArticleComments(a.id);
+
+  // Sauvegarder scroll position de la liste infos
+  const newsList = document.getElementById('newsList');
+  const savedNewsScroll = newsList ? newsList.scrollTop : 0;
+
+  // Afficher l'écran article
+  document.getElementById('articleScreen').style.display='flex';
+  document.getElementById('articleContent').scrollTop=0;
+
+  // Stocker pour restaurer au retour
+  curArticle._savedNewsScroll = savedNewsScroll;
+}
+
+function closeArticle(){
+  document.getElementById('articleScreen').style.display='none';
+  // Restaurer la position scroll de la liste infos
+  if(curArticle && curArticle._savedNewsScroll !== undefined){
+    const newsList = document.getElementById('newsList');
+    if(newsList) setTimeout(()=>{ newsList.scrollTop = curArticle._savedNewsScroll; }, 50);
+  }
+  curArticle=null;
+}
+
+// Heure EXACTE — affiche toujours la date et l'heure précises
+function formatExactDate(date){
+  if(!(date instanceof Date) || isNaN(date)) return '';
+  return date.toLocaleDateString('fr-FR',{
+    weekday:'long',
+    day:'numeric',
+    month:'long',
+    year:'numeric'
+  }) + ' à ' + date.toLocaleTimeString('fr-FR',{
+    hour:'2-digit',
+    minute:'2-digit'
+  });
+}
+
+function newsTimeAgo(date){
+  if(!(date instanceof Date) || isNaN(date)) return '';
+  const m = Math.round((Date.now()-date.getTime())/60000);
+  if(m < 1)  return 'À l\'instant';
+  if(m < 60) return `Il y a ${m} min`;
+  if(m < 1440) return `Il y a ${Math.round(m/60)} h`;
+  if(m < 2880) return 'Hier';
+  return `Il y a ${Math.round(m/1440)} jours`;
+}
+
+function toggleArticleLike(){
+  if(!curArticle)return;
+  needAuth(()=>{
+    const id=curArticle.id;
+    const isLiked=newsLiked.includes(id);
+    const cached=JSON.parse(localStorage.getItem('aes_art_likes')||'{}');
+    const cur=cached[id]||0;
+    if(isLiked){
+      newsLiked=newsLiked.filter(x=>x!==id);
+      cached[id]=Math.max(0,cur-1);
+      document.getElementById('artLikeIcon').innerText='🤍';
+    }else{
+      newsLiked.push(id);
+      cached[id]=cur+1;
+      document.getElementById('artLikeIcon').innerText='❤️';
+    }
+    document.getElementById('artLikeCount').innerText=fmt(cached[id]);
+    localStorage.setItem('aes_news_liked',JSON.stringify(newsLiked));
+    localStorage.setItem('aes_art_likes',JSON.stringify(cached));
+    db.ref('artLikes/'+id+'/count').set(cached[id]);
+  });
+}
+
+async function loadArticleComments(artId){
+  const snap = await db.ref('artComments/'+artId).orderByChild('at').limitToLast(20).once('value');
+  const cmts = Object.values(snap.val()||{});
+  document.getElementById('artComCount').innerText = fmt(cmts.length);
+  const cCached=JSON.parse(localStorage.getItem('aes_art_coms')||'{}');
+  cCached[artId]=cmts.length;
+  localStorage.setItem('aes_art_coms',JSON.stringify(cCached));
+  document.getElementById('artComList').innerHTML = cmts.length
+    ? cmts.map(c=>`<div class="citem">
+        <div class="cav">${c.avatar?`<img src="${c.avatar}" alt="">`:( c.author||'A')[0].toUpperCase()}</div>
+        <div><div class="cname">${esc(c.author||'anonyme')}</div><div class="ctext">${esc(c.text)}</div><div class="ctime">${timeAgo(c.at)}</div></div>
+      </div>`).join('')
+    : '<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px;">Sois le premier à commenter 💬</div>';
+}
+
+function focusArtComment(){
+  document.getElementById('artComInput').focus();
+}
+
+async function sendArticleComment(){
+  if(!curArticle)return;
+  if(!currentUser){needAuth(()=>{});return;}
+  const inp=document.getElementById('artComInput');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  await db.ref('artComments/'+curArticle.id).push({
+    author:currentUser.name,avatar:currentUser.avatar||'',
+    text:txt,at:Date.now()
+  });
+  loadArticleComments(curArticle.id);
+}
+
+function shareArticle(){
+  if(!curArticle)return;
+  if(navigator.share)navigator.share({title:curArticle.title,text:curArticle.title+' — '+curArticle.source}).catch(()=>{});
+  else{navigator.clipboard.writeText(curArticle.title+' — lu sur AES👑 Vidéos').then(()=>showToast('🔗 Titre copié !'));}
+}
+
+function startNewsTicker(){
+  if(!allArticles.length)return;
+  const ticker=document.getElementById('newsTicker');
+  const text=document.getElementById('newsTickerText');
+  ticker.style.display='block';
+  const headlines=allArticles.slice(0,8).map(a=>a.title).join('  ·  ');
+  text.innerText='⚡ '+headlines;
+}
+
+// Auto-refresh toutes les 10 minutes
+function startNewsAutoRefresh(){
+  if(newsInterval)clearInterval(newsInterval);
+  newsInterval=setInterval(()=>{
+    if(document.getElementById('infosScreen').classList.contains('active')){
+      loadNews(true);
+    } else {
+      // Refresh silencieux en arrière plan pour le point rouge
+      loadNews(false);
+    }
+  }, 600000);
+}
+// ════════════════════════
+//  SYSTÈME DE LANGUES 🌍
+// ════════════════════════
+let currentLang = localStorage.getItem('aes_lang') || 'fr';
+
+const LANGS = {
+  fr:{
+    nav_home:'Accueil',nav_search:'Explorer',nav_market:'Marché',nav_infos:'Infos',nav_profile:'Profil',
+    feed_following:'Abonnements',feed_foryou:'Pour toi',
+    feed_loading:'Chargement...',feed_empty:'Aucune vidéo encore',feed_first:'Sois le premier !',
+    feed_follow:'+ Suivre',feed_following_btn:'✓ Suivi',
+    feed_share:'Partager',feed_save:'Sauver',feed_delete:'Suppr.',
+    auth_login:'Connexion',auth_register:'Inscription',
+    auth_email:'Email',auth_pass:'Mot de passe',
+    auth_name:'Ton pseudo',auth_phone:'Ton numéro WhatsApp',
+    auth_btn_login:'Se connecter',auth_btn_register:"S'inscrire",
+    auth_skip:'Continuer sans compte →',auth_sub:'Rejoins la communauté africaine 🌍',
+    auth_err_fields:'Remplis tous les champs',auth_err_name:'Entre ton pseudo',
+    auth_err_email:'Email déjà utilisé',auth_err_notfound:'Email introuvable',
+    auth_err_pass:'Mot de passe incorrect',
+    auth_welcome:'👋 Bienvenue ',auth_bye:'À bientôt ! 👋',
+    profile_edit:'✏️ Modifier le profil',
+    profile_videos:'Vidéos',profile_followers:'Abonnés',profile_following:'Abonnements',
+    profile_status:'Ajouter un statut',profile_status_sub:'Photo ou vidéo · visible 24h',
+    profile_logout:'🚪 Déconnexion',
+    profile_guest:'Invité',profile_guest_bio:'Crée un compte pour profiter de toutes les fonctionnalités 🌍',
+    profile_lang:'🌍 Choisir la langue',
+    market_title:'🛍️ Marketplace',market_sell:'+ Vendre',
+    market_search:'🔍 Rechercher un produit...',market_price:'💰 Prix',
+    market_all:'Tous',market_empty:'Aucun produit trouvé',
+    market_sold:'VENDU',market_contact:'💚 WhatsApp',
+    market_mark_sold:'✅ Marquer vendu',market_unsold:'🔄 Remettre en vente',
+    market_share:'↗️ Partager ce produit',market_delete:'🗑️ Supprimer ce produit',
+    market_seller:'Vendeur',market_add_title:'🛍️ Vendre un produit',
+    market_photo:'Photo du produit',market_name:'Nom du produit',
+    market_price_inp:'Prix en FCFA',market_desc:'Description du produit...',
+    market_location:'📍 Ville / Localisation',market_phone:'Ton numéro WhatsApp',
+    market_publish:'🚀 Publier le produit',market_cancel:'Annuler',market_published:'🎉 Produit publié !',
+    upload_title:'🎬 Publier une vidéo',upload_choose:'Appuie pour choisir',
+    upload_sub:'MP4, MOV · Max 100MB',upload_desc:'Décris ta vidéo... #tags',
+    upload_btn:'🚀 Publier',upload_cancel:'Annuler',upload_published:'🎉 Vidéo publiée !',
+    comment_title:'💬 Commentaires',comment_placeholder:'Écris un commentaire...',comment_empty:'Aucun commentaire 💬',
+    notif_title:'🔔 Notifications',notif_empty:'Aucune notification 🔔',
+    notif_like:' a aimé ta vidéo',notif_comment:' a commenté : ',notif_follow:" s'est abonné(e) à toi",
+    dm_title:'💬 Messages',dm_empty:'Aucun message 💬',dm_placeholder:'Écris un message...',
+    infos_title:'📰 Actualités AES',infos_loading:'Chargement des infos...',infos_all:'Tout',
+    infos_empty:'Aucun article',infos_new:'🔴 NOUVEAU',infos_share:'↗️ Partager',
+    infos_like:"J'aime",infos_comments:'Commentaires',infos_comment_ph:'Ton commentaire sur cet article...',
+    story_add:'Mon statut',story_me:'Moi',story_delete:'🗑️ Supprimer',
+    story_text_title:'Ajouter un texte',story_text_ph:'Ton texte sur la story...',
+    story_text_skip:'Ignorer',story_text_add:'Ajouter ✓',story_published:'✅ Statut publié !',
+    cancel:'Annuler',confirm_delete:'Oui, supprimer',
+    confirm_video:'Supprimer cette vidéo ?',confirm_video_msg:'Elle sera retirée définitivement du feed.',
+    confirm_product:'Supprimer ce produit ?',confirm_product_msg:'Cette action est irréversible.',
+    confirm_story:'Supprimer ce statut ?',confirm_story_msg:'Il sera supprimé immédiatement.',
+    toast_fav_add:'❤️ Ajouté aux favoris',toast_fav_rem:'💔 Retiré des favoris',
+    toast_link:'🔗 Lien copié !',toast_download:'⬇️ Téléchargement démarré !',toast_profile_saved:'✅ Profil mis à jour !',
+    now:'maintenant',ago_min:'Il y a ',ago_min2:' min',
+    ago_h:'Il y a ',ago_h2:' h',yesterday:'Hier',ago_days:'Il y a ',ago_days2:' jours',at:' à ',
+  },
+  bm:{
+    nav_home:'So',nav_search:'Ɲini',nav_market:'Jamarkaba',nav_infos:'Kibaru',nav_profile:'N yɛrɛ',
+    feed_following:'N ka mɔgɔw',feed_foryou:'I kama',
+    feed_loading:'A bɛ natɛ...',feed_empty:'Jɔlibali',feed_first:'Aw ye fɔlɔ kɛ !',
+    feed_follow:'+ Tugu',feed_following_btn:'✓ Tugura',
+    feed_share:'Labɛn',feed_save:'Mara',feed_delete:'Jɔsi',
+    auth_login:'Doni',auth_register:'Sɛbɛn',auth_email:'Email',auth_pass:'Gundo',
+    auth_name:'I tɔgɔ',auth_phone:'I ka telefɔn',
+    auth_btn_login:'Doni',auth_btn_register:'Sɛbɛn',
+    auth_skip:'Kɔsɛbɛ don →',auth_sub:'Wele Afrika ka jama kɔnɔ 🌍',
+    auth_err_fields:'Yɔrɔ bɛɛ ɲɛnabɔ',auth_err_name:'I tɔgɔ sɛbɛn',
+    auth_err_email:'Email bɛ yen',auth_err_notfound:'Email ma sɔrɔ',auth_err_pass:'Gundo tɛ ɲɔgɔn',
+    auth_welcome:'👋 Aw ni ce ',auth_bye:'Ka kɔnɔ ! 👋',
+    profile_edit:'✏️ Yɛlɛma',
+    profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'N bɛ tugura',
+    profile_status:'Jɔli fara',profile_status_sub:'Foto wall video · lɔn 24',
+    profile_logout:'🚪 Bɔ',profile_guest:'Bɛnbali',profile_guest_bio:'Sɛbɛn i ka account ka fɛɛrɛw sɔrɔ 🌍',
+    profile_lang:'🌍 Kan sugandi',
+    market_title:'🛍️ Jamarkaba',market_sell:'+ Feere',market_search:'🔍 Nɔgɔn ɲini...',market_price:'💰 Wari',
+    market_all:'Bɛɛ',market_empty:'Fɛnni ma sɔrɔ',market_sold:'FEERELA',market_contact:'💚 WhatsApp',
+    market_mark_sold:'✅ Feerela',market_unsold:'🔄 Segin',market_share:'↗️ Labɛn',market_delete:'🗑️ Jɔsi',
+    market_seller:'Feereli',market_add_title:'🛍️ Fɛn feere',market_photo:'Fɛn ja',market_name:'Fɛn tɔgɔ',
+    market_price_inp:'Wari FCFA',market_desc:'Fɛn kunnafoni...',market_location:'📍 Dugu',market_phone:'Telefɔni',
+    market_publish:'🚀 Jira',market_cancel:'A dabɔ',market_published:'🎉 Fɛn jirala !',
+    upload_title:'🎬 Video jira',upload_choose:'Dɛmɛ',upload_sub:'MP4, MOV · 100MB',
+    upload_desc:'Kunnafoni... #tags',upload_btn:'🚀 Jira',upload_cancel:'A dabɔ',upload_published:'🎉 Video jirala !',
+    comment_title:'💬 Kumaw',comment_placeholder:'Kuma sɛbɛn...',comment_empty:'Kuma si tɛ 💬',
+    notif_title:'🔔 Kibaro',notif_empty:'Kibaro si tɛ 🔔',
+    notif_like:' ye i ka video kanu',notif_comment:' ye kuma sɛbɛn: ',notif_follow:' ye i tugu',
+    dm_title:'💬 Bataw',dm_empty:'Bata si tɛ 💬',dm_placeholder:'Bata sɛbɛn...',
+    infos_title:'📰 AES Kibaro',infos_loading:'Kibaro bɛ natɛ...',infos_all:'Bɛɛ',
+    infos_empty:'Kibaro si tɛ',infos_new:'🔴 KURA',infos_share:'↗️ Labɛn',
+    infos_like:'Kanu',infos_comments:'Kumaw',infos_comment_ph:'I ka kuma...',
+    story_add:'N ka jɔli',story_me:'Ne',story_delete:'🗑️ Jɔsi',
+    story_text_title:'Sɛbɛnni farali',story_text_ph:'I ka sɛbɛnni...',
+    story_text_skip:'Abana',story_text_add:'Fara ✓',story_published:'✅ Jɔli jirala !',
+    cancel:'A dabɔ',confirm_delete:'Ɔɔ, jɔsi',
+    confirm_video:'Video jɔsi ?',confirm_video_msg:'A bɛna bɔ dɔɔni.',
+    confirm_product:'Fɛn jɔsi ?',confirm_product_msg:'A tɛna segin.',
+    confirm_story:'Jɔli jɔsi ?',confirm_story_msg:'A bɛna bɔ joona.',
+    toast_fav_add:'❤️ Kanulen',toast_fav_rem:'💔 Bɔlen',
+    toast_link:'🔗 Kopiilen !',toast_download:'⬇️ Natɛlen !',toast_profile_saved:'✅ Yɛlɛmanen !',
+    now:'Sisan',ago_min:'',ago_min2:' min bɔlen',ago_h:'',ago_h2:' h bɔlen',
+    yesterday:'Kunu',ago_days:'',ago_days2:' tile bɔlen',at:' ',
+  },
+  mos:{
+    nav_home:'Yiri',nav_search:'Baosg',nav_market:'Roogã',nav_infos:'Koe',nav_profile:'Maam',
+    feed_following:'M raoamb',feed_foryou:'Fo yell',
+    feed_loading:'A waame...',feed_empty:'Yell ka be',feed_first:'Fo na yɩ f fãagã !',
+    feed_follow:'+ Tũu',feed_following_btn:'✓ Tũuame',
+    feed_share:'Ning rẽnegã',feed_save:'Kɩtg',feed_delete:'Kẽeng',
+    auth_login:'Kẽ',auth_register:'Togs',auth_email:'Email',auth_pass:'Leoor',
+    auth_name:'Fo yʋʋr',auth_phone:'Fo telefõ',
+    auth_btn_login:'Kẽ',auth_btn_register:'Togs',
+    auth_skip:'Kẽ leoor ka be →',auth_sub:'Wa Afrik neba sʋka 🌍',
+    auth_err_fields:'Tõnd fãa togs',auth_err_name:'Fo yʋʋr togs',
+    auth_err_email:'Email be wʋsgo',auth_err_notfound:'Email ka be',auth_err_pass:'Leoor ka zems',
+    auth_welcome:'👋 Saaga ',auth_bye:'Ro kẽed tɩ ! 👋',
+    profile_edit:'✏️ Toeeg',
+    profile_videos:'Videosi',profile_followers:'Neba',profile_following:'M tũusda',
+    profile_status:'Zʋʋg togs',profile_status_sub:'Foto wall video · yom 24',
+    profile_logout:'🚪 Yit',profile_guest:'Rao',profile_guest_bio:'Togs compte n bãng tõodã fãa 🌍',
+    profile_lang:'🌍 Koɛɛg sugr',
+    market_title:'🛍️ Roogã',market_sell:'+ Koos',market_search:'🔍 Baosg...',market_price:'💰 Ligdi',
+    market_all:'Fãa',market_empty:'Yell ka be',market_sold:'KOOSAME',market_contact:'💚 WhatsApp',
+    market_mark_sold:'✅ Koosame',market_unsold:'🔄 Leb wa',market_share:'↗️ Ning',market_delete:'🗑️ Kẽeng',
+    market_seller:'Koosda',market_add_title:'🛍️ Koos',market_photo:'Yell foto',market_name:'Yell yʋʋr',
+    market_price_inp:'Ligdi FCFA',market_desc:'Yell sẽkã...',market_location:'📍 Tẽng',market_phone:'Telefõ',
+    market_publish:'🚀 Ning',market_cancel:'Bas',market_published:'🎉 Koosame !',
+    upload_title:'🎬 Video ning',upload_choose:'Tõge',upload_sub:'MP4, MOV · 100MB',
+    upload_desc:'Fo video sẽk... #tags',upload_btn:'🚀 Ning',upload_cancel:'Bas',upload_published:'🎉 Video ningame !',
+    comment_title:'💬 Goama',comment_placeholder:'Gom sɛb...',comment_empty:'Goam ka be 💬',
+    notif_title:'🔔 Koe',notif_empty:'Koe ka be 🔔',
+    notif_like:' nonga fo video',notif_comment:' gɛsa: ',notif_follow:' tũu fo',
+    dm_title:'💬 Sẽkr',dm_empty:'Sẽkr ka be 💬',dm_placeholder:'Sẽkr togs...',
+    infos_title:'📰 AES Koe',infos_loading:'Koe waame...',infos_all:'Fãa',
+    infos_empty:'Koe ka be',infos_new:'🔴 PAALGA',infos_share:'↗️ Ning',
+    infos_like:'Nong',infos_comments:'Goama',infos_comment_ph:'Fo goam...',
+    story_add:'M zʋʋg',story_me:'Maam',story_delete:'🗑️ Kẽeng',
+    story_text_title:'Sẽkrã fara',story_text_ph:'Fo sẽkr...',
+    story_text_skip:'Bas',story_text_add:'Fara ✓',story_published:'✅ Zʋʋg ningame !',
+    cancel:'Bas',confirm_delete:'Yɩɩ, kẽeng',
+    confirm_video:'Video kẽeng ?',confirm_video_msg:'A na kẽ tɩ sɩd.',
+    confirm_product:'Yell kẽeng ?',confirm_product_msg:'A ka leb wa.',
+    confirm_story:'Zʋʋg kẽeng ?',confirm_story_msg:'A na kẽ joore.',
+    toast_fav_add:'❤️ Nongame',toast_fav_rem:'💔 Yitame',
+    toast_link:'🔗 Kopiame !',toast_download:'⬇️ Waame !',toast_profile_saved:'✅ Toeegame !',
+    now:'Rũnna',ago_min:'',ago_min2:' min',ago_h:'',ago_h2:' h',
+    yesterday:'Zaare',ago_days:'',ago_days2:' yom',at:' ',
+  },
+  dyu:{
+    nav_home:'So',nav_search:'Ɲinini',nav_market:'Ɲɛgɛnkɛ',nav_infos:'Kuma',nav_profile:'N kɔrɔ',
+    feed_following:'N tɔw',feed_foryou:'I bolo',
+    feed_loading:'A bɛ na...',feed_empty:'Fɛn si tɛ',feed_first:'Aw ye dɔ kɛ !',
+    feed_follow:'+ Tugu',feed_following_btn:'✓ Tugura',
+    feed_share:'Labɛn',feed_save:'Mara',feed_delete:'Bɔ',
+    auth_login:'Doni',auth_register:'Sɛbɛn',auth_email:'Email',auth_pass:'Gundo',
+    auth_name:'I tɔgɔ',auth_phone:'Telefɔni',
+    auth_btn_login:'Doni',auth_btn_register:'Sɛbɛn',
+    auth_skip:'Kɔnɔ don →',auth_sub:'Wele Afiriki ka jama kɔnɔ 🌍',
+    auth_err_fields:'Bɛɛ ɲɛna',auth_err_name:'Tɔgɔ sɛbɛn',
+    auth_err_email:'Email bɛ',auth_err_notfound:'Email ma sɔrɔ',auth_err_pass:'Gundo tɛ ɲɔgɔn',
+    auth_welcome:'👋 Aw ni cɛ ',auth_bye:'Ka kɔnɔ ! 👋',
+    profile_edit:'✏️ Yɛlɛma',
+    profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'N bɛ tugura',
+    profile_status:'Jɔli fara',profile_status_sub:'Foto wall video · lɔn 24',
+    profile_logout:'🚪 Bɔ',profile_guest:'Cɛ',profile_guest_bio:'Tɔgɔ sɛbɛn ka fɛɛrɛw sɔrɔ 🌍',
+    profile_lang:'🌍 Kan sugandi',
+    market_title:'🛍️ Ɲɛgɛnkɛ',market_sell:'+ Feere',market_search:'🔍 Ɲinini...',market_price:'💰 Wari',
+    market_all:'Bɛɛ',market_empty:'Fɛn si ma sɔrɔ',market_sold:'FEERELA',market_contact:'💚 WhatsApp',
+    market_mark_sold:'✅ Feerela',market_unsold:'🔄 Segin',market_share:'↗️ Labɛn',market_delete:'🗑️ Bɔ',
+    market_seller:'Feereli',market_add_title:'🛍️ Fɛn feere',market_photo:'Fɛn ja',market_name:'Fɛn tɔgɔ',
+    market_price_inp:'Wari FCFA',market_desc:'Kunnafoni...',market_location:'📍 Dugu',market_phone:'Telefɔni',
+    market_publish:'🚀 Jira',market_cancel:'Dabɔ',market_published:'🎉 Feerela !',
+    upload_title:'🎬 Video jira',upload_choose:'Sugandi',upload_sub:'MP4, MOV · 100MB',
+    upload_desc:'Kunnafoni... #tags',upload_btn:'🚀 Jira',upload_cancel:'Dabɔ',upload_published:'🎉 Jirala !',
+    comment_title:'💬 Kumaw',comment_placeholder:'Kuma sɛbɛn...',comment_empty:'Kuma si tɛ 💬',
+    notif_title:'🔔 Kuma',notif_empty:'Kuma si tɛ 🔔',
+    notif_like:' ye i video kanu',notif_comment:' sɛbɛnna: ',notif_follow:' ye i tugu',
+    dm_title:'💬 Bataw',dm_empty:'Bata si tɛ 💬',dm_placeholder:'Bata sɛbɛn...',
+    infos_title:'📰 AES Kuma',infos_loading:'Kuma bɛ na...',infos_all:'Bɛɛ',
+    infos_empty:'Kuma si tɛ',infos_new:'🔴 KURA',infos_share:'↗️ Labɛn',
+    infos_like:'Kanu',infos_comments:'Kumaw',infos_comment_ph:'I ka kuma...',
+    story_add:'N ka jɔli',story_me:'Ne',story_delete:'🗑️ Bɔ',
+    story_text_title:'Sɛbɛnni farali',story_text_ph:'Sɛbɛnni...',
+    story_text_skip:'Dabɔ',story_text_add:'Fara ✓',story_published:'✅ Jɔli jirala !',
+    cancel:'Dabɔ',confirm_delete:'Ɔɔ, bɔ',
+    confirm_video:'Video bɔ ?',confirm_video_msg:'A bɛna bɔ.',
+    confirm_product:'Fɛn bɔ ?',confirm_product_msg:'A tɛna segin.',
+    confirm_story:'Jɔli bɔ ?',confirm_story_msg:'A bɛna bɔ.',
+    toast_fav_add:'❤️ Kanula',toast_fav_rem:'💔 Bɔla',
+    toast_link:'🔗 Kopiila !',toast_download:'⬇️ Natɛla !',toast_profile_saved:'✅ Yɛlɛmana !',
+    now:'Sisan',ago_min:'',ago_min2:' min',ago_h:'',ago_h2:' h',
+    yesterday:'Kunu',ago_days:'',ago_days2:' tile',at:' ',
+  },
+  ha:{
+    nav_home:'Gida',nav_search:'Nema',nav_market:'Kasuwa',nav_infos:'Labarai',nav_profile:'Ni',
+    feed_following:'Abokaina',feed_foryou:'Saboda kai',
+    feed_loading:'Ana lodawa...',feed_empty:'Babu bidiyo',feed_first:'Ka fara !',
+    feed_follow:'+ Bi',feed_following_btn:'✓ Ana bi',
+    feed_share:'Raba',feed_save:'Ajiye',feed_delete:'Share',
+    auth_login:'Shiga',auth_register:'Yi rajista',auth_email:'Email',auth_pass:'Kalmar sirri',
+    auth_name:'Sunanka',auth_phone:'Lambar WhatsApp',
+    auth_btn_login:'Shiga',auth_btn_register:'Yi rajista',
+    auth_skip:"Ci gaba ba tare →",auth_sub:"Shiga al'ummar Afirka 🌍",
+    auth_err_fields:'Cika duk filayen',auth_err_name:'Shigar da sunanka',
+    auth_err_email:'An riga an yi amfani',auth_err_notfound:'Ba a sami email ba',auth_err_pass:"Ba ta daidai ba",
+    auth_welcome:'👋 Barka da zuwa ',auth_bye:'Sai an jima ! 👋',
+    profile_edit:'✏️ Gyara bayani',
+    profile_videos:'Bidiyo',profile_followers:'Mabiya',profile_following:'Nake bi',
+    profile_status:'Ƙara matsayi',profile_status_sub:'Hoto ko bidiyo · awa 24',
+    profile_logout:'🚪 Fita',profile_guest:'Baƙo',profile_guest_bio:'Yi rajista don jin daɗin duk fasaloli 🌍',
+    profile_lang:'🌍 Zaɓi yare',
+    market_title:'🛍️ Kasuwa',market_sell:'+ Siyar',market_search:'🔍 Nema...',market_price:'💰 Farashi',
+    market_all:'Duka',market_empty:'Babu kaya',market_sold:'AN SAYAR',market_contact:'💚 WhatsApp',
+    market_mark_sold:'✅ An sayar',market_unsold:'🔄 Dawo da shi',market_share:'↗️ Raba',market_delete:'🗑️ Share',
+    market_seller:'Mai siyarwa',market_add_title:'🛍️ Siyar da abu',market_photo:'Hoto na abu',market_name:'Sunan abu',
+    market_price_inp:'Farashi FCFA',market_desc:'Bayanin abu...',market_location:'📍 Gari',market_phone:'Lambar WhatsApp',
+    market_publish:'🚀 Buga',market_cancel:'Soke',market_published:'🎉 An bugawa !',
+    upload_title:'🎬 Aika bidiyo',upload_choose:'Taɓa zaɓa',upload_sub:'MP4, MOV · 100MB',
+    upload_desc:'Bayyana bidiyon... #tags',upload_btn:'🚀 Buga',upload_cancel:'Soke',upload_published:'🎉 An bugawa !',
+    comment_title:'💬 Sharhi',comment_placeholder:'Rubuta sharhi...',comment_empty:'Babu sharhi 💬',
+    notif_title:'🔔 Sanarwa',notif_empty:'Babu sanarwa 🔔',
+    notif_like:' ya son bidiyon ka',notif_comment:' ya sharhi: ',notif_follow:' yana bin ka',
+    dm_title:'💬 Saƙonni',dm_empty:'Babu saƙo 💬',dm_placeholder:'Rubuta saƙo...',
+    infos_title:'📰 Labarun AES',infos_loading:'Ana loda labarai...',infos_all:'Duka',
+    infos_empty:'Babu labari',infos_new:'🔴 SABO',infos_share:'↗️ Raba',
+    infos_like:'Son',infos_comments:'Sharhi',infos_comment_ph:'Sharhin ka...',
+    story_add:'Matsayina',story_me:'Ni',story_delete:'🗑️ Share',
+    story_text_title:'Ƙara rubutu',story_text_ph:'Rubutan ka...',
+    story_text_skip:'Tsallake',story_text_add:'Ƙara ✓',story_published:'✅ An tura matsayi !',
+    cancel:'Soke',confirm_delete:'Eh, share',
+    confirm_video:'Share bidiyo ?',confirm_video_msg:'Za a cire shi daga feed.',
+    confirm_product:'Share abu ?',confirm_product_msg:"Ba za a iya maido ba.",
+    confirm_story:'Share matsayi ?',confirm_story_msg:'Za a cire shi yanzu.',
+    toast_fav_add:'❤️ An ƙara zuwa so',toast_fav_rem:'💔 An cire daga so',
+    toast_link:'🔗 An kwafi !',toast_download:"⬇️ Ana saukewa !",toast_profile_saved:'✅ An canza !',
+    now:'Yanzu',ago_min:'',ago_min2:" min",ago_h:'',ago_h2:" sa'a",
+    yesterday:'Jiya',ago_days:'',ago_days2:' kwana',at:' ',
+  }
+};
+
+function t(key){ return (LANGS[currentLang]||LANGS.fr)[key] || LANGS.fr[key] || key; }
+
+function setLang(lang){
+  currentLang=lang;
+  localStorage.setItem('aes_lang',lang);
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+  applyLang();
+  const names={fr:'🇫🇷 Français',bm:'🌍 Bambara',mos:'🌍 Mooré',dyu:'🌍 Dioula',ha:'🌍 Haoussa'};
+  showToast(names[lang]||lang);
+}
+
+function applyLang(){
+  // Nav labels
+  const nbs=document.querySelectorAll('.nbtn span');
+  const navKeys=['nav_home','nav_search','nav_market','nav_infos','nav_profile'];
+  nbs.forEach((el,i)=>{ if(navKeys[i])el.innerText=t(navKeys[i]); });
+  // Feed tabs
+  const tabs=document.querySelectorAll('.feed-tab');
+  if(tabs[0])tabs[0].innerText=t('feed_following');
+  if(tabs[1])tabs[1].innerText=t('feed_foryou');
+  // Profil boutons
+  const eb=document.getElementById('editProfileBtn');if(eb)eb.innerText=t('profile_edit');
+  const lb=document.getElementById('logoutBtn');if(lb)lb.innerText=t('profile_logout');
+  const ll=document.getElementById('langLabel');if(ll)ll.innerText=t('profile_lang');
+  const psl=document.querySelectorAll('.pstat-l');
+  ['profile_videos','profile_followers','profile_following'].forEach((k,i)=>{ if(psl[i])psl[i].innerText=t(k); });
+  // Marketplace
+  const mt=document.querySelector('.market-title');if(mt)mt.innerText=t('market_title');
+  const ms=document.querySelector('.market-add-btn');if(ms)ms.innerText=t('market_sell');
+  const msi=document.getElementById('marketSearch');if(msi)msi.placeholder=t('market_search');
+  const mpb=document.querySelector('.market-price-btn');if(mpb)mpb.innerText=t('market_price');
+  const mac=document.querySelector('.mcat');if(mac)mac.innerText=t('market_all');
+  // Auth
+  const at=document.querySelectorAll('.auth-tab');
+  if(at[0])at[0].innerText=t('auth_login');if(at[1])at[1].innerText=t('auth_register');
+  const ae=document.getElementById('authEmail');if(ae)ae.placeholder=t('auth_email');
+  const ap=document.getElementById('authPass');if(ap)ap.placeholder=t('auth_pass');
+  const an=document.getElementById('authName');if(an)an.placeholder=t('auth_name');
+  const aph=document.getElementById('authPhone');if(aph)aph.placeholder=t('auth_phone');
+  const ab=document.getElementById('authBtn');if(ab)ab.innerText=t(authMode==='login'?'auth_btn_login':'auth_btn_register');
+  const ask=document.querySelector('.auth-skip');if(ask)ask.innerText=t('auth_skip');
+  const asub=document.getElementById('authSubText');if(asub)asub.innerText=t('auth_sub');
+  // Upload
+  const utt=document.querySelector('.mtitle');if(utt)utt.innerText=t('upload_title');
+  const uc=document.querySelector('.uzone-title');if(uc)uc.innerText=t('upload_choose');
+  const us=document.querySelector('.uzone-sub');if(us)us.innerText=t('upload_sub');
+  const ud=document.getElementById('descInput');if(ud)ud.placeholder=t('upload_desc');
+  const ub=document.getElementById('publishBtn');if(ub&&!ub.disabled)ub.innerText=t('upload_btn');
+  // Comments
+  const ct=document.querySelector('.ctitle');if(ct)ct.innerText=t('comment_title');
+  const ci=document.getElementById('cinput');if(ci)ci.placeholder=t('comment_placeholder');
+  // Chat
+  const chi=document.getElementById('chatInp');if(chi)chi.placeholder=t('dm_placeholder');
+  // DM header
+  const dh=document.querySelector('.dm-header');if(dh)dh.innerText=t('dm_title');
+  // Notif header
+  const nh=document.querySelector('.notif-header');if(nh)nh.innerText=t('notif_title');
+  // Story text
+  const stp=document.getElementById('storyTextInp');if(stp)stp.placeholder=t('story_text_ph');
+  // Profile guest
+  if(!currentUser){
+    const pn=document.getElementById('profileNameEl');if(pn)pn.innerText=t('profile_guest');
+    const pb=document.getElementById('profileBioEl');if(pb)pb.innerText=t('profile_guest_bio');
+  }
+  // Infos title
+  const it=document.querySelector('#infosScreen .news-sources-row');
+  if(it){
+    const nsrcs=document.querySelectorAll('.nsrc');
+    if(nsrcs[0])nsrcs[0].innerText=t('infos_all');
+  }
+}
+
 applyUserUI();
 loadFeed();
+initStoryTap();
+startNewsAutoRefresh();
+setTimeout(()=>loadNews(false),3000);
+if(currentUser){loadNotifs();loadDMs();startNotifListener();}
+document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===currentLang));
+applyLang();
 </script>
 </body>
 </html>
