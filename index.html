@@ -158,6 +158,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .vadv-panel.show{opacity:1;pointer-events:auto;}
 
+/* Bouton son */
+.vmute-btn{
+  position:absolute;top:70px;right:12px;z-index:20;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);
+  border:1.5px solid rgba(255,255,255,0.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;transition:all 0.2s;
+}
+.vmute-btn:active{transform:scale(0.85);}
+
 /* Bouton vitesse */
 .vspeed-btn{
   background:rgba(255,255,255,0.18);backdrop-filter:blur(12px);
@@ -842,6 +853,167 @@ textarea.inp{resize:none;}
 .ph-msg{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--text);}
 .ph-sub{font-size:12px;}
 
+/* ═══ PHOTO POST CARD ═══ */
+.pcard{
+  min-height:100vh;width:100%;scroll-snap-align:start;
+  position:relative;background:var(--bg);overflow:hidden;
+  will-change:transform;contain:layout style paint;
+  display:flex;flex-direction:column;
+}
+.pcard-media{
+  width:100%;
+  height:60vh;
+  max-height:60vh;
+  position:relative;overflow:hidden;
+  background:#000;
+  flex-shrink:0;
+}
+.pcard-carousel{
+  display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+}
+.pcard-carousel::-webkit-scrollbar{display:none;}
+.pcard-slide{
+  min-width:100%;height:100%;scroll-snap-align:start;flex-shrink:0;
+  position:relative;
+}
+.pcard-slide img{width:100%;height:100%;object-fit:contain;display:block;background:#000;}
+.pcard-dots{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:10;
+}
+.pcard-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,0.4);transition:all 0.2s;
+}
+.pcard-dot.on{background:#fff;width:18px;border-radius:3px;}
+.pcard-info{
+  padding:14px 14px 20px;background:var(--bg);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.pcard-author-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.pcard-av{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;
+  border:2px solid rgba(201,168,76,0.3);overflow:hidden;
+}
+.pcard-av img{width:100%;height:100%;object-fit:cover;}
+.pcard-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);}
+.pcard-time{font-size:10px;color:var(--muted);}
+.pcard-desc{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:10px;}
+.pcard-actions{display:flex;align-items:center;gap:16px;}
+.pcard-action{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;padding:4px 0;transition:color 0.2s;}
+.pcard-action.liked{color:var(--red);}
+.pcard-action:active{transform:scale(0.92);}
+
+/* ═══ TEXT POST CARD ═══ */
+.tcard{
+  min-height:100vh;width:100%;scroll-snap-align:start;
+  position:relative;overflow:hidden;
+  will-change:transform;contain:layout style paint;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:80px 24px 90px;
+}
+.tcard-bg-1{background:#FFFFFF;}
+.tcard-bg-2{background:linear-gradient(135deg,#FFF9EC,#FFF0C6);}
+.tcard-bg-3{background:linear-gradient(135deg,#F0FFF4,#D1FAE5);}
+.tcard-bg-4{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);}
+.tcard-bg-5{background:linear-gradient(135deg,#FDF4FF,#F3E8FF);}
+.tcard-bg-6{background:linear-gradient(135deg,#FFF1F2,#FFE4E6);}
+.tcard-bg-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
+.tcard-content{text-align:center;width:100%;max-width:320px;}
+.tcard-quote{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(20px,5vw,28px);
+  line-height:1.4;margin-bottom:20px;color:var(--text);
+  word-break:break-word;
+}
+.tcard-bg-gold .tcard-quote{color:#000;}
+.tcard-author-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;}
+.tcard-av{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:#fff;overflow:hidden;
+}
+.tcard-av img{width:100%;height:100%;object-fit:cover;}
+.tcard-name{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--text2);}
+.tcard-bg-gold .tcard-name{color:rgba(0,0,0,0.6);}
+.tcard-actions{
+  display:flex;align-items:center;justify-content:center;gap:20px;
+  margin-top:20px;
+}
+.tcard-action{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:color 0.2s;}
+.tcard-action.liked{color:var(--red);}
+.tcard-action:active{transform:scale(0.92);}
+.tcard-bg-gold .tcard-action{color:rgba(0,0,0,0.55);}
+
+/* Type badge sur les cards mixtes */
+.post-type-badge{
+  position:absolute;top:72px;left:12px;z-index:15;
+  background:rgba(255,255,255,0.92);border:1px solid var(--border);
+  color:var(--text);font-size:10px;font-weight:700;border-radius:20px;
+  padding:3px 10px;backdrop-filter:blur(10px);
+}
+
+/* ═══ UPLOAD MODAL — 3 onglets ═══ */
+.upload-tabs{
+  display:flex;background:var(--surface2);border-radius:var(--radius2);
+  padding:4px;margin-bottom:18px;gap:4px;
+}
+.upload-tab{
+  flex:1;padding:9px 4px;text-align:center;border-radius:var(--radius3);
+  font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);
+  transition:all 0.2s;font-family:'Syne',sans-serif;
+}
+.upload-tab.active{background:var(--surface);color:var(--gold);box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.upload-panel{display:none;}
+.upload-panel.active{display:block;}
+
+/* Photo picker grid */
+.photo-picker-zone{
+  border:1.5px dashed rgba(201,168,76,0.3);border-radius:var(--radius);
+  padding:20px;text-align:center;cursor:pointer;
+  background:rgba(201,168,76,0.03);margin-bottom:12px;
+  position:relative;transition:border-color 0.2s;
+}
+.photo-picker-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.photo-picker-zone:hover{border-color:var(--gold);}
+.photo-preview-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;
+}
+.photo-preview-item{
+  aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--surface2);
+}
+.photo-preview-item img{width:100%;height:100%;object-fit:cover;}
+.photo-preview-remove{
+  position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;
+  background:rgba(224,85,85,0.9);color:#fff;font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  border:1.5px solid #fff;
+}
+
+/* Text bg picker */
+.text-bg-row{
+  display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;
+  scrollbar-width:none;
+}
+.text-bg-row::-webkit-scrollbar{display:none;}
+.tbg-chip{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;cursor:pointer;
+  border:2.5px solid transparent;transition:transform 0.15s,border-color 0.15s;
+}
+.tbg-chip.active{border-color:var(--gold);transform:scale(1.15);}
+.tbg-preview{
+  width:100%;border-radius:var(--radius2);padding:20px 16px;margin-bottom:12px;
+  min-height:100px;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:16px;text-align:center;
+  word-break:break-word;transition:background 0.3s;color:var(--text);
+}
+
 /* ═══ SKELETON LOADER ═══ */
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .skel{
@@ -1520,30 +1692,79 @@ textarea.inp{resize:none;}
   </div>
 </div>
 
-<!-- UPLOAD VIDEO -->
+<!-- UPLOAD MODAL — 3 ONGLETS -->
 <div id="uploadModal" class="modal-overlay">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-      <div class="modal-title" style="margin-bottom:0;">🎬 Publier une vidéo</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin-bottom:0;">✨ Publier</div>
       <div class="cclose" onclick="closeModal()">✕</div>
     </div>
-    <button class="cam-open-btn" onclick="openCamera('video')">📹 Filmer avec effets</button>
-    <button class="cam-open-btn secondary" onclick="openCamera('photo')">📸 Photo avec filtres</button>
-    <div class="uzone" id="uzone">
-      <input type="file" id="videoInput" accept="video/*" onchange="onFileSelected(this)">
-      <div class="uzone-icon">📲</div>
-      <div class="uzone-title">Ou choisir depuis galerie</div>
-      <div class="uzone-sub">MP4, MOV · Max 100MB</div>
+
+    <!-- TABS -->
+    <div class="upload-tabs">
+      <div class="upload-tab active" id="utab-video" onclick="switchUploadTab('video')">🎬 Vidéo</div>
+      <div class="upload-tab" id="utab-photo" onclick="switchUploadTab('photo')">📸 Photos</div>
+      <div class="upload-tab" id="utab-text" onclick="switchUploadTab('text')">✍️ Texte</div>
     </div>
-    <div class="fchip" id="fchip"><span>🎥</span><span style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="fchipName"></span><span style="font-size:11px;color:var(--muted);" id="fchipSize"></span></div>
-    <textarea class="inp" id="descInput" rows="2" placeholder="Décris ta vidéo... #tags"></textarea>
-    <div class="mprog" id="mprog">
-      <div class="mprog-bg"><div class="mprog-fill" id="mprogFill"></div></div>
-      <div class="mprog-label" id="mprogLabel">Préparation...</div>
+
+    <!-- PANEL VIDÉO -->
+    <div class="upload-panel active" id="upanel-video">
+      <button class="cam-open-btn" onclick="openCamera('video')">📹 Filmer avec effets</button>
+      <button class="cam-open-btn secondary" onclick="openCamera('photo')">📸 Photo avec filtres</button>
+      <div class="uzone" id="uzone">
+        <input type="file" id="videoInput" accept="video/*" onchange="onFileSelected(this)">
+        <div class="uzone-icon">📲</div>
+        <div class="uzone-title">Ou choisir depuis galerie</div>
+        <div class="uzone-sub">MP4, MOV · Max 100MB</div>
+      </div>
+      <div class="fchip" id="fchip"><span>🎥</span><span style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="fchipName"></span><span style="font-size:11px;color:var(--muted);" id="fchipSize"></span></div>
+      <textarea class="inp" id="descInput" rows="2" placeholder="Décris ta vidéo... #tags"></textarea>
+      <div class="mprog" id="mprog">
+        <div class="mprog-bg"><div class="mprog-fill" id="mprogFill"></div></div>
+        <div class="mprog-label" id="mprogLabel">Préparation...</div>
+      </div>
+      <button class="btn-gold" id="publishBtn" onclick="uploadVideo()">🚀 Publier</button>
+      <button class="btn-ghost" onclick="closeModal()">Annuler</button>
     </div>
-    <button class="btn-gold" id="publishBtn" onclick="uploadVideo()">🚀 Publier</button>
-    <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+
+    <!-- PANEL PHOTO -->
+    <div class="upload-panel" id="upanel-photo">
+      <div class="photo-picker-zone" id="photoPickZone" onclick="document.getElementById('photoFilesInput').click()">
+        <input type="file" id="photoFilesInput" accept="image/*" multiple style="display:none" onchange="onPhotosSelected(this)">
+        <div style="font-size:36px;margin-bottom:8px;">🖼️</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Sélectionner des photos</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Carrousel illimité · JPG, PNG, WebP</div>
+      </div>
+      <div class="photo-preview-grid" id="photoPreviewGrid" style="display:none;"></div>
+      <div id="photoAddMore" style="display:none;margin-bottom:12px;">
+        <button onclick="document.getElementById('photoFilesInput').click()" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:9px;border-radius:var(--radius2);font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter d'autres photos</button>
+      </div>
+      <textarea class="inp" id="photoDescInput" rows="2" placeholder="Caption, #tags..."></textarea>
+      <div class="mprog" id="photoProg" style="display:none;">
+        <div class="mprog-bg"><div class="mprog-fill" id="photoProgFill"></div></div>
+        <div class="mprog-label" id="photoProgLabel">Upload en cours...</div>
+      </div>
+      <button class="btn-gold" id="photoPublishBtn" onclick="publishPhotoPost()">🚀 Publier</button>
+      <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+    </div>
+
+    <!-- PANEL TEXTE -->
+    <div class="upload-panel" id="upanel-text">
+      <div class="text-bg-row" id="textBgRow"></div>
+      <div class="tbg-preview" id="tbgPreview">
+        <span id="tbgPreviewText" style="color:inherit;">Ton texte apparaît ici...</span>
+      </div>
+      <textarea class="inp" id="textPostInput" rows="4" placeholder="Partage tes pensées, une citation, une actu... ✍️" oninput="updateTextPreview(this.value)" style="margin-bottom:8px;"></textarea>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;text-align:right;" id="textCharCount">0 / 500</div>
+      <div class="mprog" id="textProg" style="display:none;">
+        <div class="mprog-bg"><div class="mprog-fill" id="textProgFill"></div></div>
+        <div class="mprog-label">Publication...</div>
+      </div>
+      <button class="btn-gold" id="textPublishBtn" onclick="publishTextPost()">🚀 Publier</button>
+      <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+    </div>
+
   </div>
 </div>
 
@@ -1789,7 +2010,7 @@ function clUpload(file,onP){
   return new Promise((res,rej)=>{
     const fd=new FormData();
     fd.append('file',file);
-    fd.append('upload_preset','ml_default');
+    fd.append('upload_preset','Aes-upload');
     const xhr=new XMLHttpRequest();
     xhr.open('POST','https://api.cloudinary.com/v1_1/dvmpv8pdi/video/upload');
     xhr.upload.onprogress=e=>{if(e.lengthComputable)onP(Math.round(e.loaded/e.total*100));};
@@ -1900,7 +2121,343 @@ function initAdObserver(){
 }
 
 // ═══════════════════════════════════════
-//  AUTH
+//  UPLOAD TABS
+// ═══════════════════════════════════════
+let currentUploadTab='video';
+function switchUploadTab(tab){
+  currentUploadTab=tab;
+  ['video','photo','text'].forEach(t=>{
+    document.getElementById('utab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('upanel-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='text')initTextBgPicker();
+}
+function openModal(){
+  document.getElementById('uploadModal').classList.add('active');
+  switchUploadTab('video');
+}
+
+// ═══════════════════════════════════════
+//  TEXT BG PICKER
+// ═══════════════════════════════════════
+const TEXT_BGS=[
+  {id:'bg-1',label:'Blanc',css:'#FFFFFF',textColor:'#0F0F10'},
+  {id:'bg-2',label:'Or doux',css:'linear-gradient(135deg,#FFF9EC,#FFF0C6)',textColor:'#7A5C00'},
+  {id:'bg-3',label:'Vert',css:'linear-gradient(135deg,#F0FFF4,#D1FAE5)',textColor:'#065F46'},
+  {id:'bg-4',label:'Bleu',css:'linear-gradient(135deg,#EFF6FF,#DBEAFE)',textColor:'#1E40AF'},
+  {id:'bg-5',label:'Violet',css:'linear-gradient(135deg,#FDF4FF,#F3E8FF)',textColor:'#7E22CE'},
+  {id:'bg-6',label:'Rose',css:'linear-gradient(135deg,#FFF1F2,#FFE4E6)',textColor:'#BE123C'},
+  {id:'bg-gold',label:'Or AES',css:'linear-gradient(135deg,#C9A84C,#E8C456)',textColor:'#000000'},
+  {id:'bg-dark',label:'Nuit',css:'linear-gradient(135deg,#0F0F10,#1e1e24)',textColor:'#F0EEE9'},
+];
+let selectedBg=TEXT_BGS[0];
+function initTextBgPicker(){
+  const row=document.getElementById('textBgRow');
+  if(row.children.length)return;
+  TEXT_BGS.forEach((bg,i)=>{
+    const chip=document.createElement('div');
+    chip.className='tbg-chip'+(i===0?' active':'');
+    chip.style.cssText=`background:${bg.css.startsWith('linear')?bg.css:bg.css};border:2.5px solid ${i===0?'var(--gold)':'transparent'};`;
+    chip.onclick=()=>{
+      selectedBg=bg;
+      document.querySelectorAll('.tbg-chip').forEach(c=>{c.classList.remove('active');c.style.borderColor='transparent';});
+      chip.classList.add('active');chip.style.borderColor='var(--gold)';
+      applyBgPreview();
+    };
+    row.appendChild(chip);
+  });
+  applyBgPreview();
+}
+function applyBgPreview(){
+  const p=document.getElementById('tbgPreview');
+  p.style.cssText=`background:${selectedBg.css};color:${selectedBg.textColor};width:100%;border-radius:var(--radius2);padding:20px 16px;min-height:100px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;text-align:center;word-break:break-word;transition:background 0.3s;`;
+}
+function updateTextPreview(val){
+  const t=document.getElementById('tbgPreviewText');
+  t.innerText=val.trim()||'Ton texte apparaît ici...';
+  const c=document.getElementById('textCharCount');
+  c.innerText=val.length+' / 500';
+  c.style.color=val.length>450?'var(--red)':'var(--muted)';
+}
+
+// ═══════════════════════════════════════
+//  PUBLISH TEXT POST
+// ═══════════════════════════════════════
+async function publishTextPost(){
+  const text=document.getElementById('textPostInput').value.trim();
+  if(!text){showToast('⚠️ Écris quelque chose !');return;}
+  if(text.length>500){showToast('⚠️ Maximum 500 caractères');return;}
+  const btn=document.getElementById('textPublishBtn');btn.disabled=true;btn.innerText='⏳...';
+  try{
+    await db.ref('posts').push({
+      type:'text',text,
+      bgId:selectedBg.id,bgCss:selectedBg.css,textColor:selectedBg.textColor,
+      auteur:currentUser.name,authorUid:currentUser.uid,
+      authorAvatar:currentUser.avatar||'',
+      likes:0,shares:0,createdAt:Date.now()
+    });
+    showToast('🎉 Post publié !');
+    closeModal();
+    resetTextPanel();
+    loadFeedMixed();
+  }catch(e){showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier';}
+}
+function resetTextPanel(){
+  document.getElementById('textPostInput').value='';
+  document.getElementById('tbgPreviewText').innerText='Ton texte apparaît ici...';
+  document.getElementById('textCharCount').innerText='0 / 500';
+  document.getElementById('textPublishBtn').disabled=false;document.getElementById('textPublishBtn').innerText='🚀 Publier';
+}
+
+// ═══════════════════════════════════════
+//  PHOTO POST — UPLOAD
+// ═══════════════════════════════════════
+let photoFiles=[];
+function onPhotosSelected(inp){
+  const files=Array.from(inp.files);
+  if(!files.length)return;
+  photoFiles=[...photoFiles,...files];
+  renderPhotoPreviews();
+}
+function renderPhotoPreviews(){
+  const grid=document.getElementById('photoPreviewGrid');
+  const addMore=document.getElementById('photoAddMore');
+  const zone=document.getElementById('photoPickZone');
+  if(!photoFiles.length){grid.style.display='none';addMore.style.display='none';zone.style.display='block';return;}
+  zone.style.display='none';grid.style.display='grid';addMore.style.display='block';
+  grid.innerHTML=photoFiles.map((f,i)=>{
+    const url=URL.createObjectURL(f);
+    return `<div class="photo-preview-item"><img src="${url}"><div class="photo-preview-remove" onclick="removePhotoFile(${i})">✕</div></div>`;
+  }).join('');
+}
+function removePhotoFile(idx){
+  photoFiles.splice(idx,1);renderPhotoPreviews();
+}
+async function publishPhotoPost(){
+  if(!photoFiles.length){showToast('⚠️ Choisis au moins une photo');return;}
+  const desc=document.getElementById('photoDescInput').value.trim();
+  const btn=document.getElementById('photoPublishBtn');btn.disabled=true;btn.innerText='⏳...';
+  const prog=document.getElementById('photoProg');prog.style.display='block';
+  try{
+    const urls=[];
+    for(let i=0;i<photoFiles.length;i++){
+      document.getElementById('photoProgLabel').innerText=`Upload photo ${i+1}/${photoFiles.length}...`;
+      const url=await ikUpload(photoFiles[i],'photos',p=>{
+        document.getElementById('photoProgFill').style.width=Math.round((i/photoFiles.length*100)+(p/photoFiles.length))+'%';
+      });
+      urls.push(url);
+    }
+    document.getElementById('photoProgFill').style.width='100%';
+    await db.ref('posts').push({
+      type:'photo',photoUrls:urls,desc,
+      auteur:currentUser.name,authorUid:currentUser.uid,
+      authorAvatar:currentUser.avatar||'',
+      likes:0,shares:0,createdAt:Date.now()
+    });
+    showToast('🎉 Post publié !');
+    closeModal();resetPhotoPanel();
+    loadFeedMixed();
+  }catch(e){showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier';prog.style.display='none';}
+}
+function resetPhotoPanel(){
+  photoFiles=[];
+  document.getElementById('photoPreviewGrid').style.display='none';
+  document.getElementById('photoAddMore').style.display='none';
+  document.getElementById('photoPickZone').style.display='block';
+  document.getElementById('photoDescInput').value='';
+  document.getElementById('photoPublishBtn').disabled=false;document.getElementById('photoPublishBtn').innerText='🚀 Publier';
+  document.getElementById('photoProg').style.display='none';
+  document.getElementById('photoProgFill').style.width='0%';
+}
+
+// ═══════════════════════════════════════
+//  FEED MIXTE — chargement
+// ═══════════════════════════════════════
+let allPosts=[]; // posts texte+photo mélangés avec vidéos
+async function loadFeedMixed(){
+  const feed=document.getElementById('feed');
+  feed.innerHTML='<div class="feedph"><div class="ph-icon">⏳</div><div class="ph-msg">Chargement...</div></div>';
+  try{
+    const [vidSnap,postSnap]=await Promise.all([
+      db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value'),
+      db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value')
+    ]);
+    const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
+    const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
+    const mixed=[...vids,...posts].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    allVids=vids; allPosts=posts;
+    if(!mixed.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">✨</div><div class="ph-msg">Aucun contenu encore</div><div class="ph-sub">Sois le premier !</div></div>';return;}
+    adInjectedSlots.clear();
+    let html='',adIdx=0,vidIdx=0;
+    mixed.forEach((item,i)=>{
+      if(item._type==='video'){html+=buildVCard(item,vidIdx);vidIdx++;}
+      else if(item.type==='photo')html+=buildPhotoCard(item,i);
+      else if(item.type==='text')html+=buildTextCard(item,i);
+      if((i+1)%AD_EVERY===0){html+=buildAdCard(adIdx);adIdx++;}
+    });
+    feed.innerHTML=html;
+    // Lancer la première vidéo visible
+    const firstVid=feed.querySelector('video');
+    if(firstVid){
+      firstVid.muted=true;
+      firstVid.play().catch(()=>{});
+    }
+    initObserver();initProgress();initAdObserver();
+    setTimeout(()=>{
+      loadCommentCounts(vids.slice(0,10));
+      if(currentUser)syncLikedFromFirebase(vids);
+      loadRealtimeStats(vids.slice(0,8));
+    },500);
+  }catch(e){
+    feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">${esc(e.message)}</div></div>`;
+  }
+}
+
+// ═══════════════════════════════════════
+//  BUILD PHOTO CARD
+// ═══════════════════════════════════════
+function buildPhotoCard(p,i){
+  const init=(p.auteur||'A')[0].toUpperCase();
+  const avH=p.authorAvatar?`<img src="${p.authorAvatar}" alt="" loading="lazy">`:init;
+  const isLiked=liked.includes(p.id);
+  const ago=timeAgo(p.createdAt);
+  const photos=p.photoUrls||[];
+  const hasManyPhotos=photos.length>1;
+  const slides=photos.map((url,idx)=>`<div class="pcard-slide"><img src="${url}" alt="" loading="lazy"></div>`).join('');
+  const dots=hasManyPhotos?`<div class="pcard-dots">${photos.map((_,idx)=>`<div class="pcard-dot${idx===0?' on':''}" id="dot-${p.id}-${idx}"></div>`).join('')}</div>`:'';
+  return `<div class="pcard" id="pc-${p.id}">
+    <div class="post-type-badge">📸 Photo</div>
+    <div class="pcard-media">
+      <div class="pcard-carousel" id="car-${p.id}" onscroll="onCarouselScroll(this,'${p.id}',${photos.length})">
+        ${slides}
+      </div>
+      ${dots}
+    </div>
+    <div class="pcard-info">
+      <div class="pcard-author-row">
+        <div class="pcard-av">${avH}</div>
+        <div>
+          <div class="pcard-name">@${esc(p.auteur||'anonyme')}</div>
+          <div class="pcard-time">${ago}</div>
+        </div>
+      </div>
+      ${p.desc?`<div class="pcard-desc">${esc(p.desc)}</div>`:''}
+      <div class="pcard-actions">
+        <div class="pcard-action ${isLiked?'liked':''}" id="plk-${p.id}" onclick="needAuth(()=>togglePostLike('${p.id}','photo'))">
+          ${isLiked?'❤️':'🤍'} <span id="plc-${p.id}">${fmt(p.likes||0)}</span>
+        </div>
+        <div class="pcard-action" onclick="openPostComments('${p.id}')">
+          💬 <span id="pcc-${p.id}">0</span>
+        </div>
+        <div class="pcard-action" onclick="sharePost('${p.id}','${esc(p.auteur||'')}')">
+          ↗️ <span>${fmt(p.shares||0)}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function onCarouselScroll(el,postId,total){
+  const idx=Math.round(el.scrollLeft/el.clientWidth);
+  for(let i=0;i<total;i++){
+    const d=document.getElementById('dot-'+postId+'-'+i);
+    if(d)d.classList.toggle('on',i===idx);
+  }
+}
+
+// ═══════════════════════════════════════
+//  BUILD TEXT CARD
+// ═══════════════════════════════════════
+function buildTextCard(p,i){
+  const init=(p.auteur||'A')[0].toUpperCase();
+  const avH=p.authorAvatar?`<img src="${p.authorAvatar}" alt="" loading="lazy">`:init;
+  const isLiked=liked.includes(p.id);
+  const bg=p.bgCss||'#FFFFFF';
+  const tc=p.textColor||'#0F0F10';
+  return `<div class="tcard" id="tc-${p.id}" style="background:${bg};">
+    <div class="post-type-badge">✍️ Texte</div>
+    <div class="tcard-content">
+      <div class="tcard-author-row">
+        <div class="tcard-av">${avH}</div>
+        <div class="tcard-name" style="color:${tc};">@${esc(p.auteur||'anonyme')}</div>
+      </div>
+      <div class="tcard-quote" style="color:${tc};">${esc(p.text||'')}</div>
+      <div class="tcard-actions">
+        <div class="tcard-action ${isLiked?'liked':''}" id="tlk-${p.id}" onclick="needAuth(()=>togglePostLike('${p.id}','text'))" style="color:${isLiked?'var(--red)':tc};">
+          ${isLiked?'❤️':'🤍'} <span id="tlc-${p.id}">${fmt(p.likes||0)}</span>
+        </div>
+        <div class="tcard-action" onclick="openPostComments('${p.id}')" style="color:${tc};">
+          💬 <span id="tcc-${p.id}">0</span>
+        </div>
+        <div class="tcard-action" onclick="sharePost('${p.id}','${esc(p.auteur||'')}') " style="color:${tc};">
+          ↗️ <span>${fmt(p.shares||0)}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+//  TOGGLE LIKE POUR POSTS
+// ═══════════════════════════════════════
+async function togglePostLike(postId,type){
+  if(!currentUser)return;
+  const ref=db.ref('posts/'+postId+'/likes');
+  const snap=await ref.once('value');
+  const cur=snap.val()||0;
+  const isNowLiked=!liked.includes(postId);
+  if(isNowLiked){liked.push(postId);await ref.set(cur+1);}
+  else{liked=liked.filter(x=>x!==postId);await ref.set(Math.max(0,cur-1));}
+  localStorage.setItem('aes_liked',JSON.stringify(liked));
+  const prefix=type==='photo'?'p':'t';
+  const lkEl=document.getElementById(prefix+'lk-'+postId);
+  const lcEl=document.getElementById(prefix+'lc-'+postId);
+  if(lkEl){lkEl.classList.toggle('liked',isNowLiked);lkEl.innerHTML=`${isNowLiked?'❤️':'🤍'} <span id="${prefix}lc-${postId}">${fmt(Math.max(0,cur+(isNowLiked?1:-1)))}</span>`;}
+}
+
+// ═══════════════════════════════════════
+//  PARTAGE POST
+// ═══════════════════════════════════════
+function sharePost(postId,auteur){
+  const txt=`Post de @${auteur} sur AES👑`;
+  if(navigator.share)navigator.share({title:'AES👑',text:txt}).catch(()=>{});
+  else navigator.clipboard.writeText(txt).then(()=>showToast('🔗 Lien copié !'));
+  db.ref('posts/'+postId+'/shares').transaction(v=>(v||0)+1);
+}
+
+// ═══════════════════════════════════════
+//  COMMENTAIRES POSTS
+// ═══════════════════════════════════════
+function openPostComments(postId){
+  // Réutiliser le panel comments existant avec ref posts
+  curVidId=postId;
+  document.getElementById('commentsPanel').classList.add('active');
+  const list=document.getElementById('clist');list.innerHTML='';
+  commentsListener=db.ref('postComments/'+postId).limitToLast(50).on('value',snap=>{
+    list.innerHTML='';
+    snap.forEach(c=>{const d=c.val();list.innerHTML+=`<div class="cmsg"><div class="cav">${(d.name||'A')[0]}</div><div class="cbubble"><div class="cname">${esc(d.name||'?')}</div><div class="ctext">${esc(d.text||'')}</div></div></div>`;});
+    list.scrollTop=list.scrollHeight;
+  });
+}
+function sendPostComment(){
+  if(!curVidId||!currentUser)return;
+  const inp=document.getElementById('cinput');const text=inp.value.trim();if(!text)return;
+  db.ref('postComments/'+curVidId).push({text,name:currentUser.name,uid:currentUser.uid,createdAt:Date.now()});
+  inp.value='';
+}
+
+// ═══════════════════════════════════════
+//  TIME AGO HELPER
+// ═══════════════════════════════════════
+function timeAgo(ts){
+  if(!ts)return '';
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return 'À l\'instant';
+  if(s<3600)return Math.floor(s/60)+'min';
+  if(s<86400)return Math.floor(s/3600)+'h';
+  return Math.floor(s/86400)+'j';
+}
+
 // ═══════════════════════════════════════
 function openAuth(reason){
   if(reason&&typeof reason==='string')document.getElementById('authSubText').innerText=reason;
@@ -2033,7 +2590,8 @@ function renderFeedByMode(){
   } else {renderFeed(allVids);}
 }
 
-function loadFeed(){
+function loadFeed(){loadFeedMixed();}
+function loadFeedOld(){
   const cached=localStorage.getItem('aes_feed_cache');
   if(cached){
     try{allVids=JSON.parse(cached);if(allVids.length){feedLastKey=allVids[allVids.length-1]?.createdAt||null;feedAllLoaded=false;renderFeedByMode();loadStories();initInfiniteScroll();refreshFeedSilent();return;}}catch(e){}
@@ -2115,9 +2673,10 @@ function buildVCard(v,i){
   const preload=i<2?'auto':i<5?'metadata':'none';
   const isTrending=viralScore(v)>=TREND_THRESHOLD;
   return `<div class="vcard" id="vc-${v.id}" ondblclick="doubleTapLike('${v.id}',${i})">
-    <video src="${v.videoUrl}" poster="${v.thumbnail||''}" loop playsinline preload="${preload}"
+    <video src="${v.videoUrl}" poster="${v.thumbnail||''}" loop playsinline muted preload="${preload}"
       onclick="tapVid(this,${i})" id="vid-${v.id}"></video>
     <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}">⏸</div></div>
+    <div class="vmute-btn" id="vmute-${v.id}" onclick="toggleMute('${v.id}')">🔇</div>
     <div class="heart-anim" id="ha-${i}">❤️</div>
 
     ${isTrending?`<div class="vtrend-badge"><span class="fire">🔥</span> Tendance AES</div>`:''}
@@ -2295,6 +2854,22 @@ function showAdvPanel(i){
   },2500);
 }
 
+// Son global — démarre muet, l'utilisateur active
+let globalMuted=true;
+function toggleMute(vidId){
+  const video=document.getElementById('vid-'+vidId);
+  const btn=document.getElementById('vmute-'+vidId);
+  if(!video)return;
+  globalMuted=!video.muted;
+  // Appliquer à toutes les vidéos du feed
+  document.querySelectorAll('.vcard video').forEach(v=>{
+    v.muted=globalMuted;
+    const id=v.id.replace('vid-','');
+    const b=document.getElementById('vmute-'+id);
+    if(b)b.innerText=globalMuted?'🔇':'🔊';
+  });
+}
+
 function tapVid(video,i){
   const ctrl=document.getElementById('vc-ctrl-'+i);
   const icon=document.getElementById('vplay-'+i);
@@ -2376,14 +2951,24 @@ function initObserver(){
     entries.forEach(e=>{
       const v=e.target.querySelector('video');if(!v)return;
       if(e.isIntersecting){
-        v.play().catch(()=>{});
+        v.muted=globalMuted;
+        v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});});
         const id=e.target.id.replace('vc-','');
         const vid=allVids.find(x=>x.id===id);
         if(vid)trackView(id,vid.authorUid||'');
-      } else {v.pause();}
+        // Sync icône son
+        const btn=document.getElementById('vmute-'+id);
+        if(btn)btn.innerText=globalMuted?'🔇':'🔊';
+      } else {
+        v.pause();
+      }
     });
-  },{threshold:0.65});
-  document.querySelectorAll('.vcard').forEach(c=>obs.observe(c));
+  },{threshold:0.6,rootMargin:'0px'});
+  document.querySelectorAll('.vcard').forEach(c=>{
+    const v=c.querySelector('video');
+    if(v)v.muted=true; // muet au départ uniquement
+    obs.observe(c);
+  });
 }
 function initProgress(){
   document.querySelectorAll('.vcard video').forEach(v=>{
@@ -2813,12 +3398,15 @@ async function uploadStatusFinal(text){
 //  UPLOAD VIDEO — fix watermark
 // ═══════════════════════════════════════
 let selFile=null;
-function openModal(){document.getElementById('uploadModal').classList.add('active');}
+function openModalOld(){document.getElementById('uploadModal').classList.add('active');}
 function closeModal(){
   document.getElementById('uploadModal').classList.remove('active');selFile=null;
   document.getElementById('videoInput').value='';document.getElementById('fchip').classList.remove('show');
   document.getElementById('mprog').classList.remove('show');document.getElementById('mprogFill').style.width='0%';
   document.getElementById('publishBtn').disabled=false;document.getElementById('publishBtn').innerText='🚀 Publier';
+  // Reset photo & text panels
+  try{resetPhotoPanel();}catch(e){}
+  try{resetTextPanel();}catch(e){}
 }
 function onFileSelected(inp){
   const f=inp.files[0];if(!f)return;selFile=f;
@@ -3313,7 +3901,7 @@ function applyLang(){
 // ═══════════════════════════════════════
 //  UTILS
 // ═══════════════════════════════════════
-function timeAgo(ts){const m=Math.round((Date.now()-ts)/60000);return m<1?'maintenant':m<60?`${m}min`:m<1440?`${Math.round(m/60)}h`:`${Math.round(m/1440)}j`;}
+//DUPLICATE: function timeAgo(ts){const m=Math.round((Date.now()-ts)/60000);return m<1?'maintenant':m<60?`${m}min`:m<1440?`${Math.round(m/60)}h`:`${Math.round(m/1440)}j`;}
 let _searchTimer=null;
 function debounceSearch(val){clearTimeout(_searchTimer);_searchTimer=setTimeout(()=>filterSearch(val),280);}
 function fmt(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n||0);}
