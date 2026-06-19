@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#C9A84C">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22AES%F0%9F%91%91%20Vid%C3%A9os%22%2C%22short_name%22%3A%22AES%20Vid%C3%A9os%22%2C%22description%22%3A%22La%20plateforme%20vid%C3%A9o%20de%20l%27AES%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFFFFF%22%2C%22theme_color%22%3A%22%23C9A84C%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fapi.dicebear.com%2F7.x%2Fshapes%2Fsvg%3Fseed%3DAES%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -856,6 +857,48 @@ textarea.inp{resize:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* LOADING */
+
+/* ═══ SKELETON LOADING ═══ */
+@keyframes shimmer{
+  0%{background-position:-200% 0;}
+  100%{background-position:200% 0;}
+}
+.sk{
+  background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:8px;
+}
+.sk-feed{display:flex;flex-direction:column;height:100vh;position:relative;background:#111;}
+.sk-feed-av{position:absolute;bottom:90px;left:14px;width:40px;height:40px;border-radius:50%;}
+.sk-feed-name{position:absolute;bottom:130px;left:64px;width:100px;height:12px;}
+.sk-feed-desc{position:absolute;bottom:108px;left:64px;width:180px;height:10px;}
+.sk-feed-actions{position:absolute;right:10px;bottom:90px;display:flex;flex-direction:column;gap:10px;align-items:center;}
+.sk-feed-btn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);animation:shimmer 1.4s infinite;background-size:200% 100%;background-image:linear-gradient(90deg,rgba(255,255,255,0.1) 25%,rgba(255,255,255,0.2) 50%,rgba(255,255,255,0.1) 75%);}
+
+.sk-card{background:var(--surface);border-radius:var(--radius);overflow:hidden;margin-bottom:1px;}
+.sk-card-img{width:100%;aspect-ratio:3/4;}
+.sk-card-body{padding:10px;}
+.sk-card-line{height:11px;margin-bottom:7px;}
+.sk-card-line.w80{width:80%;}
+.sk-card-line.w50{width:50%;}
+
+.sk-market-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;}
+.sk-prod{background:var(--surface);border-radius:var(--radius);overflow:hidden;}
+.sk-prod-img{width:100%;aspect-ratio:3/4;}
+.sk-prod-body{padding:8px;}
+.sk-prod-line{height:10px;margin-bottom:6px;}
+.sk-prod-line.w70{width:70%;}
+.sk-prod-line.w40{width:40%;}
+
+.sk-news{display:flex;flex-direction:column;gap:1px;}
+.sk-art-big{background:var(--surface);padding:14px;}
+.sk-art-img{width:100%;aspect-ratio:16/9;border-radius:var(--radius2);margin-bottom:10px;}
+.sk-art-line{height:11px;margin-bottom:7px;}
+.sk-art-line.w90{width:90%;}
+.sk-art-line.w60{width:60%;}
+.sk-art-line.w75{width:75%;}
+
 .feedph{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);}
 .spinner{width:38px;height:38px;border:3px solid var(--surface2);border-top-color:var(--gold);border-radius:50%;animation:rot 0.7s linear infinite;}
 .ph-icon{font-size:46px;}
@@ -885,6 +928,7 @@ textarea.inp{resize:none;}
   min-width:100%;height:100%;position:relative;
   scroll-snap-align:start;flex-shrink:0;
   touch-action:pan-x;overflow:hidden;background:#000;
+  display:flex;align-items:center;justify-content:center;
 }
 .pcard-slide-bg{
   position:absolute;inset:-5%;width:110%;height:110%;
@@ -899,8 +943,9 @@ textarea.inp{resize:none;}
   pointer-events:none;
 }
 .pcard-slide img{
-  position:relative;z-index:1;
-  width:100%;height:100%;object-fit:contain;display:block;
+  position:absolute;inset:0;z-index:1;
+  width:100%;height:100%;
+  object-fit:contain;display:block;
   animation:pcardFadeIn 0.35s ease;
   -webkit-user-drag:none;-khtml-user-drag:none;-moz-user-drag:none;-o-user-drag:none;
   user-select:none;-webkit-user-select:none;
@@ -2471,7 +2516,10 @@ function resetPhotoPanel(){
 let allPosts=[];
 async function loadFeedMixed(){
   const feed=document.getElementById('feed');
-  feed.innerHTML='<div class="feedph"><div class="ph-icon">⏳</div><div class="ph-msg">Chargement...</div></div>';
+  feed.innerHTML=`
+    <div class="sk-feed sk"><div class="sk-feed-av sk"></div><div class="sk-feed-name sk"></div><div class="sk-feed-desc sk"></div><div class="sk-feed-actions"><div class="sk-feed-btn"></div><div class="sk-feed-btn"></div><div class="sk-feed-btn"></div></div></div>
+    <div class="sk-feed sk" style="background:#1a1a1a"><div class="sk-feed-av sk"></div><div class="sk-feed-name sk"></div><div class="sk-feed-desc sk"></div></div>
+  `;
   try{
     const [vidSnap,postSnap]=await Promise.all([
       db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value'),
@@ -3470,6 +3518,10 @@ function confirmDeleteVideo(id){
 function loadMarket(){
   const cached=localStorage.getItem('aes_market_cache');
   if(cached){try{const c=JSON.parse(cached);if(c.length){allProds=c;applyMarketFilters();}}catch(e){}}
+  const grid2=document.getElementById('marketGrid');
+  if(grid2&&!grid2.querySelector('.prod-card')){
+    grid2.innerHTML='<div class="sk-market-grid" style="grid-column:span 2">'+Array(6).fill('<div class="sk-prod"><div class="sk-prod-img sk"></div><div class="sk-prod-body"><div class="sk-prod-line w70 sk"></div><div class="sk-prod-line w40 sk"></div></div></div>').join('')+'</div>';
+  }
   db.ref('products').orderByChild('createdAt').limitToLast(60).once('value').then(snap=>{
     const raw=snap.val()||{};
     allProds=Object.entries(raw).map(([id,p])=>({id,...p})).reverse();
@@ -4005,7 +4057,7 @@ async function fetchRSS(src){
 function extractImg(html){const m=html.match(/<img[^>]+src="([^"]+)"/);return m?m[1]:'';}
 async function loadNews(forceRefresh=false){
   const list=document.getElementById('newsList');
-  if(forceRefresh||!allArticles.length)list.innerHTML='<div class="feedph" style="height:50vh;"><div class="spinner"></div><span>Actualisation...</span></div>';
+  if(forceRefresh||!allArticles.length)list.innerHTML='<div class="sk-news">'+Array(3).fill('<div class="sk-art-big"><div class="sk-art-img sk"></div><div class="sk-art-line w90 sk"></div><div class="sk-art-line w75 sk"></div><div class="sk-art-line w60 sk"></div></div>').join('')+'</div>';
   try{
     const results=await Promise.all(NEWS_SOURCES.map(s=>fetchRSS(s)));
     allArticles=results.flat().sort((a,b)=>b.date-a.date);
@@ -4753,5 +4805,72 @@ function cycleFeedFilter(btn){
     .ma-track-row .ma-info span{font-size:10px;color:rgba(255,255,255,0.5);}
     .ma-track-row .ma-del{color:#ff5a5a;font-size:13px;cursor:pointer;flex-shrink:0;padding:4px;}
   </style>
+
+<script>
+// ═══ PWA — SERVICE WORKER ═══
+if('serviceWorker' in navigator){
+  const swCode = `
+const CACHE='aes-v1';
+const STATIC=[
+  './',
+  'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap'
+];
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC).catch(()=>{})));
+  self.skipWaiting();
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch',e=>{
+  const url=e.request.url;
+  // Ne pas cacher Firebase, Cloudinary, ImageKit
+  if(url.includes('firebase')||url.includes('cloudinary')||url.includes('imagekit')||url.includes('agora')){
+    return;
+  }
+  // Images → cache-first
+  if(e.request.destination==='image'){
+    e.respondWith(caches.open(CACHE).then(c=>c.match(e.request).then(cached=>{
+      if(cached)return cached;
+      return fetch(e.request).then(res=>{
+        if(res&&res.status===200)c.put(e.request,res.clone());
+        return res;
+      }).catch(()=>cached);
+    })));
+    return;
+  }
+  // Fonts & static → stale-while-revalidate
+  if(url.includes('fonts.googleapis')||url.includes('fonts.gstatic')){
+    e.respondWith(caches.open(CACHE).then(c=>c.match(e.request).then(cached=>{
+      const fetchProm=fetch(e.request).then(res=>{if(res&&res.status===200)c.put(e.request,res.clone());return res;});
+      return cached||fetchProm;
+    })));
+    return;
+  }
+  // App shell → network-first, fallback cache
+  if(e.request.mode==='navigate'){
+    e.respondWith(fetch(e.request).catch(()=>caches.match('./')));
+    return;
+  }
+});
+`;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl,{scope:'./'})
+    .then(reg=>{
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing;
+        nw.addEventListener('statechange',()=>{
+          if(nw.state==='installed'&&navigator.serviceWorker.controller){
+            showToast('🔄 Mise à jour disponible — Recharge l'app');
+          }
+        });
+      });
+    })
+    .catch(()=>{});
+}
+</script>
+
 </body>
 </html>
