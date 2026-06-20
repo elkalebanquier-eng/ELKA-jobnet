@@ -694,6 +694,61 @@ textarea.inp{resize:none;}
 .svav{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#000;overflow:hidden;}
 .svav img{width:100%;height:100%;object-fit:cover;}
 .svname{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;flex:1;}
+
+/* Story — actions like/réactions/réponse */
+.sv-footer{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:10px;
+  background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 100%);
+}
+.sv-reactions-row{
+  display:flex;gap:8px;align-items:center;justify-content:center;
+  padding:0 4px;
+}
+.sv-react-btn{
+  font-size:24px;cursor:pointer;padding:4px 6px;
+  border-radius:50%;transition:transform 0.15s;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+}
+.sv-react-btn:active{transform:scale(1.4);}
+.sv-react-btn.flying{animation:svReactFly 0.9s ease-out forwards;}
+@keyframes svReactFly{
+  0%{transform:translateY(0) scale(1);opacity:1;}
+  100%{transform:translateY(-90px) scale(1.6);opacity:0;}
+}
+.sv-input-row{
+  display:flex;align-items:center;gap:8px;
+}
+.sv-reply-inp{
+  flex:1;background:rgba(255,255,255,0.12);
+  border:1.5px solid rgba(255,255,255,0.35);
+  border-radius:22px;padding:10px 16px;
+  color:#fff;font-family:'DM Sans',sans-serif;font-size:13.5px;
+  outline:none;backdrop-filter:blur(8px);
+}
+.sv-reply-inp::placeholder{color:rgba(255,255,255,0.65);}
+.sv-like-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.35);
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;cursor:pointer;backdrop-filter:blur(8px);
+  flex-shrink:0;transition:transform 0.15s;
+}
+.sv-like-btn.liked{background:rgba(255,59,92,0.25);border-color:var(--red);}
+.sv-like-btn:active{transform:scale(0.85);}
+.sv-send-reply-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;cursor:pointer;color:#000;flex-shrink:0;
+  border:none;
+}
+.sv-likers-count{
+  font-size:11px;color:rgba(255,255,255,0.75);text-align:center;
+  display:none;
+}
+.sv-likers-count.show{display:block;}
 .svclose{font-size:22px;cursor:pointer;}
 .svcontent{flex:1;position:relative;overflow:hidden;background:#111;}
 .svcontent img,.svcontent video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;pointer-events:none;}
@@ -2120,9 +2175,12 @@ textarea.inp{resize:none;}
     </div>
     <div class="news-sources-row">
       <div class="nsrc active" onclick="filterNews('all',this)">Tout</div>
+      <div class="nsrc" onclick="filterNews('aes',this)">👑 AES</div>
+      <div class="nsrc" onclick="filterNews('lefaso',this)">🇧🇫 leFaso</div>
       <div class="nsrc" onclick="filterNews('rfi',this)">🔴 RFI</div>
       <div class="nsrc" onclick="filterNews('bbc',this)">🟠 BBC</div>
       <div class="nsrc" onclick="filterNews('ja',this)">🟡 J.Afrique</div>
+      <div class="nsrc" onclick="filterNews('africanews',this)">🌍 Africanews</div>
     </div>
   </div>
   <div id="newsTicker" style="display:none;background:linear-gradient(90deg,var(--gold),var(--gold2));padding:6px 16px;overflow:hidden;">
@@ -2170,6 +2228,7 @@ textarea.inp{resize:none;}
   <div class="nbtn active" id="nb-home" onclick="showScreen('home')"><div class="ni">🏠</div><span>Accueil</span></div>
   <div class="nbtn" id="nb-search" onclick="showScreen('search')"><div class="ni">🔍</div><span>Explorer</span></div>
   <div class="npost" onclick="needAuth(openModal)">➕</div>
+  <div class="nbtn" id="nb-dm" onclick="showScreen('dm')"><div class="ni">💬</div><span>Chat</span><div class="notif-dot" id="dmDot" style="display:none;"></div></div>
   <div class="nbtn" id="nb-market" onclick="showScreen('market')"><div class="ni">🛍️</div><span>Marché</span></div>
   <div class="nbtn" id="nb-infos" onclick="showScreen('infos')"><div class="ni">📰</div><span>Infos</span><div class="notif-dot" id="newsDot" style="display:none;"></div></div>
   <div class="nbtn" id="nb-profile" onclick="showScreen('profile')"><div class="ni">👤</div><span>Profil</span></div>
@@ -2463,6 +2522,22 @@ textarea.inp{resize:none;}
   <div class="svheader"><div class="svav" id="svav">K</div><div class="svname" id="svname">...</div><div class="svclose" onclick="closeStory()">✕</div></div>
   <div class="svcontent" id="svcontent"></div>
   <button class="sv-del" id="svDelBtn" style="display:none">🗑️ Supprimer</button>
+  <div class="sv-footer" id="svFooter">
+    <div class="sv-likers-count" id="svLikersCount"></div>
+    <div class="sv-reactions-row" id="svReactionsRow">
+      <span class="sv-react-btn" onclick="reactToStory('❤️',this)">❤️</span>
+      <span class="sv-react-btn" onclick="reactToStory('😂',this)">😂</span>
+      <span class="sv-react-btn" onclick="reactToStory('😮',this)">😮</span>
+      <span class="sv-react-btn" onclick="reactToStory('😢',this)">😢</span>
+      <span class="sv-react-btn" onclick="reactToStory('🔥',this)">🔥</span>
+      <span class="sv-react-btn" onclick="reactToStory('👏',this)">👏</span>
+    </div>
+    <div class="sv-input-row">
+      <div class="sv-like-btn" id="svLikeBtn" onclick="toggleStoryLike()">🤍</div>
+      <input type="text" class="sv-reply-inp" id="svReplyInp" placeholder="Répondre au statut..." onkeydown="if(event.key==='Enter')sendStoryReply();" onfocus="pauseStory()" onblur="resumeStory()">
+      <button class="sv-send-reply-btn" onclick="sendStoryReply()">➤</button>
+    </div>
+  </div>
 </div>
 
 <!-- STORY TEXT MODAL -->
@@ -2983,8 +3058,8 @@ async function loadFeedMixed(){
   `;
   try{
     const [vidSnap,postSnap]=await Promise.all([
-      db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value'),
-      db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value')
+      db.ref('videos').orderByChild('createdAt').limitToLast(8).once('value'),
+      db.ref('posts').orderByChild('createdAt').limitToLast(6).once('value')
     ]);
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
     const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
@@ -3018,12 +3093,12 @@ async function loadFeedMixed(){
 // ═══════════════════════════════════════
 function buildPhotoCard(p,i){
   const init=(p.auteur||'A')[0].toUpperCase();
-  const avH=p.authorAvatar?`<img src="${p.authorAvatar}" alt="" loading="lazy">`:init;
+  const avH=p.authorAvatar?`<img src="${optImg(p.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:init;
   const isLiked=liked.includes(p.id);
   const ago=timeAgo(p.createdAt);
   const photos=p.photoUrls||[];
   const hasManyPhotos=photos.length>1;
-  const slides=photos.map(url=>`<div class="pcard-slide"><div class="pcard-slide-bg" style="background-image:url('${url}')"></div><div class="pcard-slide-overlay"></div><img src="${url}" alt="" loading="lazy" draggable="false" ondragstart="return false"></div>`).join('');
+  const slides=photos.map(url=>`<div class="pcard-slide"><div class="pcard-slide-bg" style="background-image:url('${optImg(url,60)}')"></div><div class="pcard-slide-overlay"></div><img src="${optImg(url,900)}" alt="" loading="lazy" decoding="async" draggable="false" ondragstart="return false"></div>`).join('');
   const dots=hasManyPhotos?`<div class="pcard-dots">${photos.map((_,idx)=>`<div class="pcard-dot${idx===0?' on':''}" id="dot-${p.id}-${idx}"></div>`).join('')}</div>`:'';
   const musicHtml=p.musicUrl?`
     <div class="pcard-music" id="pmusic-row-${p.id}">
@@ -3136,7 +3211,7 @@ function initPhotoCardMusic(){
 // ═══════════════════════════════════════
 function buildTextCard(p,i){
   const init=(p.auteur||'A')[0].toUpperCase();
-  const avH=p.authorAvatar?`<img src="${p.authorAvatar}" alt="" loading="lazy">`:init;
+  const avH=p.authorAvatar?`<img src="${optImg(p.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:init;
   const isLiked=liked.includes(p.id);
   const bg=p.bgCss||'#FFFFFF';
   const tc=p.textColor||'#0F0F10';
@@ -3457,13 +3532,13 @@ function buildVCard(v,i){
   const init=(v.auteur||'A')[0].toUpperCase();
   const tags=(v.desc||'').match(/#\w+/g)||[];
   const desc=(v.desc||'').replace(/#\w+/g,'').trim();
-  const avH=v.authorAvatar?`<img src="${v.authorAvatar}" alt="" loading="lazy">`:init;
+  const avH=v.authorAvatar?`<img src="${optImg(v.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:init;
   const isFollowing=v.authorUid&&following[v.authorUid];
   const isOwn=currentUser&&v.authorUid===currentUser.uid;
-  const preload=i<2?'auto':i<5?'metadata':'none';
+  const preload=i===0?'metadata':'none';
   const isTrending=viralScore(v)>=TREND_THRESHOLD;
   return `<div class="vcard" id="vc-${v.id}" ondblclick="doubleTapLike('${v.id}',${i})">
-    <video src="${v.videoUrl}" poster="${v.thumbnail||''}" loop playsinline muted preload="${preload}"
+    <video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,480)||''}" loop playsinline muted preload="${preload}"
       onclick="tapVid(this,${i})" id="vid-${v.id}"></video>
     <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}">⏸</div></div>
     <div class="vmute-btn" id="vmute-${v.id}" onclick="toggleMute('${v.id}')">🔇</div>
@@ -3739,6 +3814,7 @@ function initObserver(){
     entries.forEach(e=>{
       const v=e.target.querySelector('video');if(!v)return;
       if(e.isIntersecting){
+        if(!v.src&&v.dataset.src){v.src=v.dataset.src;}
         v.muted=globalMuted;
         v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});});
         const id=e.target.id.replace('vc-','');
@@ -3749,6 +3825,12 @@ function initObserver(){
         if(btn)btn.innerText=globalMuted?'🔇':'🔊';
       } else {
         v.pause();
+        // Si la vidéo est très loin de l'écran, on libère sa mémoire/bande passante
+        const rect=e.target.getBoundingClientRect();
+        if(Math.abs(rect.top)>window.innerHeight*3 && v.src){
+          v.dataset.src=v.src;
+          v.removeAttribute('src');v.load();
+        }
       }
     });
   },{threshold:0.6,rootMargin:'0px'});
@@ -4026,7 +4108,7 @@ function renderMarket(prods){
   if(!prods.length){grid.innerHTML='<div style="grid-column:span 2;padding:40px;text-align:center;color:var(--muted);font-size:13px;">😕 Aucun produit trouvé</div>';return;}
   grid.innerHTML=prods.map(p=>{
     const avH=p.sellerAvatar?`<img src="${p.sellerAvatar}" alt="">`:( p.sellerName||'V')[0].toUpperCase();
-    const imgH=p.imageUrl?`<img src="${p.imageUrl}" alt="" loading="lazy">`:`<div class="prod-img-ph">${catEmoji(p.cat)}</div>`;
+    const imgH=p.imageUrl?`<img src="${optImg(p.imageUrl,400)}" alt="" loading="lazy" decoding="async">`:`<div class="prod-img-ph">${catEmoji(p.cat)}</div>`;
     const isFav=favorites.includes(p.id);
     return `<div class="prod-card" onclick="openProduct('${p.id}')">
       ${p.sold?`<div class="prod-sold-overlay"><div class="prod-sold-badge">VENDU</div></div>`:''}
@@ -4056,7 +4138,7 @@ function toggleFav(id){
 function openProduct(id){
   const p=allProds.find(x=>x.id===id);if(!p)return;curProd=p;
   const imgEl=document.getElementById('pmodImg');
-  imgEl.innerHTML=(p.imageUrl?`<img src="${p.imageUrl}" alt="">`:`<div class="pmod-img-ph">${catEmoji(p.cat)}</div>`)+`<div class="pmod-gradient"></div><div class="pmod-price-hero">${fmtPrice(p.price)}<small>FCFA</small></div><div class="pmod-close" onclick="closeProductModal()">✕</div>`;
+  imgEl.innerHTML=(p.imageUrl?`<img src="${optImg(p.imageUrl,900)}" alt="">`:`<div class="pmod-img-ph">${catEmoji(p.cat)}</div>`)+`<div class="pmod-gradient"></div><div class="pmod-price-hero">${fmtPrice(p.price)}<small>FCFA</small></div><div class="pmod-close" onclick="closeProductModal()">✕</div>`;
   document.getElementById('pmodName').innerText=p.name||'';
   document.getElementById('pmodLocation').innerText=p.location?'📍 '+p.location:'';
   document.getElementById('pmodDesc').innerText=p.desc||'Aucune description';
@@ -4122,7 +4204,7 @@ async function submitProduct(){
 //  STORIES
 // ═══════════════════════════════════════
 function loadStories(){
-  db.ref('stories').once('value').then(snap=>{
+  db.ref('stories').orderByChild('createdAt').limitToLast(40).once('value').then(snap=>{
     const now=Date.now();
     const list=Object.entries(snap.val()||{}).map(([id,s])=>({id,...s})).filter(s=>now-s.createdAt<86400000);
     renderStories(list);
@@ -4144,7 +4226,7 @@ function renderStories(list){
   allStoryGroups=sorted;
   sorted.forEach((stories,gIdx)=>{
     const s=stories[stories.length-1];
-    const avH=s.authorAvatar?`<img src="${s.authorAvatar}" alt="">`:(s.auteur||'A')[0].toUpperCase();
+    const avH=s.authorAvatar?`<img src="${optImg(s.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:(s.auteur||'A')[0].toUpperCase();
     const isMe=s.authorUid===myUid;
     const el=document.createElement('div');el.className='sitem';
     el.innerHTML=`<div class="sring"><div class="savatar">${avH}</div></div><span class="sname">${isMe?'Moi':esc(s.auteur||'').slice(0,8)}</span>`;
@@ -4154,28 +4236,113 @@ function renderStories(list){
 function openStoryGroup(gIdx,sIdx){curGroupIdx=gIdx;curStories=allStoryGroups[gIdx]||[];curStoryIdx=sIdx;if(curStories.length)showStory(curStories[sIdx]);}
 function showStory(s){
   const sv=document.getElementById('storyViewer');sv.classList.add('active');
-  document.getElementById('svav').innerHTML=s.authorAvatar?`<img src="${s.authorAvatar}" alt="">`:(s.auteur||'A')[0].toUpperCase();
+  document.getElementById('svav').innerHTML=s.authorAvatar?`<img src="${optImg(s.authorAvatar,80)}" alt="" decoding="async">`:(s.auteur||'A')[0].toUpperCase();
   document.getElementById('svname').innerText=s.auteur||'anonyme';
   const c=document.getElementById('svcontent');
-  const mediaH=s.mediaType==='video'?`<video src="${s.mediaUrl}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`:`<img src="${s.mediaUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`;
+  const mediaH=s.mediaType==='video'?`<video src="${optVid(s.mediaUrl)}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`:`<img src="${optImg(s.mediaUrl,720)}" decoding="async" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`;
   c.innerHTML=mediaH+(s.text?`<div class="sv-text-overlay">${esc(s.text)}</div>`:'');
   document.getElementById('svpbar').innerHTML=curStories.map((_,i)=>`<div class="svseg"><div class="svseg-fill" style="width:${i<curStoryIdx?'100%':'0%'}" ${i===curStoryIdx?'id="svfill"':''}></div></div>`).join('');
   const isOwn=currentUser&&s.authorUid===currentUser.uid;
   const delBtn=document.getElementById('svDelBtn');delBtn.style.display=isOwn?'block':'none';
   if(isOwn)delBtn.onclick=()=>deleteStory(s.id);
+  // Masquer la barre de réponse pour ses propres statuts (mais garder les réactions visibles)
+  document.getElementById('svReplyInp').style.display=isOwn?'none':'';
+  document.querySelector('.sv-send-reply-btn').style.display=isOwn?'none':'';
+  document.getElementById('svLikeBtn').style.display=isOwn?'none':'';
+  // État du like
+  curStoryId=s.id;curStoryAuthorUid=s.authorUid;curStoryAuthorName=s.auteur||'anonyme';
+  const likeBtn=document.getElementById('svLikeBtn');
+  const liked=currentUser&&s.likedBy&&s.likedBy[currentUser.uid];
+  likeBtn.innerHTML=liked?'❤️':'🤍';
+  likeBtn.classList.toggle('liked',!!liked);
+  const likersCount=document.getElementById('svLikersCount');
+  const nbLikes=s.likedBy?Object.keys(s.likedBy).length:0;
+  if(isOwn&&nbLikes>0){likersCount.classList.add('show');likersCount.innerText=`❤️ ${nbLikes} ${nbLikes>1?'réactions':'réaction'}`;}
+  else{likersCount.classList.remove('show');}
   clearTimeout(storyTmr);
   const dur=s.mediaType==='video'?6200:5000;
   setTimeout(()=>{const f=document.getElementById('svfill');if(f){f.style.transition=`width ${dur}ms linear`;f.style.width='100%';}},50);
   storyTmr=setTimeout(nextStory,dur+100);
+}
+let curStoryId=null,curStoryAuthorUid=null,curStoryAuthorName=null,storyPaused=false;
+function pauseStory(){
+  storyPaused=true;clearTimeout(storyTmr);
+  const f=document.getElementById('svfill');
+  if(f){const cs=getComputedStyle(f);f.style.transition='none';f.style.width=cs.width;}
+}
+function resumeStory(){
+  if(!storyPaused)return;storyPaused=false;
+  const f=document.getElementById('svfill');
+  if(!f)return;
+  const curWidth=parseFloat(f.style.width)||0;
+  const totalDur=5000;
+  const remaining=totalDur*(1-curWidth/100);
+  setTimeout(()=>{f.style.transition=`width ${remaining}ms linear`;f.style.width='100%';},30);
+  storyTmr=setTimeout(nextStory,remaining+100);
+}
+async function toggleStoryLike(){
+  if(!currentUser){needAuth(()=>{});return;}
+  if(!curStoryId)return;
+  const ref=db.ref('stories/'+curStoryId+'/likedBy/'+currentUser.uid);
+  const snap=await ref.once('value');
+  const btn=document.getElementById('svLikeBtn');
+  if(snap.val()){
+    await ref.remove();
+    btn.innerHTML='🤍';btn.classList.remove('liked');
+  } else {
+    await ref.set(true);
+    btn.innerHTML='❤️';btn.classList.add('liked');
+    btn.style.transform='scale(1.3)';setTimeout(()=>btn.style.transform='',200);
+    if(curStoryAuthorUid&&curStoryAuthorUid!==currentUser.uid){
+      sendNotif(curStoryAuthorUid,{type:'like',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});
+    }
+  }
+}
+function reactToStory(emoji,el){
+  if(!currentUser){needAuth(()=>{});return;}
+  // Animation emoji qui s'envole
+  const flying=document.createElement('span');
+  flying.className='sv-react-btn flying';
+  flying.innerText=emoji;
+  flying.style.position='absolute';
+  const rect=el.getBoundingClientRect();
+  flying.style.left=(rect.left)+'px';
+  flying.style.bottom=(window.innerHeight-rect.top)+'px';
+  flying.style.zIndex='999';
+  document.body.appendChild(flying);
+  setTimeout(()=>flying.remove(),900);
+  // Envoie la réaction comme message DM rapide à l'auteur
+  if(curStoryAuthorUid&&currentUser.uid!==curStoryAuthorUid){
+    const key=dmKey(currentUser.uid,curStoryAuthorUid);
+    db.ref('messages/'+key).push({from:currentUser.uid,to:curStoryAuthorUid,text:emoji+' (réaction au statut)',at:Date.now()});
+    db.ref('dms/'+key).update({lastMsg:emoji+' a réagi à ton statut',updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',['unread/'+curStoryAuthorUid]:true});
+    sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:emoji+' a réagi à ton statut',at:Date.now(),read:false});
+  }
+  showToast(emoji+' Réaction envoyée');
+}
+function sendStoryReply(){
+  if(!currentUser){needAuth(()=>{});return;}
+  const inp=document.getElementById('svReplyInp');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  if(curStoryAuthorUid&&currentUser.uid!==curStoryAuthorUid){
+    const key=dmKey(currentUser.uid,curStoryAuthorUid);
+    db.ref('messages/'+key).push({from:currentUser.uid,to:curStoryAuthorUid,text:txt,at:Date.now()});
+    db.ref('dms/'+key).update({lastMsg:txt,updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',['unread/'+curStoryAuthorUid]:true});
+    sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,at:Date.now(),read:false});
+    playMsgSendSound();
+    showToast('✅ Réponse envoyée à @'+curStoryAuthorName);
+  }
+  resumeStory();
 }
 function prevStory(){clearTimeout(storyTmr);curStoryIdx>0?showStory(curStories[--curStoryIdx]):curGroupIdx>0?(curGroupIdx--,curStories=allStoryGroups[curGroupIdx],curStoryIdx=curStories.length-1,showStory(curStories[curStoryIdx])):closeStory();}
 function nextStory(){clearTimeout(storyTmr);curStoryIdx<curStories.length-1?showStory(curStories[++curStoryIdx]):curGroupIdx<allStoryGroups.length-1?(curGroupIdx++,curStories=allStoryGroups[curGroupIdx],curStoryIdx=0,showStory(curStories[0])):closeStory();}
 function closeStory(){clearTimeout(storyTmr);document.getElementById('storyViewer').classList.remove('active');}
 function initStoryTap(){
   const sv=document.getElementById('storyViewer');let tx=0;
-  sv.addEventListener('touchstart',e=>{if(e.target.closest('.sv-del,.svheader,.svclose'))return;tx=e.touches[0].clientX;},{passive:true});
-  sv.addEventListener('touchend',e=>{if(e.target.closest('.sv-del,.svheader,.svclose'))return;const dx=e.changedTouches[0].clientX-tx;Math.abs(dx)>40?(dx<0?nextStory():prevStory()):(e.changedTouches[0].clientX<window.innerWidth*.35?prevStory():nextStory());},{passive:true});
-  sv.addEventListener('click',e=>{if(e.target.closest('.sv-del,.svheader,.svclose'))return;e.clientX<window.innerWidth*.35?prevStory():nextStory();});
+  sv.addEventListener('touchstart',e=>{if(e.target.closest('.sv-del,.svheader,.svclose,.sv-footer'))return;tx=e.touches[0].clientX;},{passive:true});
+  sv.addEventListener('touchend',e=>{if(e.target.closest('.sv-del,.svheader,.svclose,.sv-footer'))return;const dx=e.changedTouches[0].clientX-tx;Math.abs(dx)>40?(dx<0?nextStory():prevStory()):(e.changedTouches[0].clientX<window.innerWidth*.35?prevStory():nextStory());},{passive:true});
+  sv.addEventListener('click',e=>{if(e.target.closest('.sv-del,.svheader,.svclose,.sv-footer'))return;e.clientX<window.innerWidth*.35?prevStory():nextStory();});
 }
 async function deleteStory(id){showConfirm('Supprimer ce statut ?','Il sera supprimé immédiatement.',async()=>{await db.ref('stories/'+id).remove();closeStory();loadStories();showToast('🗑️ Statut supprimé');});}
 let pendingStatusFile=null;
@@ -4265,7 +4432,7 @@ async function renderProfile(){
   document.getElementById('pFollowers').innerText=fmt(lkSnap.numChildren());
   document.getElementById('pFollowingCount').innerText=fmt(Object.keys(following).length);
   document.getElementById('profileGrid').innerHTML=mine.length
-    ?mine.map(v=>`<div class="pgitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span><button class="pg-del-btn" onclick="event.stopPropagation();confirmDeleteVideo('${v.id}')">🗑</button></div></div>`).join('')
+    ?mine.map(v=>`<div class="pgitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span><button class="pg-del-btn" onclick="event.stopPropagation();confirmDeleteVideo('${v.id}')">🗑</button></div></div>`).join('')
     :'<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Aucune vidéo publiée</div>';
 }
 
@@ -4368,7 +4535,7 @@ function renderDMList(){
   }
   list.innerHTML = convs.map(c=>{
     const otherUid = c.key.replace(currentUser.uid,'').replace('_','');
-    const avH = c.otherAvatar ? `<img src="${c.otherAvatar}" alt="">` : (c.otherName||'?')[0].toUpperCase();
+    const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
     const preview = c.lastMsg || '...';
     return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}')">
@@ -4403,7 +4570,7 @@ function filterDMList(val){
   if(!filtered.length){list.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">Aucun résultat pour "'+esc(val)+'"</div>';return;}
   list.innerHTML = filtered.map(c=>{
     const otherUid = c.key.replace(currentUser.uid,'').replace('_','');
-    const avH = c.otherAvatar ? `<img src="${c.otherAvatar}" alt="">` : (c.otherName||'?')[0].toUpperCase();
+    const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
     return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}')">
       <div class="aeschat-conv-av-wrap"><div class="aeschat-conv-av">${avH}</div></div>
@@ -4466,7 +4633,7 @@ function loadChatStories(){
   row.appendChild(meEl);
 
   // Stories des autres (abonnés d'abord)
-  db.ref('stories').once('value').then(snap=>{
+  db.ref('stories').orderByChild('createdAt').limitToLast(40).once('value').then(snap=>{
     const now = Date.now();
     const list = Object.entries(snap.val()||{}).map(([id,s])=>({id,...s})).filter(s=>now-s.createdAt<86400000&&s.authorUid!==currentUser?.uid);
     if(!list.length){wrap.style.borderBottom='none';return;}
@@ -4480,7 +4647,7 @@ function loadChatStories(){
 
     sorted.forEach((stories, gIdx)=>{
       const s = stories[stories.length-1];
-      const avH = s.authorAvatar ? `<img src="${s.authorAvatar}" alt="">` : (s.auteur||'A')[0].toUpperCase();
+      const avH = s.authorAvatar ? `<img src="${optImg(s.authorAvatar,80)}" alt="" loading="lazy" decoding="async">` : (s.auteur||'A')[0].toUpperCase();
       const el = document.createElement('div');
       el.className = 'aeschat-story-item';
       el.innerHTML = `<div class="aeschat-story-ring"><div class="aeschat-story-av">${avH}</div></div><span class="aeschat-story-name">${esc((s.auteur||'').slice(0,8)||'Anonyme')}</span>`;
@@ -4618,7 +4785,7 @@ function switchSearchTab(tab,el){
   if(tab==='trending')renderTrending();
   else filterSearch(document.getElementById('searchInput').value);
 }
-function renderExplore(){document.getElementById('exploreGrid').innerHTML=allVids.slice(0,12).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
+function renderExplore(){document.getElementById('exploreGrid').innerHTML=allVids.slice(0,12).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
 async function renderAccounts(q){
   const list=document.getElementById('accountsList');list.innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px;">Chargement...</div>';
   const snap=await db.ref('users').limitToFirst(30).once('value');
@@ -4637,7 +4804,7 @@ async function toggleFollowBtn(uid,name,btn){
   localStorage.setItem('aes_following',JSON.stringify(following));
 }
 function filterSearch(q){
-  if(searchTabCurrent==='videos'){if(!q){renderExplore();return;}document.getElementById('exploreGrid').innerHTML=allVids.filter(v=>(v.auteur||'').toLowerCase().includes(q.toLowerCase())||(v.desc||'').toLowerCase().includes(q.toLowerCase())).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${v.videoUrl}" poster="${v.thumbnail||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
+  if(searchTabCurrent==='videos'){if(!q){renderExplore();return;}document.getElementById('exploreGrid').innerHTML=allVids.filter(v=>(v.auteur||'').toLowerCase().includes(q.toLowerCase())||(v.desc||'').toLowerCase().includes(q.toLowerCase())).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
   else if(searchTabCurrent==='accounts')renderAccounts(q);
 }
 function searchByTag(tag){showScreen('search');document.getElementById('searchInput').value=tag;switchSearchTab('videos',document.querySelectorAll('.s-tab')[0]);filterSearch(tag);}
@@ -4749,7 +4916,7 @@ function renderTrending(){
   const sorted=[...allVids].sort((a,b)=>viralScore(b)-viralScore(a)).slice(0,20);
   grid.innerHTML=sorted.map((v,i)=>{
     const rank=i+1;
-    const thumb=v.thumbnail?`<img src="${v.thumbnail}" alt="" loading="lazy">`:'<div class="trend-thumb-ph">🎬</div>';
+    const thumb=v.thumbnail?`<img src="${optVidThumb(v.thumbnail,300)}" alt="" loading="lazy" decoding="async">`:'<div class="trend-thumb-ph">🎬</div>';
     const desc=(v.desc||'').replace(/#\w+/g,'').trim().slice(0,60)||'Vidéo AES👑';
     const score=viralScore(v);
     return `<div class="trend-item" onclick="goToVid('${v.id}')">
@@ -4794,11 +4961,31 @@ const RSS2JSON='https://api.rss2json.com/v1/api.json?api_key=&rss_url=';
 const NEWS_SOURCES=[
   {id:'rfi',name:'RFI Afrique',url:'https://www.rfi.fr/fr/afrique/rss'},
   {id:'bbc',name:'BBC Afrique',url:'https://feeds.bbci.co.uk/afrique/rss.xml'},
-  {id:'ja',name:'Jeune Afrique',url:'https://www.jeuneafrique.com/feed/'}
+  {id:'ja',name:'Jeune Afrique',url:'https://www.jeuneafrique.com/feed/'},
+  {id:'lefaso',name:'leFaso.net',url:'https://lefaso.net/spip.php?page=backend'},
+  {id:'africanews',name:'Africanews',url:'https://www.africanews.com/feed/rss'}
 ];
 let allArticles=[],filteredArticles=[],newsFilter='all';
 let newsLiked=JSON.parse(localStorage.getItem('aes_news_liked')||'[]');
 let newsInterval=null,curArticle=null;
+
+// ═══════════════════════════════════════
+//  DÉTECTION & SCORE AES (Burkina/Mali/Niger/Sahel)
+// ═══════════════════════════════════════
+const AES_KEYWORDS=[
+  'aes','alliance des états du sahel','alliance des etats du sahel','confédération des états du sahel',
+  'burkina','burkinabè','burkinabe','ouagadougou','traoré','traore','bobo-dioulasso',
+  'mali','malien','malienne','bamako','goïta','goita','kidal','tombouctou','gao','mopti','tessit',
+  'niger','nigérien','nigerien','niamey','tiani','tchiani','diffa','agadez',
+  'sahel','cedeao','g5 sahel','famas','fama','alliance sahélienne','confédération sahélienne',
+  'capitaine ibrahim','junte','daandé liptako'
+];
+function aesScore(article){
+  const txt=((article.title||'')+' '+(article.desc||'')).toLowerCase();
+  let score=0;
+  AES_KEYWORDS.forEach(k=>{if(txt.includes(k))score++;});
+  return score;
+}
 
 async function fetchRSS(src){
   try{
@@ -4823,11 +5010,17 @@ async function loadNews(forceRefresh=false){
   try{
     const results=await Promise.all(NEWS_SOURCES.map(s=>fetchRSS(s)));
     allArticles=results.flat().sort((a,b)=>b.date-a.date);
+    allArticles.forEach(a=>{a._aesScore=aesScore(a);});
     applyNewsFilter();startNewsTicker();
   }catch{list.innerHTML='<div class="feedph" style="height:50vh;"><div class="ph-icon">⚠️</div><div class="ph-msg">Impossible de charger</div></div>';}
 }
 function filterNews(f,el){newsFilter=f;document.querySelectorAll('.nsrc').forEach(n=>n.classList.remove('active'));if(el)el.classList.add('active');applyNewsFilter();}
-function applyNewsFilter(){filteredArticles=newsFilter==='all'?allArticles:allArticles.filter(a=>a.sourceId===newsFilter);renderNews(filteredArticles);}
+function applyNewsFilter(){
+  if(newsFilter==='all')filteredArticles=allArticles;
+  else if(newsFilter==='aes')filteredArticles=allArticles.filter(a=>a._aesScore>0).sort((a,b)=>(b._aesScore-a._aesScore)||(b.date-a.date));
+  else filteredArticles=allArticles.filter(a=>a.sourceId===newsFilter);
+  renderNews(filteredArticles);
+}
 function renderNews(articles){
   const list=document.getElementById('newsList');
   if(!articles.length){list.innerHTML='<div class="feedph" style="height:50vh;"><div class="ph-icon">📰</div><div class="ph-msg">Aucun article</div></div>';return;}
@@ -4840,11 +5033,12 @@ function getLikes(id){return(JSON.parse(localStorage.getItem('aes_art_likes')||'
 function renderBigCard(a){
   const isNew=(Date.now()-a.date.getTime())<3600000;
   const lk=newsLiked.includes(a.id);
+  const isAES=(a._aesScore||0)>0;
   return `<div class="art-card-big" onclick="openArticle('${a.id}')">
     <div class="art-card-big-img">
       ${a.image?`<img src="${a.image}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-big-img-ph>📰</div>'">`:'<div class="art-card-big-img-ph">📰</div>'}
       <div class="art-source-badge">${a.source}</div>
-      ${isNew?'<div class="art-new-badge">🔴 NOUVEAU</div>':''}
+      ${isNew?'<div class="art-new-badge">🔴 NOUVEAU</div>':isAES?'<div class="art-new-badge" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;">👑 AES</div>':''}
     </div>
     <div class="art-card-big-body">
       <div class="art-card-big-title">${esc(a.title)}</div>
@@ -4861,10 +5055,11 @@ function renderBigCard(a){
 }
 function renderSmallCard(a){
   const lk=newsLiked.includes(a.id);
+  const isAES=(a._aesScore||0)>0;
   return `<div class="art-card-sm" onclick="openArticle('${a.id}')">
     <div class="art-card-sm-img">${a.image?`<img src="${a.image}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-sm-img-ph>📰</div>'">`:'<div class="art-card-sm-img-ph">📰</div>'}</div>
     <div class="art-card-sm-body">
-      <div class="art-card-sm-src">${a.source}</div>
+      <div class="art-card-sm-src">${isAES?'👑 ':''}${a.source}</div>
       <div class="art-card-sm-title">${esc(a.title)}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:3px;">
         <div class="art-card-sm-date">${newsTimeAgo(a.date)}</div>
@@ -4959,11 +5154,11 @@ function startNewsAutoRefresh(){
 //  LANGUES
 // ═══════════════════════════════════════
 const LANGS={
-  fr:{nav_home:'Accueil',nav_search:'Explorer',nav_market:'Marché',nav_infos:'Infos',nav_profile:'Profil',feed_following:'Abonnements',feed_foryou:'Pour toi',profile_edit:'✏️ Modifier',profile_videos:'Vidéos',profile_followers:'Abonnés',profile_following:'Abonnements',profile_logout:'🚪 Déconnexion',market_title:'🛍️ Marketplace',market_sell:'+ Vendre',dm_title:'💬 Messages',notif_title:'🔔 Notifications'},
-  bm:{nav_home:'So',nav_search:'Ɲini',nav_market:'Jamarkaba',nav_infos:'Kibaru',nav_profile:'N yɛrɛ',feed_following:'N ka mɔgɔw',feed_foryou:'I kama',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Jamarkaba',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kibaro'},
-  mos:{nav_home:'Yiri',nav_search:'Baosg',nav_market:'Roogã',nav_infos:'Koe',nav_profile:'Maam',feed_following:'M raoamb',feed_foryou:'Fo yell',profile_edit:'✏️ Toeeg',profile_videos:'Videosi',profile_followers:'Neba',profile_following:'Tũusda',profile_logout:'🚪 Yit',market_title:'🛍️ Roogã',market_sell:'+ Koos',dm_title:'💬 Sẽkr',notif_title:'🔔 Koe'},
-  dyu:{nav_home:'So',nav_search:'Ɲinini',nav_market:'Ɲɛgɛnkɛ',nav_infos:'Kuma',nav_profile:'N kɔrɔ',feed_following:'N tɔw',feed_foryou:'I bolo',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Ɲɛgɛnkɛ',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kuma'},
-  ha:{nav_home:'Gida',nav_search:'Nema',nav_market:'Kasuwa',nav_infos:'Labarai',nav_profile:'Ni',feed_following:'Abokaina',feed_foryou:'Saboda kai',profile_edit:'✏️ Gyara',profile_videos:'Bidiyo',profile_followers:'Mabiya',profile_following:'Nake bi',profile_logout:'🚪 Fita',market_title:'🛍️ Kasuwa',market_sell:'+ Siyar',dm_title:'💬 Saƙonni',notif_title:'🔔 Sanarwa'}
+  fr:{nav_home:'Accueil',nav_search:'Explorer',nav_chat:'Chat',nav_market:'Marché',nav_infos:'Infos',nav_profile:'Profil',feed_following:'Abonnements',feed_foryou:'Pour toi',profile_edit:'✏️ Modifier',profile_videos:'Vidéos',profile_followers:'Abonnés',profile_following:'Abonnements',profile_logout:'🚪 Déconnexion',market_title:'🛍️ Marketplace',market_sell:'+ Vendre',dm_title:'💬 Messages',notif_title:'🔔 Notifications'},
+  bm:{nav_home:'So',nav_search:'Ɲini',nav_chat:'Bataw',nav_market:'Jamarkaba',nav_infos:'Kibaru',nav_profile:'N yɛrɛ',feed_following:'N ka mɔgɔw',feed_foryou:'I kama',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Jamarkaba',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kibaro'},
+  mos:{nav_home:'Yiri',nav_search:'Baosg',nav_chat:'Sẽkr',nav_market:'Roogã',nav_infos:'Koe',nav_profile:'Maam',feed_following:'M raoamb',feed_foryou:'Fo yell',profile_edit:'✏️ Toeeg',profile_videos:'Videosi',profile_followers:'Neba',profile_following:'Tũusda',profile_logout:'🚪 Yit',market_title:'🛍️ Roogã',market_sell:'+ Koos',dm_title:'💬 Sẽkr',notif_title:'🔔 Koe'},
+  dyu:{nav_home:'So',nav_search:'Ɲinini',nav_chat:'Bataw',nav_market:'Ɲɛgɛnkɛ',nav_infos:'Kuma',nav_profile:'N kɔrɔ',feed_following:'N tɔw',feed_foryou:'I bolo',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Ɲɛgɛnkɛ',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kuma'},
+  ha:{nav_home:'Gida',nav_search:'Nema',nav_chat:'Saƙonni',nav_market:'Kasuwa',nav_infos:'Labarai',nav_profile:'Ni',feed_following:'Abokaina',feed_foryou:'Saboda kai',profile_edit:'✏️ Gyara',profile_videos:'Bidiyo',profile_followers:'Mabiya',profile_following:'Nake bi',profile_logout:'🚪 Fita',market_title:'🛍️ Kasuwa',market_sell:'+ Siyar',dm_title:'💬 Saƙonni',notif_title:'🔔 Sanarwa'}
 };
 function t(k){return(LANGS[currentLang]||LANGS.fr)[k]||LANGS.fr[k]||k;}
 function setLang(lang){
@@ -4973,15 +5168,18 @@ function setLang(lang){
   showToast({fr:'🇫🇷 Français',bm:'🌍 Bambara',mos:'🌍 Mooré',dyu:'🌍 Dioula',ha:'🌍 Haoussa'}[lang]||lang);
 }
 function applyLang(){
-  const nbs=document.querySelectorAll('.nbtn span');
-  ['nav_home','nav_search','nav_market','nav_infos','nav_profile'].forEach((k,i)=>{if(nbs[i])nbs[i].innerText=t(k);});
+  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-infos':'nav_infos','nb-profile':'nav_profile'};
+  Object.entries(map).forEach(([id,k])=>{
+    const btn=document.getElementById(id);
+    const span=btn?btn.querySelector('span'):null;
+    if(span)span.innerText=t(k);
+  });
   const tabs=document.querySelectorAll('.feed-tab');if(tabs[0])tabs[0].innerText=t('feed_following');if(tabs[1])tabs[1].innerText=t('feed_foryou');
   const eb=document.getElementById('editProfileBtn');if(eb)eb.innerText=t('profile_edit');
   const lb=document.getElementById('logoutBtn');if(lb)lb.innerText=t('profile_logout');
   const psl=document.querySelectorAll('.pstat-l');['profile_videos','profile_followers','profile_following'].forEach((k,i)=>{if(psl[i])psl[i].innerText=t(k);});
   const mt=document.querySelector('.market-title');if(mt)mt.innerText=t('market_title');
   const ms=document.querySelector('.market-add-btn');if(ms)ms.innerText=t('market_sell');
-  const dh=document.querySelector('.dm-header');if(dh)dh.innerText=t('dm_title');
   const nh=document.querySelector('.notif-header');if(nh)nh.innerText=t('notif_title');
 }
 
@@ -4991,6 +5189,32 @@ function applyLang(){
 //DUPLICATE: function timeAgo(ts){const m=Math.round((Date.now()-ts)/60000);return m<1?'maintenant':m<60?`${m}min`:m<1440?`${Math.round(m/60)}h`:`${Math.round(m/1440)}j`;}
 let _searchTimer=null;
 function debounceSearch(val){clearTimeout(_searchTimer);_searchTimer=setTimeout(()=>filterSearch(val),280);}
+// ═══════════════════════════════════════
+//  OPTIMISATION VITESSE — URLs médias compressées
+// ═══════════════════════════════════════
+function optImg(url,w){
+  // Injecte des transformations Cloudinary/ImageKit pour réduire le poids
+  // sans toucher au fichier original stocké.
+  if(!url)return url;
+  w=w||720;
+  if(url.includes('res.cloudinary.com')&&url.includes('/upload/')){
+    return url.replace('/upload/',`/upload/f_auto,q_auto:eco,w_${w},c_limit,dpr_auto/`);
+  }
+  if(url.includes('ik.imagekit.io')){
+    const sep=url.includes('?')?'&':'?';
+    return url+sep+`tr=f-auto,q-70,w-${w}`;
+  }
+  return url;
+}
+function optVidThumb(url,w){return optImg(url,w||480);}
+function optVid(url){
+  // Vidéo : force un format/bitrate adaptatif via Cloudinary si possible
+  if(!url)return url;
+  if(url.includes('res.cloudinary.com')&&url.includes('/upload/')){
+    return url.replace('/upload/','/upload/f_auto,q_auto:eco/');
+  }
+  return url;
+}
 function fmt(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n||0);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function showToast(msg){const t=document.getElementById('toast');t.innerText=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
@@ -5944,7 +6168,7 @@ self.addEventListener('fetch',e=>{
         const nw=reg.installing;
         nw.addEventListener('statechange',()=>{
           if(nw.state==='installed'&&navigator.serviceWorker.controller){
-            showToast('🔄 Mise à jour disponible — Recharge l'app');
+            showToast('🔄 Mise à jour disponible — Recharge l\'app');
           }
         });
       });
