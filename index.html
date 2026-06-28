@@ -3401,25 +3401,74 @@ body:not(.screen-home) #topnav{
       <div class="upload-tab" id="utab-text" onclick="switchUploadTab('text')">✍️ Texte</div>
     </div>
 
-    <!-- PANEL VIDÉO -->
+    <!-- PANEL VIDÉO — Flow direct en un écran -->
     <div class="upload-panel active" id="upanel-video">
-      <button class="cam-open-btn" onclick="openCamera('video')">📹 Filmer avec effets</button>
-      <button class="cam-open-btn secondary" onclick="openCamera('photo')">📸 Photo avec filtres</button>
-      <div class="uzone" id="uzone">
-        <input type="file" id="videoInput" accept="video/*" onchange="onFileSelected(this)">
-        <div class="uzone-icon">📲</div>
-        <div class="uzone-title">Ou choisir depuis galerie</div>
-        <div class="uzone-sub">MP4, MOV · Max 100MB</div>
+
+      <!-- Input natif SANS capture (ouvre la galerie sur Android) -->
+      <input type="file" id="videoInput" accept="video/*" style="display:none" onchange="onFileSelected(this)">
+
+      <!-- ÉTAT 1 : Pas de vidéo sélectionnée -->
+      <div id="vStateEmpty">
+        <button class="cam-open-btn" onclick="openCamera('video')">📹 Filmer avec effets</button>
+
+        <!-- Gros bouton galerie — label HTML pour garantir l'ouverture native -->
+        <label for="videoInput" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--surface);border:2px dashed var(--border2);border-radius:var(--r-lg);padding:32px 16px;cursor:pointer;text-align:center;margin-bottom:4px;">
+          <span style="font-size:48px;">🎬</span>
+          <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text);">Choisir une vidéo</span>
+          <span style="font-size:12px;color:var(--muted);">Depuis ta galerie · MP4, MOV, WebM</span>
+          <span style="background:var(--gold);color:#14151A;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;padding:10px 26px;border-radius:22px;margin-top:4px;">📲 Ouvrir la galerie</span>
+        </label>
+
+        <button class="btn-ghost" onclick="closeModal()" style="margin-top:4px;">Annuler</button>
       </div>
-      <div class="fchip" id="fchip"><span>🎥</span><span style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="fchipName"></span><span style="font-size:11px;color:var(--muted);" id="fchipSize"></span></div>
-      <textarea class="inp" id="descInput" rows="2" placeholder="Décris ta vidéo... #tags"></textarea>
-      <div id="sharedMusicSection"></div>
-      <div class="mprog" id="mprog">
-        <div class="mprog-bg"><div class="mprog-fill" id="mprogFill"></div></div>
-        <div class="mprog-label" id="mprogLabel">Préparation...</div>
+
+      <!-- ÉTAT 2 : Vidéo sélectionnée → tout sur le même écran -->
+      <div id="vStateReady" style="display:none;flex-direction:column;gap:10px;">
+
+        <!-- Aperçu vidéo -->
+        <div style="border-radius:var(--r-md);overflow:hidden;background:#000;position:relative;max-height:220px;display:flex;align-items:center;justify-content:center;">
+          <video id="videoQuickPreviewVid" muted playsinline controls style="width:100%;max-height:220px;object-fit:contain;display:block;"></video>
+          <!-- Bouton changer -->
+          <label for="videoInput" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:22px;padding:5px 12px;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(6px);">
+            🔄 Changer
+          </label>
+          <div id="vpsDuration" style="display:none;position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#fff;"></div>
+        </div>
+
+        <!-- Nom du fichier -->
+        <div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--r-sm);padding:9px 12px;">
+          <span style="font-size:18px;">🎥</span>
+          <span id="fchipName" style="font-size:12.5px;font-weight:600;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+          <span id="fchipSize" style="font-size:11px;color:var(--muted);flex-shrink:0;"></span>
+        </div>
+
+        <!-- Description -->
+        <textarea class="inp" id="vpsDescInput" rows="3" placeholder="Décris ta vidéo... #hashtags 🔥"></textarea>
+
+        <!-- Confidentialité -->
+        <div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;">
+          <span style="font-size:16px;">🌍</span>
+          <span style="font-size:13px;font-weight:500;flex:1;">Confidentialité</span>
+          <select id="vpsPrivacy" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;">
+            <option value="public">🌍 Public</option>
+            <option value="followers">👥 Abonnés</option>
+            <option value="private">🔒 Privé</option>
+          </select>
+        </div>
+
+        <div id="sharedMusicSection"></div>
+
+        <!-- Barre de progression (cachée par défaut) -->
+        <div id="mprog" class="mprog" style="display:none;">
+          <div class="mprog-bg"><div class="mprog-fill" id="mprogFill"></div></div>
+          <div class="mprog-label" id="mprogLabel">Envoi en cours...</div>
+        </div>
+
+        <!-- Boutons -->
+        <button class="btn-gold" id="publishBtn" onclick="uploadVideo()">🚀 Publier</button>
+        <button class="btn-ghost" onclick="closeModal()">Annuler</button>
       </div>
-      <button class="btn-gold" id="publishBtn" onclick="uploadVideo()">🚀 Publier</button>
-      <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+
     </div>
 
     <!-- PANEL PHOTO -->
@@ -3465,7 +3514,153 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
-<!-- BLOC MUSIQUE PARTAGÉ — déplacé entre le panneau vidéo et photo selon l'onglet actif -->
+<!-- ═══════════════════════════════════════
+     🎬 ÉCRAN PUBLICATION VIDÉO — PROFESSIONNEL
+═══════════════════════════════════════ -->
+<div id="videoPublishScreen" style="display:none;position:fixed;inset:0;z-index:520;background:var(--bg);flex-direction:column;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;flex-shrink:0;">
+    <div onclick="closeVideoPublishScreen()" style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2);">
+      <span style="font-size:20px;">←</span>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">Nouvelle vidéo</div>
+    <button onclick="uploadVideo()" id="vpsPublishBtn"
+      style="background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#14151A;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;padding:9px 18px;border-radius:22px;cursor:pointer;">
+      Publier
+    </button>
+  </div>
+
+  <!-- Contenu scrollable -->
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;" id="vpsScrollArea">
+    <div style="padding:0 0 calc(24px + env(safe-area-inset-bottom));">
+
+      <!-- Aperçu vidéo + thumbnail -->
+      <div style="position:relative;background:#000;display:flex;align-items:center;justify-content:center;" id="vpsMediaWrap">
+        <video id="vpsPreviewVid" muted playsinline controls
+          style="width:100%;max-height:42vh;object-fit:contain;display:block;"></video>
+        <!-- Badge changer vidéo -->
+        <div onclick="resetVideoPanel();closeVideoPublishScreen();"
+          style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.2);border-radius:22px;padding:5px 12px;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(6px);">
+          🔄 Changer
+        </div>
+        <!-- Badge durée -->
+        <div id="vpsDuration" style="position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.65);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#fff;display:none;"></div>
+      </div>
+
+      <!-- Thumbnail choisir -->
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);">
+        <div id="vpsThumbnailPreview" style="width:56px;height:72px;background:var(--surface2);border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">🖼️</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13px;margin-bottom:3px;">Miniature</div>
+          <div style="font-size:11.5px;color:var(--muted);">Générée automatiquement · Image de couverture</div>
+        </div>
+        <div onclick="vpsTriggerThumbPick()" style="font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;">Changer</div>
+        <input type="file" id="vpsThumbInput" accept="image/*" style="display:none" onchange="vpsOnThumbSelected(this)">
+      </div>
+
+      <!-- Description -->
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+        <textarea id="vpsDescInput" rows="3" placeholder="Décris ta vidéo... ajoute des #hashtags 🔥"
+          style="width:100%;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:15px;resize:none;outline:none;line-height:1.5;"
+          oninput="vpsCharCount(this)"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+          <div id="vpsHashtagPills" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+          <span id="vpsCharLabel" style="font-size:11px;color:var(--muted);">0/500</span>
+        </div>
+      </div>
+
+      <!-- Hashtags rapides -->
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border);">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:0.5px;">HASHTAGS POPULAIRES</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;" id="vpsQuickTags">
+          <!-- Générés par JS -->
+        </div>
+      </div>
+
+      <!-- Localisation -->
+      <div style="padding:0 16px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 0;cursor:pointer;" onclick="vpsToggleLocation()">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(91,141,239,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📍</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;">Localisation</div>
+            <div id="vpsLocationLabel" style="font-size:11.5px;color:var(--muted);">Optionnel — Ajouter un lieu</div>
+          </div>
+          <div style="font-size:18px;color:var(--muted);">›</div>
+        </div>
+        <div id="vpsLocationInput" style="display:none;padding-bottom:12px;">
+          <input type="text" id="vpsLocationText" placeholder="Ville, pays..."
+            style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:10px 13px;border-radius:var(--r-sm);font-size:14px;outline:none;"
+            oninput="document.getElementById('vpsLocationLabel').textContent=this.value||'Optionnel — Ajouter un lieu'">
+        </div>
+      </div>
+
+      <!-- Confidentialité -->
+      <div style="padding:0 16px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 0;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(52,211,153,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🌍</div>
+          <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Confidentialité</div></div>
+          <select id="vpsPrivacy"
+            style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:var(--r-sm);font-size:13px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;">
+            <option value="public">🌍 Public</option>
+            <option value="followers">👥 Abonnés</option>
+            <option value="private">🔒 Privé</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Infos fichier -->
+      <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+        <div style="font-size:20px;">🎥</div>
+        <div>
+          <div id="vpsFileName" style="font-size:12.5px;font-weight:600;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;"></div>
+          <div id="vpsFileInfo" style="font-size:11px;color:var(--muted);"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY PROGRESSION UPLOAD ═══ -->
+<div id="vpsUploadOverlay" style="display:none;position:fixed;inset:0;z-index:550;background:rgba(10,11,14,0.92);flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+
+  <!-- Anneau de progression circulaire -->
+  <div style="position:relative;width:120px;height:120px;margin-bottom:22px;">
+    <svg style="position:absolute;inset:0;transform:rotate(-90deg);" width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+      <circle id="vpsProgressCircle" cx="60" cy="60" r="52" fill="none" stroke="var(--gold)" stroke-width="8"
+        stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
+        style="transition:stroke-dashoffset 0.3s ease;"/>
+    </svg>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div id="vpsUploadPct" style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;">0%</div>
+    </div>
+  </div>
+
+  <div id="vpsUploadStatus" style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-bottom:8px;">Envoi en cours...</div>
+  <div id="vpsUploadSub" style="font-size:12.5px;color:rgba(255,255,255,0.5);margin-bottom:28px;">Optimisation de la vidéo</div>
+
+  <!-- Barre linéaire -->
+  <div style="width:240px;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin-bottom:20px;">
+    <div id="vpsUploadBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width 0.3s ease;"></div>
+  </div>
+
+  <div id="vpsSpeedLabel" style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:24px;"></div>
+
+  <button id="vpsCancelBtn" onclick="vpsCancelUpload()"
+    style="background:rgba(255,92,114,0.15);border:1.5px solid rgba(255,92,114,0.35);color:var(--red);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 24px;border-radius:22px;cursor:pointer;">
+    ✕ Annuler l'envoi
+  </button>
+</div>
+
+<style>
+/* ─── ÉCRAN PUBLICATION VIDÉO ─── */
+#videoPublishScreen { overflow: hidden; }
+#vpsScrollArea::-webkit-scrollbar { display: none; }
+</style>
+
+
 <div id="musicPickerBlock" style="display:none;">
   <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;">🎵 Musique</div>
   <!-- Musique depuis galerie -->
@@ -6448,76 +6643,174 @@ async function uploadStatusFinal(text){
 // ═══════════════════════════════════════
 //  UPLOAD VIDEO — fix watermark
 // ═══════════════════════════════════════
-let selFile=null;
-function openModalOld(){document.getElementById('uploadModal').classList.add('active');}
+//  🎬 PUBLICATION VIDÉO — FLOW SIMPLIFIÉ
+// ═══════════════════════════════════════
+let selFile = null;
+let _vpsXHR  = null;
+
+function openModalOld(){ document.getElementById('uploadModal').classList.add('active'); }
+
 function closeModal(){
-  document.getElementById('uploadModal').classList.remove('active');selFile=null;
-  document.getElementById('videoInput').value='';document.getElementById('fchip').classList.remove('show');
-  document.getElementById('mprog').classList.remove('show');document.getElementById('mprogFill').style.width='0%';
-  document.getElementById('publishBtn').disabled=false;document.getElementById('publishBtn').innerText='🚀 Publier';
-  // Reset photo & text panels
-  try{resetPhotoPanel();}catch(e){}
-  try{resetTextPanel();}catch(e){}
-  try{clearPhotoMusic();}catch(e){}
+  document.getElementById('uploadModal').classList.remove('active');
+  resetVideoPanel();
+  try{ resetPhotoPanel(); }catch(e){}
+  try{ resetTextPanel(); }catch(e){}
+  try{ clearPhotoMusic(); }catch(e){}
 }
+
+function resetVideoPanel(){
+  selFile = null;
+  const vi = document.getElementById('videoInput');
+  if(vi) vi.value = '';
+  const vid = document.getElementById('videoQuickPreviewVid');
+  if(vid){ vid.src=''; vid.load(); }
+  document.getElementById('vStateEmpty').style.display = 'block';
+  document.getElementById('vStateReady').style.display = 'none';
+  const dur = document.getElementById('vpsDuration');
+  if(dur) dur.style.display='none';
+  const pb = document.getElementById('publishBtn');
+  if(pb){ pb.disabled=false; pb.textContent='🚀 Publier'; }
+  const mp = document.getElementById('mprog');
+  if(mp) mp.style.display='none';
+  const mf = document.getElementById('mprogFill');
+  if(mf) mf.style.width='0%';
+}
+
+// Appelé dès qu'un fichier est choisi dans la galerie
 function onFileSelected(inp){
-  const f=inp.files[0];if(!f)return;selFile=f;
-  document.getElementById('fchipName').innerText=f.name;
-  document.getElementById('fchipSize').innerText=(f.size/1024/1024).toFixed(1)+' MB';
-  document.getElementById('fchip').classList.add('show');
-  document.getElementById('uzone').style.borderColor='var(--gold)';
+  const f = inp.files[0];
+  if(!f) return;
+  selFile = f;
+
+  // Infos fichier
+  document.getElementById('fchipName').textContent = f.name;
+  document.getElementById('fchipSize').textContent = (f.size/1024/1024).toFixed(1)+' MB';
+
+  // Aperçu vidéo
+  const vid = document.getElementById('videoQuickPreviewVid');
+  if(vid){
+    vid.src = URL.createObjectURL(f);
+    vid.load();
+    vid.onloadedmetadata = ()=>{
+      const dur = document.getElementById('vpsDuration');
+      if(dur){ dur.style.display='block'; dur.textContent=fmtDur(vid.duration); }
+    };
+  }
+
+  // Bascule vers l'état "prêt"
+  document.getElementById('vStateEmpty').style.display = 'none';
+  document.getElementById('vStateReady').style.display = 'flex';
 }
+
+function fmtDur(s){
+  const m=Math.floor(s/60), sec=Math.floor(s%60);
+  return m+':'+(sec<10?'0':'')+sec;
+}
+
+// ── Upload direct ──
 async function uploadVideo(){
-  if(!selFile){showToast('⚠️ Choisis une vidéo');return;}
-  const desc=document.getElementById('descInput').value.trim()||'';
-  const btn=document.getElementById('publishBtn');btn.disabled=true;btn.innerText='⏳ Upload...';
-  document.getElementById('mprog').classList.add('show');setProg(5,'Envoi en cours...');
+  if(!selFile){ showToast('⚠️ Choisis une vidéo'); return; }
+
+  const desc    = (document.getElementById('vpsDescInput')?.value||'').trim();
+  const privacy = document.getElementById('vpsPrivacy')?.value||'public';
+
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true; btn.textContent = '⏳ Envoi...';
+
+  const mprog = document.getElementById('mprog');
+  const fill  = document.getElementById('mprogFill');
+  const label = document.getElementById('mprogLabel');
+  mprog.style.display = 'block';
+
+  const setP = (pct, txt)=>{
+    fill.style.width = pct+'%';
+    label.textContent = txt;
+  };
+  setP(2, 'Connexion...');
+
   try{
-    // Upload direct — pas de watermark Cloudinary pour éviter l'erreur de lecteur
-    const videoUrl=await clUpload(selFile,p=>setProg(5+p*0.88,`Envoi ${p}%...`));
-    const thumbnail=videoUrl.replace('/video/upload/','/video/upload/so_0,w_480,f_jpg/').replace(/\.(mp4|mov|avi|webm)$/i,'.jpg');
-    setProg(96,'Sauvegarde...');
-    const reuseToggle=document.getElementById('musicAllowReuseToggle');
-    const musicData=selectedMusic?{
-      musicUrl:selectedMusic.url,
-      musicName:selectedMusic.name,
-      musicArtist:selectedMusic.artist,
-      musicEmoji:selectedMusic.emoji||'🎵',
-      musicCover:selectedMusic.cover||null,
-      musicAllowReuse:reuseToggle?reuseToggle.checked:true
-    }:{};
-    await db.ref('videos').push({
-      videoUrl,       // URL directe — lecture garantie
-      thumbnail,
-      ...musicData,
-      auteur:currentUser.name,
-      authorAvatar:currentUser.avatar||'',
-      authorUid:currentUser.uid,
-      country:currentUser.country||null,
-      desc,likes:0,views:0,createdAt:Date.now()
+    const videoUrl = await new Promise((res, rej)=>{
+      const fd = new FormData();
+      fd.append('file', selFile);
+      fd.append('upload_preset','Aes-upload');
+      const xhr = new XMLHttpRequest();
+      _vpsXHR = xhr;
+      xhr.open('POST','https://api.cloudinary.com/v1_1/dvmpv8pdi/video/upload');
+      xhr.upload.onprogress = e=>{
+        if(e.lengthComputable){
+          const pct = Math.round(e.loaded/e.total*100);
+          setP(5 + pct*0.88, `Envoi ${pct}%...`);
+        }
+      };
+      xhr.onload = ()=>{
+        _vpsXHR = null;
+        if(xhr.status===200) res(JSON.parse(xhr.responseText).secure_url);
+        else { try{ rej(new Error(JSON.parse(xhr.responseText)?.error?.message||'Upload échoué')); }catch(e){ rej(new Error('Erreur upload')); } }
+      };
+      xhr.onerror = ()=>{ _vpsXHR=null; rej(new Error('Erreur réseau')); };
+      xhr.send(fd);
     });
-    setProg(100,'✅ Publié !');
+
+    setP(96, 'Sauvegarde...');
+
+    const thumbnail = videoUrl
+      .replace('/video/upload/','/video/upload/so_0,w_480,f_jpg/')
+      .replace(/\.(mp4|mov|avi|webm)$/i,'.jpg');
+
+    const reuseToggle = document.getElementById('musicAllowReuseToggle');
+    const musicData = selectedMusic ? {
+      musicUrl:selectedMusic.url, musicName:selectedMusic.name, musicArtist:selectedMusic.artist,
+      musicEmoji:selectedMusic.emoji||'🎵', musicCover:selectedMusic.cover||null,
+      musicAllowReuse:reuseToggle?reuseToggle.checked:true
+    } : {};
+
+    await db.ref('videos').push({
+      videoUrl, thumbnail, ...musicData,
+      auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
+      authorUid:currentUser.uid, country:currentUser.country||null,
+      desc, privacy, likes:0, views:0, createdAt:Date.now()
+    });
+
+    setP(100, '✅ Publié !');
     showToast('🎉 Vidéo publiée avec succès !');
+
     setTimeout(()=>{
       closeModal();
-      // Prepend la nouvelle vidéo en haut du feed sans tout recharger
       prependNewVideoToFeed({
-        videoUrl, thumbnail,
-        ...musicData,
-        auteur: currentUser.name,
-        authorAvatar: currentUser.avatar||'',
-        authorUid: currentUser.uid,
-        country: currentUser.country||null,
-        desc, likes:0, views:0, createdAt: Date.now(),
-        id: '_new_'+Date.now()
+        videoUrl, thumbnail, ...musicData,
+        auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
+        authorUid:currentUser.uid, country:currentUser.country||null,
+        desc, privacy, likes:0, views:0, createdAt:Date.now(), id:'_new_'+Date.now()
       });
-    },800);
-  }catch(e){
-    showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier';
-    document.getElementById('mprog').classList.remove('show');
+    }, 800);
+
+  } catch(e){
+    mprog.style.display = 'none';
+    btn.disabled = false; btn.textContent = '🚀 Publier';
+    showToast('❌ '+e.message);
   }
 }
-function setProg(pct,label){document.getElementById('mprogFill').style.width=pct+'%';document.getElementById('mprogLabel').innerText=label;}
+
+// Stub pour compatibilité
+function setProg(pct,label){
+  const f=document.getElementById('mprogFill'); if(f) f.style.width=pct+'%';
+  const l=document.getElementById('mprogLabel'); if(l) l.textContent=label;
+}
+
+// Stubs pour les fonctions de l'écran VPS (plus utilisées mais référencées ailleurs)
+function openVideoPublishScreen(){}
+function closeVideoPublishScreen(){}
+function vpsSetProgress(){}
+function vpsCancelUpload(){ if(_vpsXHR){_vpsXHR.abort();_vpsXHR=null;} showToast('⛔ Annulé'); }
+function vpsPreload(){}
+function vpsCharCount(el){ const n=el.value.length; }
+function vpsRenderQuickTags(){}
+function vpsAddTag(tag){ const inp=document.getElementById('vpsDescInput'); if(inp) inp.value=(inp.value+' '+tag).trim()+' '; }
+function vpsToggleLocation(){}
+
+
+
+
 
 // ═══════════════════════════════════════
 //  AVATAR
