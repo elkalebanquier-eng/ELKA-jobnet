@@ -152,20 +152,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   background: var(--gold2);
 }
 
-.login-btn-top {
-  background: rgba(255,255,255,0.14);
-  border: 1.5px solid rgba(255,255,255,0.28);
-  color: #fff; padding: 7px 16px; border-radius: 22px;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px;
-  cursor: pointer; flex-shrink: 0; letter-spacing: 0.4px;
-  transition: background 0.15s var(--ease);
-}
-body:not(.screen-home) .login-btn-top {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: #fff;
-  box-shadow: var(--shadow-gold);
-}
+/* .login-btn-top supprimé — remplacé par avatar photo */
 
 /* ─── STORIES ─── */
 #storiesWrap { display: none !important; }
@@ -1829,11 +1816,240 @@ textarea.inp { resize: none; }
 .news-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--navy); line-height: 1.35; margin-bottom: 7px; }
 .news-meta { font-size: 11px; color: var(--muted); font-weight: 500; }
 
+/* ─── ACTUALITÉS — carte principale (1ère) ─── */
+.art-card-big {
+  background: var(--surface); margin: 0 14px 14px;
+  border-radius: var(--r-md); overflow: hidden;
+  border: 1px solid var(--border); cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  box-shadow: var(--shadow-sm);
+}
+.art-card-big:active { transform: scale(0.98); }
+.art-card-big-img {
+  width: 100%; aspect-ratio: 16/9; background: var(--surface2);
+  overflow: hidden; position: relative;
+}
+.art-card-big-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.art-card-big-img-ph {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  font-size: 46px; opacity: 0.5; background: var(--surface2);
+}
+.art-card-big-body { padding: 14px 15px 15px; }
+.art-card-big-title {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+  color: var(--text); line-height: 1.35; margin-bottom: 7px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.art-card-big-desc {
+  font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 12px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.art-card-big-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.art-date { font-size: 11px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
+.art-actions { display: flex; align-items: center; gap: 10px; }
+.art-action {
+  font-size: 12px; font-weight: 700; color: var(--text2); cursor: pointer;
+  display: flex; align-items: center; gap: 4px; transition: color 0.15s;
+}
+.art-action.liked { color: var(--gold); }
+.art-source-badge {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(20,21,26,0.72); backdrop-filter: blur(6px);
+  color: #fff; font-size: 10.5px; font-weight: 700;
+  border-radius: 22px; padding: 4px 11px; border: 1px solid rgba(255,255,255,0.12);
+}
+.art-new-badge {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(255,30,30,0.9); color: #fff;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.2px;
+  border-radius: 22px; padding: 4px 10px;
+}
+
+/* ─── ACTUALITÉS — cartes secondaires (liste compacte) ─── */
+.art-card-sm {
+  display: flex; gap: 12px; background: var(--surface);
+  margin: 0 14px 10px; padding: 11px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-xs);
+}
+.art-card-sm:active { transform: scale(0.98); }
+.art-card-sm-img {
+  width: 92px; height: 92px; flex-shrink: 0; border-radius: 12px;
+  overflow: hidden; background: var(--surface2); position: relative;
+}
+.art-card-sm-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.art-card-sm-img-ph {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; opacity: 0.5; background: var(--surface2);
+}
+.art-card-sm-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.art-card-sm-src { font-size: 10.5px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+.art-card-sm-title {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13.5px;
+  color: var(--text); line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.art-card-sm-date { font-size: 11px; color: var(--muted); font-weight: 500; }
+
 /* ─── SOCIAL FEED (SF) ─── */
 #socialFeedScreen { overflow-y: auto; padding-bottom: 90px; -webkit-overflow-scrolling: touch; }
 #socialFeedScreen::-webkit-scrollbar { display: none; }
-#ptrWrap { display: flex; align-items: center; justify-content: center; height: 50px; color: var(--muted); font-size: 13px; opacity: 0; transition: opacity 0.3s; }
+#ptrWrap { display: flex; align-items: center; justify-content: center; height: 44px; color: var(--muted); font-size: 12px; opacity: 0; transition: opacity 0.3s; }
 #ptrWrap.show { opacity: 1; }
+
+/* ─── HOME FEED POSTS (pfcard) — photo cards style ─── */
+#sfList {
+  display: flex; flex-direction: column; gap: 0;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+.pfcard {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  contain: layout style;
+  transition: background 0.1s;
+}
+.pfcard:active { background: var(--surface2); }
+.pfcard:last-child { border-bottom: 1px solid var(--border); }
+
+/* IMAGE PRINCIPALE */
+.pfcard-img-wrap {
+  position: relative; width: 100%;
+  background: #000; overflow: hidden;
+  aspect-ratio: 4/3;
+  max-height: 70vw;
+}
+.pfcard-bg {
+  position: absolute; inset: -4px;
+  background-size: cover; background-position: center;
+  filter: blur(14px) brightness(0.4);
+  z-index: 0; transform: scale(1.06);
+}
+.pfcard-img {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+/* Dégradé bas pour lisibilité overlay */
+.pfcard-img-wrap::after {
+  content: ''; position: absolute; inset: 0; z-index: 2;
+  background: linear-gradient(to top,
+    rgba(5,8,18,0.88) 0%,
+    rgba(5,8,18,0.3) 45%,
+    transparent 70%);
+  pointer-events: none;
+}
+
+/* Badge multi-photos */
+.pfcard-multi {
+  position: absolute; top: 9px; right: 9px; z-index: 4;
+  background: rgba(5,8,18,0.65); color: #fff;
+  font-size: 11px; font-weight: 700; font-family: 'Syne', sans-serif;
+  padding: 3px 8px; border-radius: 12px;
+  backdrop-filter: blur(4px);
+}
+
+/* Overlay bas — auteur + stats */
+.pfcard-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+  padding: 10px 12px 11px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 8px;
+}
+.pfcard-author { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.pfcard-av {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold), var(--navy2));
+  border: 2px solid rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; color: #fff;
+  overflow: hidden;
+}
+.pfcard-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pfcard-av span { line-height: 1; }
+.pfcard-info { min-width: 0; }
+.pfcard-name {
+  display: flex; align-items: center; gap: 3px;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
+}
+.pfcard-ago { font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+.pfcard-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.pfcard-stat {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  font-family: 'Syne', sans-serif;
+  background: rgba(5,8,18,0.4); padding: 2px 7px; border-radius: 10px;
+  backdrop-filter: blur(3px);
+}
+
+/* Badge type */
+.pfcard-badge {
+  position: absolute; top: 9px; left: 9px; z-index: 4;
+  font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+.pfcard-remix { background: rgba(91,141,239,0.8); color: #fff; }
+.pfcard-text  { background: rgba(201,168,76,0.8); color: #000; }
+
+/* Caption sous la photo */
+.pfcard-caption {
+  padding: 9px 13px 4px;
+  font-size: 13px; color: var(--text2); line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ACTIONS */
+.pfcard-actions {
+  display: flex; align-items: center; gap: 2px;
+  padding: 6px 8px 8px; border-top: 1px solid var(--border);
+}
+.pfact {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text2); font-size: 15px; padding: 6px 9px;
+  border-radius: 20px; transition: background 0.15s;
+}
+.pfact:active { background: var(--surface2); }
+.pfact-n { font-size: 12px; color: var(--muted); font-weight: 600; min-width: 12px; }
+.pfact.pfact-on { color: #ff5c72; }
+.pfact.pfact-on .pfact-n { color: #ff5c72; }
+.pfact-time { margin-left: auto; font-size: 11px; color: var(--muted); padding-right: 4px; }
+
+/* CARD TEXTE (sans photo) */
+.pfcard-txt-only { border-radius: 0; }
+.pfcard-txt-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 13px 9px;
+}
+.pfcard-txt-only .pfcard-av {
+  width: 40px; height: 40px; font-size: 15px;
+  border: 2px solid var(--border);
+  background: linear-gradient(135deg, var(--gold), var(--navy2));
+}
+.pfcard-txt-only .pfcard-name { color: var(--text); text-shadow: none; font-size: 14px; max-width: 200px; }
+.pfcard-txt-only .pfcard-ago { color: var(--muted); }
+.pfcard-txt-body {
+  padding: 0 13px 10px;
+  font-size: 14px; color: var(--text); line-height: 1.6;
+  word-break: break-word; white-space: pre-wrap;
+}
+
+/* Séparateur section */
+.hf-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 14px 8px;
+}
+.hf-section-title {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: var(--text);
+}
+.hf-section-empty {
+  text-align: center; padding: 36px 20px;
+  color: var(--muted); font-size: 14px; line-height: 1.8;
+}
 
 .sfpost {
   background: var(--surface); margin-bottom: 10px;
@@ -2316,14 +2532,17 @@ body:not(.screen-home) #topnav{
 <body>
 
 
-<!-- TOP NAV -->
-<div id="topnav">
+<!-- topnav global supprimé — chaque écran gère son propre header -->
+<div id="topnav" style="display:none;">
   <div class="logo">AES👑</div>
   <div class="feed-tabs" id="feedTabs" style="display:none;">
     <div class="feed-tab" onclick="switchFeed('following')">Abonnements</div>
     <div class="feed-tab active" onclick="switchFeed('forYou')">Pour toi</div>
   </div>
-  <button class="login-btn-top" id="loginTopBtn" onclick="openAuth()">Connexion</button>
+  <div id="loginTopBtn" onclick="currentUser?showScreen('profile'):openAuth()" style="width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;background:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+    <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;" id="loginTopBtnInitial">?</span>
+    <img id="loginTopBtnImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;">
+  </div>
 </div>
 
 <!-- STORIES -->
@@ -2348,40 +2567,9 @@ body:not(.screen-home) #topnav{
       </svg>
       <div class="notif-dot" id="dmDotTop" style="display:none;top:0;right:0;position:absolute;"></div>
     </div>
-    <div style="width:38px;height:38px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;background:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" id="homeAvatarBtn" onclick="showScreen('profile')">
-      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;" id="homeAvatarInitial">?</span>
-    </div>
-  </div>
-
-  <!-- TABS catégories -->
-  <div class="home-tabs">
-    <div class="home-tab active" onclick="switchHomeTab('foryou',this)">
-      <div class="home-tab-icon">🏠</div>
-      <div class="home-tab-label">Pour vous</div>
-    </div>
-    <div class="home-tab" onclick="switchHomeTab('news',this)">
-      <div class="home-tab-icon">📰</div>
-      <div class="home-tab-label">Actualités</div>
-    </div>
-    <div class="home-tab" onclick="switchHomeTab('videos',this)">
-      <div class="home-tab-icon">🎬</div>
-      <div class="home-tab-label">Vidéos</div>
-    </div>
-    <div class="home-tab" onclick="showScreen('market')">
-      <div class="home-tab-icon">🛍️</div>
-      <div class="home-tab-label">Marché</div>
-    </div>
-    <div class="home-tab" onclick="showScreen('infos')">
-      <div class="home-tab-icon">🌍</div>
-      <div class="home-tab-label">Événements</div>
-    </div>
-  </div>
-
-  <!-- STORIES -->
-  <div class="home-stories" id="homeStoriesRow">
-    <div class="hstory-item hstory-add" onclick="needAuth(()=>document.getElementById('statusInput').click())">
-      <div class="hstory-ring"><div class="hstory-av">➕</div></div>
-      <div class="hstory-name">Mon statut</div>
+    <div style="width:38px;height:38px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;background:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;position:relative;box-shadow:0 0 0 2px rgba(255,122,48,0.2);" id="homeAvatarBtn" onclick="showScreen('profile')">
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;position:absolute;" id="homeAvatarInitial">?</span>
+      <img id="homeAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
     </div>
   </div>
 
@@ -2411,6 +2599,22 @@ body:not(.screen-home) #topnav{
   <div class="buzz-preview-row" id="buzzPreviewRow">
     <div class="buzz-ph" style="width:100%;"><div class="spinner"></div></div>
   </div>
+
+  <!-- 🛍️ MARCHÉ preview (accueil) -->
+  <div class="buzz-head" style="margin-top:4px;">
+    <div class="buzz-head-title">🛍️ Marché</div>
+    <div class="buzz-head-link" onclick="showScreen('market')">Voir tout ›</div>
+  </div>
+  <div id="homeMarketRow" style="display:flex;gap:10px;overflow-x:auto;padding:0 14px 20px;scrollbar-width:none;">
+    <div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:70px;"><div class="spinner"></div></div>
+  </div>
+  <style>#homeMarketRow::-webkit-scrollbar{display:none;}</style>
+
+  <!-- 📸✍️ FIL PHOTOS & TEXTES — accueil (les vidéos, elles, vivent uniquement dans 🔥 Buzz) -->
+  <div class="buzz-head" style="margin-top:4px;">
+    <div class="buzz-head-title">📸 Fil AES</div>
+  </div>
+  <div id="homeFeed"><div class="feedph" style="height:40vh;"><div class="spinner"></div><span>Chargement...</span></div></div>
 
 </div>
 
@@ -2515,6 +2719,13 @@ body:not(.screen-home) #topnav{
 </div>
 
 <div id="profileScreen" class="screen">
+  <!-- Header profil avec bouton paramètres -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 10px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--text);">Mon Profil</div>
+    <div onclick="openSettings()" style="width:38px;height:38px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="var(--gold)" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="var(--gold)" stroke-width="1.8"/></svg>
+    </div>
+  </div>
   <div class="phero">
     <div class="pav-wrap" onclick="needAuth(()=>document.getElementById('avatarInput').click())">
       <div class="pav" id="profileAvEl">?</div>
@@ -2606,6 +2817,130 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
+<!-- ═══ PARAMÈTRES PANEL ═══ -->
+<div id="settingsPanel" style="display:none;position:fixed;inset:0;z-index:500;background:var(--bg);overflow-y:auto;flex-direction:column;">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:14px;padding:calc(16px + env(safe-area-inset-top)) 16px 14px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;">
+    <div onclick="closeSettings()" style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);">←</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;">⚙️ Paramètres</div>
+  </div>
+
+  <div style="padding:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:calc(24px + env(safe-area-inset-bottom));">
+
+    <!-- COMPTE -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:6px 4px 2px;">Compte</div>
+
+    <div class="sett-row" onclick="needAuth(openEditProfile)">
+      <div class="sett-icon" style="background:rgba(255,122,48,0.15);">✏️</div>
+      <div class="sett-label">Modifier le profil</div>
+      <div class="sett-arr">›</div>
+    </div>
+
+    <div class="sett-row" onclick="needAuth(()=>document.getElementById('avatarInput').click())">
+      <div class="sett-icon" style="background:rgba(255,122,48,0.15);">📷</div>
+      <div class="sett-label">Photo de profil</div>
+      <div class="sett-arr">›</div>
+    </div>
+
+    <div class="sett-row" onclick="needAuth(()=>document.getElementById('statusInput').click())">
+      <div class="sett-icon" style="background:rgba(91,141,239,0.15);">📸</div>
+      <div class="sett-label">Ajouter un statut</div>
+      <div class="sett-arr">›</div>
+    </div>
+
+    <!-- LANGUE -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">Langue</div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px;">
+      <button class="lang-btn2" onclick="setLang('fr');highlightLangBtn2('fr')" data-lang2="fr">🇫🇷 Français</button>
+      <button class="lang-btn2" onclick="setLang('bm');highlightLangBtn2('bm')" data-lang2="bm">🌍 Bambara</button>
+      <button class="lang-btn2" onclick="setLang('mos');highlightLangBtn2('mos')" data-lang2="mos">🌍 Mooré</button>
+      <button class="lang-btn2" onclick="setLang('dyu');highlightLangBtn2('dyu')" data-lang2="dyu">🌍 Dioula</button>
+      <button class="lang-btn2" onclick="setLang('ha');highlightLangBtn2('ha')" data-lang2="ha">🌍 Haoussa</button>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">Notifications</div>
+
+    <div class="sett-row" style="cursor:default;">
+      <div class="sett-icon" style="background:rgba(52,211,153,0.15);">🔔</div>
+      <div class="sett-label">Notifications push</div>
+      <label class="sett-toggle">
+        <input type="checkbox" id="settNotifToggle" onchange="togglePushNotif(this.checked)" checked>
+        <span class="sett-toggle-track"></span>
+      </label>
+    </div>
+
+    <div class="sett-row" style="cursor:default;">
+      <div class="sett-icon" style="background:rgba(52,211,153,0.15);">💬</div>
+      <div class="sett-label">Sons messages</div>
+      <label class="sett-toggle">
+        <input type="checkbox" id="settSoundToggle" onchange="toggleMsgSound(this.checked)" checked>
+        <span class="sett-toggle-track"></span>
+      </label>
+    </div>
+
+    <!-- CONTENU -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">Contenu</div>
+
+    <div class="sett-row" onclick="showScreen('market')">
+      <div class="sett-icon" style="background:rgba(0,245,196,0.12);">🛍️</div>
+      <div class="sett-label">Marketplace</div>
+      <div class="sett-arr">›</div>
+    </div>
+
+    <div class="sett-row" onclick="showScreen('infos')">
+      <div class="sett-icon" style="background:rgba(201,168,76,0.15);">📰</div>
+      <div class="sett-label">Actualités</div>
+      <div class="sett-arr">›</div>
+    </div>
+
+    <!-- À PROPOS -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">À propos</div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 14px;display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:var(--text2);">Version</span>
+        <span style="font-size:13px;font-weight:700;color:var(--gold);">AES👑 v2.0</span>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:var(--text2);">Plateforme</span>
+        <span style="font-size:13px;color:var(--text2);">AES · Burkina · Mali · Niger</span>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="font-size:12px;color:var(--muted);text-align:center;line-height:1.5;">Made with 🧡 for Africa<br>© 2025 ELKA 👑</div>
+    </div>
+
+    <!-- DÉCONNEXION -->
+    <div style="margin-top:6px;">
+      <button id="settLogoutBtn" onclick="doLogout();closeSettings();" style="display:none;width:100%;background:rgba(255,92,114,0.12);border:1.5px solid rgba(255,92,114,0.3);color:var(--red);padding:14px;border-radius:var(--r-md);font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">🚪 Déconnexion</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.sett-row{
+  display:flex;align-items:center;gap:13px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:13px 14px;cursor:pointer;transition:background 0.15s;
+}
+.sett-row:active{background:var(--surface2);}
+.sett-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sett-label{flex:1;font-size:14px;font-weight:500;color:var(--text);}
+.sett-arr{font-size:18px;color:var(--muted);font-weight:300;}
+/* Toggle switch */
+.sett-toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+.sett-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.sett-toggle-track{position:absolute;inset:0;background:var(--surface3);border-radius:12px;transition:background 0.2s;border:1px solid var(--border);}
+.sett-toggle input:checked+.sett-toggle-track{background:var(--gold);}
+.sett-toggle-track::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+.sett-toggle input:checked+.sett-toggle-track::after{transform:translateX(20px);}
+.lang-btn2{background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);padding:8px 12px;border-radius:22px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.lang-btn2.active{background:var(--gold3);border-color:var(--gold);color:var(--gold);}
+</style>
+
 <!-- BOTTOM NAV -->
 <div id="bottomnav">
   <!-- Accueil -->
@@ -2616,17 +2951,6 @@ body:not(.screen-home) #topnav{
       </svg>
     </div>
     <span>Accueil</span>
-  </div>
-
-  <!-- Explorer -->
-  <div class="nbtn" id="nb-search" onclick="showScreen('search')">
-    <div class="ni">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"/>
-        <path d="M15.5 15.5L20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <span>Explorer</span>
   </div>
 
   <!-- 🔥 Buzz — accès direct à la page vidéos plein écran -->
@@ -3209,21 +3533,167 @@ let curChatUid=null,curChatName=null;
 let curStories=[],curStoryIdx=0,curGroupIdx=0,allStoryGroups=[];
 let searchTabCurrent='videos';
 let notifListener=null,commentsListener=null;
-// ─── Gestion bouton retour téléphone (Android/PWA) ───
-let panelHistoryStack=[];
-function pushPanelHistory(name){
-  panelHistoryStack.push(name);
-  history.pushState({panel:name},'');
+
+// ═══════════════════════════════════════
+//  NAVIGATION STACK — Android back
+// ═══════════════════════════════════════
+// On gère un stack d'écrans pour simuler le back-stack Android.
+// Règle : home est toujours la racine. Chaque showScreen() empile l'écran.
+// handleAndroidBack() dépile dans l'ordre : modal → écran → quitter.
+
+const NAV = (function(){
+  let _screenStack = ['home'];   // historique des écrans
+  let _currentScreen = 'home';
+
+  function currentScreen(){ return _currentScreen; }
+
+  // Appelée par showScreen() pour mettre à jour le stack
+  function push(name){
+    if(name === 'home'){
+      _screenStack = ['home'];  // reset à la racine
+    } else {
+      // Éviter les doublons consécutifs
+      if(_screenStack[_screenStack.length-1] !== name){
+        _screenStack.push(name);
+      }
+    }
+    _currentScreen = name;
+  }
+
+  // Retourne l'écran précédent sans modifier le stack
+  function peek(){
+    if(_screenStack.length > 1) return _screenStack[_screenStack.length-2];
+    return 'home';
+  }
+
+  // Dépile et retourne l'écran précédent
+  function pop(){
+    if(_screenStack.length > 1) _screenStack.pop();
+    _currentScreen = _screenStack[_screenStack.length-1];
+    return _currentScreen;
+  }
+
+  function reset(){ _screenStack=['home']; _currentScreen='home'; }
+
+  return { currentScreen, push, pop, peek, reset };
+})();
+
+// ─── helpers modals ──────────────────────────────────────────────────
+function _isVisible(id){
+  const el = document.getElementById(id);
+  if(!el) return false;
+  const s = el.style;
+  // visible si display != none ET (classList.active OU display block/flex)
+  if(s.display === 'none') return false;
+  if(el.classList.contains('active')) return true;
+  if(s.display === 'block' || s.display === 'flex') return true;
+  return false;
 }
-function popPanelHistory(){
-  if(panelHistoryStack.length){panelHistoryStack.pop();if(history.state&&history.state.panel)history.back();}
+function _close(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('active');
+  el.style.display = 'none';
 }
-window.addEventListener('popstate',function(e){
-  // Ferme le panneau le plus récent au lieu de quitter l'app
-  const panel=panelHistoryStack.pop();
-  if(panel==='comments'){closeComments(true);}
-  else if(panel==='article'&&typeof closeArticle==='function'){closeArticle(true);}
-});
+
+// ─── Ferme le clavier virtuel ────────────────────────────────────────
+function _dismissKeyboard(){
+  const focused = document.activeElement;
+  if(focused && (focused.tagName==='INPUT'||focused.tagName==='TEXTAREA')){
+    focused.blur(); return true;
+  }
+  return false;
+}
+
+// ─── Liste ordonnée des modals/overlays à fermer en priorité ────────
+//     Chaque entrée : { id, fn } — fn() ferme proprement l'élément
+function _getModalChecks(){
+  return [
+    // overlays plein écran (priorité haute)
+    { id:'settingsPanel',      fn:()=>closeSettings() },
+    { id:'articleScreen',      fn:()=>{ if(typeof closeArticle==='function') closeArticle(true); else _close('articleScreen'); } },
+    { id:'dmConvScreen',       fn:()=>{ if(typeof closeDMConv==='function') closeDMConv(); else _close('dmConvScreen'); } },
+    { id:'storyViewer',        fn:()=>_close('storyViewer') },
+    { id:'musicAdminOverlay',  fn:()=>{ if(typeof closeMusicAdmin==='function') closeMusicAdmin(); else _close('musicAdminOverlay'); } },
+    { id:'newsAdminOverlay',   fn:()=>{ if(typeof closeNewsAdmin==='function') closeNewsAdmin(); else _close('newsAdminOverlay'); } },
+    // panels glissants
+    { id:'commentsPanel',      fn:()=>{ if(typeof closeComments==='function') closeComments(true); else _close('commentsPanel'); } },
+    { id:'sellerProfile',      fn:()=>_close('sellerProfile') },
+    { id:'kikoRadialOverlay',  fn:()=>{ if(typeof kikoCloseRadial==='function') kikoCloseRadial(); else _close('kikoRadialOverlay'); } },
+    // modals classiques
+    { id:'uploadModal',        fn:()=>{ if(typeof closeModal==='function') closeModal(); else _close('uploadModal'); } },
+    { id:'authModal',          fn:()=>{ if(typeof closeAuth==='function') closeAuth(); else _close('authModal'); } },
+    { id:'productModal',       fn:()=>{ if(typeof closeProductModal==='function') closeProductModal(); else _close('productModal'); } },
+    { id:'editProfileModal',   fn:()=>_close('editProfileModal') },
+    { id:'priceModal',         fn:()=>_close('priceModal') },
+    { id:'followModal',        fn:()=>_close('followModal') },
+    { id:'confirmModal',       fn:()=>_close('confirmModal') },
+    { id:'storyTextModal',     fn:()=>_close('storyTextModal') },
+  ];
+}
+
+// ─── Cœur du retour Android ──────────────────────────────────────────
+function handleAndroidBack(){
+  // 1. Clavier ouvert → le fermer d'abord
+  if(_dismissKeyboard()) return;
+
+  // 2. Un modal/overlay est ouvert → le fermer
+  for(const c of _getModalChecks()){
+    if(_isVisible(c.id)){ c.fn(); return; }
+  }
+
+  // 3. Pas sur l'accueil → revenir à l'écran précédent
+  const cur = NAV.currentScreen();
+  if(cur !== 'home'){
+    const prev = NAV.pop();
+    _doShowScreen(prev);      // afficher sans empiler
+    return;
+  }
+
+  // 4. Déjà sur l'accueil → toast "encore pour quitter"
+  if(window._aesExitReady){
+    window._aesExitReady = false;
+    // Tenter de fermer/minimiser (marche dans certaines WebViews)
+    try{ window.close(); }catch(e){}
+    return;
+  }
+  window._aesExitReady = true;
+  if(typeof showToast==='function') showToast('⬅️ Appuie encore pour quitter');
+  setTimeout(()=>{ window._aesExitReady=false; }, 2200);
+}
+
+// ─── Méthode 1 : WebView Android native (ex: fichier APK) ────────────
+window.onBackPressed = function(){ handleAndroidBack(); return true; };
+
+// ─── Méthode 2 : touches clavier (GoBack, BrowserBack, Escape) ───────
+document.addEventListener('keydown', function(e){
+  const BACK_KEYS = ['GoBack','BrowserBack','BrowserStop'];
+  if(BACK_KEYS.includes(e.key) || e.keyCode===166 || e.keyCode===27){
+    e.preventDefault();
+    e.stopPropagation();
+    handleAndroidBack();
+  }
+}, true);
+
+// ─── Méthode 3 : popstate — PWA / navigateur (même content://) ───────
+(function(){
+  // Injecter 2 états pour avoir toujours un état "tampon" à consommer
+  try{
+    history.replaceState({ aes:1, depth:0 }, '');
+    history.pushState(  { aes:1, depth:1 }, '');
+  }catch(_){}
+
+  window.addEventListener('popstate', function(){
+    // Réinjecter immédiatement pour ne jamais quitter l'app par erreur
+    try{ history.pushState({ aes:1, depth:1 }, ''); }catch(_){}
+    handleAndroidBack();
+  });
+})();
+
+// ─── Intégration dans pushPanelHistory (legacy compat) ───────────────
+function pushPanelHistory(name){ /* no-op — géré par _getModalChecks */ }
+function popPanelHistory(){      /* no-op */ }
+
 let currentLang=localStorage.getItem('aes_lang')||'fr';
 
 
@@ -3405,7 +3875,7 @@ async function publishTextPost(){
     showToast('🎉 Post publié !');
     closeModal();
     resetTextPanel();
-    refreshFeedSilent();
+    refreshHomeFeedSilent();
   }catch(e){showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier';}
 }
 function resetTextPanel(){
@@ -3647,7 +4117,7 @@ async function publishPhotoPost(){
     });
     showToast('🎉 Post publié !');
     closeModal();resetPhotoPanel();
-    refreshFeedSilent();
+    refreshHomeFeedSilent();
   }catch(e){showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier';prog.style.display='none';}
 }
 
@@ -3666,7 +4136,7 @@ function resetPhotoPanel(){
 }
 
 // ═══════════════════════════════════════
-//  FEED MIXTE — chargement
+//  FEED VIDÉOS — réservé à 🔥 Buzz (jamais sur l'accueil)
 // ═══════════════════════════════════════
 let allPosts=[];
 async function loadFeedMixed(){
@@ -3684,51 +4154,116 @@ async function loadFeedMixed(){
     </div>`;
   }
   try{
-    const [vidSnap,postSnap]=await Promise.all([
-      db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value'),
-      db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value')
-    ]);
+    const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
-    const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
     const viewerCountry=currentUser?.country||null;
 
     // Récupère le cumul de vues par auteur (pour le bonus "nouveau créateur")
-    const authorUids=[...new Set([...vids,...posts].map(it=>it.authorUid).filter(Boolean))];
+    const authorUids=[...new Set(vids.map(it=>it.authorUid).filter(Boolean))];
     const totalViewsByAuthor={};
     await Promise.all(authorUids.map(async uid=>{
       const s=await db.ref('users/'+uid+'/totalViews').once('value');
       totalViewsByAuthor[uid]=s.val()||0;
     }));
 
-    let mixed=[...vids,...posts]
+    let ranked=vids
       .map(item=>({...item,authorTotalViews:totalViewsByAuthor[item.authorUid]||0}))
       .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
       .sort((a,b)=>b._score-a._score);
-    mixed=diversifyFeed(mixed);
-    allVids=vids;allPosts=posts;
-    if(!mixed.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">✨</div><div class="ph-msg">Aucun contenu encore</div><div class="ph-sub">Sois le premier !</div></div>';return;}
-    let html='',vidIdx=0;
-    mixed.forEach((item,i)=>{
-      if(item._type==='video'){html+=buildVCard(item,vidIdx);vidIdx++;}
-      else if(item.type==='photo')html+=buildPhotoCard(item,i);
-      else if(item.type==='text')html+=buildTextCard(item,i);
-    });
+    ranked=diversifyFeed(ranked);
+    allVids=vids;
+    if(!ranked.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucune vidéo encore</div><div class="ph-sub">Sois le premier !</div></div>';return;}
+    let html='';
+    ranked.forEach((item,i)=>{html+=buildVCard(item,i);});
     feed.innerHTML=html;
     const firstVid=feed.querySelector('video');
     if(firstVid){firstVid.muted=true;firstVid.play().catch(()=>{});}
     initObserver();initProgress();
-    initPhotoCardMusic();
-    initPhotoCardTouch();
     setTimeout(()=>{
       loadCommentCounts(vids.slice(0,10));
       if(currentUser)syncLikedFromFirebase(vids);
       loadRealtimeStats(vids.slice(0,8));
-    loadHomeStories();
-    updateHomeHero(mixed.slice(0,3));
     },500);
   }catch(e){
     feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">${esc(e.message)}</div></div>`;
   }
+}
+
+// ═══════════════════════════════════════
+//  FIL PHOTOS & TEXTES — accueil (jamais de vidéo ici)
+// ═══════════════════════════════════════
+async function loadHomeFeed(){
+  const feed=document.getElementById('homeFeed');
+  if(!feed)return;
+  const hasContent=feed.children.length>0&&!feed.querySelector('.feedph');
+  if(!hasContent){
+    feed.innerHTML=`<div style="padding:0 14px;display:flex;flex-direction:column;gap:14px;">
+      ${[0,1].map(()=>`<div style="background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+        <div class="sk" style="width:100%;aspect-ratio:4/3;border-radius:0;"></div>
+        <div style="padding:12px;display:flex;gap:10px;align-items:center;">
+          <div class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+          <div style="flex:1;"><div class="sk" style="height:11px;width:120px;margin-bottom:6px;"></div><div class="sk" style="height:10px;width:80px;"></div></div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }
+  try{
+    const postSnap=await db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value');
+    const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
+    const viewerCountry=currentUser?.country||null;
+
+    const authorUids=[...new Set(posts.map(it=>it.authorUid).filter(Boolean))];
+    const totalViewsByAuthor={};
+    await Promise.all(authorUids.map(async uid=>{
+      const s=await db.ref('users/'+uid+'/totalViews').once('value');
+      totalViewsByAuthor[uid]=s.val()||0;
+    }));
+
+    let ranked=posts
+      .map(item=>({...item,authorTotalViews:totalViewsByAuthor[item.authorUid]||0}))
+      .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
+      .sort((a,b)=>b._score-a._score);
+    ranked=diversifyFeed(ranked);
+    allPosts=posts;
+    if(!ranked.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">✨</div><div class="ph-msg">Aucun post encore</div><div class="ph-sub">Sois le premier à partager !</div></div>';try{updateHomeHero([]);}catch(e){}return;}
+    let html='';
+    ranked.forEach((item,i)=>{
+      if(item.type==='photo')html+=buildPhotoCard(item,i);
+      else if(item.type==='text')html+=buildTextCard(item,i);
+    });
+    feed.innerHTML=html||'<div class="feedph"><div class="ph-icon">✨</div><div class="ph-msg">Aucun post encore</div><div class="ph-sub">Sois le premier à partager !</div></div>';
+    initPhotoCardMusic();
+    initPhotoCardTouch();
+    try{updateHomeHero(ranked.slice(0,3));}catch(e){}
+  }catch(e){
+    feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">${esc(e.message)}</div></div>`;
+  }
+}
+async function refreshHomeFeedSilent(){
+  const feed=document.getElementById('homeFeed');
+  if(!feed)return;
+  try{
+    const postSnap=await db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value');
+    const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
+    const viewerCountry=currentUser?.country||null;
+    let ranked=posts
+      .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
+      .sort((a,b)=>b._score-a._score);
+    ranked=diversifyFeed(ranked);
+    allPosts=posts;
+    if(!ranked.length)return;
+    const hs=document.getElementById('homeScreen');
+    const savedScroll=hs?hs.scrollTop:0;
+    let html='';
+    ranked.forEach((item,i)=>{
+      if(item.type==='photo')html+=buildPhotoCard(item,i);
+      else if(item.type==='text')html+=buildTextCard(item,i);
+    });
+    feed.innerHTML=html;
+    if(hs)hs.scrollTop=savedScroll;
+    initPhotoCardMusic();initPhotoCardTouch();
+    try{updateHomeHero(ranked.slice(0,3));}catch(e){}
+  }catch(e){console.warn('refreshHomeFeedSilent',e);}
 }
 
 // ═══════════════════════════════════════
@@ -4015,27 +4550,85 @@ function doLogout(){currentUser=null;following={};localStorage.removeItem('aes_u
 function needAuth(action){if(currentUser){action();return;}pendingAction=action;openAuth('Crée un compte pour accéder 🔒');}
 function applyUserUI(){
   const isLogged=!!currentUser;
-  document.getElementById('loginTopBtn').innerText=isLogged?('👤 '+currentUser.name.split(' ')[0]):'Connexion';
-  document.getElementById('loginTopBtn').onclick=isLogged?()=>showScreen('profile'):openAuth;
+  // Met à jour l'onclick du bouton avatar topnav
+  const loginBtn=document.getElementById('loginTopBtn');
+  if(loginBtn)loginBtn.onclick=isLogged?()=>showScreen('profile'):openAuth;
   document.getElementById('logoutBtn').style.display=isLogged?'block':'none';
   document.getElementById('editProfileBtn').style.display=isLogged?'block':'none';
   document.getElementById('feedTabs').style.display=isLogged?'flex':'none';
+
+  // Helper : mettre à jour un avatar mini (initial + img)
+  function setMiniAvatar(initialId, imgId, name, avatar){
+    const ini=document.getElementById(initialId);
+    const img=document.getElementById(imgId);
+    if(!ini)return;
+    if(avatar){
+      ini.style.display='none';
+      if(img){img.src=avatar;img.style.display='block';}
+    } else {
+      ini.style.display='';ini.innerText=(name||'?')[0].toUpperCase();
+      if(img){img.style.display='none';img.src='';}
+    }
+  }
+
   if(isLogged){
+    // Profil screen
     document.getElementById('profileAvEl').innerHTML=currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:currentUser.name[0].toUpperCase();
     document.getElementById('profileNameEl').innerText=currentUser.name;
     document.getElementById('profileHandleEl').innerText='@'+currentUser.name.toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,'');
     document.getElementById('profileBioEl').innerText=currentUser.bio||'Créateur de contenu africain 🌍';
+    // Avatars nav
+    setMiniAvatar('loginTopBtnInitial','loginTopBtnImg',currentUser.name,currentUser.avatar);
+    setMiniAvatar('homeAvatarInitial','homeAvatarImg',currentUser.name,currentUser.avatar);
   } else {
     document.getElementById('profileAvEl').innerText='?';
     document.getElementById('profileNameEl').innerText='Invité';
     document.getElementById('profileHandleEl').innerText='@inconnu';
     document.getElementById('profileBioEl').innerText='Crée un compte pour profiter de toutes les fonctionnalités 🌍';
+    // Reset avatars nav
+    setMiniAvatar('loginTopBtnInitial','loginTopBtnImg','?',null);
+    setMiniAvatar('homeAvatarInitial','homeAvatarImg','?',null);
   }
+  // Sync bouton logout dans paramètres
+  const slb=document.getElementById('settLogoutBtn');
+  if(slb)slb.style.display=isLogged?'block':'none';
 }
 
 // ═══════════════════════════════════════
-//  EDIT PROFILE
+//  PARAMÈTRES
 // ═══════════════════════════════════════
+function openSettings(){
+  const panel=document.getElementById('settingsPanel');
+  if(!panel) return;
+  panel.style.display='flex';
+  panel.classList.add('active');
+  const lb=document.getElementById('settLogoutBtn');
+  if(lb) lb.style.display=currentUser?'block':'none';
+  highlightLangBtn2(currentLang);
+  const notif=localStorage.getItem('aes_notif_off')!=='1';
+  const sound=localStorage.getItem('aes_sound_off')!=='1';
+  const nt=document.getElementById('settNotifToggle'); if(nt) nt.checked=notif;
+  const st=document.getElementById('settSoundToggle'); if(st) st.checked=sound;
+}
+function closeSettings(){
+  const panel=document.getElementById('settingsPanel');
+  if(!panel) return;
+  panel.classList.remove('active');
+  panel.style.display='none';
+}
+function highlightLangBtn2(lang){
+  document.querySelectorAll('.lang-btn2').forEach(b=>b.classList.toggle('active',b.dataset.lang2===lang));
+}
+function togglePushNotif(on){
+  localStorage.setItem('aes_notif_off',on?'0':'1');
+  showToast(on?'🔔 Notifications activées':'🔕 Notifications désactivées');
+}
+function toggleMsgSound(on){
+  localStorage.setItem('aes_sound_off',on?'0':'1');
+  showToast(on?'🔊 Sons activés':'🔇 Sons désactivés');
+}
+
+
 function openEditProfile(){
   if(!currentUser)return;
   document.getElementById('editName').value=currentUser.name||'';
@@ -4059,47 +4652,65 @@ async function saveProfile(){
 // ═══════════════════════════════════════
 //  SCREEN NAV
 // ═══════════════════════════════════════
-function showScreen(n){
+
+// Affichage pur — ne modifie pas le NAV stack (utilisé par handleAndroidBack)
+function _doShowScreen(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
-  const m={home:'homeScreen',search:'searchScreen',market:'marketScreen',notif:'notifScreen',dm:'dmScreen',profile:'profileScreen',infos:'infosScreen',buzz:'buzzScreen'};
-  const nb={home:'nb-home',search:'nb-search',market:'nb-market',notif:'nb-notif',profile:'nb-profile',dm:'nb-dm',infos:'nb-infos',buzz:'nb-buzz'};
-  if(m[n])document.getElementById(m[n]).classList.add('active');
-  if(nb[n])document.getElementById(nb[n]).classList.add('active');
-  // Stories cachées toujours
-  const sw=document.getElementById('storiesWrap');
-  if(sw)sw.style.display='none';
-  // Adapter le style nav selon l'écran
-  const isHome=n==='home';
-  const isDM=n==='dm';
-  const isBuzz=n==='buzz';
-  const topnav=document.getElementById('topnav');
-  const bnav=document.getElementById('bottomnav');
-  // Home/Buzz/DM have their own sticky header — hide global topnav
-  if(topnav){
-    topnav.style.display=(isDM||isHome||isBuzz)?'none':'flex';
+  const screenMap = {
+    home:'homeScreen', search:'searchScreen', market:'marketScreen',
+    notif:'notifScreen', dm:'dmScreen', profile:'profileScreen',
+    infos:'infosScreen', buzz:'buzzScreen'
+  };
+  const navMap = {
+    home:'nb-home', market:'nb-market', notif:'nb-notif',
+    profile:'nb-profile', dm:'nb-dm', infos:'nb-infos', buzz:'nb-buzz'
+  };
+  const sid = screenMap[n];
+  if(sid){ const el=document.getElementById(sid); if(el) el.classList.add('active'); }
+  const nid = navMap[n];
+  if(nid){ const el=document.getElementById(nid); if(el) el.classList.add('active'); }
+
+  // Stories toujours cachées
+  const sw=document.getElementById('storiesWrap'); if(sw) sw.style.display='none';
+
+  // Mettre à jour l'avatar home si connecté
+  if(currentUser){
+    const av=document.getElementById('homeAvatarInitial');
+    const avImg=document.getElementById('homeAvatarImg');
+    const cav=document.getElementById('homeCreateAv');
+    if(av){
+      if(currentUser.avatar){
+        av.style.display='none';
+        if(avImg){avImg.src=currentUser.avatar;avImg.style.display='block';}
+      } else {
+        av.style.display='';av.innerText=(currentUser.name||'?')[0].toUpperCase();
+        if(avImg) avImg.style.display='none';
+      }
+      if(cav){
+        if(currentUser.avatar) cav.innerHTML=`<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`;
+        else cav.innerText=(currentUser.name||'?')[0].toUpperCase();
+      }
+    }
   }
-  if(bnav){
-    bnav.style.background='var(--bg2)';
-    bnav.style.borderTop='1px solid rgba(7,26,61,0.07)';
-  }
-  // Update home avatar
-  const homeAv=document.getElementById('homeAvatarInitial');
-  const homeCreateAv=document.getElementById('homeCreateAv');
-  if(homeAv&&currentUser){
-    homeAv.innerText=(currentUser.name||'?')[0].toUpperCase();
-    if(homeCreateAv)homeCreateAv.innerText=(currentUser.name||'?')[0].toUpperCase();
-  }
-  if(n==='profile')renderProfile();
-  if(n==='search'){renderExplore();renderAccounts('');}
-  if(n==='market')loadMarket();
-  if(n==='notif')loadNotifs();
-  if(n==='dm')loadDMs();
+
+  // Chargements spécifiques à chaque écran
+  if(n==='profile') renderProfile();
+  if(n==='search'){ renderExplore(); renderAccounts(''); }
+  if(n==='market') loadMarket();
+  if(n==='notif')  loadNotifs();
+  if(n==='dm')     loadDMs();
   if(n==='infos'){
-    document.getElementById('newsDot').style.display='none';
-    if(!allArticles.length)loadNews();else applyNewsFilter();
+    const dot=document.getElementById('newsDot'); if(dot) dot.style.display='none';
+    if(!allArticles.length) loadNews(); else applyNewsFilter();
   }
-  if(n==='buzz'&&!window._buzzLoaded){window._buzzLoaded=true;loadFeed();}
+  if(n==='buzz' && !window._buzzLoaded){ window._buzzLoaded=true; loadFeed(); }
+}
+
+// Navigation normale — empile dans le stack
+function showScreen(n){
+  NAV.push(n);
+  _doShowScreen(n);
 }
 
 // ═══════════════════════════════════════
@@ -4123,6 +4734,44 @@ function switchHomeTab(tab, el){
     // "Pour vous" = aperçu léger, déjà affiché sur l'accueil (section Buzz + à venir)
     return;
   }
+}
+
+// ═══════════════════════════════════════
+//  MARCHÉ PREVIEW — accueil
+// ═══════════════════════════════════════
+function loadHomeMarket(){
+  const row=document.getElementById('homeMarketRow');
+  if(!row)return;
+  // Utiliser le cache si dispo
+  if(allProds&&allProds.length){renderHomeMarket(allProds);return;}
+  db.ref('products').orderByChild('createdAt').limitToLast(6).once('value').then(snap=>{
+    const raw=snap.val()||{};
+    const prods=Object.entries(raw).map(([id,p])=>({id,...p})).reverse().slice(0,4);
+    if(!prods.length){row.innerHTML='<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:12px;">Aucun produit pour l\'instant</div>';return;}
+    renderHomeMarket(prods);
+  }).catch(()=>{row.innerHTML='';});
+}
+function renderHomeMarket(prods){
+  const row=document.getElementById('homeMarketRow');
+  if(!row)return;
+  const items=prods.filter(p=>!p.sold).slice(0,8);
+  if(!items.length){row.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:70px;color:var(--muted);font-size:12px;">Aucun produit pour l\'instant</div>';return;}
+  row.innerHTML=items.map(p=>{
+    const imgH=p.imageUrl
+      ?`<img src="${optImg(p.imageUrl,200)}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`
+      :`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--surface3);">${catEmoji(p.cat)}</div>`;
+    return `<div onclick="showScreen('market')" style="flex:0 0 110px;cursor:pointer;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-xs);">
+      <div style="width:110px;height:110px;overflow:hidden;position:relative;flex-shrink:0;">
+        ${imgH}
+        <div style="position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(10,11,14,0.9),transparent);pointer-events:none;"></div>
+        <div style="position:absolute;bottom:5px;left:6px;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--gold);">${fmtPrice(p.price)}<span style="font-size:8.5px;"> F</span></div>
+      </div>
+      <div style="padding:5px 7px 8px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name||'')}</div>
+        ${p.location?`<div style="font-size:9.5px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📍 ${esc(p.location)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════
@@ -4206,37 +4855,27 @@ function renderFeedByMode(){
 
 
 // ═══════════════════════════════════════
-//  FEED REFRESH SILENCIEUX
+//  FEED REFRESH SILENCIEUX — 🔥 Buzz (vidéos uniquement)
 // ═══════════════════════════════════════
 async function refreshFeedSilent(){
   try{
-    const [vidSnap,postSnap]=await Promise.all([
-      db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value'),
-      db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value')
-    ]);
+    const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
-    const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
     const viewerCountry=currentUser?.country||null;
-    let mixed=[...vids,...posts]
+    let ranked=vids
       .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
       .sort((a,b)=>b._score-a._score);
-    mixed=diversifyFeed(mixed);
-    allVids=vids;allPosts=posts;
-    if(!mixed.length)return;
+    ranked=diversifyFeed(ranked);
+    allVids=vids;
+    if(!ranked.length)return;
     const feed=document.getElementById('feed');
-    const hs=document.getElementById('homeScreen');
-    const savedScroll=hs?hs.scrollTop:0;
-    let html='',vidIdx=0;
-    mixed.forEach((item,i)=>{
-      if(item._type==='video'){html+=buildVCard(item,vidIdx);vidIdx++;}
-      else if(item.type==='photo')html+=buildPhotoCard(item,i);
-      else if(item.type==='text')html+=buildTextCard(item,i);
-    });
+    const bs=document.getElementById('buzzScreen');
+    const savedScroll=bs?bs.scrollTop:0;
+    let html='';
+    ranked.forEach((item,i)=>{html+=buildVCard(item,i);});
     feed.innerHTML=html;
-    if(hs)hs.scrollTop=savedScroll;
+    if(bs)bs.scrollTop=savedScroll;
     initObserver();initProgress();
-    initPhotoCardMusic();initPhotoCardTouch();
-    try{updateHomeHero(mixed.slice(0,3));}catch(e){}
     setTimeout(()=>{
       loadCommentCounts(vids.slice(0,10));
       if(currentUser)syncLikedFromFirebase(vids);
@@ -4569,16 +5208,16 @@ function appendVideosToFeed(vids,startIdx){
   });
   const tmp=document.createElement('div');tmp.innerHTML=html;
   while(tmp.firstChild)feed.appendChild(tmp.firstChild);
-  // Observer les nouvelles cartes
+  // Les nouvelles cartes (pagination infinie) utilisent le MÊME observateur global
+  // que les cartes initiales : même seuil, même rootMargin, même règle "un seul son à la fois".
+  // -> Plus aucun risque que deux vidéos jouent leur son en même temps lors du scroll.
   const newCards=feed.querySelectorAll('.vcard:not([data-obs])');
-  const obs=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      const v=e.target.querySelector('video');if(!v)return;
-      if(e.isIntersecting){v.play().catch(()=>{});const id=e.target.id.replace('vc-','');const vid=allVids.find(x=>x.id===id);if(vid)trackView(id,vid.authorUid||'');}
-      else v.pause();
-    });
-  },{threshold:0.65});
-  newCards.forEach(c=>{c.setAttribute('data-obs','1');obs.observe(c);});
+  newCards.forEach(c=>{
+    c.setAttribute('data-obs','1');
+    const v=c.querySelector('video');
+    if(v)v.muted=true;
+    if(_globalObs)_globalObs.observe(c);
+  });
   // Progress bars + temps
   feed.querySelectorAll('.vcard video').forEach(v=>{
     const card=v.closest('.vcard');
@@ -4716,15 +5355,36 @@ function doubleTapLike(id,i){
   if(ha){ha.classList.add('show');setTimeout(()=>ha.classList.remove('show'),700);}
 }
 let _globalObs=null;
+// Garde-fou anti-superposition de sons : un seul <video> du feed peut jouer
+// à la fois, peu importe le nombre d'observateurs/sections actifs.
+let _activePlayingVideo=null;
+function enforceSingleVideoPlayback(activeVideo){
+  document.querySelectorAll('#feed video, #buzzScreen video').forEach(other=>{
+    if(other!==activeVideo&&!other.paused){other.pause();}
+  });
+  _activePlayingVideo=activeVideo;
+}
 function initObserver(){
   if(_globalObs)_globalObs.disconnect();
   _globalObs=new IntersectionObserver(entries=>{
+    // Si plusieurs cartes deviennent "intersecting" dans le même lot (scroll rapide),
+    // on ne garde que la plus visible pour éviter deux lectures audio simultanées.
+    const intersecting=entries.filter(e=>e.isIntersecting);
+    let chosen=null;
+    if(intersecting.length){
+      chosen=intersecting.reduce((best,e)=>e.intersectionRatio>best.intersectionRatio?e:best,intersecting[0]).target;
+    }
     entries.forEach(e=>{
       const v=e.target.querySelector('video');if(!v)return;
       if(e.isIntersecting){
         if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.load();}
         v.muted=globalMuted;
-        v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});});
+        if(!chosen||e.target===chosen){
+          enforceSingleVideoPlayback(v);
+          v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});});
+        } else {
+          v.pause();
+        }
         const id=e.target.id.replace('vc-','');
         const vid=allVids.find(x=>x.id===id);
         if(vid)trackView(id,vid.authorUid||'');
@@ -4732,6 +5392,7 @@ function initObserver(){
         if(btn)btn.innerText=globalMuted?'🔇':'🔊';
       } else {
         v.pause();
+        if(_activePlayingVideo===v)_activePlayingVideo=null;
         const rect=e.target.getBoundingClientRect();
         if(Math.abs(rect.top)>window.innerHeight*3&&v.src){
           v.dataset.src=v.src;v.removeAttribute('src');v.load();
@@ -4741,7 +5402,12 @@ function initObserver(){
   },{threshold:0.6,rootMargin:'200px 0px'});
   document.querySelectorAll('.vcard').forEach(c=>{
     const v=c.querySelector('video');
-    if(v)v.muted=true;
+    if(v){
+      v.muted=true;
+      // Filet de sécurité supplémentaire : si jamais une vidéo démarre par un autre
+      // chemin (ex: tap manuel), on coupe immédiatement toutes les autres.
+      v.addEventListener('play',()=>enforceSingleVideoPlayback(v));
+    }
     _globalObs.observe(c);
   });
 }
@@ -4993,6 +5659,8 @@ function loadMarket(){
     allProds=Object.entries(raw).map(([id,p])=>({id,...p})).reverse();
     try{localStorage.setItem('aes_market_cache',JSON.stringify(allProds));}catch(e){}
     applyMarketFilters();
+    // Rafraîchir aussi la preview accueil
+    renderHomeMarket(allProds);
   });
 }
 function filterMarket(cat,el){currentCat=cat;document.querySelectorAll('.mcat').forEach(c=>c.classList.remove('active'));if(el)el.classList.add('active');applyMarketFilters();}
@@ -6132,13 +6800,18 @@ function showConfirm(title,msg,onOk){
 //  ACTUALITÉS AES — amélioré
 // ═══════════════════════════════════════
 const RSS2JSON='https://api.rss2json.com/v1/api.json?api_key=&rss_url=';
-const NEWS_SOURCES=[
+// Sources par défaut (utilisées si aucune config admin n'existe encore dans Firebase)
+const DEFAULT_NEWS_SOURCES=[
   {id:'rfi',name:'RFI Afrique',url:'https://www.rfi.fr/fr/afrique/rss'},
   {id:'bbc',name:'BBC Afrique',url:'https://feeds.bbci.co.uk/afrique/rss.xml'},
   {id:'ja',name:'Jeune Afrique',url:'https://www.jeuneafrique.com/feed/'},
   {id:'lefaso',name:'leFaso.net',url:'https://lefaso.net/spip.php?page=backend'},
   {id:'africanews',name:'Africanews',url:'https://www.africanews.com/feed/rss'}
 ];
+// Les Actualités sont 100% automatiques : les utilisateurs ne peuvent jamais publier ici.
+// Seul un administrateur KIKO (accès via ?admin=news) peut gérer la liste des sources,
+// laquelle est stockée dans Firebase sous newsSources/ et lue par tous les clients.
+let NEWS_SOURCES=DEFAULT_NEWS_SOURCES.slice();
 let allArticles=[],filteredArticles=[],newsFilter='all';
 let newsLiked=JSON.parse(localStorage.getItem('aes_news_liked')||'[]');
 let newsInterval=null,curArticle=null;
@@ -6178,10 +6851,83 @@ async function fetchRSS(src){
   }catch{return[];}
 }
 function extractImg(html){const m=html.match(/<img[^>]+src="([^"]+)"/);return m?m[1]:'';}
+let newsSourcesLoaded=false;
+async function loadNewsSources(){
+  try{
+    const snap=await db.ref('newsSources').once('value');
+    const val=snap.val();
+    if(val&&typeof val==='object'){
+      const arr=Object.keys(val).map(k=>({id:k,name:val[k].name,url:val[k].url})).filter(s=>s.name&&s.url);
+      if(arr.length)NEWS_SOURCES=arr;
+    }
+  }catch{/* hors-ligne ou pas de config admin -> on garde les sources par defaut */}
+  newsSourcesLoaded=true;
+  renderNewsSourceChips();
+}
+function renderNewsSourceChips(){
+  const row=document.querySelector('.news-sources-row');
+  if(!row)return;
+  row.innerHTML='<div class="nsrc active" onclick="filterNews(\'all\',this)">Tout</div>'
+    +'<div class="nsrc" onclick="filterNews(\'aes\',this)">👑 AES</div>'
+    +NEWS_SOURCES.map(s=>`<div class="nsrc" onclick="filterNews('${s.id}',this)">${esc(s.name)}</div>`).join('');
+}
+
+// ═══════════════════════════════════════
+//  ADMIN ACTUALITÉS (?admin=news)
+// ═══════════════════════════════════════
+function checkNewsAdminAccess(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('admin')==='news'){
+    document.getElementById('newsAdminOverlay').style.display='block';
+    loadNewsAdminList();
+  }
+}
+function closeNewsAdmin(){
+  document.getElementById('newsAdminOverlay').style.display='none';
+  history.replaceState({},'',location.pathname);
+}
+function slugifySourceId(name){
+  return (name||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,24)||('src'+Date.now());
+}
+async function loadNewsAdminList(){
+  const snap=await db.ref('newsSources').once('value');
+  const val=snap.val()||{};
+  const list=document.getElementById('naExistingList');
+  const ids=Object.keys(val);
+  document.getElementById('naCount').innerText=ids.length||DEFAULT_NEWS_SOURCES.length;
+  if(!ids.length){
+    list.innerHTML='<div style="font-size:11px;color:rgba(255,255,255,0.4);padding:8px;">Aucune source admin configurée — les sources par défaut sont utilisées (RFI, BBC, Jeune Afrique, leFaso.net, Africanews).</div>';
+    return;
+  }
+  list.innerHTML=ids.map(id=>`<div class="ma-track-row">
+      <div class="ma-disc">📰</div>
+      <div class="ma-info"><b>${esc(val[id].name||id)}</b><span>${esc(val[id].url||'')}</span></div>
+      <div onclick="deleteNewsSource('${id}')" style="color:#ff5c5c;font-size:18px;cursor:pointer;flex-shrink:0;">✕</div>
+    </div>`).join('');
+}
+async function submitNewsAdmin(){
+  const name=document.getElementById('naName').value.trim();
+  const url=document.getElementById('naUrl').value.trim();
+  if(!name||!url){showToast('⚠️ Mets un nom et une URL de flux RSS');return;}
+  const id=slugifySourceId(name);
+  await db.ref('newsSources/'+id).set({name,url});
+  document.getElementById('naName').value='';
+  document.getElementById('naUrl').value='';
+  showToast('✅ Source ajoutée');
+  newsSourcesLoaded=false;
+  loadNewsAdminList();
+}
+async function deleteNewsSource(id){
+  await db.ref('newsSources/'+id).remove();
+  showToast('🗑️ Source supprimée');
+  newsSourcesLoaded=false;
+  loadNewsAdminList();
+}
 async function loadNews(forceRefresh=false){
   const list=document.getElementById('newsList');
   if(forceRefresh||!allArticles.length)list.innerHTML='<div class="sk-news">'+Array(3).fill('<div class="sk-art-big"><div class="sk-art-img sk"></div><div class="sk-art-line w90 sk"></div><div class="sk-art-line w75 sk"></div><div class="sk-art-line w60 sk"></div></div>').join('')+'</div>';
   try{
+    if(!newsSourcesLoaded)await loadNewsSources();
     const results=await Promise.all(NEWS_SOURCES.map(s=>fetchRSS(s)));
     allArticles=results.flat().sort((a,b)=>b.date-a.date);
     allArticles.forEach(a=>{a._aesScore=aesScore(a);});
@@ -6210,7 +6956,7 @@ function renderBigCard(a){
   const isAES=(a._aesScore||0)>0;
   return `<div class="art-card-big" onclick="openArticle('${a.id}')">
     <div class="art-card-big-img">
-      ${a.image?`<img src="${a.image}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-big-img-ph>📰</div>'">`:'<div class="art-card-big-img-ph">📰</div>'}
+      ${a.image?`<img src="${optImg(a.image,800)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-big-img-ph>📰</div>'">`:'<div class="art-card-big-img-ph">📰</div>'}
       <div class="art-source-badge">${a.source}</div>
       ${isNew?'<div class="art-new-badge">🔴 NOUVEAU</div>':isAES?'<div class="art-new-badge" style="background:var(--gold);color:#fff;">👑 AES</div>':''}
     </div>
@@ -6231,7 +6977,7 @@ function renderSmallCard(a){
   const lk=newsLiked.includes(a.id);
   const isAES=(a._aesScore||0)>0;
   return `<div class="art-card-sm" onclick="openArticle('${a.id}')">
-    <div class="art-card-sm-img">${a.image?`<img src="${a.image}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-sm-img-ph>📰</div>'">`:'<div class="art-card-sm-img-ph">📰</div>'}</div>
+    <div class="art-card-sm-img">${a.image?`<img src="${optImg(a.image,300)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=art-card-sm-img-ph>📰</div>'">`:'<div class="art-card-sm-img-ph">📰</div>'}</div>
     <div class="art-card-sm-body">
       <div class="art-card-sm-src">${isAES?'👑 ':''}${a.source}</div>
       <div class="art-card-sm-title">${esc(a.title)}</div>
@@ -6259,7 +7005,7 @@ function openArticle(id){
   document.getElementById('artSourceBadge').innerText=a.source;
   document.getElementById('artHeaderTitle').innerText=a.title||'';
   const imgEl=document.getElementById('artImg');
-  imgEl.innerHTML=a.image?`<img src="${a.image}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px>📰</div>'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;">📰</div>';
+  imgEl.innerHTML=a.image?`<img src="${optImg(a.image,1080)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px>📰</div>'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;">📰</div>';
   document.getElementById('artSourceLabel').innerText=a.source;
   document.getElementById('artExactDate').innerText=formatExactDate(a.date);
   document.getElementById('artTimeAgo').innerText=' · '+newsTimeAgo(a.date);
@@ -6483,7 +7229,9 @@ async function deleteMaTrack(key){
 }
 
 applyUserUI();
-loadHomeStories();loadBuzzHomePreview();
+loadHomeStories();loadBuzzHomePreview();loadHomeMarket();loadHomeFeed();
+// État initial history pour que le retour Android fonctionne depuis le premier écran
+history.replaceState({screen:'home'},'');
 initStoryTap();
 startNewsAutoRefresh();
 setTimeout(()=>loadNews(false),2500);
@@ -6492,6 +7240,7 @@ document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.
 applyLang();
 checkDeepLink();
 checkMusicAdminAccess();
+checkNewsAdminAccess();
 initCameraModule();
 
 // ═══════════════════════════════════════
@@ -6967,103 +7716,115 @@ async function loadSocialFeed(refresh=false){
 
 function renderSocialFeed(){
   const list=document.getElementById('sfList');
-  // Update create avatar
-  const sfAv=document.getElementById('sfCreateAv');
-  if(sfAv&&currentUser){
-    sfAv.innerHTML=currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:( currentUser.name||'?')[0].toUpperCase();
-  }
+  if(!list) return;
   if(!sfPosts.length){
-    list.innerHTML=`<div class="feedph" style="height:60vh;"><div class="ph-icon">✨</div><div class="ph-msg">Aucun post encore</div><div class="ph-sub">Sois le premier à partager !</div></div>`;
+    list.innerHTML=`<div class="hf-section-empty">✨<br>Aucune publication encore<br><span style="font-size:12px;">Sois le premier à partager !</span></div>`;
     return;
   }
   list.innerHTML=sfPosts.map(p=>buildSFPost(p)).join('');
-  // Setup pull to refresh
   initSFPullToRefresh();
 }
 
 function buildSFPost(p){
   const init=(p.auteur||'A')[0].toUpperCase();
-  const avH=p.authorAvatar?`<img src="${p.authorAvatar}" alt="" loading="lazy">`:init;
+  const avSrc=p.authorAvatar||'';
+  const avH=avSrc
+    ?`<img src="${optImg(avSrc,64)}" alt="" loading="lazy" decoding="async">`
+    :`<span>${init}</span>`;
   const isLiked=liked.includes(p.id);
   const likeCount=p.likes||0;
   const commentCount=p.commentCount||0;
   const shareCount=p.shares||0;
+  const viewCount=p.views||p.vues||0;
   const ago=timeAgo(p.createdAt);
-  const reactions=p.reactions||{};
-  
-  // Reaction counts & emojis shown
-  const reactTotal=Object.values(reactions).reduce((s,v)=>s+(typeof v==='number'?v:0),0);
-  const reactEmojisShown=Object.entries(reactions).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([e])=>`<span>${e}</span>`).join('');
-  
-  // Text with see more
-  const text=esc(p.text||'');
-  const isLong=text.length>200;
-  const textHtml=isLong
-    ?`<div class="sfpost-text long" id="sft-${p.id}">${text}</div><div class="sfpost-see-more" onclick="sfExpandText('${p.id}')">Voir plus</div>`
-    :(text?`<div class="sfpost-text">${text}</div>`:'');
-
-  // Images (for photo posts)
-  let imgsHtml='';
-  if(p.type==='photo'&&p.photoUrls&&p.photoUrls.length){
-    const urls=p.photoUrls;
-    const n=Math.min(urls.length,4);
-    const cls=`sfpost-imgs n${n}`;
-    const imgs=urls.slice(0,4).map((u,i)=>{
-      const isLast=i===3&&urls.length>4;
-      const more=isLast?` data-more="+${urls.length-4}"`:'';
-      return `<div class="sfimg-cell${isLast?' sfpost-imgs-more':''}"${more}><div class="sfimg-bg" style="background-image:url('${u}')"></div><img src="${u}" alt="" loading="lazy" onclick="openSFGallery('${p.id}',${i})"></div>`;
-    }).join('');
-    imgsHtml=`<div class="${cls}">${imgs}</div>`;
-  }
-  
-  // My reaction
   const myReact=currentUser&&p.userReactions&&p.userReactions[currentUser.uid]||null;
-  const likeLabel=myReact||'❤️';
+  const likeIco=myReact||(isLiked?'❤️':'🤍');
+  const verified=p.verified
+    ?`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M9 12L11 14L15 10M21 12C21 16.97 16.97 21 12 21C7.03 21 3 16.97 3 12C3 7.03 7.03 3 12 3C16.97 3 21 7.03 21 12Z" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    :'';
 
-  return `<div class="sfpost" id="sfp-${p.id}">
-    <div class="sfpost-head">
-      <div class="sfpost-av">${avH}</div>
-      <div class="sfpost-meta">
-        <div class="sfpost-name">@${esc(p.auteur||'anonyme')}</div>
-        <div class="sfpost-time">${ago}</div>
-      </div>
-      <div class="sfpost-more" onclick="sfPostMenu('${p.id}')">···</div>
-    </div>
-    ${textHtml}
-    ${imgsHtml}
-    ${(reactTotal>0||likeCount>0)?`
-    <div class="sfpost-react-bar">
-      <div class="sfpost-react-counts">
-        ${reactEmojisShown?`<div class="sfpost-react-emojis">${reactEmojisShown}</div>`:''}
-        <span>${reactTotal||likeCount}</span>
-      </div>
-      ${commentCount>0?`<div class="sfpost-comment-count" onclick="openSFComments('${p.id}')">${commentCount} commentaire${commentCount>1?'s':''}</div>`:''}
-    </div>`:''}
-    <div class="sfpost-actions">
-      <div class="sfpost-btn${isLiked||myReact?' liked':''}" id="sflike-${p.id}" onclick="sfToggleLike('${p.id}')" onlongpress="sfShowReactions('${p.id}',this)" style="position:relative;">
-        <span class="sfbtn-ico">${myReact||( isLiked?'❤️':'🤍')}</span>
-        <span id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
-        <div class="sfpost-react-picker" id="sfrp-${p.id}">
-          ${REACTIONS.map(r=>`<span class="react-opt" onclick="event.stopPropagation();sfReact('${p.id}','${r}')">${r}</span>`).join('')}
+  // Photo principale
+  let mainPhoto='';
+  if(p.type==='photo'&&p.photoUrls&&p.photoUrls.length){
+    mainPhoto=optImg(p.photoUrls[0],700);
+  } else if(p.type==='remix'&&p.remixImage){
+    mainPhoto=optImg(p.remixImage,700);
+  }
+
+  const rawText=p.text||'';
+  const shortText=rawText.length>90?rawText.slice(0,90)+'\u2026':rawText;
+
+  const typeBadge=p.type==='remix'?'<span class="pfcard-badge pfcard-remix">🔁 Remix</span>':
+                  p.type==='text'?'<span class="pfcard-badge pfcard-text">✍️ Texte</span>':'';
+
+  if(mainPhoto){
+    return `<article class="pfcard" id="hfp-${p.id}" onclick="_openPost('${p.id}')">
+      <div class="pfcard-img-wrap">
+        <div class="pfcard-bg" style="background-image:url('${mainPhoto}')"></div>
+        <img class="pfcard-img" src="${mainPhoto}" alt="" loading="lazy" decoding="async">
+        ${typeBadge}
+        <div class="pfcard-overlay">
+          <div class="pfcard-author">
+            <div class="pfcard-av">${avH}</div>
+            <div class="pfcard-info">
+              <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}</div>
+              <div class="pfcard-ago">${ago}</div>
+            </div>
+          </div>
+          <div class="pfcard-stats">
+            ${viewCount>0?`<span class="pfcard-stat">👁 ${fmt(viewCount)}</span>`:''}
+            ${likeCount>0?`<span class="pfcard-stat">❤️ ${fmt(likeCount)}</span>`:''}
+            ${commentCount>0?`<span class="pfcard-stat">💬 ${fmt(commentCount)}</span>`:''}
+          </div>
         </div>
+        ${p.photoUrls&&p.photoUrls.length>1?`<div class="pfcard-multi">⧉ ${p.photoUrls.length}</div>`:''}
       </div>
-      <div class="sfpost-btn" onclick="openSFComments('${p.id}')">
-        <span class="sfbtn-ico">💬</span>
-        <span>${commentCount>0?fmt(commentCount):''}</span>
+      ${shortText?`<div class="pfcard-caption">${esc(shortText)}</div>`:''}
+      <div class="pfcard-actions">
+        <button class="pfact${isLiked||myReact?' pfact-on':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
+          <span>${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
+        </button>
+        <button class="pfact" onclick="event.stopPropagation();openSFComments('${p.id}')">
+          <span>💬</span><span class="pfact-n">${commentCount>0?fmt(commentCount):''}</span>
+        </button>
+        <button class="pfact" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
+          <span>↗</span><span class="pfact-n">${shareCount>0?fmt(shareCount):''}</span>
+        </button>
+        <span class="pfact-time">${ago}</span>
       </div>
-      <div class="sfpost-btn" onclick="sfShare('${p.id}','${esc(p.auteur||'')}')">
-        <span class="sfbtn-ico">↗️</span>
-        <span>${shareCount>0?fmt(shareCount):''}</span>
+    </article>`;
+  } else {
+    return `<article class="pfcard pfcard-txt-only" id="hfp-${p.id}" onclick="_openPost('${p.id}')">
+      <div class="pfcard-txt-head">
+        <div class="pfcard-av">${avH}</div>
+        <div class="pfcard-info">
+          <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}</div>
+          <div class="pfcard-ago">${ago}</div>
+        </div>
+        ${typeBadge}
       </div>
-    </div>
-    <div class="sfpost-comment-input">
-      <div class="sfcmt-inp-av" id="sfcav-${p.id}">${currentUser?(currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:( currentUser.name||'?')[0].toUpperCase()):'?'}</div>
-      <input class="sfcmt-inp" id="sfci-${p.id}" placeholder="Commenter..." onkeydown="if(event.key==='Enter')sfSendComment('${p.id}',this.value)">
-      <button class="sfcmt-send" onclick="sfSendComment('${p.id}',document.getElementById('sfci-${p.id}').value)">➤</button>
-    </div>
-    <div class="sfpost-comments-preview" id="sfcprev-${p.id}"></div>
-  </div>`;
+      <div class="pfcard-txt-body">${esc(rawText).slice(0,220)+(rawText.length>220?'\u2026':'')}</div>
+      <div class="pfcard-actions">
+        <button class="pfact${isLiked||myReact?' pfact-on':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
+          <span>${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
+        </button>
+        <button class="pfact" onclick="event.stopPropagation();openSFComments('${p.id}')">
+          <span>💬</span><span class="pfact-n">${commentCount>0?fmt(commentCount):''}</span>
+        </button>
+        <button class="pfact" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
+          <span>↗</span><span class="pfact-n">${shareCount>0?fmt(shareCount):''}</span>
+        </button>
+      </div>
+    </article>`;
+  }
 }
+
+function _openPost(postId){ openSFComments(postId); }
+function hfExpandText(id){
+  const el=document.getElementById('hft-'+id);
+  if(el){el.classList.remove('long');const nx=el.nextElementSibling;if(nx&&nx.classList.contains('hfpost-more'))nx.remove();}
+}
+
 
 function sfExpandText(id){
   const el=document.getElementById('sft-'+id);
@@ -7226,7 +7987,8 @@ function sfPostMenu(postId){
 
 // ─── Pull to refresh ───
 function initSFPullToRefresh(){
-  const sf=document.getElementById('socialFeed');
+  // Le pull-to-refresh est sur le homeScreen qui contient sfList
+  const sf=document.getElementById('homeScreen');
   const ptr=document.getElementById('ptrWrap');
   if(!sf||!ptr||sf._ptr)return;
   sf._ptr=true;
@@ -7235,7 +7997,7 @@ function initSFPullToRefresh(){
   sf.addEventListener('touchmove',e=>{
     if(!startY)return;
     const dy=e.touches[0].clientY-startY;
-    if(dy>40&&sf.scrollTop===0){pulling=true;ptr.classList.add('show');}
+    if(dy>50&&sf.scrollTop===0){pulling=true;ptr.classList.add('show');}
   },{passive:true});
   sf.addEventListener('touchend',()=>{
     if(pulling){pulling=false;ptr.classList.remove('show');loadSocialFeed(true);showToast('🔄 Actualisation...');}
@@ -7273,6 +8035,25 @@ function initSFPullToRefresh(){
 
     <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:10px;">Sons déjà dans la bibliothèque (<span id="maCount">0</span>)</div>
     <div id="maExistingList" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <!-- PANNEAU ADMIN ACTUALITÉS (?admin=news) -->
+  <div id="newsAdminOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#0d0d0f;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff;">📰 Admin Actualités KIKO</div>
+      <div onclick="closeNewsAdmin()" style="font-size:22px;color:rgba(255,255,255,0.6);cursor:pointer;">✕</div>
+    </div>
+    <div style="font-size:11.5px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.5;">Les Actualités sont alimentées automatiquement à partir de ces flux RSS. Les utilisateurs ne peuvent pas publier dans cette section — seuls les admins gèrent les sources ici.</div>
+
+    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:18px;">
+      <div style="font-size:12px;font-weight:700;color:#c9a84c;margin-bottom:10px;">Ajouter une source</div>
+      <input type="text" id="naName" placeholder="Nom affiché (ex: RFI Afrique)" class="ma-inp">
+      <input type="text" id="naUrl" placeholder="URL du flux RSS" class="ma-inp">
+      <button id="naSubmitBtn" onclick="submitNewsAdmin()" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#14151A;font-weight:800;padding:13px;border-radius:10px;font-size:13px;cursor:pointer;margin-top:6px;">+ Ajouter la source</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:10px;">Sources actives (<span id="naCount">0</span>)</div>
+    <div id="naExistingList" style="display:flex;flex-direction:column;gap:8px;"></div>
   </div>
   <style>
     .ma-inp{width:100%;background:var(--surface);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:11px 13px;border-radius:9px;font-size:13px;margin-bottom:8px;}
