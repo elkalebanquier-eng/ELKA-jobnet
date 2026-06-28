@@ -2895,6 +2895,18 @@ body:not(.screen-home) #topnav{
       <div class="sett-arr">›</div>
     </div>
 
+    <!-- PORTEFEUILLE -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">Finance</div>
+
+    <div class="sett-row" onclick="needAuth(openWallet)">
+      <div class="sett-icon" style="background:rgba(52,211,153,0.15);">💼</div>
+      <div class="sett-label">Portefeuille</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;font-weight:700;color:var(--green);background:rgba(52,211,153,0.12);padding:2px 8px;border-radius:22px;">0 FCFA</span>
+        <div class="sett-arr">›</div>
+      </div>
+    </div>
+
     <!-- À PROPOS -->
     <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">À propos</div>
 
@@ -2919,6 +2931,289 @@ body:not(.screen-home) #topnav{
 
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════
+     💼 PORTEFEUILLE KIKO — PANNEAU COMPLET
+═══════════════════════════════════════ -->
+<div id="walletPanel" style="display:none;position:fixed;inset:0;z-index:510;background:var(--bg);overflow-y:auto;flex-direction:column;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:14px;padding:calc(16px + env(safe-area-inset-top)) 16px 14px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;">
+    <div onclick="closeWallet()" style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);">←</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;">💼 Portefeuille</div>
+  </div>
+
+  <div style="padding:16px;display:flex;flex-direction:column;gap:14px;padding-bottom:calc(32px + env(safe-area-inset-bottom));">
+
+    <!-- CARTE SOLDE PRINCIPALE -->
+    <div class="wlt-card">
+      <div class="wlt-card-shine"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);letter-spacing:0.5px;">Solde disponible</span>
+        <span id="wltBadge" class="wlt-badge">● Actif</span>
+      </div>
+      <div id="wltBalanceDisplay" class="wlt-balance">0 <span style="font-size:20px;font-weight:600;opacity:0.7;">FCFA</span></div>
+      <div style="height:1px;background:rgba(255,255,255,0.12);margin:14px 0;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:10.5px;color:rgba(255,255,255,0.55);margin-bottom:2px;">En attente</div>
+          <div id="wltPending" style="font-size:15px;font-weight:700;color:rgba(255,255,255,0.85);">0 FCFA</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10.5px;color:rgba(255,255,255,0.55);margin-bottom:2px;">Revenus totaux</div>
+          <div id="wltEarnings" style="font-size:15px;font-weight:700;color:var(--green);">0 FCFA</div>
+        </div>
+      </div>
+      <!-- Nom utilisateur sur la carte -->
+      <div style="margin-top:14px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:1px;" id="wltCardUser">KIKO WALLET</div>
+    </div>
+
+    <!-- BOUTONS ACTIONS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="wlt-action-btn wlt-deposit-btn" onclick="wltDeposit()">
+        <span style="font-size:20px;">⬇️</span>
+        <span>Déposer</span>
+        <span style="font-size:10px;opacity:0.6;font-weight:500;">Bientôt disponible</span>
+      </button>
+      <button class="wlt-action-btn wlt-withdraw-btn" onclick="wltWithdraw()">
+        <span style="font-size:20px;">💸</span>
+        <span>Retirer</span>
+        <span style="font-size:10px;opacity:0.6;font-weight:500;">Sous 24–48h</span>
+      </button>
+    </div>
+
+    <!-- TABS TRANSACTIONS / REVENUS / RETRAITS -->
+    <div class="wlt-tabs">
+      <div class="wlt-tab active" onclick="wltSwitchTab('txn',this)">Transactions</div>
+      <div class="wlt-tab" onclick="wltSwitchTab('rev',this)">Revenus</div>
+      <div class="wlt-tab" onclick="wltSwitchTab('withdraw',this)">Retraits</div>
+    </div>
+
+    <!-- LISTE TRANSACTIONS -->
+    <div id="wltPanelTxn" class="wlt-list-wrap">
+      <div id="wltTxnList"></div>
+      <div id="wltTxnEmpty" class="wlt-empty">
+        <div style="font-size:36px;margin-bottom:8px;">📋</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px;">Aucune transaction</div>
+        <div style="font-size:12.5px;color:var(--muted);">Tes transactions apparaîtront ici.</div>
+      </div>
+    </div>
+
+    <!-- LISTE REVENUS -->
+    <div id="wltPanelRev" class="wlt-list-wrap" style="display:none;">
+      <div id="wltRevList"></div>
+      <div id="wltRevEmpty" class="wlt-empty">
+        <div style="font-size:36px;margin-bottom:8px;">💰</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px;">Aucun revenu encore</div>
+        <div style="font-size:12.5px;color:var(--muted);">Publie du contenu et gagne des revenus sur KIKO.</div>
+      </div>
+    </div>
+
+    <!-- LISTE RETRAITS -->
+    <div id="wltPanelWithdraw" class="wlt-list-wrap" style="display:none;">
+      <div id="wltWithdrawList"></div>
+      <div id="wltWithdrawEmpty" class="wlt-empty">
+        <div style="font-size:36px;margin-bottom:8px;">🏦</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px;">Aucun retrait</div>
+        <div style="font-size:12.5px;color:var(--muted);">Tes demandes de retrait s'afficheront ici.</div>
+      </div>
+    </div>
+
+    <!-- MOYEN DE PAIEMENT -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:6px 4px 2px;">Moyen de paiement</div>
+
+    <div class="sett-row" onclick="wltOpenPayMethod()">
+      <div class="sett-icon" style="background:rgba(255,122,48,0.15);">📱</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:var(--text);" id="wltPayMethodLabel">Ajouter un moyen de paiement</div>
+        <div style="font-size:11.5px;color:var(--muted);" id="wltPayMethodSub">Orange Money · Moov Money · Bancaire</div>
+      </div>
+      <div class="sett-arr">›</div>
+    </div>
+
+    <!-- INFOS PAIEMENT / FRAIS -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 14px;display:flex;flex-direction:column;gap:10px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:2px;">ℹ️ Informations de retrait</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12.5px;color:var(--text2);">Frais de retrait</span>
+        <span style="font-size:12.5px;font-weight:700;color:var(--gold);">2%</span>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12.5px;color:var(--text2);">Retrait minimum</span>
+        <span style="font-size:12.5px;font-weight:700;color:var(--text);">2 000 FCFA</span>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12.5px;color:var(--text2);">Délai de traitement</span>
+        <span style="font-size:12.5px;font-weight:700;color:var(--text);">24 – 48h</span>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="font-size:11.5px;color:var(--muted);line-height:1.5;">Les paiements sont sécurisés et chiffrés. Ton solde est mis à jour en temps réel après validation par l'équipe KIKO.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALE RETRAIT -->
+<div id="wltWithdrawModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.72);align-items:flex-end;justify-content:center;">
+  <div style="background:var(--bg2);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:480px;animation:slideUp 0.28s var(--ease-out);">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px;"></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:4px;">💸 Demande de retrait</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:18px;">Solde disponible : <span id="wltModalBal" style="color:var(--green);font-weight:700;">0 FCFA</span></div>
+
+    <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;">Montant (FCFA)</label>
+    <input type="number" id="wltAmountInput" placeholder="Ex : 5000" min="2000"
+      style="width:100%;background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:13px 14px;border-radius:var(--r-sm);font-size:16px;margin-bottom:12px;outline:none;-moz-appearance:textfield;"
+      oninput="wltCalcFee(this.value)">
+
+    <div id="wltFeeInfo" style="background:var(--surface2);border-radius:var(--r-sm);padding:10px 13px;margin-bottom:16px;font-size:12.5px;display:none;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="color:var(--text2);">Frais (2%)</span>
+        <span id="wltFeeVal" style="color:var(--gold);font-weight:700;">0 FCFA</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--text2);">Vous recevez</span>
+        <span id="wltNetVal" style="color:var(--green);font-weight:700;">0 FCFA</span>
+      </div>
+    </div>
+
+    <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;">Moyen de paiement</label>
+    <select id="wltMethodSelect"
+      style="width:100%;background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:13px 14px;border-radius:var(--r-sm);font-size:14px;margin-bottom:16px;appearance:none;-webkit-appearance:none;">
+      <option value="">— Sélectionner —</option>
+      <option value="orange">📱 Orange Money</option>
+      <option value="moov">📱 Moov Money</option>
+      <option value="bank">🏦 Compte bancaire</option>
+    </select>
+
+    <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;">Numéro / RIB</label>
+    <input type="text" id="wltAccountInput" placeholder="Ex : +226 70 00 00 00"
+      style="width:100%;background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:13px 14px;border-radius:var(--r-sm);font-size:15px;margin-bottom:18px;outline:none;">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button onclick="closeWltWithdrawModal()" style="background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);padding:13px;border-radius:var(--r-md);font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Annuler</button>
+      <button onclick="wltConfirmWithdraw()" style="background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#14151A;padding:13px;border-radius:var(--r-md);font-family:'Syne',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE MOYEN DE PAIEMENT -->
+<div id="wltPayMethodModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.72);align-items:flex-end;justify-content:center;">
+  <div style="background:var(--bg2);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:480px;animation:slideUp 0.28s var(--ease-out);">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px;"></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:16px;">📱 Moyen de paiement</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+      <div class="wlt-pay-option" onclick="wltSelectPay('orange','Orange Money')">
+        <span style="font-size:22px;">📱</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:14px;">Orange Money</div><div style="font-size:11.5px;color:var(--muted);">Burkina · Mali · Niger</div></div>
+        <div class="wlt-pay-check" id="wltPay-orange">✓</div>
+      </div>
+      <div class="wlt-pay-option" onclick="wltSelectPay('moov','Moov Money')">
+        <span style="font-size:22px;">📱</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:14px;">Moov Money</div><div style="font-size:11.5px;color:var(--muted);">Burkina · Mali · Niger</div></div>
+        <div class="wlt-pay-check" id="wltPay-moov">✓</div>
+      </div>
+      <div class="wlt-pay-option" onclick="wltSelectPay('bank','Compte bancaire')">
+        <span style="font-size:22px;">🏦</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:14px;">Compte bancaire</div><div style="font-size:11.5px;color:var(--muted);">RIB / IBAN</div></div>
+        <div class="wlt-pay-check" id="wltPay-bank">✓</div>
+      </div>
+    </div>
+
+    <button onclick="closeWltPayMethodModal()" style="width:100%;background:var(--gold);border:none;color:#14151A;padding:13px;border-radius:var(--r-md);font-family:'Syne',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">Enregistrer</button>
+  </div>
+</div>
+
+<style>
+/* ─── PORTEFEUILLE ─── */
+.wlt-card{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1a2a18 0%,#0f1f0f 40%,#142814 100%);
+  border:1px solid rgba(52,211,153,0.22);
+  border-radius:var(--r-xl);padding:20px 18px;
+  box-shadow:0 4px 24px rgba(52,211,153,0.10),0 1px 4px rgba(0,0,0,0.4);
+}
+.wlt-card-shine{
+  position:absolute;top:-40px;right:-30px;
+  width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(52,211,153,0.18) 0%,transparent 70%);
+  pointer-events:none;
+}
+.wlt-balance{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:34px;color:#fff;line-height:1.1;
+  margin:8px 0 0;letter-spacing:-0.5px;
+}
+.wlt-badge{
+  font-size:10.5px;font-weight:700;color:var(--green);
+  background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);
+  padding:3px 9px;border-radius:22px;
+}
+.wlt-action-btn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:var(--surface);border:1.5px solid var(--border);
+  padding:14px 10px;border-radius:var(--r-md);cursor:pointer;
+  color:var(--text);font-family:'Syne',sans-serif;font-weight:700;
+  font-size:14px;transition:all 0.15s;
+}
+.wlt-action-btn:active{transform:scale(0.96);}
+.wlt-deposit-btn{opacity:0.6;cursor:not-allowed;}
+.wlt-withdraw-btn{border-color:rgba(52,211,153,0.3);background:rgba(52,211,153,0.07);}
+.wlt-withdraw-btn:active{background:rgba(52,211,153,0.12);}
+
+.wlt-tabs{
+  display:flex;gap:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;
+}
+.wlt-tab{
+  flex:1;padding:11px 8px;text-align:center;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:12.5px;
+  color:var(--muted);cursor:pointer;transition:all 0.15s;
+}
+.wlt-tab.active{background:var(--gold3);color:var(--gold);border-bottom:2px solid var(--gold);}
+.wlt-tab:not(:last-child){border-right:1px solid var(--border);}
+
+.wlt-list-wrap{display:flex;flex-direction:column;gap:0;}
+.wlt-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:36px 20px;text-align:center;color:var(--text2);
+}
+
+.wlt-txn-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-md);padding:12px 14px;margin-bottom:8px;
+}
+.wlt-txn-ico{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.wlt-txn-info{flex:1;overflow:hidden;}
+.wlt-txn-label{font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wlt-txn-date{font-size:11px;color:var(--muted);margin-top:2px;}
+.wlt-txn-amount{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;}
+
+.wlt-pay-option{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r-md);padding:13px 14px;cursor:pointer;transition:all 0.15s;
+}
+.wlt-pay-option.active{border-color:var(--gold);background:var(--gold3);}
+.wlt-pay-option:active{transform:scale(0.98);}
+.wlt-pay-check{font-size:14px;font-weight:800;color:var(--gold);opacity:0;transition:opacity 0.15s;}
+.wlt-pay-option.active .wlt-pay-check{opacity:1;}
+
+.wlt-status-badge{
+  font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:22px;
+}
+.wlt-status-pending{color:#FBBF24;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);}
+.wlt-status-ok{color:var(--green);background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);}
+.wlt-status-refused{color:var(--red);background:rgba(255,92,114,0.12);border:1px solid rgba(255,92,114,0.25);}
+
+@keyframes slideUp{from{transform:translateY(100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+</style>
 
 <style>
 .sett-row{
@@ -4616,6 +4911,185 @@ function closeSettings(){
   panel.classList.remove('active');
   panel.style.display='none';
 }
+
+/* ═══════════════════════════════════════
+   💼 PORTEFEUILLE KIKO — LOGIQUE COMPLÈTE
+   Données demo — remplacer par API réelle
+═══════════════════════════════════════ */
+
+// ── État local du portefeuille ──
+const WLT = {
+  balance: 0,            // Solde disponible (FCFA) — remplacer par API
+  pending: 0,            // En attente
+  totalEarnings: 0,      // Revenus totaux
+  payMethod: null,       // Moyen de paiement sélectionné
+  // Données demo — supprimer quand API prête
+  demoTransactions: [
+    { id:'t1', label:'Revenu contenu vidéo', amount:+1500, date:'27 juin 2026', type:'credit', icon:'🎬' },
+    { id:'t2', label:'Retrait Orange Money', amount:-5000, date:'20 juin 2026', type:'debit', icon:'💸', status:'ok' },
+    { id:'t3', label:'Bonus créateur', amount:+2000, date:'15 juin 2026', type:'credit', icon:'⭐' },
+  ],
+  demoEarnings: [
+    { id:'e1', label:'Vues vidéo "Musique Sahel"', amount:+800, date:'27 juin 2026', icon:'👁️' },
+    { id:'e2', label:'Partages post photo', amount:+300, date:'25 juin 2026', icon:'↗️' },
+    { id:'e3', label:'Tips reçus', amount:+400, date:'22 juin 2026', icon:'💛' },
+  ],
+  demoWithdrawals: [
+    { id:'w1', label:'Orange Money +226 70 00 00 00', amount:5000, date:'20 juin 2026', status:'ok' },
+    { id:'w2', label:'Moov Money +226 65 00 00 00', amount:3000, date:'10 juin 2026', status:'pending' },
+  ]
+};
+
+function openWallet(){
+  const panel=document.getElementById('walletPanel');
+  if(!panel)return;
+  panel.style.display='flex';
+  wltRefresh();
+  wltRenderTab('txn');
+}
+function closeWallet(){
+  const panel=document.getElementById('walletPanel');
+  if(!panel)return;
+  panel.style.display='none';
+}
+
+function wltRefresh(){
+  // Balances — remplacer par données API
+  document.getElementById('wltBalanceDisplay').innerHTML=
+    `${fmt(WLT.balance)} <span style="font-size:20px;font-weight:600;opacity:0.7;">FCFA</span>`;
+  document.getElementById('wltPending').textContent=fmt(WLT.pending)+' FCFA';
+  document.getElementById('wltEarnings').textContent=fmt(WLT.totalEarnings)+' FCFA';
+  // Badge solde dans settings
+  const badge=document.querySelector('#walletPanel .wlt-balance');
+  // Nom carte
+  const cu=document.getElementById('wltCardUser');
+  if(cu&&currentUser) cu.textContent=(currentUser.name||'KIKO').toUpperCase()+' WALLET';
+  // Solde modal
+  const mb=document.getElementById('wltModalBal');
+  if(mb) mb.textContent=fmt(WLT.balance)+' FCFA';
+}
+
+function wltSwitchTab(tab, el){
+  document.querySelectorAll('.wlt-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  ['txn','rev','withdraw'].forEach(t=>{
+    const p=document.getElementById('wltPanel'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(p) p.style.display=t===tab?'flex':'none';
+  });
+  wltRenderTab(tab);
+}
+
+function wltRenderTab(tab){
+  if(tab==='txn') wltRenderList('wltTxnList','wltTxnEmpty',WLT.demoTransactions,'txn');
+  if(tab==='rev') wltRenderList('wltRevList','wltRevEmpty',WLT.demoEarnings,'rev');
+  if(tab==='withdraw') wltRenderList('wltWithdrawList','wltWithdrawEmpty',WLT.demoWithdrawals,'withdraw');
+}
+
+function wltRenderList(listId, emptyId, items, type){
+  const list=document.getElementById(listId);
+  const empty=document.getElementById(emptyId);
+  if(!list||!empty)return;
+  if(!items||items.length===0){
+    list.innerHTML=''; empty.style.display='flex'; return;
+  }
+  empty.style.display='none';
+  list.innerHTML=items.map(item=>{
+    if(type==='withdraw'){
+      const statusMap={ok:'✅ Validé',pending:'⏳ En attente',refused:'❌ Refusé'};
+      const clsMap={ok:'wlt-status-ok',pending:'wlt-status-pending',refused:'wlt-status-refused'};
+      return `<div class="wlt-txn-item">
+        <div class="wlt-txn-ico" style="background:rgba(255,122,48,0.12);">🏦</div>
+        <div class="wlt-txn-info">
+          <div class="wlt-txn-label">${item.label}</div>
+          <div class="wlt-txn-date">${item.date}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          <div class="wlt-txn-amount" style="color:var(--text);">${fmt(item.amount)} FCFA</div>
+          <span class="wlt-status-badge ${clsMap[item.status]||'wlt-status-pending'}">${statusMap[item.status]||'En attente'}</span>
+        </div>
+      </div>`;
+    }
+    const isCredit=item.amount>0;
+    return `<div class="wlt-txn-item">
+      <div class="wlt-txn-ico" style="background:${isCredit?'rgba(52,211,153,0.12)':'rgba(255,92,114,0.10)'};">${item.icon||'💰'}</div>
+      <div class="wlt-txn-info">
+        <div class="wlt-txn-label">${item.label}</div>
+        <div class="wlt-txn-date">${item.date}</div>
+      </div>
+      <div class="wlt-txn-amount" style="color:${isCredit?'var(--green)':'var(--red)'};">
+        ${isCredit?'+':''}${fmt(item.amount)} FCFA
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function wltDeposit(){
+  showToast('⏳ Dépôt bientôt disponible sur KIKO');
+}
+function wltWithdraw(){
+  if(WLT.balance<2000){
+    showToast('⚠️ Solde insuffisant (min. 2 000 FCFA)');return;
+  }
+  const modal=document.getElementById('wltWithdrawModal');
+  if(modal){ modal.style.display='flex'; document.getElementById('wltAmountInput').value=''; document.getElementById('wltFeeInfo').style.display='none'; }
+}
+function closeWltWithdrawModal(){
+  const m=document.getElementById('wltWithdrawModal');
+  if(m) m.style.display='none';
+}
+function wltCalcFee(val){
+  const n=parseInt(val)||0;
+  const info=document.getElementById('wltFeeInfo');
+  if(n<2000||!info){info&&(info.style.display='none');return;}
+  info.style.display='block';
+  const fee=Math.round(n*0.02);
+  const net=n-fee;
+  document.getElementById('wltFeeVal').textContent=fmt(fee)+' FCFA';
+  document.getElementById('wltNetVal').textContent=fmt(net)+' FCFA';
+}
+function wltConfirmWithdraw(){
+  const amount=parseInt(document.getElementById('wltAmountInput').value)||0;
+  const method=document.getElementById('wltMethodSelect').value;
+  const account=document.getElementById('wltAccountInput').value.trim();
+  if(amount<2000){showToast('⚠️ Montant minimum : 2 000 FCFA');return;}
+  if(!method){showToast('⚠️ Choisis un moyen de paiement');return;}
+  if(!account){showToast('⚠️ Entre ton numéro ou RIB');return;}
+  if(amount>WLT.balance){showToast('⚠️ Montant supérieur à ton solde');return;}
+  // TODO: appel API retrait
+  const fee=Math.round(amount*0.02);
+  WLT.demoWithdrawals.unshift({id:'w'+Date.now(),label:method+' '+account,amount,date:'Aujourd\'hui',status:'pending'});
+  closeWltWithdrawModal();
+  showToast('✅ Demande de retrait envoyée — traitement sous 24–48h');
+  wltRenderTab('withdraw');
+}
+function wltOpenPayMethod(){
+  const m=document.getElementById('wltPayMethodModal');
+  if(m){ m.style.display='flex'; wltUpdatePayUI(); }
+}
+function closeWltPayMethodModal(){
+  const m=document.getElementById('wltPayMethodModal');
+  if(m) m.style.display='none';
+  if(WLT.payMethod){
+    const lbl=document.getElementById('wltPayMethodLabel');
+    const sub=document.getElementById('wltPayMethodSub');
+    const names={orange:'Orange Money',moov:'Moov Money',bank:'Compte bancaire'};
+    if(lbl) lbl.textContent=names[WLT.payMethod]||'Moyen de paiement';
+    if(sub) sub.textContent='Moyen principal enregistré';
+  }
+  showToast('💾 Moyen de paiement enregistré');
+}
+function wltSelectPay(key,label){
+  WLT.payMethod=key;
+  wltUpdatePayUI();
+}
+function wltUpdatePayUI(){
+  ['orange','moov','bank'].forEach(k=>{
+    const opt=document.getElementById('wltPay-'+k)?.closest('.wlt-pay-option');
+    if(opt) opt.classList.toggle('active',k===WLT.payMethod);
+  });
+}
+
+
 function highlightLangBtn2(lang){
   document.querySelectorAll('.lang-btn2').forEach(b=>b.classList.toggle('active',b.dataset.lang2===lang));
 }
