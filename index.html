@@ -4577,11 +4577,16 @@ async function publishPhotoPost(){
   const btn=document.getElementById('photoPublishBtn');btn.disabled=true;btn.innerText='⏳...';
   const prog=document.getElementById('photoProg');prog.style.display='block';
   try{
+    // ── Filigrane KIKO : brûlé sur canvas avant upload ──
+    document.getElementById('photoProgLabel').innerText='🔏 Filigrane KIKO...';
+    const _wmUser = currentUser ? currentUser.name : '';
+    const filesToUpload = await kikoApplyWatermarkToPhotos(photoFiles, _wmUser);
+
     const urls=[];
-    for(let i=0;i<photoFiles.length;i++){
-      document.getElementById('photoProgLabel').innerText=`Upload photo ${i+1}/${photoFiles.length}...`;
-      const url=await ikUpload(photoFiles[i],'photos',p=>{
-        document.getElementById('photoProgFill').style.width=Math.round((i/photoFiles.length*100)+(p/photoFiles.length))+'%';
+    for(let i=0;i<filesToUpload.length;i++){
+      document.getElementById('photoProgLabel').innerText=`Upload photo ${i+1}/${filesToUpload.length}...`;
+      const url=await ikUpload(filesToUpload[i],'photos',p=>{
+        document.getElementById('photoProgFill').style.width=Math.round((i/filesToUpload.length*100)+(p/filesToUpload.length))+'%';
       });
       urls.push(url);
     }
@@ -4597,9 +4602,12 @@ async function publishPhotoPost(){
       musicAllowReuse:reuseToggleP?reuseToggleP.checked:true,
       musicFromGallery:selectedMusic.fromGallery||false
     }:{};
+    const wmMeta = (KIKO_WM_CONFIG.enabled && KIKO_WM_CONFIG.onPhoto)
+      ? { watermarked:true, wmPosition:KIKO_WM_CONFIG.position } : {};
     await db.ref('posts').push({
       type:'photo',photoUrls:urls,desc,
       ...musicData,
+      ...wmMeta,
       auteur:currentUser.name,authorUid:currentUser.uid,
       authorAvatar:currentUser.avatar||'',
       country:currentUser.country||null,
@@ -6766,6 +6774,7 @@ async function uploadVideo(){
 
     await db.ref('videos').push({
       videoUrl, thumbnail, ...musicData,
+      watermarked: true, // filigrane KIKO présent dans le player et à l'export
       auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
       authorUid:currentUser.uid, country:currentUser.country||null,
       desc, privacy, likes:0, views:0, createdAt:Date.now()
@@ -7351,10 +7360,289 @@ function renderTrending(){
     </div>`;
   }).join('');
 }
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+//  KIKO👑 WATERMARK MODULE — Publication automatique
+//  Filigrane premium sur photos & vidéos publiées
+//  Activable/désactivable via Firebase: kikoWatermark/config
+// ═══════════════════════════════════════════════════════════════
+
+const KIKO_WM_CONFIG = {
+  enabled: true,        // maître ON/OFF (chargé depuis Firebase)
+  onPhoto: true,        // filigrane sur les photos publiées
+  onVideo: true,        // tag metadata sur les vidéos publiées
+  showUsername: true,   // afficher @nom_utilisateur dans le filigrane
+  position: 'br',       // coin par défaut : br | bl | tr | tl
+  opacity: 0.72,        // opacité globale de la carte (discret)
+  _loaded: false        // sentinelle : config Firebase déjà chargée ?
+};
+
+// Charge la config depuis Firebase (non bloquant)
+async function kikoWmLoadConfig(){
+  if(KIKO_WM_CONFIG._loaded) return;
+  try{
+    const snap = await db.ref('kikoWatermark/config').once('value');
+    const val = snap.val();
+    if(val && typeof val === 'object'){
+      if(typeof val.enabled  === 'boolean') KIKO_WM_CONFIG.enabled    = val.enabled;
+      if(typeof val.onPhoto  === 'boolean') KIKO_WM_CONFIG.onPhoto    = val.onPhoto;
+      if(typeof val.onVideo  === 'boolean') KIKO_WM_CONFIG.onVideo    = val.onVideo;
+      if(typeof val.showUsername === 'boolean') KIKO_WM_CONFIG.showUsername = val.showUsername;
+      if(val.position && ['br','bl','tr','tl'].includes(val.position)) KIKO_WM_CONFIG.position = val.position;
+      if(typeof val.opacity === 'number') KIKO_WM_CONFIG.opacity = Math.min(1, Math.max(0.2, val.opacity));
+    }
+  }catch(e){ /* hors-ligne : on garde les valeurs par défaut */ }
+  KIKO_WM_CONFIG._loaded = true;
+}
+
+// ─── Filigrane sur une image (File → File avec watermark) ───
+// Retourne un nouveau File prêt pour l'upload
+async function kikoWatermarkImage(file, username){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const objUrl = URL.createObjectURL(file);
+    img.onload = ()=>{
+      try{
+        const w = img.naturalWidth  || img.width;
+        const h = img.naturalHeight || img.height;
+        const canvas = document.createElement('canvas');
+        canvas.width  = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Dessin de l'image originale (avec préservation des metadata EXIF par le biais du canvas)
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // 2. Dessin du filigrane KIKO
+        const corner = KIKO_WM_CONFIG.position;
+        const savedAlpha = ctx.globalAlpha;
+        ctx.globalAlpha = KIKO_WM_CONFIG.opacity;
+        kikoDrawWatermark(ctx, w, h, corner, KIKO_WM_CONFIG.showUsername ? (username||'') : '');
+        ctx.globalAlpha = savedAlpha;
+
+        URL.revokeObjectURL(objUrl);
+
+        // 3. Export : on détecte le type MIME original
+        const mime = (file.type === 'image/png') ? 'image/png' : 'image/jpeg';
+        const quality = (mime === 'image/jpeg') ? 0.92 : undefined;
+        canvas.toBlob(blob=>{
+          if(!blob){ reject(new Error('Canvas toBlob failed')); return; }
+          const outFile = new File([blob], file.name, { type: mime, lastModified: Date.now() });
+          resolve(outFile);
+        }, mime, quality);
+      }catch(err){
+        URL.revokeObjectURL(objUrl);
+        reject(err);
+      }
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(objUrl); reject(new Error('Image load failed')); };
+    img.crossOrigin = 'anonymous';
+    img.src = objUrl;
+  });
+}
+
+// ─── Applique le watermark à un tableau de File (photos) ───
+// Retourne un tableau de File watermarkés (ou les originaux si désactivé / erreur)
+async function kikoApplyWatermarkToPhotos(files, username){
+  await kikoWmLoadConfig();
+  if(!KIKO_WM_CONFIG.enabled || !KIKO_WM_CONFIG.onPhoto) return files;
+  const out = [];
+  for(const f of files){
+    try{
+      const wf = await kikoWatermarkImage(f, username);
+      out.push(wf);
+    }catch(e){
+      console.warn('[KIKO WM] watermark image error, using original:', e);
+      out.push(f); // fallback silencieux : on publie quand même sans filigrane
+    }
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADMIN FILIGRANE (?admin=watermark)
+// ═══════════════════════════════════════════════════════════════
+function checkWatermarkAdminAccess(){
+  const params = new URLSearchParams(location.search);
+  if(params.get('admin') === 'watermark'){
+    buildWatermarkAdminUI();
+  }
+}
+
+function buildWatermarkAdminUI(){
+  let panel = document.getElementById('wmAdminOverlay');
+  if(panel){ panel.style.display = 'block'; loadWmAdminState(); return; }
+  panel = document.createElement('div');
+  panel.id = 'wmAdminOverlay';
+  panel.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#0d0d0f;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));';
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff;">🔏 Admin Filigrane KIKO</div>
+      <div onclick="closeWmAdmin()" style="font-size:22px;color:rgba(255,255,255,0.6);cursor:pointer;">✕</div>
+    </div>
+    <div style="font-size:11.5px;color:rgba(255,255,255,0.45);margin-bottom:20px;line-height:1.5;">
+      Le filigrane est appliqué automatiquement sur toutes les photos publiées. Il est intégré au pixel — irremplaçable même si l'image est téléchargée ou partagée.
+    </div>
+
+    <!-- Toggle principal -->
+    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff;">Filigrane actif</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Active ou désactive pour toute la plateforme</div>
+        </div>
+        <label class="wm-toggle-wrap"><input type="checkbox" id="wmEnabled" onchange="saveWmConfig()"><span class="wm-toggle-slider"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff;">Sur les photos</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Filigrane brûlé avant upload</div>
+        </div>
+        <label class="wm-toggle-wrap"><input type="checkbox" id="wmOnPhoto" onchange="saveWmConfig()"><span class="wm-toggle-slider"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff;">Afficher @nom_utilisateur</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Inclut le pseudo dans le filigrane</div>
+        </div>
+        <label class="wm-toggle-wrap"><input type="checkbox" id="wmShowUser" onchange="saveWmConfig()"><span class="wm-toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <!-- Position -->
+    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:12px;">Position du filigrane</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="wmPosGrid">
+        ${[
+          {v:'tl',l:'↖ Haut gauche'},{v:'tr',l:'↗ Haut droite'},
+          {v:'bl',l:'↙ Bas gauche'}, {v:'br',l:'↘ Bas droite (défaut)'}
+        ].map(p=>`<div class="wm-pos-btn" data-pos="${p.v}" onclick="selectWmPos('${p.v}')">${p.l}</div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Opacité -->
+    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;">Opacité  <span id="wmOpacityVal">72%</span></div>
+      <input type="range" id="wmOpacity" min="20" max="95" step="5" value="72" oninput="document.getElementById('wmOpacityVal').innerText=this.value+'%'" onchange="saveWmConfig()" style="width:100%;accent-color:var(--gold);">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;"><span>Discret</span><span>Visible</span></div>
+    </div>
+
+    <!-- Prévisualisation -->
+    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px;">Prévisualisation</div>
+      <canvas id="wmPreviewCanvas" style="width:100%;border-radius:10px;background:#111;display:block;"></canvas>
+      <button onclick="refreshWmPreview()" style="margin-top:10px;width:100%;background:var(--surface2);border:1px solid var(--border);color:#fff;padding:10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">🔄 Actualiser la prévisualisation</button>
+    </div>
+
+    <div id="wmSaveMsg" style="text-align:center;font-size:12px;color:var(--green);min-height:18px;"></div>
+  `;
+  document.body.appendChild(panel);
+
+  // Styles inline pour les composants admin watermark
+  const st = document.createElement('style');
+  st.textContent = `
+    .wm-toggle-wrap{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;}
+    .wm-toggle-wrap input{opacity:0;width:0;height:0;}
+    .wm-toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,0.15);border-radius:24px;cursor:pointer;transition:background .25s;}
+    .wm-toggle-wrap input:checked + .wm-toggle-slider{background:var(--gold);}
+    .wm-toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .25s;}
+    .wm-toggle-wrap input:checked + .wm-toggle-slider::before{transform:translateX(20px);}
+    .wm-pos-btn{padding:10px 8px;border-radius:9px;background:var(--surface2);border:1.5px solid transparent;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;}
+    .wm-pos-btn.sel{border-color:var(--gold);color:var(--gold);background:var(--gold3);}
+  `;
+  document.head.appendChild(st);
+
+  loadWmAdminState();
+}
+
+async function loadWmAdminState(){
+  await kikoWmLoadConfig();
+  const el = id => document.getElementById(id);
+  if(!el('wmEnabled')) return;
+  el('wmEnabled').checked      = KIKO_WM_CONFIG.enabled;
+  el('wmOnPhoto').checked      = KIKO_WM_CONFIG.onPhoto;
+  el('wmShowUser').checked     = KIKO_WM_CONFIG.showUsername;
+  el('wmOpacity').value        = Math.round(KIKO_WM_CONFIG.opacity * 100);
+  el('wmOpacityVal').innerText = Math.round(KIKO_WM_CONFIG.opacity * 100) + '%';
+  selectWmPos(KIKO_WM_CONFIG.position, false);
+  refreshWmPreview();
+}
+
+function selectWmPos(pos, doSave=true){
+  KIKO_WM_CONFIG.position = pos;
+  document.querySelectorAll('.wm-pos-btn').forEach(b=>{
+    b.classList.toggle('sel', b.dataset.pos === pos);
+  });
+  if(doSave) saveWmConfig();
+  refreshWmPreview();
+}
+
+async function saveWmConfig(){
+  const el = id => document.getElementById(id);
+  if(!el('wmEnabled')) return;
+  const cfg = {
+    enabled:      el('wmEnabled').checked,
+    onPhoto:      el('wmOnPhoto').checked,
+    showUsername: el('wmShowUser').checked,
+    position:     KIKO_WM_CONFIG.position,
+    opacity:      parseInt(el('wmOpacity').value, 10) / 100
+  };
+  // Mettre à jour l'objet runtime
+  Object.assign(KIKO_WM_CONFIG, cfg);
+  try{
+    await db.ref('kikoWatermark/config').set(cfg);
+    const msg = el('wmSaveMsg');
+    if(msg){ msg.innerText = '✅ Config sauvegardée'; setTimeout(()=>{ msg.innerText=''; }, 2500); }
+  }catch(e){
+    showToast('❌ Erreur : ' + e.message);
+  }
+  refreshWmPreview();
+}
+
+function refreshWmPreview(){
+  const canvas = document.getElementById('wmPreviewCanvas');
+  if(!canvas) return;
+  const W = canvas.offsetWidth || 320;
+  const H = Math.round(W * 9/16);
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  // Fond dégradé simulant une photo
+  const grd = ctx.createLinearGradient(0, 0, W, H);
+  grd.addColorStop(0, '#1a1a2e');
+  grd.addColorStop(0.5, '#16213e');
+  grd.addColorStop(1, '#0f3460');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+  // Grille simulant un paysage
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for(let y = 0; y < H; y += 30){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  for(let x = 0; x < W; x += 30){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  // Texte démo
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.font = `600 ${Math.round(W*0.055)}px Arial`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('Aperçu du contenu', W/2, H/2);
+  ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+  // Filigrane KIKO
+  const pos = KIKO_WM_CONFIG.position;
+  const showUser = KIKO_WM_CONFIG.showUsername;
+  const alpha = parseFloat(document.getElementById('wmOpacity')?.value || 72) / 100;
+  ctx.globalAlpha = alpha;
+  kikoDrawWatermark(ctx, W, H, pos, showUser ? (currentUser?.name || '@utilisateur') : '');
+  ctx.globalAlpha = 1;
+}
+
+function closeWmAdmin(){
+  const panel = document.getElementById('wmAdminOverlay');
+  if(panel) panel.style.display = 'none';
+  history.replaceState({}, '', location.pathname);
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  KIKO👑 WATERMARK SYSTEM (Canvas + MediaRecorder)
 //  Filigrane premium intégré à l'export vidéo
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 const KIKO_WM = {
   orange:'#FF8A00', orange2:'#FFB347', dark:'rgba(10,10,12,0.62)', border:'rgba(255,138,0,0.55)',
   corners:['br','bl','tr','tl'], rotateMs:5000
@@ -8008,6 +8296,8 @@ applyLang();
 checkDeepLink();
 checkMusicAdminAccess();
 checkNewsAdminAccess();
+checkWatermarkAdminAccess();
+kikoWmLoadConfig().catch(()=>{});
 initCameraModule();
 
 // ═══════════════════════════════════════
