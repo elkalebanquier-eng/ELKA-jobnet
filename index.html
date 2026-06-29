@@ -248,24 +248,99 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   overflow-x: auto; scrollbar-width: none;
 }
 .home-stories::-webkit-scrollbar { display: none; }
-.hstory-item { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; cursor: pointer; }
-.hstory-ring {
-  width: 54px; height: 54px; border-radius: 50%; padding: 2.5px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
+/* ═══════════════════════════════════════════════
+   STORIES — Redesign Premium KIKO
+   Bulles grandes · Preview fond · Dégradé animé
+   Viewer immersif glassmorphism
+═══════════════════════════════════════════════ */
+
+/* ── Rangée ── */
+.stories-row {
+  display: flex; gap: 14px;
+  padding: 14px 16px 16px;
+  overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
+.stories-row::-webkit-scrollbar { display: none; }
+
+/* ── Item bulle ── */
+.hstory-item {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+  flex-shrink: 0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hstory-item:active { opacity: 0.85; transform: scale(0.96); transition: transform .12s; }
+
+/* ── Anneau dégradé animé ── */
+.hstory-ring {
+  width: 68px; height: 68px;
+  border-radius: 50%; padding: 2.5px;
+  background: linear-gradient(135deg, #FF7A30, #FFB347, #FF5C72, #FF7A30);
+  background-size: 300% 300%;
+  animation: kikoStoryRingAnim 3s ease infinite;
+  box-shadow: 0 2px 12px rgba(255,122,48,0.35);
+  position: relative;
+}
+@keyframes kikoStoryRingAnim {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Bulle avatar avec preview photo ── */
 .hstory-av {
   width: 100%; height: 100%; border-radius: 50%;
-  background: var(--surface2); border: 2.5px solid var(--bg);
+  background: var(--surface2);
+  border: 2.5px solid var(--bg);
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; color: var(--gold);
-  overflow: hidden;
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 22px; color: var(--gold);
+  overflow: hidden; position: relative;
 }
-.hstory-av img { width: 100%; height: 100%; object-fit: cover; }
-.hstory-name { font-size: 10px; color: var(--text2); max-width: 56px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.hstory-av img {
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: 50%;
+}
+/* Badge "NEW" en bas de la bulle */
+.hstory-ring .hstory-new-badge {
+  position: absolute; bottom: 1px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold); color: #1a0a00;
+  font-size: 8px; font-weight: 800;
+  padding: 1px 5px; border-radius: 6px;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border: 1.5px solid var(--bg);
+  z-index: 2;
+}
+
+/* ── Nom ── */
+.hstory-name {
+  font-size: 10.5px; color: var(--text);
+  max-width: 68px; text-align: center;
+  white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; font-weight: 600;
+}
+
+/* ── Bulle "Ajouter" ── */
 .hstory-add .hstory-ring {
-  background: linear-gradient(135deg, var(--surface3), var(--surface2));
+  background: var(--surface2);
+  border: 2px dashed rgba(255,122,48,0.5);
+  box-shadow: none; animation: none;
 }
-.hstory-add .hstory-av { font-size: 20px; color: var(--navy); }
+.hstory-add .hstory-av {
+  font-size: 26px; color: var(--gold);
+  background: var(--surface3);
+}
+.hstory-add .hstory-name { color: var(--gold2); font-weight: 700; }
+
+/* ── Story vue (anneau grisé) ── */
+.hstory-ring.seen {
+  background: rgba(255,255,255,0.15);
+  box-shadow: none; animation: none;
+}
 
 /* ─── VIDEO CARD (dans feed scrollable) ─── */
 .vcard {
@@ -669,40 +744,174 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 
 /* Actions droite — card verre blanc premium */
-.vactions {
-  position: absolute; right: 10px; bottom: calc(78px + env(safe-area-inset-bottom));
-  display: flex; flex-direction: column; gap: 2px;
-  align-items: center; z-index: 10;
-  background: rgba(255,255,255,0.94);
-  border-radius: 44px;
-  padding: 10px 6px;
-  box-shadow: 0 4px 28px rgba(7,26,61,0.18), 0 1px 6px rgba(7,26,61,0.08);
-  border: 1px solid rgba(7,26,61,0.06);
+/* ═══════════════════════════════════════════════════════
+   KIKO — MENU D'ACTIONS RADIAL (signature visuelle unique)
+   Remplace les boutons fixes latéraux
+═══════════════════════════════════════════════════════ */
+
+/* Overlay invisible pour détecter le tap hors menu */
+#kikoRadialOverlay {
+  position: fixed; inset: 0; z-index: 200;
+  display: none;
+  pointer-events: none;
 }
-.aitem {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  cursor: pointer; transition: transform 0.15s var(--ease); padding: 4px 0;
+#kikoRadialOverlay.active {
+  display: block;
+  pointer-events: auto;
 }
-.aitem:active { transform: scale(0.82); }
-.acircle {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: transparent; border: none;
+
+/* Conteneur du menu radial */
+#kikoRadialMenu {
+  position: fixed; z-index: 201;
+  width: 0; height: 0;
+  pointer-events: none;
+  display: none;
+}
+#kikoRadialMenu.active {
+  display: block;
+  pointer-events: auto;
+}
+
+/* Halo central au point de toucher */
+.kiko-radial-origin {
+  position: absolute;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(255,122,48,0.18);
+  border: 2px solid rgba(255,122,48,0.55);
+  transform: translate(-50%,-50%) scale(0);
+  transition: transform .22s cubic-bezier(0.34,1.56,0.64,1);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+#kikoRadialMenu.active .kiko-radial-origin {
+  transform: translate(-50%,-50%) scale(1);
+}
+
+/* Chaque bouton du menu radial */
+.kiko-radial-btn {
+  position: absolute;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: rgba(10,14,28,0.82);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+  transform: translate(-50%,-50%) scale(0);
+  opacity: 0;
+  transition: transform .28s cubic-bezier(0.34,1.56,0.64,1), opacity .2s;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  -webkit-tap-highlight-color: transparent;
+}
+.kiko-radial-btn .rbicon { font-size: 20px; line-height: 1; }
+.kiko-radial-btn .rblabel {
+  font-size: 8.5px; font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.3px;
+}
+.kiko-radial-btn:active { transform: translate(-50%,-50%) scale(0.88) !important; }
+.kiko-radial-btn.liked { border-color: rgba(255,60,90,0.6); background: rgba(255,30,60,0.18); }
+.kiko-radial-btn.liked .rbicon { filter: drop-shadow(0 0 6px rgba(255,60,90,0.8)); }
+
+/* Animation d'entrée des boutons (délai en cascade) */
+#kikoRadialMenu.active .kiko-radial-btn { opacity: 1; }
+
+/* ── Compteurs discrets en bas de vidéo ── */
+.vkiko-stats {
+  position: absolute;
+  bottom: calc(70px + env(safe-area-inset-bottom));
+  left: 0; right: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px; transition: all 0.2s;
+  gap: 20px; z-index: 9;
+  pointer-events: none;
 }
-.acircle.liked { color: var(--gold); }
-.aitem span {
-  font-size: 10.5px; font-weight: 700; color: var(--text);
+.vkiko-stat {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9);
+  font-family: 'Syne', sans-serif;
 }
-.aav {
-  width: 40px; height: 40px; border-radius: 50%; margin-bottom: 2px;
-  background: var(--gold);
+
+/* ── Bottom Sheet "Plus" ── */
+#kikoMoreSheet {
+  position: fixed; inset: 0; z-index: 500;
+  display: none;
+}
+#kikoMoreSheet.active { display: block; }
+.kiko-sheet-bg {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  animation: ksBgIn .2s ease;
+}
+@keyframes ksBgIn { from { opacity:0; } to { opacity:1; } }
+.kiko-sheet-panel {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: #111318;
+  border-radius: 22px 22px 0 0;
+  padding: 0 0 calc(16px + env(safe-area-inset-bottom));
+  animation: ksPanelIn .28s cubic-bezier(0.32,0.72,0,1);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+@keyframes ksPanelIn {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.kiko-sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.2);
+  margin: 10px auto 16px;
+}
+.kiko-sheet-title {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 13px; color: rgba(255,255,255,0.4);
+  text-align: center; margin-bottom: 8px;
+  letter-spacing: 0.8px; text-transform: uppercase;
+}
+.kiko-sheet-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px; cursor: pointer;
+  transition: background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.kiko-sheet-item:active { background: rgba(255,255,255,0.05); }
+.kiko-sheet-item-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: rgba(255,255,255,0.07);
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: #fff;
-  border: 2px solid var(--gold); overflow: hidden; cursor: pointer;
-  box-shadow: var(--shadow-gold);
+  font-size: 18px; flex-shrink: 0;
 }
-.aav img { width: 100%; height: 100%; object-fit: cover; }
+.kiko-sheet-item-label {
+  font-size: 14px; font-weight: 600; color: #fff;
+}
+.kiko-sheet-item-sub {
+  font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px;
+}
+.kiko-sheet-sep {
+  height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0;
+}
+.kiko-sheet-item.danger .kiko-sheet-item-label { color: #ff5c72; }
+.kiko-sheet-item.danger .kiko-sheet-item-icon { background: rgba(255,60,90,0.12); }
+
+/* Bouton ⋮ "Plus" sur chaque vidéo */
+.vmore-btn {
+  position: absolute; top: calc(14px + env(safe-area-inset-top));
+  right: 14px; z-index: 12;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #fff; cursor: pointer;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+/* Cache les anciens boutons .vactions */
+.vactions { display: none !important; }
 
 /* Cœur double tap */
 .heart-anim {
@@ -1265,39 +1474,158 @@ textarea.inp { resize: none; }
 .stag:active { background: var(--navy); border-color: var(--navy); color: var(--gold); }
 
 /* ─── STORY VIEWER ─── */
-#storyViewer { display: none; position: fixed; inset: 0; z-index: 600; background: #050A14; flex-direction: column; }
+/* ── Viewer Story — immersif ── */
+#storyViewer {
+  display: none; position: fixed; inset: 0; z-index: 600;
+  background: #000;
+  flex-direction: column;
+}
 #storyViewer.active { display: flex; }
-.svpbar { display: flex; gap: 4px; padding: 14px 14px 8px; }
-.svseg { flex: 1; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,0.18); overflow: hidden; }
-.svseg-fill { height: 100%; background: #fff; width: 0%; transition: width 5s linear; }
-.svheader { display: flex; align-items: center; gap: 10px; padding: 5px 14px 10px; }
+
+/* Barre de progression premium */
+.svpbar {
+  display: flex; gap: 3px;
+  padding: calc(10px + env(safe-area-inset-top)) 12px 0;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+}
+.svseg {
+  flex: 1; height: 3px; border-radius: 3px;
+  background: rgba(255,255,255,0.28); overflow: hidden;
+}
+.svseg-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF7A30, #FFB347);
+  width: 0%; transition: width 5s linear;
+  box-shadow: 0 0 6px rgba(255,122,48,0.6);
+}
+
+/* Header avec avatar + nom + temps */
+.svheader {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 9;
+  display: flex; align-items: center; gap: 10px;
+  padding: calc(26px + env(safe-area-inset-top)) 14px 12px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 100%);
+}
 .svav {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--gold); display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: #fff; overflow: hidden;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid rgba(255,122,48,0.8);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 14px; color: #fff;
+  overflow: hidden; flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(255,122,48,0.4);
 }
 .svav img { width: 100%; height: 100%; object-fit: cover; }
-.svname { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; flex: 1; color: #fff; }
+.svname {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 14px; flex: 1; color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.svtime {
+  font-size: 11px; color: rgba(255,255,255,0.6);
+}
+.svclose {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; cursor: pointer;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
 
+/* Contenu media — plein écran */
+.svcontent {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #000;
+}
+.svcontent img, .svcontent video {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
+/* Texte superposé sur la story */
+.sv-overlay-text {
+  position: absolute; bottom: 30%; left: 50%;
+  transform: translateX(-50%);
+  max-width: 85%; text-align: center;
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 22px; color: #fff;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.7);
+  padding: 10px 18px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+/* Footer glassmorphism */
 .sv-footer {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
-  padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
+  padding: 12px 16px calc(20px + env(safe-area-inset-bottom));
   display: flex; flex-direction: column; gap: 10px;
-  background: linear-gradient(to top, rgba(7,26,61,0.7) 0%, transparent 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
+
+/* Réactions */
 .sv-reactions-row {
-  display: flex; gap: 8px; align-items: center; justify-content: center;
+  display: flex; gap: 6px; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 30px; padding: 6px 12px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  width: fit-content; margin: 0 auto;
 }
 .sv-react-btn {
-  font-size: 24px; cursor: pointer; padding: 5px 7px;
+  font-size: 22px; cursor: pointer; padding: 4px 6px;
   border-radius: 50%; transition: transform 0.15s;
 }
-.sv-react-btn:active { transform: scale(1.4); }
+.sv-react-btn:active { transform: scale(1.5); }
 @keyframes svReactFly {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-60px) scale(1.6); opacity: 0; }
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-70px) scale(1.8); opacity: 0; }
 }
-.sv-react-btn.flying { animation: svReactFly 0.9s ease-out forwards; }
+.sv-react-btn.flying { animation: svReactFly 0.8s ease-out forwards; }
+
+/* Barre input réponse */
+.sv-input-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.sv-like-btn {
+  font-size: 24px; cursor: pointer; flex-shrink: 0;
+  transition: transform .15s;
+}
+.sv-like-btn:active { transform: scale(1.35); }
+.sv-reply-inp {
+  flex: 1; background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 24px; padding: 10px 16px;
+  color: #fff; font-size: 13px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  outline: none;
+}
+.sv-reply-inp::placeholder { color: rgba(255,255,255,0.45); }
+.sv-reply-inp:focus { border-color: rgba(255,122,48,0.6); }
+.sv-send-reply-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--gold); border: none; color: #fff;
+  font-size: 15px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(255,122,48,0.4);
+}
+.sv-del {
+  position: absolute; top: calc(56px + env(safe-area-inset-top));
+  right: 14px; z-index: 11;
+  background: rgba(255,60,60,0.15);
+  border: 1px solid rgba(255,60,60,0.3);
+  color: #ff5c5c; border-radius: 20px;
+  padding: 5px 12px; font-size: 12px; font-weight: 700;
+  cursor: pointer;
+}
+.sv-likers-count {
+  text-align: center; font-size: 11px;
+  color: rgba(255,255,255,0.55); min-height: 14px;
+}
 
 /* ─── CHAT DM ─── */
 .aeschat-header {
@@ -2463,7 +2791,7 @@ body:not(.screen-home) #topnav{
   transition: transform 0.38s var(--ease-out), opacity 0.3s var(--ease-out);
 }
 .kiko-radial-item span{ font-size: 8.5px; font-weight: 700; color: var(--text2); letter-spacing: 0.2px; }
-#kikoRadialOverlay.active .kiko-radial-item{ opacity: 1; pointer-events: auto; }
+#kikoPublishRadialOverlay.active .kiko-radial-item{ opacity: 1; pointer-events: auto; }
 .kiko-radial-item:active{ transform: translate(-50%,0) scale(0.92) !important; }
 
 /* ─── MARKETPLACE — cartes inclinées en verre ─── */
@@ -2526,6 +2854,39 @@ body:not(.screen-home) #topnav{
 /* Perf bas de gamme : pas de blur lourd sur listes longues */
 @media (max-width: 380px){
   .prod-card, .pgitem { }
+}
+
+/* ── Bouton Traduire KIKO ── */
+.kiko-trad-btn {
+  background: rgba(255,122,48,0.12);
+  border: 1px solid rgba(255,122,48,0.3);
+  color: var(--gold2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.kiko-trad-btn:hover, .kiko-trad-btn:active {
+  background: rgba(255,122,48,0.22);
+  border-color: var(--gold);
+}
+
+/* ── Filtre géo bouton actif ── */
+#geoFilterBtn.active {
+  background: var(--gold3);
+  border-color: var(--gold);
+  color: var(--gold2);
+}
+
+/* ── Bannière offline ── */
+#kikoOfflineBanner {
+  pointer-events: none;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+  font-size: 13px;
 }
 </style>
 </head>
@@ -2628,6 +2989,10 @@ body:not(.screen-home) #topnav{
 
 <div id="searchScreen" class="screen">
   <div class="sfull"><span style="color:var(--muted)">🔍</span><input type="text" id="searchInput" placeholder="Rechercher vidéos, comptes..." oninput="debounceSearch(this.value)"></div>
+  <div style="padding:0 16px 10px;display:flex;gap:8px;align-items:center;">
+    <button id="geoFilterBtn" onclick="kikoActivateGeoFilter(this)" style="flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;">📍 Près de moi</button>
+    <div style="flex:1;font-size:11px;color:var(--muted);" id="geoFilterHint"></div>
+  </div>
   <div class="s-tabs">
     <div class="s-tab active" onclick="switchSearchTab('videos',this)">🎬 Vidéos</div>
     <div class="s-tab" onclick="switchSearchTab('trending',this)">🔥 Tendances</div>
@@ -3338,8 +3703,8 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
-<!-- MENU RADIAL KIKO👑 -->
-<div id="kikoRadialOverlay" onclick="kikoCloseRadial()">
+<!-- MENU RADIAL KIKO👑 (bouton Publier) -->
+<div id="kikoPublishRadialOverlay" onclick="kikoClosePublishRadial()">
   <div class="kiko-radial-item" id="krVideo" onclick="event.stopPropagation();kikoRadialAction('video')">🎬<span>Vidéo</span></div>
   <div class="kiko-radial-item" id="krPhoto" onclick="event.stopPropagation();kikoRadialAction('photo')">📸<span>Photo</span></div>
   <div class="kiko-radial-item" id="krProduit" onclick="event.stopPropagation();kikoRadialAction('produit')">🛍️<span>Produit</span></div>
@@ -3832,6 +4197,23 @@ body:not(.screen-home) #topnav{
 </div>
 
 <!-- STORY VIEWER -->
+<!-- ═══ KIKO RADIAL ACTION MENU ═══ -->
+<div id="kikoRadialOverlay" onclick="kikoCloseRadial()"></div>
+<div id="kikoRadialMenu">
+  <div class="kiko-radial-origin"></div>
+  <!-- Les boutons sont injectés dynamiquement par JS -->
+</div>
+
+<!-- ═══ KIKO BOTTOM SHEET "PLUS" ═══ -->
+<div id="kikoMoreSheet">
+  <div class="kiko-sheet-bg" onclick="kikoCloseMoreSheet()"></div>
+  <div class="kiko-sheet-panel" id="kikoMoreSheetPanel">
+    <div class="kiko-sheet-handle"></div>
+    <div class="kiko-sheet-title">Options</div>
+    <!-- Items injectés dynamiquement -->
+  </div>
+</div>
+
 <div id="storyViewer">
   <div class="svpbar" id="svpbar"></div>
   <div class="svheader"><div class="svav" id="svav">K</div><div class="svname" id="svname">...</div><div class="svclose" onclick="closeStory()">✕</div></div>
@@ -3983,6 +4365,10 @@ function clUpload(file,onP){
 //  IMAGEKIT
 // ═══════════════════════════════════════
 async function ikUpload(file,folder,onP){
+  // Compression silencieuse pour les images avant upload
+  if(file && file.type && file.type.startsWith('image/')){
+    try{ file = await compressImageFile(file); }catch(e){}
+  }
   const expire=Math.floor(Date.now()/1000)+2400;
   const token=Math.random().toString(36).slice(2);
   const sig=await hmacSHA1('private_wdbU/56ZJc6qodZOvCg9ztG0YF8=',token+expire);
@@ -4007,6 +4393,252 @@ async function hmacSHA1(key,msg){
   const s=await crypto.subtle.sign('HMAC',k,enc.encode(msg));
   return Array.from(new Uint8Array(s)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
+
+// ═══════════════════════════════════════════════════════════
+//  COMPRESSION IMAGE CLIENTE — avant tout upload
+//  Réduit les fichiers > 1.5 Mo à max 1280px / qualité 0.85
+//  Gain moyen : 60–80 % sur les photos de smartphone
+// ═══════════════════════════════════════════════════════════
+const IMG_COMPRESS = { maxPx: 1280, quality: 0.85, limitMB: 1.5 };
+
+async function compressImageFile(file){
+  // Ne compresse que les images et seulement si au-dessus du seuil
+  if(!file.type.startsWith('image/')) return file;
+  if(file.size <= IMG_COMPRESS.limitMB * 1024 * 1024) return file;
+  return new Promise((resolve)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      let {naturalWidth:w, naturalHeight:h} = img;
+      // Redimensionne si nécessaire en conservant le ratio
+      if(w > IMG_COMPRESS.maxPx || h > IMG_COMPRESS.maxPx){
+        if(w >= h){ h = Math.round(h * IMG_COMPRESS.maxPx / w); w = IMG_COMPRESS.maxPx; }
+        else       { w = Math.round(w * IMG_COMPRESS.maxPx / h); h = IMG_COMPRESS.maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+      canvas.toBlob(blob=>{
+        if(!blob){ resolve(file); return; }
+        const compressed = new File([blob], file.name, { type: mime, lastModified: Date.now() });
+        // Ne garde la version compressée que si elle est vraiment plus petite
+        resolve(compressed.size < file.size ? compressed : file);
+      }, mime, IMG_COMPRESS.quality);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
+// Compresse un tableau de fichiers (photos)
+async function compressPhotoFiles(files){
+  const out = [];
+  for(const f of files){
+    try{ out.push(await compressImageFile(f)); }
+    catch{ out.push(f); }
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TRADUCTION MyMemory — gratuite, sans clé (5000 mots/jour)
+//  Langues supportées : fr, en, ar, ha (Haoussa), bm (Bambara)
+// ═══════════════════════════════════════════════════════════
+const _translateCache = {};  // cache session pour éviter les doublons
+
+// Détection de langue simple (fr/ar/en) basée sur les caractères
+function kikoDetectLang(text){
+  if(!text) return 'fr';
+  // Caractères arabes
+  if(/[\u0600-\u06FF]/.test(text)) return 'ar';
+  // Mots français courants
+  const frWords = /\b(le|la|les|de|du|un|une|des|est|sont|et|je|tu|il|nous|vous|ils|que|qui|dans|avec|pour|sur|pas|plus|mais|ou|si|car|donc|or|ni|ce|se|sa|son|mon|ma|mes|ton|ta|tes|très|aussi|quand|même|comme|tout|bien|avoir|être|faire)\b/i;
+  if(frWords.test(text)) return 'fr';
+  // Par défaut anglais
+  return 'en';
+}
+
+async function kikoTranslate(text, toLang='en', fromLang='fr'){
+  if(!text || text.length > 500) return null;
+  // Détection automatique de la langue source
+  const detectedLang = fromLang === 'auto' ? kikoDetectLang(text) : fromLang;
+  // Pas besoin de traduire si même langue
+  if(detectedLang === toLang) return null;
+  const cacheKey = `${detectedLang}|${toLang}|${text.slice(0,60)}`;
+  if(_translateCache[cacheKey]) return _translateCache[cacheKey];
+  try{
+    const pair = `${detectedLang}|${toLang}`;
+    const url  = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${pair}`;
+    const res  = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    const json = await res.json();
+    const translated = json?.responseData?.translatedText;
+    if(!translated || translated === text) return null;
+    // MyMemory retourne parfois un message d'erreur en texte
+    if(translated.toUpperCase().includes('INVALID') || translated.toUpperCase().includes('EXAMPLE:')) return null;
+    _translateCache[cacheKey] = translated;
+    return translated;
+  }catch{ return null; }
+}
+
+// Langues disponibles pour la traduction dans l'UI
+const KIKO_LANGS = [
+  { code:'en', label:'English 🇬🇧' },
+  { code:'ar', label:'العربية 🇲🇦' },
+  { code:'ha', label:'Hausa 🌍' },
+  { code:'bm', label:'Bambara 🇲🇱' },
+];
+
+// Ajoute un bouton "Traduire" sous un post/texte et injecte la traduction
+async function kikoShowTranslation(postId, text, btn){
+  if(!text || !text.trim()) return;
+  // Toggle off si déjà ouvert
+  const existing = document.getElementById('kiko-trad-'+postId);
+  if(existing && existing.dataset.open === '1'){
+    existing.style.display='none'; existing.dataset.open='0';
+    btn.textContent='🌐 Traduire'; return;
+  }
+  const origLabel = btn.textContent;
+  btn.textContent='⏳'; btn.disabled=true;
+  // Essaie fr→en, puis en→fr selon la langue navigateur
+  const userLang = navigator.language.slice(0,2);
+  const srcLang  = kikoDetectLang(text);
+  const toLang   = (srcLang === 'fr') ? 'en' : 'fr';
+  const toLangLabel = toLang === 'en' ? 'English' : 'Français';
+  let translated = await kikoTranslate(text.slice(0,500), toLang, srcLang);
+  // Si même langue détectée, essaie vers l'anglais par défaut
+  if(!translated && srcLang !== 'en'){
+    translated = await kikoTranslate(text.slice(0,500), 'en', srcLang);
+  }
+  btn.disabled=false;
+  if(!translated || translated.trim() === text.trim()){
+    btn.textContent=origLabel;
+    showToast('🌐 Traduction indisponible pour ce texte');
+    return;
+  }
+  let el = document.getElementById('kiko-trad-'+postId);
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'kiko-trad-'+postId;
+    el.style.cssText='background:rgba(255,122,48,0.08);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:8px 12px;font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5;';
+    // Insère après le parent du bouton (la div actions)
+    const anchor = btn.closest('.pcard-actions,.tcard-actions') || btn.parentElement;
+    anchor.insertAdjacentElement('afterend', el);
+  }
+  el.innerHTML = `<span style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px;">🌐 ${toLangLabel}</span>${esc(translated)}`;
+  el.style.display='block'; el.dataset.open='1';
+  btn.textContent='🌐 ×';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RECHERCHE PAR LOCALISATION — Géolocalisation + rayon
+// ═══════════════════════════════════════════════════════════
+let _userGeoCity = localStorage.getItem('kiko_geo_city') || null;
+
+async function kikoGetUserCity(){
+  if(_userGeoCity) return _userGeoCity;
+  return new Promise(resolve=>{
+    if(!navigator.geolocation){ resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      try{
+        const {latitude:lat, longitude:lng} = pos.coords;
+        const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, { headers:{'Accept-Language':'fr'} });
+        const json = await res.json();
+        const city = json?.address?.city || json?.address?.town || json?.address?.village || json?.address?.county || null;
+        if(city){
+          _userGeoCity = city;
+          localStorage.setItem('kiko_geo_city', city);
+        }
+        resolve(city);
+      }catch{ resolve(null); }
+    }, ()=>resolve(null), { timeout:6000, enableHighAccuracy:false });
+  });
+}
+
+// Filtre les posts/produits par ville (champ city dans Firebase)
+function kikoFilterByLocation(items, city){
+  if(!city) return items;
+  const c = city.toLowerCase();
+  return items.filter(it=>(it.city||it.location||'').toLowerCase().includes(c));
+}
+
+// Injecte le filtre "Près de moi" dans la barre de recherche produits
+async function kikoActivateGeoFilter(btnEl){
+  btnEl.disabled=true; btnEl.textContent='📡 Localisation...';
+  const city = await kikoGetUserCity();
+  btnEl.disabled=false;
+  if(!city){ showToast('📍 Localisation non disponible'); btnEl.textContent='📍 Près de moi'; return; }
+  btnEl.textContent='📍 '+city;
+  btnEl.classList.add('active');
+  btnEl.dataset.city=city;
+  // Redéclenche la recherche en cours avec le filtre géo
+  const searchInput=document.getElementById('searchInput')||document.getElementById('mktSearch');
+  if(searchInput) filterSearch(searchInput.value.trim());
+  showToast('📍 Résultats près de '+city);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ONBOARDING — 3 étapes pour les nouveaux utilisateurs
+//  S'affiche une seule fois au premier lancement après inscription
+// ═══════════════════════════════════════════════════════════
+function kikoShowOnboarding(){
+  if(localStorage.getItem('kiko_onboarded')) return;
+  const steps = [
+    { icon:'🎬', title:'Bienvenue sur KIKO !', desc:'La plateforme créée pour le Sahel. Partage tes vidéos, photos et idées avec toute l\'Afrique de l\'Ouest.' },
+    { icon:'🔥', title:'Découvre le Buzz', desc:'Le fil Buzz regroupe les vidéos les plus virales. Swipe vers le haut pour en voir plus, double-tape pour liker.' },
+    { icon:'🛍️', title:'Vends & Achète', desc:'Le Marché KIKO te permet de vendre tes produits directement. Ajoute une photo, un prix — et c\'est parti !' },
+  ];
+  let step = 0;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'kikoOnboarding';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,10,14,0.96);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;';
+
+  function render(){
+    const s = steps[step];
+    overlay.innerHTML = `
+      <div style="text-align:center;max-width:340px;">
+        <!-- Indicateurs de progression -->
+        <div style="display:flex;gap:6px;justify-content:center;margin-bottom:40px;">
+          ${steps.map((_,i)=>`<div style="width:${i===step?28:8}px;height:8px;border-radius:4px;background:${i===step?'var(--gold)':'rgba(255,255,255,0.2)'};transition:all .3s;"></div>`).join('')}
+        </div>
+        <!-- Icône grande -->
+        <div style="font-size:80px;margin-bottom:24px;line-height:1;">${s.icon}</div>
+        <!-- Titre -->
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;margin-bottom:14px;line-height:1.2;">${s.title}</div>
+        <!-- Description -->
+        <div style="font-size:15px;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:40px;">${s.desc}</div>
+        <!-- Boutons -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <button id="obNext" style="width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1208;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;cursor:pointer;">
+            ${step < steps.length-1 ? 'Suivant →' : '🚀 Commencer !'}
+          </button>
+          ${step > 0 ? `<button id="obPrev" style="width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;">← Retour</button>` : ''}
+          <button id="obSkip" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;cursor:pointer;padding:4px;">Passer</button>
+        </div>
+      </div>`;
+    document.getElementById('obNext').onclick=()=>{
+      if(step < steps.length-1){ step++; render(); }
+      else finishOnboarding();
+    };
+    const prev=document.getElementById('obPrev');
+    if(prev) prev.onclick=()=>{ step--; render(); };
+    document.getElementById('obSkip').onclick=()=>finishOnboarding();
+  }
+
+  function finishOnboarding(){
+    overlay.style.opacity='0';
+    overlay.style.transition='opacity .4s';
+    setTimeout(()=>overlay.remove(), 400);
+    localStorage.setItem('kiko_onboarded','1');
+  }
+
+  render();
+  document.body.appendChild(overlay);
+}
+
+// ── Compression intégrée directement dans ikUpload (pas de wrapper) ──
 
 // ═══════════════════════════════════════
 //  STATE
@@ -4109,6 +4741,7 @@ function _getModalChecks(){
     // panels glissants
     { id:'commentsPanel',      fn:()=>{ if(typeof closeComments==='function') closeComments(true); else _close('commentsPanel'); } },
     { id:'sellerProfile',      fn:()=>_close('sellerProfile') },
+    { id:'kikoPublishRadialOverlay', fn:()=>{ if(typeof kikoClosePublishRadial==='function') kikoClosePublishRadial(); else _close('kikoPublishRadialOverlay'); } },
     { id:'kikoRadialOverlay',  fn:()=>{ if(typeof kikoCloseRadial==='function') kikoCloseRadial(); else _close('kikoRadialOverlay'); } },
     // modals classiques
     { id:'uploadModal',        fn:()=>{ if(typeof closeModal==='function') closeModal(); else _close('uploadModal'); } },
@@ -4214,10 +4847,26 @@ function switchUploadTab(tab){
     musicBlock.style.display='none';
   }
 }
-// ═══ MENU RADIAL KIKO👑 ═══
+// ═══ MENU RADIAL KIKO👑 (bouton Publier) ═══
 let kikoRadialOpen=false;
-function kikoToggleRadial(){ kikoRadialOpen?kikoCloseRadial():kikoOpenRadial(); }
-function kikoOpenRadial(){
+function vpsTriggerThumbPick(){
+  const input=document.getElementById('vpsThumbInput');
+  if(input) input.click();
+}
+function vpsOnThumbSelected(input){
+  const file=input.files&&input.files[0];
+  if(!file) return;
+  const preview=document.getElementById('vpsThumbnailPreview');
+  if(!preview) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    preview.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+  };
+  reader.readAsDataURL(file);
+  window.vpsCustomThumbFile=file;
+}
+function kikoToggleRadial(){ kikoRadialOpen?kikoClosePublishRadial():kikoOpenPublishRadial(); }
+function kikoOpenPublishRadial(){
   const npost=document.querySelector('.npost');
   if(!npost) return;
   const r=npost.getBoundingClientRect();
@@ -4239,17 +4888,17 @@ function kikoOpenRadial(){
     el.style.transform=`translate(-50%,-50%) scale(0.3)`;
     setTimeout(()=>{ el.style.transform=`translate(-50%,-50%) scale(1)`; }, i*45);
   });
-  document.getElementById('kikoRadialOverlay').classList.add('active');
+  document.getElementById('kikoPublishRadialOverlay').classList.add('active');
   kikoRadialOpen=true;
   if(navigator.vibrate) navigator.vibrate(8);
 }
-function kikoCloseRadial(){
-  document.getElementById('kikoRadialOverlay').classList.remove('active');
+function kikoClosePublishRadial(){
+  document.getElementById('kikoPublishRadialOverlay').classList.remove('active');
   document.querySelectorAll('.kiko-radial-item').forEach(el=>{ el.style.transform='translate(-50%,-50%) scale(0.3)'; });
   kikoRadialOpen=false;
 }
 function kikoRadialAction(type){
-  kikoCloseRadial();
+  kikoClosePublishRadial();
   needAuth(()=>{
     if(type==='video'){ openModal(); switchUploadTab('video'); }
     else if(type==='photo'){ openModal(); switchUploadTab('photo'); }
@@ -4362,6 +5011,7 @@ async function publishTextPost(){
       country:currentUser.country||null,
       likes:0,shares:0,createdAt:Date.now()
     });
+    KIKO_CACHE.clear('posts');
     showToast('🎉 Post publié !');
     closeModal();
     resetTextPanel();
@@ -4577,16 +5227,11 @@ async function publishPhotoPost(){
   const btn=document.getElementById('photoPublishBtn');btn.disabled=true;btn.innerText='⏳...';
   const prog=document.getElementById('photoProg');prog.style.display='block';
   try{
-    // ── Filigrane KIKO : brûlé sur canvas avant upload ──
-    document.getElementById('photoProgLabel').innerText='🔏 Filigrane KIKO...';
-    const _wmUser = currentUser ? currentUser.name : '';
-    const filesToUpload = await kikoApplyWatermarkToPhotos(photoFiles, _wmUser);
-
     const urls=[];
-    for(let i=0;i<filesToUpload.length;i++){
-      document.getElementById('photoProgLabel').innerText=`Upload photo ${i+1}/${filesToUpload.length}...`;
-      const url=await ikUpload(filesToUpload[i],'photos',p=>{
-        document.getElementById('photoProgFill').style.width=Math.round((i/filesToUpload.length*100)+(p/filesToUpload.length))+'%';
+    for(let i=0;i<photoFiles.length;i++){
+      document.getElementById('photoProgLabel').innerText=`Upload photo ${i+1}/${photoFiles.length}...`;
+      const url=await ikUpload(photoFiles[i],'photos',p=>{
+        document.getElementById('photoProgFill').style.width=Math.round((i/photoFiles.length*100)+(p/photoFiles.length))+'%';
       });
       urls.push(url);
     }
@@ -4602,12 +5247,9 @@ async function publishPhotoPost(){
       musicAllowReuse:reuseToggleP?reuseToggleP.checked:true,
       musicFromGallery:selectedMusic.fromGallery||false
     }:{};
-    const wmMeta = (KIKO_WM_CONFIG.enabled && KIKO_WM_CONFIG.onPhoto)
-      ? { watermarked:true, wmPosition:KIKO_WM_CONFIG.position } : {};
     await db.ref('posts').push({
       type:'photo',photoUrls:urls,desc,
       ...musicData,
-      ...wmMeta,
       auteur:currentUser.name,authorUid:currentUser.uid,
       authorAvatar:currentUser.avatar||'',
       country:currentUser.country||null,
@@ -4637,12 +5279,45 @@ function resetPhotoPanel(){
 //  FEED VIDÉOS — réservé à 🔥 Buzz (jamais sur l'accueil)
 // ═══════════════════════════════════════
 let allPosts=[];
+// ═══════════════════════════════════════════════════════════
+//  KIKO CACHE LOCAL — affichage instantané avant Firebase
+//  Cache localStorage : vidéos + posts, TTL 5 minutes
+// ═══════════════════════════════════════════════════════════
+const KIKO_CACHE = {
+  TTL: 5 * 60 * 1000, // 5 minutes
+  set(key, data){
+    try{ localStorage.setItem('kc_'+key, JSON.stringify({ d: data, t: Date.now() })); }catch(e){}
+  },
+  get(key){
+    try{
+      const raw = localStorage.getItem('kc_'+key);
+      if(!raw) return null;
+      const { d, t } = JSON.parse(raw);
+      if(Date.now() - t > KIKO_CACHE.TTL) return null; // expiré
+      return d;
+    }catch{ return null; }
+  },
+  clear(key){ try{ localStorage.removeItem('kc_'+key); }catch{} }
+};
+
 async function loadFeedMixed(){
-  const feed=document.getElementById('feed');
-  const hasContent=feed.children.length>0&&!feed.querySelector('.feedph');
-  if(!hasContent){
-    feed.innerHTML=`<div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
-      ${[0,1,2].map(()=>`<div style="background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+  const feed = document.getElementById('feed');
+
+  // ── 1. Affichage instantané depuis le cache ──
+  const cached = KIKO_CACHE.get('videos');
+  if(cached && cached.length){
+    allVids = cached;
+    let html = '';
+    cached.forEach((item, i) => { html += buildVCard(item, i); });
+    feed.innerHTML = html;
+    const firstVid = feed.querySelector('video');
+    if(firstVid){ firstVid.muted = true; firstVid.play().catch(()=>{}); }
+    initObserver(); initProgress(); initRadialLongPress();
+    setTimeout(()=>cached.forEach(v=>_tagVCard(v.id,v)), 50);
+  } else {
+    // Skeleton seulement si pas de cache
+    feed.innerHTML = `<div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+      ${[0,1,2].map(()=>`<div style="background:var(--surface);border-radius:18px;overflow:hidden;">
         <div class="sk" style="width:100%;aspect-ratio:9/16;max-height:300px;border-radius:0;"></div>
         <div style="padding:12px;display:flex;gap:10px;align-items:center;">
           <div class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
@@ -4651,52 +5326,69 @@ async function loadFeedMixed(){
       </div>`).join('')}
     </div>`;
   }
+
+  // ── 2. Firebase en arrière-plan ──
   try{
-    const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
-    const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
-    const viewerCountry=currentUser?.country||null;
-
-    // Récupère le cumul de vues par auteur (pour le bonus "nouveau créateur")
-    const authorUids=[...new Set(vids.map(it=>it.authorUid).filter(Boolean))];
-    const totalViewsByAuthor={};
-    await Promise.all(authorUids.map(async uid=>{
-      const s=await db.ref('users/'+uid+'/totalViews').once('value');
-      totalViewsByAuthor[uid]=s.val()||0;
-    }));
-
-    let ranked=vids
-      .map(item=>({...item,authorTotalViews:totalViewsByAuthor[item.authorUid]||0}))
+    const vidSnap = await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
+    const vids = vidSnap.val() ? Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})) : [];
+    const viewerCountry = currentUser?.country || null;
+    let ranked = vids
+      .map(item=>({...item,authorTotalViews:0}))
       .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
       .sort((a,b)=>b._score-a._score);
-    ranked=diversifyFeed(ranked);
-    allVids=vids;
-    if(!ranked.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucune vidéo encore</div><div class="ph-sub">Sois le premier !</div></div>';return;}
-    let html='';
-    ranked.forEach((item,i)=>{html+=buildVCard(item,i);});
-    feed.innerHTML=html;
-    const firstVid=feed.querySelector('video');
-    if(firstVid){firstVid.muted=true;firstVid.play().catch(()=>{});}
-    initObserver();initProgress();
+    ranked = diversifyFeed(ranked);
+    allVids = vids;
+    KIKO_CACHE.set('videos', ranked.slice(0, 20)); // sauvegarde pour la prochaine ouverture
+
+    if(!ranked.length){
+      if(!cached || !cached.length) feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucune vidéo encore</div><div class="ph-sub">Sois le premier !</div></div>';
+      return;
+    }
+    // Met à jour uniquement si le contenu a changé
+    const firstId = ranked[0]?.id;
+    const currentFirst = feed.querySelector('.vcard')?.id?.replace('vc-','');
+    if(firstId !== currentFirst){
+      let html = '';
+      ranked.forEach((item,i)=>{ html += buildVCard(item,i); });
+      feed.innerHTML = html;
+      const firstVid = feed.querySelector('video');
+      if(firstVid){ firstVid.muted = true; firstVid.play().catch(()=>{}); }
+      initObserver(); initProgress(); initRadialLongPress();
+      setTimeout(()=>vids.forEach(v=>_tagVCard(v.id,v)), 50);
+    }
     setTimeout(()=>{
       loadCommentCounts(vids.slice(0,10));
-      if(currentUser)syncLikedFromFirebase(vids);
+      if(currentUser) syncLikedFromFirebase(vids);
       loadRealtimeStats(vids.slice(0,8));
-    },500);
+    }, 600);
   }catch(e){
-    feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">${esc(e.message)}</div></div>`;
+    if(!cached || !cached.length)
+      feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">Vérifie ta connexion</div></div>`;
   }
 }
 
 // ═══════════════════════════════════════
-//  FIL PHOTOS & TEXTES — accueil (jamais de vidéo ici)
+//  FIL PHOTOS & TEXTES — accueil
 // ═══════════════════════════════════════
 async function loadHomeFeed(){
-  const feed=document.getElementById('homeFeed');
-  if(!feed)return;
-  const hasContent=feed.children.length>0&&!feed.querySelector('.feedph');
-  if(!hasContent){
-    feed.innerHTML=`<div style="padding:0 14px;display:flex;flex-direction:column;gap:14px;">
-      ${[0,1].map(()=>`<div style="background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+  const feed = document.getElementById('homeFeed');
+  if(!feed) return;
+
+  // ── 1. Cache instantané ──
+  const cached = KIKO_CACHE.get('posts');
+  if(cached && cached.length){
+    allPosts = cached;
+    let html = '';
+    cached.forEach((item,i)=>{
+      if(item.type==='photo') html += buildPhotoCard(item,i);
+      else if(item.type==='text') html += buildTextCard(item,i);
+    });
+    feed.innerHTML = html || '';
+    initPhotoCardMusic(); initPhotoCardTouch();
+    try{ updateHomeHero(cached.slice(0,3)); }catch(e){}
+  } else {
+    feed.innerHTML = `<div style="padding:0 14px;display:flex;flex-direction:column;gap:14px;">
+      ${[0,1].map(()=>`<div style="background:var(--surface);border-radius:18px;overflow:hidden;">
         <div class="sk" style="width:100%;aspect-ratio:4/3;border-radius:0;"></div>
         <div style="padding:12px;display:flex;gap:10px;align-items:center;">
           <div class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
@@ -4705,36 +5397,39 @@ async function loadHomeFeed(){
       </div>`).join('')}
     </div>`;
   }
+
+  // ── 2. Firebase en arrière-plan ──
   try{
-    const postSnap=await db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value');
-    const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
-    const viewerCountry=currentUser?.country||null;
-
-    const authorUids=[...new Set(posts.map(it=>it.authorUid).filter(Boolean))];
-    const totalViewsByAuthor={};
-    await Promise.all(authorUids.map(async uid=>{
-      const s=await db.ref('users/'+uid+'/totalViews').once('value');
-      totalViewsByAuthor[uid]=s.val()||0;
-    }));
-
-    let ranked=posts
-      .map(item=>({...item,authorTotalViews:totalViewsByAuthor[item.authorUid]||0}))
+    const postSnap = await db.ref('posts').orderByChild('createdAt').limitToLast(20).once('value');
+    const posts = postSnap.val() ? Object.entries(postSnap.val()).map(([id,p])=>({id,...p})) : [];
+    const viewerCountry = currentUser?.country || null;
+    let ranked = posts
+      .map(item=>({...item,authorTotalViews:0}))
       .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
       .sort((a,b)=>b._score-a._score);
-    ranked=diversifyFeed(ranked);
-    allPosts=posts;
-    if(!ranked.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">✨</div><div class="ph-msg">Aucun post encore</div><div class="ph-sub">Sois le premier à partager !</div></div>';try{updateHomeHero([]);}catch(e){}return;}
-    let html='';
-    ranked.forEach((item,i)=>{
-      if(item.type==='photo')html+=buildPhotoCard(item,i);
-      else if(item.type==='text')html+=buildTextCard(item,i);
-    });
-    feed.innerHTML=html||'<div class="feedph"><div class="ph-icon">✨</div><div class="ph-msg">Aucun post encore</div><div class="ph-sub">Sois le premier à partager !</div></div>';
-    initPhotoCardMusic();
-    initPhotoCardTouch();
-    try{updateHomeHero(ranked.slice(0,3));}catch(e){}
+    ranked = diversifyFeed(ranked);
+    allPosts = posts;
+    KIKO_CACHE.set('posts', ranked.slice(0, 15));
+
+    if(!ranked.length){
+      if(!cached||!cached.length) feed.innerHTML='<div class="feedph"><div class="ph-icon">✨</div><div class="ph-msg">Aucun post encore</div><div class="ph-sub">Sois le premier à partager !</div></div>';
+      try{ updateHomeHero([]); }catch(e){} return;
+    }
+    const firstId = ranked[0]?.id;
+    const currentFirst = feed.querySelector('[id^="pcard-"],[id^="tcard-"]')?.id;
+    if(!currentFirst || !currentFirst.includes(firstId)){
+      let html = '';
+      ranked.forEach((item,i)=>{
+        if(item.type==='photo') html += buildPhotoCard(item,i);
+        else if(item.type==='text') html += buildTextCard(item,i);
+      });
+      feed.innerHTML = html || '';
+      initPhotoCardMusic(); initPhotoCardTouch();
+      try{ updateHomeHero(ranked.slice(0,3)); }catch(e){}
+    }
   }catch(e){
-    feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">${esc(e.message)}</div></div>`;
+    if(!cached||!cached.length)
+      feed.innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">Vérifie ta connexion</div></div>`;
   }
 }
 async function refreshHomeFeedSilent(){
@@ -4817,6 +5512,7 @@ function buildPhotoCard(p,i){
         <div class="pcard-action-icon">↗️</div>
         <span>${fmt(p.shares||0)}</span>
       </div>
+      ${p.desc ? `<button class="kiko-trad-btn" id="ktb-${p.id}" data-text="${esc(p.desc)}" onclick="kikoShowTranslation('${p.id}',this.dataset.text,this)">🌐 Traduire</button>` : ''}
     </div>
   </div>`;
 }
@@ -4931,6 +5627,7 @@ function buildTextCard(p,i){
         <div class="tcard-action" onclick="sharePost('${p.id}','${esc(p.auteur||'')}') " style="color:${tc};">
           ↗️ <span>${fmt(p.shares||0)}</span>
         </div>
+        ${p.text ? `<button class="kiko-trad-btn" id="ktb-${p.id}" data-text="${esc(p.text)}" onclick="kikoShowTranslation('${p.id}',this.dataset.text,this)" style="opacity:0.8;">🌐 Traduire</button>` : ''}
       </div>
     </div>
   </div>`;
@@ -5042,6 +5739,8 @@ async function doAuth(){
     showToast('👋 Bienvenue '+currentUser.name+' !');
     startNotifListener();loadNotifs();loadDMs();
     if(pendingAction){pendingAction();pendingAction=null;}
+    // Onboarding uniquement pour les nouveaux inscrits
+    if(authMode==='register') setTimeout(()=>kikoShowOnboarding(), 600);
   }catch(e){errEl.innerText='Erreur: '+e.message;btn.disabled=false;btn.innerText=authMode==='login'?'Se connecter':"S'inscrire";}
 }
 function doLogout(){currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');}
@@ -5656,6 +6355,9 @@ function renderFeed(vids){
   const firstVid=feed.querySelector('video');
   if(firstVid)firstVid.play().catch(()=>{});
   initObserver();initProgress();
+  initRadialLongPress();
+  // Tag data-* sur les vcards après rendu
+  setTimeout(()=>vids.forEach(v=>_tagVCard(v.id,v)),100);
   if(vids[0])loadOneCommentCount(vids[0].id);
   setTimeout(()=>{loadCommentCounts(vids.slice(1));if(currentUser)syncLikedFromFirebase(vids);loadRealtimeStats(vids.slice(0,10));},600);
 }
@@ -5803,24 +6505,26 @@ function buildVCard(v,i){
         <span class="vviews-badge" id="vv-${v.id}">👁 ${fmt(v.views||0)}</span>
       </div>
     </div>
-    <div class="vactions">
-      <div class="aav" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}')">${avH}</div>
+
+    <!-- Bouton ⋮ Plus -->
+    <div class="vmore-btn" onclick="event.stopPropagation();kikoOpenMoreSheet('${v.id}','${esc(v.auteur||'')}','${v.authorUid||''}',${isOwn})">⋮</div>
+
+    <!-- Compteurs discrets -->
+    <div class="vkiko-stats">
+      <div class="vkiko-stat">❤️ <span id="lc-${v.id}">${fmt(v.likes||0)}</span></div>
+      <div class="vkiko-stat">💬 <span id="cc-${v.id}">0</span></div>
+      <div class="vkiko-stat">👁 <span id="vv2-${v.id}">${fmt(v.views||0)}</span></div>
+    </div>
+
+    <!-- Boutons .vactions conservés (cachés) pour compatibilité des fonctions existantes -->
+    <div class="vactions" style="display:none!important;">
+      <div class="aav"></div>
       <div class="aitem" onclick="needAuth(()=>toggleLike('${v.id}'))">
         <div class="acircle ${isLiked?'liked':''}" id="lk-${v.id}">${isLiked?'❤️':'🤍'}</div>
-        <span id="lc-${v.id}">${fmt(v.likes||0)}</span>
+        <span id="lc-hidden-${v.id}">${fmt(v.likes||0)}</span>
       </div>
-      <div class="aitem" onclick="openComments('${v.id}')">
-        <div class="acircle">💬</div>
-        <span id="cc-${v.id}">0</span>
-      </div>
-      <div class="aitem" onclick="openShareSheet('${v.id}')">
-        <div class="acircle">↗️</div>
-        <span class="ashare-count" id="sc-${v.id}">${fmt(v.shares||0)}</span>
-      </div>
-      <div class="aitem" onclick="downloadVid('${v.videoUrl}','${v.id}','${jsStr(v.auteur||'')}')">
-        <div class="acircle">⬇️</div><span>Sauver</span>
-      </div>
-      ${isOwn?`<div class="aitem" onclick="confirmDeleteVideo('${v.id}')"><div class="acircle">🗑️</div><span>Suppr.</span></div>`:''}
+      <div class="aitem" onclick="openComments('${v.id}')"><div class="acircle">💬</div><span></span></div>
+      <div class="aitem" onclick="openShareSheet('${v.id}')"><div class="acircle">↗️</div><span id="sc-${v.id}">${fmt(v.shares||0)}</span></div>
     </div>
   </div>`;
 }
@@ -5830,9 +6534,12 @@ function loadRealtimeStats(vids){
   vids.forEach(v=>{
     db.ref('videos/'+v.id).on('value',snap=>{
       const d=snap.val();if(!d)return;
-      const lc=document.getElementById('lc-'+v.id);const vv=document.getElementById('vv-'+v.id);
+      const lc=document.getElementById('lc-'+v.id);
+      const vv=document.getElementById('vv-'+v.id);
+      const vv2=document.getElementById('vv2-'+v.id);
       if(lc)lc.innerText=fmt(d.likes||0);
       if(vv)vv.innerText='👁 '+fmt(d.views||0);
+      if(vv2)vv2.innerText=fmt(d.views||0);
     });
   });
 }
@@ -5955,18 +6662,261 @@ function toggleMute(vidId){
   });
 }
 
-function tapVid(video,i){
-  const ctrl=document.getElementById('vc-ctrl-'+i);
-  const icon=document.getElementById('vplay-'+i);
+// ═══════════════════════════════════════════════════════════
+//  KIKO — MENU D'ACTIONS RADIAL (signature visuelle unique)
+// ═══════════════════════════════════════════════════════════
+
+let _radialVidId   = null;
+let _radialVidIdx  = null;
+let _radialTimeout = null;
+const RADIAL_RADIUS = 88; // px entre le centre et chaque bouton
+
+// Actions disponibles dans le menu radial
+function _radialActions(vidId, vidIdx){
+  const isLiked = liked.includes(vidId);
+  const vcard   = document.getElementById('vc-'+vidId);
+  const authorUid = vcard?.dataset.authorUid || '';
+  const authorName = vcard?.dataset.authorName || '';
+  const isFollowing = authorUid && following[authorUid];
+  const isOwn = currentUser && authorUid === currentUser.uid;
+  return [
+    {
+      icon: isLiked ? '❤️' : '🤍',
+      label: isLiked ? 'Aimé' : 'J\'aime',
+      cls: isLiked ? 'liked' : '',
+      angle: -90,  // haut
+      action: ()=>needAuth(()=>{ toggleLike(vidId); kikoCloseRadial(); })
+    },
+    {
+      icon: '💬', label: 'Commenter', angle: -30,
+      action: ()=>{ openComments(vidId); kikoCloseRadial(); }
+    },
+    {
+      icon: '↗️', label: 'Partager', angle: 30,
+      action: ()=>{ openShareSheet(vidId); kikoCloseRadial(); }
+    },
+    {
+      icon: '🔖', label: 'Sauvegarder', angle: 90,
+      action: ()=>{ needAuth(()=>downloadVid(vcard?.dataset.videoUrl||'',vidId,authorName)); kikoCloseRadial(); }
+    },
+    {
+      icon: isOwn ? '🗑️' : (isFollowing ? '✅' : '➕'),
+      label: isOwn ? 'Supprimer' : (isFollowing ? 'Suivi' : 'Suivre'),
+      angle: 150,
+      action: ()=>{
+        if(isOwn){ confirmDeleteVideo(vidId); }
+        else { needAuth(()=>toggleFollow(authorUid, authorName, null)); }
+        kikoCloseRadial();
+      }
+    },
+  ];
+}
+
+function kikoOpenRadial(e, vidId, vidIdx){
+  // Empêche la propagation au tapVid
+  e.stopPropagation();
+  // Ferme un éventuel menu déjà ouvert
+  kikoCloseRadial(true);
+
+  _radialVidId  = vidId;
+  _radialVidIdx = vidIdx;
+
+  // Position du tap dans la fenêtre
+  const touch = e.touches ? e.touches[0] : e;
+  const cx = touch.clientX;
+  const cy = touch.clientY;
+
+  const menu    = document.getElementById('kikoRadialMenu');
+  const overlay = document.getElementById('kikoRadialOverlay');
+
+  // Réinitialise
+  menu.innerHTML = '<div class="kiko-radial-origin"></div>';
+  menu.style.left = cx + 'px';
+  menu.style.top  = cy + 'px';
+
+  // Construit les boutons
+  const actions = _radialActions(vidId, vidIdx);
+  actions.forEach((a, i) => {
+    const rad = (a.angle - 90) * Math.PI / 180;
+    const bx  = Math.cos(rad) * RADIAL_RADIUS;
+    const by  = Math.sin(rad) * RADIAL_RADIUS;
+
+    const btn = document.createElement('div');
+    btn.className = 'kiko-radial-btn' + (a.cls ? ' '+a.cls : '');
+    btn.style.left = bx + 'px';
+    btn.style.top  = by + 'px';
+    btn.style.transitionDelay = (i * 35) + 'ms';
+    btn.innerHTML = `<span class="rbicon">${a.icon}</span><span class="rblabel">${a.label}</span>`;
+    btn.addEventListener('click', (ev)=>{ ev.stopPropagation(); a.action(); });
+    menu.appendChild(btn);
+  });
+
+  // Active (déclenche les transitions CSS)
+  requestAnimationFrame(()=>{
+    menu.classList.add('active');
+    overlay.classList.add('active');
+    // Force reflow pour l'animation
+    requestAnimationFrame(()=>{
+      menu.querySelectorAll('.kiko-radial-btn').forEach((b,i)=>{
+        const rad = (actions[i].angle - 90) * Math.PI / 180;
+        const bx  = Math.cos(rad) * RADIAL_RADIUS;
+        const by  = Math.sin(rad) * RADIAL_RADIUS;
+        b.style.transform = `translate(calc(${bx}px - 50%), calc(${by}px - 50%)) scale(1)`;
+      });
+    });
+  });
+
+  // Auto-fermeture après 3.5s
+  clearTimeout(_radialTimeout);
+  _radialTimeout = setTimeout(()=>kikoCloseRadial(), 3500);
+}
+
+function kikoCloseRadial(instant){
+  clearTimeout(_radialTimeout);
+  const menu    = document.getElementById('kikoRadialMenu');
+  const overlay = document.getElementById('kikoRadialOverlay');
+  if(!menu) return;
+  menu.querySelectorAll('.kiko-radial-btn').forEach(b=>{
+    b.style.transform = 'translate(-50%,-50%) scale(0)';
+  });
+  if(instant){
+    menu.classList.remove('active');
+    overlay.classList.remove('active');
+  } else {
+    setTimeout(()=>{
+      menu.classList.remove('active');
+      overlay.classList.remove('active');
+    }, 220);
+  }
+  _radialVidId = null;
+}
+
+// ─── Stocke les métadonnées dans l'élément vcard pour accès rapide ───
+function _tagVCard(vidId, data){
+  const el = document.getElementById('vc-'+vidId);
+  if(!el) return;
+  if(data.authorUid)  el.dataset.authorUid  = data.authorUid;
+  if(data.auteur)     el.dataset.authorName = data.auteur;
+  if(data.videoUrl)   el.dataset.videoUrl   = data.videoUrl;
+}
+
+// ─── Tag data-* sur les vcards après rendu (appelé depuis renderFeed) ───
+
+// ═══════════════════════════════════════════════════════════
+//  KIKO — BOTTOM SHEET "PLUS"
+// ═══════════════════════════════════════════════════════════
+
+function kikoOpenMoreSheet(vidId, authorName, authorUid, isOwn){
+  const panel = document.getElementById('kikoMoreSheetPanel');
+  if(!panel) return;
+
+  const items = [
+    { icon:'🔗', label:'Copier le lien', sub:'Partage la publication', action:()=>{ navigator.clipboard?.writeText(location.origin+'?v='+vidId).catch(()=>{}); showToast('🔗 Lien copié !'); kikoCloseMoreSheet(); } },
+    { icon:'↗️', label:'Partager', sub:'Envoyer à quelqu\'un', action:()=>{ openShareSheet(vidId); kikoCloseMoreSheet(); } },
+    'sep',
+    { icon:'🙈', label:'Masquer cette publication', sub:'Tu ne la verras plus', action:()=>{ document.getElementById('vc-'+vidId)?.remove(); showToast('Publication masquée'); kikoCloseMoreSheet(); } },
+    { icon:'🚫', label:'Ne plus recommander @'+authorName, sub:'Moins de contenu de cet auteur', action:()=>{ showToast('Préférence enregistrée'); kikoCloseMoreSheet(); } },
+    'sep',
+    { icon:'ℹ️', label:'Infos de la publication', sub:'ID · Date · Source', action:()=>{ showToast('ID : '+vidId); kikoCloseMoreSheet(); } },
+    'sep',
+    { icon:'🚨', label:'Signaler', sub:'Contenu inapproprié', danger:true, action:()=>{ kikoCloseMoreSheet(); setTimeout(()=>openReportSheet(vidId, authorUid), 200); } },
+  ];
+
+  if(isOwn){
+    items.push('sep');
+    items.push({ icon:'🗑️', label:'Supprimer', sub:'Action irréversible', danger:true, action:()=>{ kikoCloseMoreSheet(); setTimeout(()=>confirmDeleteVideo(vidId), 200); } });
+  }
+
+  let html = `<div class="kiko-sheet-handle"></div><div class="kiko-sheet-title">Options</div>`;
+  items.forEach(it=>{
+    if(it === 'sep'){ html += '<div class="kiko-sheet-sep"></div>'; return; }
+    html += `<div class="kiko-sheet-item${it.danger?' danger':''}" onclick="(${it.action.toString()})()">
+      <div class="kiko-sheet-item-icon">${it.icon}</div>
+      <div><div class="kiko-sheet-item-label">${it.label}</div><div class="kiko-sheet-item-sub">${it.sub||''}</div></div>
+    </div>`;
+  });
+
+  panel.innerHTML = html;
+  document.getElementById('kikoMoreSheet').classList.add('active');
+}
+
+function kikoCloseMoreSheet(){
+  document.getElementById('kikoMoreSheet')?.classList.remove('active');
+}
+
+// Signalement rapide
+function openReportSheet(vidId, authorUid){
+  const reasons = ['Contenu violent ou choquant','Harcèlement ou intimidation','Désinformation','Spam','Contenu pour adultes non signalé','Autre'];
+  const panel = document.getElementById('kikoMoreSheetPanel');
+  let html = `<div class="kiko-sheet-handle"></div><div class="kiko-sheet-title">Signaler</div>`;
+  reasons.forEach(r=>{
+    html += `<div class="kiko-sheet-item" onclick="kikoSubmitReport('${vidId}','${esc(r)}')">
+      <div class="kiko-sheet-item-icon">🚨</div>
+      <div><div class="kiko-sheet-item-label">${r}</div></div>
+    </div>`;
+  });
+  panel.innerHTML = html;
+  document.getElementById('kikoMoreSheet').classList.add('active');
+}
+
+async function kikoSubmitReport(vidId, reason){
+  kikoCloseMoreSheet();
+  if(!currentUser){ showToast('Connecte-toi pour signaler'); return; }
+  try{
+    await db.ref('reports/'+vidId+'/'+currentUser.uid).set({ reason, at: Date.now() });
+    // Incrémente le compteur de signalements
+    await db.ref('videos/'+vidId+'/reportsCount').transaction(n=>(n||0)+1);
+    showToast('✅ Signalement envoyé — Merci');
+  }catch{ showToast('Erreur lors du signalement'); }
+}
+
+function tapVid(video, i){
+  const ctrl = document.getElementById('vc-ctrl-'+i);
+  const icon = document.getElementById('vplay-'+i);
   if(video.paused){
     video.play();
-    if(ctrl)ctrl.classList.remove('show');
+    if(ctrl) ctrl.classList.remove('show');
   } else {
     video.pause();
-    if(icon)icon.innerText='▶';
-    if(ctrl){ctrl.classList.add('show');setTimeout(()=>ctrl.classList.remove('show'),1500);}
+    if(icon) icon.innerText = '▶';
+    if(ctrl){ ctrl.classList.add('show'); setTimeout(()=>ctrl.classList.remove('show'), 1500); }
   }
   showAdvPanel(i);
+}
+
+// ─── Long-press sur vidéo → ouvre le menu radial ───
+function initRadialLongPress(){
+  const feedEl = document.getElementById('feed');
+  if(!feedEl) return;
+  feedEl.addEventListener('touchstart', e=>{
+    const vcard = e.target.closest('.vcard');
+    if(!vcard) return;
+    if(e.target.closest('.vprogress,.vadv-panel,.vinfo,.vmore-btn,.vmute-btn,.vcontrols')) return;
+    const vidId = vcard.id.replace('vc-','');
+
+    // Feedback visuel immédiat (ripple léger)
+    const touch = e.touches[0];
+    const ripple = document.createElement('div');
+    ripple.style.cssText = `position:fixed;left:${touch.clientX}px;top:${touch.clientY}px;width:60px;height:60px;border-radius:50%;background:rgba(255,122,48,0.22);transform:translate(-50%,-50%) scale(0);transition:transform .18s ease,opacity .18s;pointer-events:none;z-index:199;`;
+    document.body.appendChild(ripple);
+    requestAnimationFrame(()=>{ ripple.style.transform='translate(-50%,-50%) scale(1)'; ripple.style.opacity='1'; });
+
+    const t = setTimeout(()=>{
+      // Feedback haptique si disponible
+      navigator.vibrate?.(18);
+      ripple.remove();
+      kikoOpenRadial(touch, vidId);
+    }, 200); // 200ms — réactif mais pas accidentel
+
+    const cancel = ()=>{
+      clearTimeout(t);
+      ripple.style.opacity='0';
+      setTimeout(()=>ripple.remove(), 180);
+    };
+    vcard.addEventListener('touchend',   cancel, {once:true});
+    vcard.addEventListener('touchmove',  cancel, {once:true, passive:true});
+    vcard.addEventListener('touchcancel',cancel, {once:true});
+  }, {passive:true});
 }
 
 // Seek en cliquant sur la barre de progression
@@ -6774,11 +7724,11 @@ async function uploadVideo(){
 
     await db.ref('videos').push({
       videoUrl, thumbnail, ...musicData,
-      watermarked: true, // filigrane KIKO présent dans le player et à l'export
       auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
       authorUid:currentUser.uid, country:currentUser.country||null,
       desc, privacy, likes:0, views:0, createdAt:Date.now()
     });
+    KIKO_CACHE.clear('videos'); // invalide le cache pour forcer rechargement
 
     setP(100, '✅ Publié !');
     showToast('🎉 Vidéo publiée avec succès !');
@@ -7360,289 +8310,10 @@ function renderTrending(){
     </div>`;
   }).join('');
 }
-// ═══════════════════════════════════════════════════════════════
-//  KIKO👑 WATERMARK MODULE — Publication automatique
-//  Filigrane premium sur photos & vidéos publiées
-//  Activable/désactivable via Firebase: kikoWatermark/config
-// ═══════════════════════════════════════════════════════════════
-
-const KIKO_WM_CONFIG = {
-  enabled: true,        // maître ON/OFF (chargé depuis Firebase)
-  onPhoto: true,        // filigrane sur les photos publiées
-  onVideo: true,        // tag metadata sur les vidéos publiées
-  showUsername: true,   // afficher @nom_utilisateur dans le filigrane
-  position: 'br',       // coin par défaut : br | bl | tr | tl
-  opacity: 0.72,        // opacité globale de la carte (discret)
-  _loaded: false        // sentinelle : config Firebase déjà chargée ?
-};
-
-// Charge la config depuis Firebase (non bloquant)
-async function kikoWmLoadConfig(){
-  if(KIKO_WM_CONFIG._loaded) return;
-  try{
-    const snap = await db.ref('kikoWatermark/config').once('value');
-    const val = snap.val();
-    if(val && typeof val === 'object'){
-      if(typeof val.enabled  === 'boolean') KIKO_WM_CONFIG.enabled    = val.enabled;
-      if(typeof val.onPhoto  === 'boolean') KIKO_WM_CONFIG.onPhoto    = val.onPhoto;
-      if(typeof val.onVideo  === 'boolean') KIKO_WM_CONFIG.onVideo    = val.onVideo;
-      if(typeof val.showUsername === 'boolean') KIKO_WM_CONFIG.showUsername = val.showUsername;
-      if(val.position && ['br','bl','tr','tl'].includes(val.position)) KIKO_WM_CONFIG.position = val.position;
-      if(typeof val.opacity === 'number') KIKO_WM_CONFIG.opacity = Math.min(1, Math.max(0.2, val.opacity));
-    }
-  }catch(e){ /* hors-ligne : on garde les valeurs par défaut */ }
-  KIKO_WM_CONFIG._loaded = true;
-}
-
-// ─── Filigrane sur une image (File → File avec watermark) ───
-// Retourne un nouveau File prêt pour l'upload
-async function kikoWatermarkImage(file, username){
-  return new Promise((resolve, reject)=>{
-    const img = new Image();
-    const objUrl = URL.createObjectURL(file);
-    img.onload = ()=>{
-      try{
-        const w = img.naturalWidth  || img.width;
-        const h = img.naturalHeight || img.height;
-        const canvas = document.createElement('canvas');
-        canvas.width  = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-
-        // 1. Dessin de l'image originale (avec préservation des metadata EXIF par le biais du canvas)
-        ctx.drawImage(img, 0, 0, w, h);
-
-        // 2. Dessin du filigrane KIKO
-        const corner = KIKO_WM_CONFIG.position;
-        const savedAlpha = ctx.globalAlpha;
-        ctx.globalAlpha = KIKO_WM_CONFIG.opacity;
-        kikoDrawWatermark(ctx, w, h, corner, KIKO_WM_CONFIG.showUsername ? (username||'') : '');
-        ctx.globalAlpha = savedAlpha;
-
-        URL.revokeObjectURL(objUrl);
-
-        // 3. Export : on détecte le type MIME original
-        const mime = (file.type === 'image/png') ? 'image/png' : 'image/jpeg';
-        const quality = (mime === 'image/jpeg') ? 0.92 : undefined;
-        canvas.toBlob(blob=>{
-          if(!blob){ reject(new Error('Canvas toBlob failed')); return; }
-          const outFile = new File([blob], file.name, { type: mime, lastModified: Date.now() });
-          resolve(outFile);
-        }, mime, quality);
-      }catch(err){
-        URL.revokeObjectURL(objUrl);
-        reject(err);
-      }
-    };
-    img.onerror = ()=>{ URL.revokeObjectURL(objUrl); reject(new Error('Image load failed')); };
-    img.crossOrigin = 'anonymous';
-    img.src = objUrl;
-  });
-}
-
-// ─── Applique le watermark à un tableau de File (photos) ───
-// Retourne un tableau de File watermarkés (ou les originaux si désactivé / erreur)
-async function kikoApplyWatermarkToPhotos(files, username){
-  await kikoWmLoadConfig();
-  if(!KIKO_WM_CONFIG.enabled || !KIKO_WM_CONFIG.onPhoto) return files;
-  const out = [];
-  for(const f of files){
-    try{
-      const wf = await kikoWatermarkImage(f, username);
-      out.push(wf);
-    }catch(e){
-      console.warn('[KIKO WM] watermark image error, using original:', e);
-      out.push(f); // fallback silencieux : on publie quand même sans filigrane
-    }
-  }
-  return out;
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  ADMIN FILIGRANE (?admin=watermark)
-// ═══════════════════════════════════════════════════════════════
-function checkWatermarkAdminAccess(){
-  const params = new URLSearchParams(location.search);
-  if(params.get('admin') === 'watermark'){
-    buildWatermarkAdminUI();
-  }
-}
-
-function buildWatermarkAdminUI(){
-  let panel = document.getElementById('wmAdminOverlay');
-  if(panel){ panel.style.display = 'block'; loadWmAdminState(); return; }
-  panel = document.createElement('div');
-  panel.id = 'wmAdminOverlay';
-  panel.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#0d0d0f;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));';
-  panel.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff;">🔏 Admin Filigrane KIKO</div>
-      <div onclick="closeWmAdmin()" style="font-size:22px;color:rgba(255,255,255,0.6);cursor:pointer;">✕</div>
-    </div>
-    <div style="font-size:11.5px;color:rgba(255,255,255,0.45);margin-bottom:20px;line-height:1.5;">
-      Le filigrane est appliqué automatiquement sur toutes les photos publiées. Il est intégré au pixel — irremplaçable même si l'image est téléchargée ou partagée.
-    </div>
-
-    <!-- Toggle principal -->
-    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#fff;">Filigrane actif</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Active ou désactive pour toute la plateforme</div>
-        </div>
-        <label class="wm-toggle-wrap"><input type="checkbox" id="wmEnabled" onchange="saveWmConfig()"><span class="wm-toggle-slider"></span></label>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#fff;">Sur les photos</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Filigrane brûlé avant upload</div>
-        </div>
-        <label class="wm-toggle-wrap"><input type="checkbox" id="wmOnPhoto" onchange="saveWmConfig()"><span class="wm-toggle-slider"></span></label>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#fff;">Afficher @nom_utilisateur</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Inclut le pseudo dans le filigrane</div>
-        </div>
-        <label class="wm-toggle-wrap"><input type="checkbox" id="wmShowUser" onchange="saveWmConfig()"><span class="wm-toggle-slider"></span></label>
-      </div>
-    </div>
-
-    <!-- Position -->
-    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
-      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:12px;">Position du filigrane</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="wmPosGrid">
-        ${[
-          {v:'tl',l:'↖ Haut gauche'},{v:'tr',l:'↗ Haut droite'},
-          {v:'bl',l:'↙ Bas gauche'}, {v:'br',l:'↘ Bas droite (défaut)'}
-        ].map(p=>`<div class="wm-pos-btn" data-pos="${p.v}" onclick="selectWmPos('${p.v}')">${p.l}</div>`).join('')}
-      </div>
-    </div>
-
-    <!-- Opacité -->
-    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
-      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;">Opacité  <span id="wmOpacityVal">72%</span></div>
-      <input type="range" id="wmOpacity" min="20" max="95" step="5" value="72" oninput="document.getElementById('wmOpacityVal').innerText=this.value+'%'" onchange="saveWmConfig()" style="width:100%;accent-color:var(--gold);">
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;"><span>Discret</span><span>Visible</span></div>
-    </div>
-
-    <!-- Prévisualisation -->
-    <div style="background:#1a1a1d;border-radius:14px;padding:16px;margin-bottom:14px;">
-      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px;">Prévisualisation</div>
-      <canvas id="wmPreviewCanvas" style="width:100%;border-radius:10px;background:#111;display:block;"></canvas>
-      <button onclick="refreshWmPreview()" style="margin-top:10px;width:100%;background:var(--surface2);border:1px solid var(--border);color:#fff;padding:10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">🔄 Actualiser la prévisualisation</button>
-    </div>
-
-    <div id="wmSaveMsg" style="text-align:center;font-size:12px;color:var(--green);min-height:18px;"></div>
-  `;
-  document.body.appendChild(panel);
-
-  // Styles inline pour les composants admin watermark
-  const st = document.createElement('style');
-  st.textContent = `
-    .wm-toggle-wrap{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;}
-    .wm-toggle-wrap input{opacity:0;width:0;height:0;}
-    .wm-toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,0.15);border-radius:24px;cursor:pointer;transition:background .25s;}
-    .wm-toggle-wrap input:checked + .wm-toggle-slider{background:var(--gold);}
-    .wm-toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .25s;}
-    .wm-toggle-wrap input:checked + .wm-toggle-slider::before{transform:translateX(20px);}
-    .wm-pos-btn{padding:10px 8px;border-radius:9px;background:var(--surface2);border:1.5px solid transparent;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;}
-    .wm-pos-btn.sel{border-color:var(--gold);color:var(--gold);background:var(--gold3);}
-  `;
-  document.head.appendChild(st);
-
-  loadWmAdminState();
-}
-
-async function loadWmAdminState(){
-  await kikoWmLoadConfig();
-  const el = id => document.getElementById(id);
-  if(!el('wmEnabled')) return;
-  el('wmEnabled').checked      = KIKO_WM_CONFIG.enabled;
-  el('wmOnPhoto').checked      = KIKO_WM_CONFIG.onPhoto;
-  el('wmShowUser').checked     = KIKO_WM_CONFIG.showUsername;
-  el('wmOpacity').value        = Math.round(KIKO_WM_CONFIG.opacity * 100);
-  el('wmOpacityVal').innerText = Math.round(KIKO_WM_CONFIG.opacity * 100) + '%';
-  selectWmPos(KIKO_WM_CONFIG.position, false);
-  refreshWmPreview();
-}
-
-function selectWmPos(pos, doSave=true){
-  KIKO_WM_CONFIG.position = pos;
-  document.querySelectorAll('.wm-pos-btn').forEach(b=>{
-    b.classList.toggle('sel', b.dataset.pos === pos);
-  });
-  if(doSave) saveWmConfig();
-  refreshWmPreview();
-}
-
-async function saveWmConfig(){
-  const el = id => document.getElementById(id);
-  if(!el('wmEnabled')) return;
-  const cfg = {
-    enabled:      el('wmEnabled').checked,
-    onPhoto:      el('wmOnPhoto').checked,
-    showUsername: el('wmShowUser').checked,
-    position:     KIKO_WM_CONFIG.position,
-    opacity:      parseInt(el('wmOpacity').value, 10) / 100
-  };
-  // Mettre à jour l'objet runtime
-  Object.assign(KIKO_WM_CONFIG, cfg);
-  try{
-    await db.ref('kikoWatermark/config').set(cfg);
-    const msg = el('wmSaveMsg');
-    if(msg){ msg.innerText = '✅ Config sauvegardée'; setTimeout(()=>{ msg.innerText=''; }, 2500); }
-  }catch(e){
-    showToast('❌ Erreur : ' + e.message);
-  }
-  refreshWmPreview();
-}
-
-function refreshWmPreview(){
-  const canvas = document.getElementById('wmPreviewCanvas');
-  if(!canvas) return;
-  const W = canvas.offsetWidth || 320;
-  const H = Math.round(W * 9/16);
-  canvas.width  = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  // Fond dégradé simulant une photo
-  const grd = ctx.createLinearGradient(0, 0, W, H);
-  grd.addColorStop(0, '#1a1a2e');
-  grd.addColorStop(0.5, '#16213e');
-  grd.addColorStop(1, '#0f3460');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, W, H);
-  // Grille simulant un paysage
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 1;
-  for(let y = 0; y < H; y += 30){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-  for(let x = 0; x < W; x += 30){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  // Texte démo
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  ctx.font = `600 ${Math.round(W*0.055)}px Arial`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('Aperçu du contenu', W/2, H/2);
-  ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
-  // Filigrane KIKO
-  const pos = KIKO_WM_CONFIG.position;
-  const showUser = KIKO_WM_CONFIG.showUsername;
-  const alpha = parseFloat(document.getElementById('wmOpacity')?.value || 72) / 100;
-  ctx.globalAlpha = alpha;
-  kikoDrawWatermark(ctx, W, H, pos, showUser ? (currentUser?.name || '@utilisateur') : '');
-  ctx.globalAlpha = 1;
-}
-
-function closeWmAdmin(){
-  const panel = document.getElementById('wmAdminOverlay');
-  if(panel) panel.style.display = 'none';
-  history.replaceState({}, '', location.pathname);
-}
-
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  KIKO👑 WATERMARK SYSTEM (Canvas + MediaRecorder)
 //  Filigrane premium intégré à l'export vidéo
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 const KIKO_WM = {
   orange:'#FF8A00', orange2:'#FFB347', dark:'rgba(10,10,12,0.62)', border:'rgba(255,138,0,0.55)',
   corners:['br','bl','tr','tl'], rotateMs:5000
@@ -8284,21 +8955,20 @@ async function deleteMaTrack(key){
 }
 
 applyUserUI();
-loadHomeStories();loadBuzzHomePreview();loadHomeMarket();loadHomeFeed();
-// État initial history pour que le retour Android fonctionne depuis le premier écran
-history.replaceState({screen:'home'},'');
-initStoryTap();
-startNewsAutoRefresh();
-setTimeout(()=>loadNews(false),2500);
-if(currentUser){loadNotifs();loadDMs();startNotifListener();}
 document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===currentLang));
 applyLang();
 checkDeepLink();
-checkMusicAdminAccess();
-checkNewsAdminAccess();
-checkWatermarkAdminAccess();
-kikoWmLoadConfig().catch(()=>{});
-initCameraModule();
+history.replaceState({screen:'home'},'');
+initStoryTap();
+
+// ── Chargement échelonné : critique d'abord, tout le reste après ──
+loadHomeFeed();                                        // 1er paint : posts visibles immédiatement
+setTimeout(()=>loadHomeStories(), 200);               // stories après le 1er rendu
+setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
+setTimeout(()=>loadHomeMarket(), 800);                // marketplace
+setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
+if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); }, 1000); }
+setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
 
 // ═══════════════════════════════════════
 //  MODULE CAMÉRA + FILTRES PREMIUM
@@ -8626,13 +9296,6 @@ function camGallerySelected(input){
 //  ADMIN MUSIQUE (?admin=music)
 // ═══════════════════════════════════════
 let maFile=null;
-function checkMusicAdminAccess(){
-  const params=new URLSearchParams(location.search);
-  if(params.get('admin')==='music'){
-    document.getElementById('musicAdminOverlay').style.display='block';
-    renderMaExistingList();
-  }
-}
 function closeMusicAdmin(){
   document.getElementById('musicAdminOverlay').style.display='none';
   history.replaceState({},'',location.pathname);
@@ -9192,54 +9855,139 @@ function initSFPullToRefresh(){
 </style>
 
 <script>
-// ═══ PWA — SERVICE WORKER ═══
+// ═══════════════════════════════════════════════════════════
+//  PWA — SERVICE WORKER AVANCÉ (offline + cache intelligent)
+// ═══════════════════════════════════════════════════════════
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='aes-v1';
-const STATIC=[
+const CACHE_SHELL  = 'kiko-shell-v3';
+const CACHE_IMG    = 'kiko-img-v3';
+const CACHE_FONT   = 'kiko-font-v3';
+const IMG_LIMIT    = 60;   // max images en cache
+const OFFLINE_URL  = './';
+
+// Ressources du shell applicatif
+const SHELL_ASSETS = [
   './',
-  'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap'
 ];
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC).catch(()=>{})));
-  self.skipWaiting();
+
+// ── Install : préchargement du shell ──
+self.addEventListener('install', e=>{
+  e.waitUntil(
+    caches.open(CACHE_SHELL)
+      .then(c=>c.addAll(SHELL_ASSETS).catch(()=>{}))
+      .then(()=>self.skipWaiting())
+  );
 });
-self.addEventListener('activate',e=>{
-  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-  self.clients.claim();
+
+// ── Activate : nettoyage des anciens caches ──
+self.addEventListener('activate', e=>{
+  const keep=[CACHE_SHELL,CACHE_IMG,CACHE_FONT];
+  e.waitUntil(
+    caches.keys()
+      .then(keys=>Promise.all(keys.filter(k=>!keep.includes(k)).map(k=>caches.delete(k))))
+      .then(()=>self.clients.claim())
+  );
 });
-self.addEventListener('fetch',e=>{
-  const url=e.request.url;
-  // Ne pas cacher Firebase, Cloudinary, ImageKit
-  if(url.includes('firebase')||url.includes('cloudinary')||url.includes('imagekit')||url.includes('agora')){
+
+// ── Helpers ──
+function isFirebase(url){ return url.includes('firebaseio.com')||url.includes('firebase')||url.includes('googleapis.com/identitytoolkit'); }
+function isMedia(url){ return url.includes('cloudinary')||url.includes('imagekit')||url.includes('ik.imagekit'); }
+function isFont(url){ return url.includes('fonts.googleapis')||url.includes('fonts.gstatic'); }
+function isImage(dest){ return dest==='image'; }
+
+// ── Eviction FIFO pour le cache images ──
+async function cacheImageFIFO(cache, request, response){
+  const keys = await cache.keys();
+  if(keys.length >= IMG_LIMIT){
+    // Supprime les 10 plus anciens
+    const toDelete = keys.slice(0, 10);
+    await Promise.all(toDelete.map(k=>cache.delete(k)));
+  }
+  await cache.put(request, response);
+}
+
+// ── Fetch : stratégie par type de ressource ──
+self.addEventListener('fetch', e=>{
+  const { request } = e;
+  const url = request.url;
+
+  // 1. Firebase / APIs dynamiques → toujours réseau, jamais de cache
+  if(isFirebase(url)||isMedia(url)) return;
+
+  // 2. Fonts → cache-first (immutable)
+  if(isFont(url)){
+    e.respondWith(
+      caches.open(CACHE_FONT).then(async c=>{
+        const cached = await c.match(request);
+        if(cached) return cached;
+        const res = await fetch(request).catch(()=>null);
+        if(res && res.ok) c.put(request, res.clone());
+        return res || new Response('', {status:503});
+      })
+    );
     return;
   }
-  // Images → cache-first
-  if(e.request.destination==='image'){
-    e.respondWith(caches.open(CACHE).then(c=>c.match(e.request).then(cached=>{
-      if(cached)return cached;
-      return fetch(e.request).then(res=>{
-        if(res&&res.status===200)c.put(e.request,res.clone());
+
+  // 3. Images (thumbnails, avatars, photos du feed) → cache-first + FIFO
+  if(isImage(request.destination)){
+    e.respondWith(
+      caches.open(CACHE_IMG).then(async c=>{
+        const cached = await c.match(request);
+        if(cached) return cached;
+        try{
+          const res = await fetch(request);
+          if(res && res.ok) await cacheImageFIFO(c, request, res.clone());
+          return res;
+        }catch{
+          // Hors-ligne : retourne un placeholder SVG transparent
+          return new Response(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
+            {headers:{'Content-Type':'image/svg+xml'}}
+          );
+        }
+      })
+    );
+    return;
+  }
+
+  // 4. Navigation (app shell) → network-first, fallback cache
+  if(request.mode==='navigate'){
+    e.respondWith(
+      fetch(request)
+        .then(res=>{
+          // Met à jour le cache shell en arrière-plan
+          caches.open(CACHE_SHELL).then(c=>c.put(request, res.clone())).catch(()=>{});
+          return res;
+        })
+        .catch(async ()=>{
+          const cached = await caches.match(request) || await caches.match(OFFLINE_URL);
+          return cached || new Response('<h1>Hors-ligne</h1><p>Reconnecte-toi pour accéder à KIKO.</p>',{headers:{'Content-Type':'text/html'}});
+        })
+    );
+    return;
+  }
+
+  // 5. Reste (scripts, CSS inline, etc.) → stale-while-revalidate
+  e.respondWith(
+    caches.open(CACHE_SHELL).then(async c=>{
+      const cached = await c.match(request);
+      const fetchProm = fetch(request).then(res=>{
+        if(res && res.ok) c.put(request, res.clone()).catch(()=>{});
         return res;
-      }).catch(()=>cached);
-    })));
-    return;
-  }
-  // Fonts & static → stale-while-revalidate
-  if(url.includes('fonts.googleapis')||url.includes('fonts.gstatic')){
-    e.respondWith(caches.open(CACHE).then(c=>c.match(e.request).then(cached=>{
-      const fetchProm=fetch(e.request).then(res=>{if(res&&res.status===200)c.put(e.request,res.clone());return res;});
-      return cached||fetchProm;
-    })));
-    return;
-  }
-  // App shell → network-first, fallback cache
-  if(e.request.mode==='navigate'){
-    e.respondWith(fetch(e.request).catch(()=>caches.match('./')));
-    return;
-  }
+      }).catch(()=>null);
+      return cached || fetchProm || new Response('',{status:503});
+    })
+  );
+});
+
+// ── Message : forcer le rechargement depuis l'app ──
+self.addEventListener('message', e=>{
+  if(e.data==='SKIP_WAITING') self.skipWaiting();
 });
 `;
+
   const blob=new Blob([swCode],{type:'application/javascript'});
   const swUrl=URL.createObjectURL(blob);
   navigator.serviceWorker.register(swUrl,{scope:'./'})
@@ -9248,12 +9996,40 @@ self.addEventListener('fetch',e=>{
         const nw=reg.installing;
         nw.addEventListener('statechange',()=>{
           if(nw.state==='installed'&&navigator.serviceWorker.controller){
-            showToast('🔄 Mise à jour disponible — Recharge l\'app');
+            showToast('🔄 Mise à jour dispo — actualise l\'app');
           }
         });
       });
     })
     .catch(()=>{});
+
+  // ── Détection connexion réseau → bannière offline/online ──
+  function updateOnlineBanner(){
+    const isOnline=navigator.onLine;
+    let banner=document.getElementById('kikoOfflineBanner');
+    if(!banner){
+      banner=document.createElement('div');
+      banner.id='kikoOfflineBanner';
+      banner.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99998;padding:9px 16px;font-family:Syne,sans-serif;font-weight:700;font-size:13px;text-align:center;transition:transform .3s,opacity .3s;transform:translateY(-100%);';
+      document.body.appendChild(banner);
+    }
+    if(!isOnline){
+      banner.style.background='#FF5C72';
+      banner.style.color='#fff';
+      banner.innerHTML='📡 Hors-ligne — Certains contenus peuvent être indisponibles';
+      banner.style.transform='translateY(0)';
+      banner.style.opacity='1';
+    } else {
+      banner.style.background='#34D399';
+      banner.style.color='#0a2e1f';
+      banner.innerHTML='✅ Connexion rétablie';
+      banner.style.transform='translateY(0)';
+      banner.style.opacity='1';
+      setTimeout(()=>{ banner.style.transform='translateY(-100%)'; banner.style.opacity='0'; }, 2800);
+    }
+  }
+  window.addEventListener('online', updateOnlineBanner);
+  window.addEventListener('offline', updateOnlineBanner);
 }
 </script>
 
