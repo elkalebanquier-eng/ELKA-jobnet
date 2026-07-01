@@ -650,7 +650,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .vadv-panel.show { opacity: 1; pointer-events: auto; }
 .vmute-btn {
-  position: absolute; top: 72px; right: 14px; z-index: 20;
+  position: absolute; top: 58px; right: 14px; z-index: 20;
   width: 36px; height: 36px; border-radius: 50%;
   background: rgba(7,26,61,0.55);
   border: 1.5px solid rgba(255,255,255,0.18);
@@ -659,12 +659,13 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .vmute-btn:active { transform: scale(0.85); }
 .vdownload-btn {
-  position: absolute; top: 116px; right: 14px; z-index: 20;
-  width: 36px; height: 36px; border-radius: 50%;
-  background: rgba(7,26,61,0.55);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  position: absolute; right: 14px; bottom: 106px; z-index: 8;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(20,21,26,0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.14);
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; cursor: pointer; transition: all 0.2s;
+  font-size: 17px; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
 }
 .vdownload-btn:active { transform: scale(0.85); }
 .vdownload-btn.loading { pointer-events: none; opacity: 0.6; }
@@ -2073,7 +2074,7 @@ textarea.inp { resize: none; }
   padding: 7px 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
   cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow-gold);
 }
-.share-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 14px 18px 20px; }
+.share-btns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 14px 12px 20px; }
 .share-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
 .share-btn-icon {
   width: 54px; height: 54px; border-radius: 18px;
@@ -2273,6 +2274,48 @@ textarea.inp { resize: none; }
   transition: opacity .35s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
 }
 .kiko-recon-toast.show { opacity: 1; transform: translateY(0) scale(1); }
+
+/* ─── Barre d'actions horizontale — Partager · Favori · Signaler ─── */
+.kiko-quickbar {
+  position: absolute; left: 14px; right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 15;
+  display: flex; align-items: center; gap: 2px;
+  background: rgba(20,21,26,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.14); border-radius: 20px; padding: 8px 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.kiko-qb-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px; background: none; border: none; color: #fff;
+  padding: 9px 6px; border-radius: 14px; cursor: pointer; font-family: inherit;
+  font-size: 13.5px; font-weight: 800; flex: 1; -webkit-tap-highlight-color: transparent;
+  transition: background .2s ease, transform .15s ease, color .25s ease;
+}
+.kiko-qb-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.12); }
+.kiko-qb-icon { width: 21px; height: 21px; flex-shrink: 0; }
+.kiko-qb-btn span { opacity: .95; }
+.kiko-qb-btn.active { color: var(--gold2); }
+.kiko-qb-btn.active .kiko-qb-icon { animation: kikoStarPop .45s cubic-bezier(.34,1.56,.64,1); filter: drop-shadow(0 0 6px rgba(255,157,92,0.7)); }
+@keyframes kikoStarPop { 0%{transform:scale(1);} 45%{transform:scale(1.4) rotate(-10deg);} 100%{transform:scale(1) rotate(0deg);} }
+
+/* ─── Popup de signalement — 4 choix clairs, design sérieux ─── */
+.kiko-report-title { font-family:'Syne',sans-serif; font-weight:800; font-size:17px; color:var(--text); margin-bottom:4px; }
+.kiko-report-sub { font-size:12.5px; color:var(--muted); margin-bottom:16px; }
+.kiko-report-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.kiko-report-opt {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  padding: 13px 14px; border-radius: 14px; font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background .15s ease, transform .1s ease, border-color .2s ease;
+}
+.kiko-report-opt:active { transform: scale(0.98); background: var(--surface3); }
+.kiko-report-opt .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.kiko-report-opt.rep-spam .dot { background: #FFC94D; }
+.kiko-report-opt.rep-inappropriate .dot { background: #FF9D5C; }
+.kiko-report-opt.rep-violence .dot { background: var(--red); }
+.kiko-report-opt.rep-other .dot { background: var(--muted); }
+.kiko-report-opt.rep-violence { border-color: rgba(255,92,114,0.35); }
+
 
 
 .infos-sticky { position: sticky; top: 0; z-index: 10; background: var(--bg2); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-xs); }
@@ -4489,6 +4532,10 @@ body:not(.screen-home) #topnav{
         <div class="share-btn-icon" style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.25);">📱</div>
         <span class="share-btn-label">WhatsApp</span>
       </div>
+      <div class="share-btn" onclick="shareToFacebook()">
+        <div class="share-btn-icon" style="background:rgba(24,119,242,0.15);border:1px solid rgba(24,119,242,0.25);">📘</div>
+        <span class="share-btn-label">Facebook</span>
+      </div>
       <div class="share-btn" onclick="shareToTelegram()">
         <div class="share-btn-icon" style="background:rgba(38,132,240,0.15);border:1px solid rgba(38,132,240,0.25);">✈️</div>
         <span class="share-btn-label">Telegram</span>
@@ -4516,6 +4563,22 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 <div class="kiko-recon-toast" id="kikoReconToast">😎 <span>Reconnaissent</span></div>
+
+<!-- ═══ POPUP SIGNALEMENT VIDÉO — 4 raisons + envoi API ═══ -->
+<div id="kikoReportModal" class="modal-overlay">
+  <div class="modal-sheet" style="max-width:480px;margin:0 auto;">
+    <div class="modal-handle"></div>
+    <div class="kiko-report-title">🚨 Signaler cette vidéo</div>
+    <div class="kiko-report-sub">Dis-nous pourquoi ce contenu pose problème — c'est anonyme pour l'auteur.</div>
+    <div class="kiko-report-opts">
+      <button class="kiko-report-opt rep-spam" onclick="submitVideoReport('Spam')"><span class="dot"></span> Spam</button>
+      <button class="kiko-report-opt rep-inappropriate" onclick="submitVideoReport('Contenu inapproprié')"><span class="dot"></span> Contenu inapproprié</button>
+      <button class="kiko-report-opt rep-violence" onclick="submitVideoReport('Violence')"><span class="dot"></span> Violence</button>
+      <button class="kiko-report-opt rep-other" onclick="submitVideoReport('Autre')"><span class="dot"></span> Autre</button>
+    </div>
+    <button class="btn-ghost" onclick="closeVideoReportPopup()">Annuler</button>
+  </div>
+</div>
 
 <!-- ═══ MODALE EXPLICATIVE AVANT DEMANDE DE PERMISSION ═══ -->
 <div id="permModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:24px;">
@@ -4856,6 +4919,8 @@ let currentUser=JSON.parse(localStorage.getItem('aes_user')||'null');
 let liked=JSON.parse(localStorage.getItem('aes_liked')||'[]');
 // Réactions KIKO — système unique à 2 états : {videoId: 'like'|'recognize'}
 let kikoReactions=JSON.parse(localStorage.getItem('kiko_reactions')||'{}');
+// Favoris vidéo (bouton ⭐ dédié, distinct des favoris marketplace)
+let videoFavorites=JSON.parse(localStorage.getItem('kiko_fav_videos')||'[]');
 let favorites=JSON.parse(localStorage.getItem('aes_favs')||'[]');
 let following=JSON.parse(localStorage.getItem('aes_following')||'{}');
 let allVids=[],allProds=[];
@@ -4956,6 +5021,7 @@ function _getModalChecks(){
     { id:'kikoRadialOverlay',  fn:()=>{ if(typeof kikoCloseRadial==='function') kikoCloseRadial(); else _close('kikoRadialOverlay'); } },
     // modals classiques
     { id:'uploadModal',        fn:()=>{ if(typeof closeModal==='function') closeModal(); else _close('uploadModal'); } },
+    { id:'kikoReportModal',    fn:()=>{ if(typeof closeVideoReportPopup==='function') closeVideoReportPopup(); else _close('kikoReportModal'); } },
     { id:'authModal',          fn:()=>{ if(typeof closeAuth==='function') closeAuth(); else _close('authModal'); } },
     { id:'productModal',       fn:()=>{ if(typeof closeProductModal==='function') closeProductModal(); else _close('productModal'); } },
     { id:'editProfileModal',   fn:()=>_close('editProfileModal') },
@@ -5569,7 +5635,7 @@ async function loadFeedMixed(){
     }
     setTimeout(()=>{
       loadCommentCounts(vids.slice(0,10));
-      if(currentUser) syncLikedFromFirebase(vids);
+      if(currentUser){ syncLikedFromFirebase(vids); syncVideoFavoritesFromFirebase(vids); }
       loadRealtimeStats(vids.slice(0,8));
     }, 600);
   }catch(e){
@@ -6241,6 +6307,23 @@ async function saveProfile(){
 
 // Affichage pur — ne modifie pas le NAV stack (utilisé par handleAndroidBack)
 function _doShowScreen(n){
+  // ─── Mode Buzz immersif : détecté ici pour marcher aussi bien via showScreen()
+  //     (navigation normale) que via handleAndroidBack() (bouton retour physique) ───
+  const _wasInBuzz = document.body.classList.contains('kiko-buzz-mode');
+  const _enteringBuzz = (n === 'buzz');
+  if(_enteringBuzz){
+    document.body.classList.add('kiko-buzz-mode');
+    document.body.classList.remove('kiko-buzz-exit');
+    document.body.classList.remove('kiko-controls-idle');
+    if(typeof _kikoResetControlsIdle==='function') _kikoResetControlsIdle();
+  } else if(_wasInBuzz){
+    document.body.classList.remove('kiko-buzz-mode');
+    document.body.classList.remove('kiko-controls-idle');
+    document.body.classList.add('kiko-buzz-exit');
+    clearTimeout(window._buzzExitT);
+    window._buzzExitT = setTimeout(()=>document.body.classList.remove('kiko-buzz-exit'), 650);
+  }
+
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   const screenMap = {
@@ -6464,7 +6547,7 @@ async function refreshFeedSilent(){
     initObserver();initProgress();
     setTimeout(()=>{
       loadCommentCounts(vids.slice(0,10));
-      if(currentUser)syncLikedFromFirebase(vids);
+      if(currentUser){syncLikedFromFirebase(vids);syncVideoFavoritesFromFirebase(vids);}
       loadRealtimeStats(vids.slice(0,8));
     },300);
   }catch(e){console.warn('refreshFeedSilent',e);}
@@ -6569,7 +6652,7 @@ function renderFeed(vids){
   // Tag data-* sur les vcards après rendu
   setTimeout(()=>vids.forEach(v=>_tagVCard(v.id,v)),100);
   if(vids[0])loadOneCommentCount(vids[0].id);
-  setTimeout(()=>{loadCommentCounts(vids.slice(1));if(currentUser)syncLikedFromFirebase(vids);loadRealtimeStats(vids.slice(0,10));},600);
+  setTimeout(()=>{loadCommentCounts(vids.slice(1));if(currentUser){syncLikedFromFirebase(vids);syncVideoFavoritesFromFirebase(vids);}loadRealtimeStats(vids.slice(0,10));},600);
 }
 
 function viralScore(v){
@@ -6654,6 +6737,7 @@ function diversifyFeed(sortedItems){
 function buildVCard(v,i){
   const isLiked=liked.includes(v.id);
   const reactType=kikoReactions[v.id]||null;
+  const isFav=videoFavorites.includes(v.id);
   const init=(v.auteur||'A')[0].toUpperCase();
   const tags=(v.desc||'').match(/#\w+/g)||[];
   const desc=(v.desc||'').replace(/#\w+/g,'').trim();
@@ -6713,19 +6797,29 @@ function buildVCard(v,i){
           ?`<div class="vmusic" style="cursor:pointer;" onclick="event.stopPropagation();useThisSound('${jsStr(v.musicName)}','${jsStr(v.musicArtist)}','${jsStr(v.musicEmoji||'🎵')}','${jsStr(v.musicUrl)}','${jsStr(v.musicCover||'')}','video')"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`
           :`<div class="vmusic"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`;
       })()}
-      <div style="display:flex;gap:10px;margin-top:5px;">
+      <div class="vstats-row" style="display:flex;gap:14px;margin-top:5px;">
         <span class="vviews-badge" id="vv-${v.id}">👁 ${fmt(v.views||0)}</span>
+        <span class="vviews-badge" id="fc-${v.id}">⭐ ${fmt(Object.keys(v.favoritedBy||{}).length)}</span>
       </div>
     </div>
 
     <!-- Bouton ⋮ Plus -->
     <div class="vmore-btn" onclick="event.stopPropagation();kikoOpenMoreSheet('${v.id}','${esc(v.auteur||'')}','${v.authorUid||''}',${isOwn})">⋮</div>
 
-    <!-- Compteurs discrets -->
-    <div class="vkiko-stats">
-      <div class="vkiko-stat">😍 <span id="lc-${v.id}">${fmt(v.likes||0)}</span></div>
-      <div class="vkiko-stat">🍎 <span id="cc-${v.id}">0</span></div>
-      <div class="vkiko-stat">👁 <span id="vv2-${v.id}">${fmt(v.views||0)}</span></div>
+    <!-- Barre d'actions horizontale — Partager · Favori · Signaler (icônes ligne, pas emoji) -->
+    <div class="kiko-quickbar" onclick="event.stopPropagation();">
+      <button class="kiko-qb-btn" onclick="openShareSheet('${v.id}')" aria-label="Partager">
+        <svg class="kiko-qb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Partager</span>
+      </button>
+      <button class="kiko-qb-btn ${isFav?'active':''}" id="fvb-${v.id}" onclick="needAuth(()=>toggleVideoFavorite('${v.id}', this))" aria-label="Favori">
+        <svg class="kiko-qb-icon" viewBox="0 0 24 24" fill="${isFav?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>Favori</span>
+      </button>
+      <button class="kiko-qb-btn" onclick="needAuth(()=>openVideoReportPopup('${v.id}'))" aria-label="Signaler">
+        <svg class="kiko-qb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="22" x2="4" y2="15"/><path d="M4 15V3a1 1 0 0 1 1-1h14l-3 6 3 6H5"/></svg>
+        <span>Signaler</span>
+      </button>
     </div>
 
     <!-- Boutons .vactions conservés (cachés) pour compatibilité des fonctions existantes -->
@@ -6752,9 +6846,11 @@ function loadRealtimeStats(vids){
       const lc=document.getElementById('lc-'+v.id);
       const vv=document.getElementById('vv-'+v.id);
       const vv2=document.getElementById('vv2-'+v.id);
+      const fc=document.getElementById('fc-'+v.id);
       if(lc)lc.innerText=fmt(d.likes||0);
       if(vv)vv.innerText='👁 '+fmt(d.views||0);
       if(vv2)vv2.innerText=fmt(d.views||0);
+      if(fc)fc.innerText='⭐ '+fmt(Object.keys(d.favoritedBy||{}).length);
     });
   });
 }
@@ -6780,6 +6876,30 @@ function initInfiniteScroll(){
       loadMoreVideos();
     }
   },{passive:true});
+  // ─── Mode Buzz : fondu doux des boutons d'action pendant le swipe/scroll ───
+  feed.addEventListener('scroll', _buzzHandleFeedScroll, {passive:true});
+}
+
+let _buzzScrollFadeT=null;
+function _buzzHandleFeedScroll(){
+  if(!document.body.classList.contains('kiko-buzz-mode')) return;
+  document.querySelectorAll('#buzzScreen .kiko-quickbar, #buzzScreen .kiko-react-btn, #buzzScreen .vmore-btn, #buzzScreen .vdownload-btn, #buzzScreen .vmute-btn, #buzzScreen .vstats-row')
+    .forEach(el=>el.classList.add('kiko-fade-scroll'));
+  clearTimeout(_buzzScrollFadeT);
+  _buzzScrollFadeT=setTimeout(()=>{
+    document.querySelectorAll('#buzzScreen .kiko-fade-scroll')
+      .forEach(el=>el.classList.remove('kiko-fade-scroll'));
+  },220);
+  _kikoResetControlsIdle();
+}
+
+// ─── Disparition auto des boutons si inactif, réapparition douce au toucher ───
+let _kikoIdleT=null;
+function _kikoResetControlsIdle(){
+  if(!document.body.classList.contains('kiko-buzz-mode')) return;
+  document.body.classList.remove('kiko-controls-idle');
+  clearTimeout(_kikoIdleT);
+  _kikoIdleT=setTimeout(()=>{ document.body.classList.add('kiko-controls-idle'); }, 3200);
 }
 
 function loadMoreVideos(){
@@ -7085,7 +7205,118 @@ async function kikoSubmitReport(vidId, reason){
   }catch{ showToast('Erreur lors du signalement'); }
 }
 
+// ═══════════════════════════════════════════════════════════
+//  ⭐ FAVORI VIDÉO — état actif/inactif, stockage local + serveur
+// ═══════════════════════════════════════════════════════════
+function toggleVideoFavorite(id, btnEl){
+  if(!currentUser)return;
+  const isFav = videoFavorites.includes(id);
+  const btn = (btnEl && btnEl.classList) ? btnEl : document.getElementById('fvb-'+id);
+  const fc = document.getElementById('fc-'+id);
+  const fcNow = fc ? parseInt((fc.innerText.match(/\d+/)||['0'])[0],10)||0 : 0;
+
+  if(isFav){
+    videoFavorites = videoFavorites.filter(x=>x!==id);
+    db.ref('videos/'+id+'/favoritedBy/'+currentUser.uid).remove();
+    if(btn){
+      btn.classList.remove('active');
+      const svg = btn.querySelector('.kiko-qb-icon'); if(svg) svg.setAttribute('fill','none');
+    }
+    if(fc) fc.innerText='⭐ '+fmt(Math.max(0,fcNow-1));
+    showToast('☆ Retiré des favoris');
+  } else {
+    videoFavorites.push(id);
+    db.ref('videos/'+id+'/favoritedBy/'+currentUser.uid).set(true);
+    if(btn){
+      btn.classList.remove('active'); void btn.offsetWidth; btn.classList.add('active'); // rejoue l'animation
+      const svg = btn.querySelector('.kiko-qb-icon'); if(svg) svg.setAttribute('fill','currentColor');
+    }
+    if(fc) fc.innerText='⭐ '+fmt(fcNow+1);
+    if(navigator.vibrate) navigator.vibrate(14);
+    showToast('⭐ Ajouté aux favoris');
+  }
+  localStorage.setItem('kiko_fav_videos', JSON.stringify(videoFavorites));
+}
+
+async function syncVideoFavoritesFromFirebase(vids){
+  if(!currentUser)return;
+  await Promise.all(vids.slice(0,20).map(async v=>{
+    const snap = await db.ref('videos/'+v.id+'/favoritedBy/'+currentUser.uid).once('value');
+    if(snap.val() && !videoFavorites.includes(v.id)){
+      videoFavorites.push(v.id);
+      const btn = document.getElementById('fvb-'+v.id);
+      if(btn){ btn.classList.add('active'); const svg=btn.querySelector('.kiko-qb-icon'); if(svg) svg.setAttribute('fill','currentColor'); }
+    }
+  }));
+  localStorage.setItem('kiko_fav_videos', JSON.stringify(videoFavorites));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  🚨 SIGNALEMENT VIDÉO — popup 4 choix + requête API + fallback Firebase
+// ═══════════════════════════════════════════════════════════
+// Renseigner l'URL de ton backend ici une fois déployé (voir exemple Node fourni séparément)
+const REPORT_API_URL = null; // ex: 'https://api.kiko-app.com/report'
+
+let _reportTargetVidId = null;
+
+function openVideoReportPopup(vidId){
+  if(!currentUser)return;
+  _reportTargetVidId = vidId;
+  document.getElementById('kikoReportModal').classList.add('active');
+}
+function closeVideoReportPopup(){
+  document.getElementById('kikoReportModal').classList.remove('active');
+  _reportTargetVidId = null;
+}
+
+async function submitVideoReport(reason){
+  const vidId = _reportTargetVidId;
+  if(!vidId || !currentUser){ closeVideoReportPopup(); return; }
+  closeVideoReportPopup();
+
+  const payload = {
+    video_id: vidId,
+    user_id: currentUser.uid,
+    reason,
+    timestamp: Date.now()
+  };
+
+  // 1. Stockage fiable côté Firebase (toujours exécuté — ne dépend d'aucun serveur externe)
+  try{
+    await db.ref('reports/'+vidId+'/'+currentUser.uid).set({ reason, at: payload.timestamp });
+    await db.ref('videos/'+vidId+'/reportsCount').transaction(n=>(n||0)+1);
+  }catch(e){ /* non bloquant */ }
+
+  // 2. Requête vers le backend de modération (POST /report) — voir exemple Node/Express fourni
+  if(REPORT_API_URL){
+    try{
+      await fetch(REPORT_API_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+    }catch(e){ /* échec réseau silencieux — le signalement est déjà en base via Firebase */ }
+  }
+
+  showToast('✅ Signalement envoyé — merci de nous aider à garder KIKO sain');
+}
+document.getElementById('kikoReportModal')?.addEventListener('click', e=>{
+  if(e.target.id==='kikoReportModal') closeVideoReportPopup();
+});
+
+// ═══════════════════════════════════════════════════════════
+//  📤 PARTAGE — Facebook (WhatsApp/Telegram/natif déjà couverts par openShareSheet)
+// ═══════════════════════════════════════════════════════════
+function shareToFacebook(){
+  if(!curShareVid)return;
+  const url=encodeURIComponent(getShareLink(curShareVid.id));
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`,'_blank');
+  incrementShares(curShareVid.id);
+  closeShareSheet();
+}
+
 function tapVid(video, i){
+  _kikoResetControlsIdle();
   const ctrl = document.getElementById('vc-ctrl-'+i);
   const icon = document.getElementById('vplay-'+i);
   if(video.paused){
@@ -10592,6 +10823,90 @@ function initSFPullToRefresh(){
 #buzzScreen .vcard .vtrend-badge{ top:calc(14px + env(safe-area-inset-top)); left:14px; }
 /* Les cartes photo/texte mixées dans Buzz restent en format carte normale (pas plein écran) */
 #buzzScreen .pcard{ margin:14px; }
+
+/* ═══════════════════════════════════════════════════════
+   MODE BUZZ IMMERSIF — nav cachée, transitions, quickbar
+   ═══════════════════════════════════════════════════════ */
+
+/* Nav flottante — toujours transitionnable en douceur */
+#bottomnav{ transition: transform .38s cubic-bezier(.22,1,.36,1), opacity .3s ease; }
+
+/* En mode Buzz : la nav du bas disparaît complètement (glisse + fade) */
+body.kiko-buzz-mode #bottomnav{
+  transform: translateY(140%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Le header "← 🔥 Buzz" s'efface aussi : immersion totale, seul le retour
+   physique Android (déjà géré par handleAndroidBack) permet de sortir */
+#buzzScreen .buzz-screen-head{ transition: opacity .3s ease, transform .3s ease; }
+body.kiko-buzz-mode #buzzScreen .buzz-screen-head{
+  opacity: 0;
+  transform: translateY(-14px);
+  pointer-events: none;
+}
+
+/* Entrée en Buzz : léger zoom vidéo */
+@keyframes kikoBuzzZoomIn{
+  from{ transform:scale(1.07); opacity:.4; }
+  to{ transform:scale(1); opacity:1; }
+}
+body.kiko-buzz-mode #buzzScreen.active{
+  animation: kikoBuzzZoomIn .42s cubic-bezier(.22,1,.36,1);
+}
+
+/* Sortie de Buzz : l'écran qui réapparaît (accueil, etc.) fait un fade + slide doux */
+@keyframes kikoBuzzExitIn{
+  from{ opacity:0; transform:translateY(14px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+body.kiko-buzz-exit .screen.active:not(#buzzScreen){
+  animation: kikoBuzzExitIn .4s ease;
+}
+
+/* Nav légèrement "assagie" juste après la sortie de Buzz : icônes plus petites,
+   couleurs moins flashy — puis retour en douceur au style normal (KIKO Sahel Futur) */
+#bottomnav .nbtn .ni,
+#bottomnav .nbtn span{ transition: transform .5s cubic-bezier(.22,1,.36,1), filter .5s ease, opacity .5s ease; }
+body.kiko-buzz-exit #bottomnav .nbtn .ni{
+  transform: scale(0.86);
+  filter: saturate(.55) brightness(.92);
+}
+body.kiko-buzz-exit #bottomnav .nbtn span{ opacity: .7; }
+
+/* Boutons d'action (Partager/Favori/Signaler, réaction, ⋮, téléchargement, stats) —
+   apparition/disparition douce pendant le scroll/swipe entre vidéos. Le style visuel ne change pas. */
+#buzzScreen .kiko-quickbar,
+#buzzScreen .kiko-react-btn,
+#buzzScreen .vmore-btn,
+#buzzScreen .vdownload-btn,
+#buzzScreen .vmute-btn,
+#buzzScreen .vstats-row{ transition: opacity .28s ease, transform .28s ease; }
+#buzzScreen .kiko-quickbar.kiko-fade-scroll{ opacity:.12; transform: translateY(8px) scale(.97); }
+#buzzScreen .kiko-react-btn.kiko-fade-scroll{ opacity:.12; transform: scale(.88); }
+#buzzScreen .vmore-btn.kiko-fade-scroll,
+#buzzScreen .vdownload-btn.kiko-fade-scroll,
+#buzzScreen .vmute-btn.kiko-fade-scroll{ opacity:.12; }
+#buzzScreen .vstats-row.kiko-fade-scroll{ opacity:.12; }
+
+/* Disparition auto après quelques secondes d'inactivité (aucun tap/scroll) —
+   réapparition immédiate au moindre toucher. Le player vidéo reste le seul focus. */
+body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .kiko-quickbar,
+body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .kiko-react-btn,
+body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vmore-btn,
+body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vdownload-btn,
+body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vmute-btn,
+body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vstats-row{
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+
+@media (prefers-reduced-motion: reduce){
+  body.kiko-buzz-mode #buzzScreen.active,
+  body.kiko-buzz-exit .screen.active:not(#buzzScreen){ animation:none !important; }
+}
 </style>
 
 <script>
