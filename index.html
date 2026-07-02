@@ -16,6 +16,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    AES👑 — DESIGN SYSTEM PREMIUM "SAHEL PRESTIGE"
@@ -4348,8 +4349,14 @@ firebase.initializeApp({
 });
 const db=firebase.database();
 const auth=firebase.auth();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 googleProvider.setCustomParameters({prompt:'select_account'});
+
+// ⚠️ Remplace par ta clé VAPID : Firebase Console → ⚙️ Paramètres du projet →
+// Cloud Messaging → onglet "Web configuration" → "Générer une paire de clés"
+const KIKO_VAPID_KEY = "REMPLACE_PAR_TA_CLE_VAPID";
+const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
 
 // ═══════════════════════════════════════
 //  CLOUDINARY (sans watermark — fix lecteur)
@@ -5920,10 +5927,23 @@ function openAuth(reason){
   document.getElementById('authModal').classList.add('active');
 }
 function closeAuth(){document.getElementById('authModal').classList.remove('active');}
+// Vérifie que le stockage nécessaire à l'auth Google est utilisable (souvent bloqué dans les WebViews intégrées)
+function kikoAuthStorageOk(){
+  try{
+    sessionStorage.setItem('__kiko_test','1');
+    sessionStorage.removeItem('__kiko_test');
+    return true;
+  }catch(e){ return false; }
+}
+
 async function doAuthGoogle(){
   const errEl=document.getElementById('authErr');
   const btn=document.getElementById('authBtn');
   errEl.innerText='';
+  if(!kikoAuthStorageOk()){
+    errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
+    return;
+  }
   btn.disabled=true;btn.style.opacity='.6';
   try{
     let result;
@@ -5931,7 +5951,7 @@ async function doAuthGoogle(){
       result=await auth.signInWithPopup(googleProvider);
     }catch(popupErr){
       // Fallback redirection si le popup est bloqué (fréquent sur mobile/PWA)
-      if(popupErr.code==='auth/popup-blocked'||popupErr.code==='auth/cancelled-popup-request'||popupErr.code==='auth/operation-not-supported-in-this-environment'){
+      if(popupErr.code==='auth/popup-blocked'||popupErr.code==='auth/cancelled-popup-request'){
         await auth.signInWithRedirect(googleProvider);
         return; // la suite est gérée par handleGoogleRedirectResult() au rechargement
       }
@@ -5939,7 +5959,11 @@ async function doAuthGoogle(){
     }
     await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
   }catch(e){
-    if(e.code!=='auth/popup-closed-by-user'){
+    if(e.code==='auth/popup-closed-by-user'){
+      // rien à afficher, l'utilisateur a juste annulé
+    } else if(e.code==='auth/operation-not-supported-in-this-environment' || (e.message||'').includes('missing initial state')){
+      errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
+    } else {
       errEl.innerText='Erreur: '+e.message;
     }
     btn.disabled=false;btn.style.opacity='1';
@@ -6033,6 +6057,7 @@ async function finalizeGoogleUser(fbUser, isNewUser){
   closeAuth();applyUserUI();
   showToast('👋 Bienvenue '+currentUser.name+' !');
   startNotifListener();loadNotifs();loadDMs();
+  initPushNotifications();
   if(pendingAction){pendingAction();pendingAction=null;}
   if(wasNew) setTimeout(()=>kikoShowOnboarding(), 600);
 
@@ -6302,6 +6327,11 @@ function highlightLangBtn2(lang){
 function togglePushNotif(on){
   localStorage.setItem('aes_notif_off',on?'0':'1');
   showToast(on?'🔔 Notifications activées':'🔕 Notifications désactivées');
+  if(on){
+    initPushNotifications();
+  } else if(currentUser){
+    db.ref('users/'+currentUser.uid+'/fcmToken').remove();
+  }
 }
 function toggleMsgSound(on){
   localStorage.setItem('aes_sound_off',on?'0':'1');
@@ -7448,6 +7478,34 @@ async function sendComment(){
   await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',text:txt,at:Date.now()});
   const vid=allVids.find(v=>v.id===curVidId);
   if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'comment',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,vidId:curVidId,at:Date.now(),read:false});
+}
+
+// ═══════════════════════════════════════
+//  NOTIFICATIONS PUSH — Firebase Cloud Messaging (arrive même app fermée)
+// ═══════════════════════════════════════
+async function initPushNotifications(){
+  if(!messaging || !currentUser) return;
+  if(localStorage.getItem('aes_notif_off')==='1') return; // désactivé par l'utilisateur
+  try{
+    const perm = await Notification.requestPermission();
+    if(perm!=='granted'){ return; }
+    const reg = await navigator.serviceWorker.ready;
+    const token = await messaging.getToken({ vapidKey: KIKO_VAPID_KEY, serviceWorkerRegistration: reg });
+    if(token){
+      await db.ref('users/'+currentUser.uid+'/fcmToken').set(token);
+    }
+  }catch(e){ console.warn('Push notif init:', e.message); }
+}
+
+// Notification reçue pendant que l'app est ouverte au premier plan
+if(messaging){
+  messaging.onMessage(payload=>{
+    const title = payload.notification?.title || 'KIKO';
+    const body  = payload.notification?.body  || '';
+    showToast('🔔 '+title+(body?' — '+body:''));
+    document.getElementById('newsDot').style.display='block';
+    loadNotifs();
+  });
 }
 
 // ═══════════════════════════════════════
@@ -9234,7 +9292,7 @@ setTimeout(()=>loadHomeStories(), 200);               // stories après le 1er r
 setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
 setTimeout(()=>loadHomeMarket(), 800);                // marketplace
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
-if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); }, 1000); }
+if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); initPushNotifications(); }, 1000); }
 setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
 
 // ═══════════════════════════════════════
@@ -10173,6 +10231,33 @@ self.addEventListener('fetch', e=>{
 // ── Message : forcer le rechargement depuis l'app ──
 self.addEventListener('message', e=>{
   if(e.data==='SKIP_WAITING') self.skipWaiting();
+});
+
+// ── Push : réception d'une notification FCM app fermée/en arrière-plan ──
+self.addEventListener('push', event=>{
+  let data={};
+  try{ data = event.data ? event.data.json() : {}; }catch(e){}
+  const notif = data.notification || {};
+  const title = notif.title || 'KIKO';
+  const options = {
+    body: notif.body || '',
+    icon: 'https://api.dicebear.com/7.x/shapes/svg?seed=AES',
+    badge: 'https://api.dicebear.com/7.x/shapes/svg?seed=AES',
+    data: data.data || {},
+    vibrate: [80,40,80]
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// ── Clic sur la notification : ouvre/refocus l'app ──
+self.addEventListener('notificationclick', event=>{
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({type:'window', includeUncontrolled:true}).then(list=>{
+      for(const c of list){ if('focus' in c) return c.focus(); }
+      if(clients.openWindow) return clients.openWindow('./');
+    })
+  );
 });
 `;
 
