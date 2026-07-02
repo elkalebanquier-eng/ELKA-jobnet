@@ -5936,6 +5936,19 @@ function kikoAuthStorageOk(){
   }catch(e){ return false; }
 }
 
+// Détecte une WebView intégrée (app AppMint / Facebook / Instagram / WhatsApp / Android WebView générique...)
+// Dans ces environnements, signInWithPopup laisse souvent un écran blanc car le popup OAuth
+// est bloqué ou les cookies tiers sont partitionnés. On bascule alors directement sur signInWithRedirect.
+function kikoIsEmbeddedWebView(){
+  const ua=navigator.userAgent||'';
+  if(/FBAN|FBAV|Instagram|Line\/|Twitter|MicroMessenger|WhatsApp/i.test(ua)) return true;
+  // WebView Android générique : "; wv)" dans le user-agent, ou Version/X.X Chrome/X sans le vrai Chrome complet
+  if(/\bwv\b/i.test(ua)) return true;
+  // Apps générées par AppMint/Cordova/Capacitor tournent souvent sans référent de navigateur normal
+  if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches && /Android/i.test(ua) && !/SamsungBrowser|Chrome\//i.test(ua)) return true;
+  return false;
+}
+
 async function doAuthGoogle(){
   const errEl=document.getElementById('authErr');
   const btn=document.getElementById('authBtn');
@@ -5945,6 +5958,21 @@ async function doAuthGoogle(){
     return;
   }
   btn.disabled=true;btn.style.opacity='.6';
+
+  // Dans une WebView intégrée, on part directement en redirection : le popup y reste souvent bloqué
+  // ou affiche un écran blanc sans jamais revenir.
+  if(kikoIsEmbeddedWebView()){
+    try{
+      sessionStorage.setItem('__kiko_authRedirecting','1');
+      await auth.signInWithRedirect(googleProvider);
+      return; // la page va se recharger, la suite est gérée par handleGoogleRedirectResult()
+    }catch(e){
+      errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
+      btn.disabled=false;btn.style.opacity='1';
+      return;
+    }
+  }
+
   try{
     const result=await auth.signInWithPopup(googleProvider);
     await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
@@ -5952,9 +5980,23 @@ async function doAuthGoogle(){
     if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
       // rien à afficher, l'utilisateur a juste annulé ou re-cliqué trop vite
     } else if(e.code==='auth/popup-blocked'){
-      errEl.innerText="⚠️ Chrome bloque la fenêtre popup. Va dans Réglages Chrome → Paramètres du site → Popups et redirections → Autoriser, puis réessaie.";
+      // Popup bloqué même dans un vrai navigateur → on retente automatiquement en redirection
+      try{
+        sessionStorage.setItem('__kiko_authRedirecting','1');
+        await auth.signInWithRedirect(googleProvider);
+        return;
+      }catch(e2){
+        errEl.innerText="⚠️ Chrome bloque la fenêtre popup. Va dans Réglages Chrome → Paramètres du site → Popups et redirections → Autoriser, puis réessaie.";
+      }
     } else if(e.code==='auth/operation-not-supported-in-this-environment' || (e.message||'').includes('missing initial state')){
-      errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
+      // Même remède : bascule en redirection plutôt que de simplement bloquer l'utilisateur
+      try{
+        sessionStorage.setItem('__kiko_authRedirecting','1');
+        await auth.signInWithRedirect(googleProvider);
+        return;
+      }catch(e2){
+        errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
+      }
     } else {
       errEl.innerText='Erreur: '+e.message;
     }
@@ -5962,14 +6004,24 @@ async function doAuthGoogle(){
   }
 }
 
-// Gère le retour de signInWithRedirect (fallback mobile)
+// Gère le retour de signInWithRedirect (fallback mobile / WebView intégrée)
 async function handleGoogleRedirectResult(){
+  const wasRedirecting=sessionStorage.getItem('__kiko_authRedirecting')==='1';
   try{
     const result=await auth.getRedirectResult();
     if(result && result.user){
+      sessionStorage.removeItem('__kiko_authRedirecting');
       await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
+    } else if(wasRedirecting){
+      // On revient d'une tentative de redirection mais sans utilisateur : on informe au lieu de rester silencieux
+      sessionStorage.removeItem('__kiko_authRedirecting');
+      showToast("⚠️ La connexion Google n'a pas abouti. Réessaie, idéalement depuis Chrome.");
     }
-  }catch(e){ /* silencieux : pas de redirection en cours */ }
+  }catch(e){
+    sessionStorage.removeItem('__kiko_authRedirecting');
+    if(wasRedirecting) showToast('⚠️ Connexion Google échouée : '+(e.message||'réessaie plus tard'));
+    // sinon silencieux : pas de redirection en cours
+  }
 }
 
 // Affiche un petit écran pour garder ou changer le nom Google avant de créer le compte
