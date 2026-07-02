@@ -3727,6 +3727,16 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
+<!-- Confirmation du nom après connexion Google (nouveaux comptes) -->
+<div id="nameConfirmModal" style="display:none;position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
+  <div style="background:#14141c;border-radius:18px;padding:26px 22px;width:85%;max-width:340px;text-align:center;">
+    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:19px;color:#fff;margin-bottom:6px;">Ton nom sur KIKO 👑</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:18px;line-height:1.4;">Garde ton nom Google ou choisis un pseudo différent</div>
+    <input type="text" class="inp" id="nameConfirmInput" placeholder="Ton nom" style="margin-bottom:16px;text-align:center;">
+    <button class="btn-gold" id="nameConfirmBtn" style="width:100%;">Confirmer ✓</button>
+  </div>
+</div>
+
 <!-- COMMENTS LIVE -->
 <div id="commentsPanel">
   <div class="csheet">
@@ -4339,6 +4349,7 @@ firebase.initializeApp({
 const db=firebase.database();
 const auth=firebase.auth();
 const googleProvider=new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({prompt:'select_account'});
 
 // ═══════════════════════════════════════
 //  CLOUDINARY (sans watermark — fix lecteur)
@@ -5945,6 +5956,22 @@ async function handleGoogleRedirectResult(){
   }catch(e){ /* silencieux : pas de redirection en cours */ }
 }
 
+// Affiche un petit écran pour garder ou changer le nom Google avant de créer le compte
+function showNameConfirm(defaultName){
+  return new Promise(resolve=>{
+    const modal=document.getElementById('nameConfirmModal');
+    const input=document.getElementById('nameConfirmInput');
+    const btn=document.getElementById('nameConfirmBtn');
+    input.value=defaultName||'';
+    modal.style.display='flex';
+    btn.onclick=()=>{
+      const val=input.value.trim()||defaultName||'Utilisateur KIKO';
+      modal.style.display='none';
+      resolve(val);
+    };
+  });
+}
+
 // Crée/charge le profil Firebase à partir du compte Google, et déclenche la géoloc pays.
 // Important : les comptes créés AVANT Google (uid = "u_...") sont retrouvés par email
 // et RÉUTILISÉS tels quels, pour ne pas faire perdre posts/follows/vidéos aux anciens utilisateurs.
@@ -5982,9 +6009,10 @@ async function finalizeGoogleUser(fbUser, isNewUser){
   if(!user){
     appUid=gUid;
     wasNew=true;
+    const chosenName=await showNameConfirm(fbUser.displayName||'Utilisateur KIKO');
     user={
       uid:appUid,
-      name:fbUser.displayName||'Utilisateur KIKO',
+      name:chosenName,
       email:fbUser.email||'',
       avatar:fbUser.photoURL||'',
       phone:fbUser.phoneNumber||'',
