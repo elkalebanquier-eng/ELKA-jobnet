@@ -5995,29 +5995,45 @@ async function finalizeGoogleUser(fbUser, isNewUser){
   const gUid=fbUser.uid;
   let appUid=null, user=null, wasNew=false;
 
-  // 1) Lien déjà connu (connexions suivantes) → résolution instantanée
-  const linkSnap=await db.ref('googleLinks/'+gUid).once('value');
-  if(linkSnap.exists()){
-    appUid=linkSnap.val();
-    const uSnap=await db.ref('users/'+appUid).once('value');
-    user=uSnap.val();
+  // 0) Cache locale (appareil) — si ce compte Google a déjà été résolu ici,
+  // on saute directement les lectures Firebase et on se connecte à l'instant.
+  // On revalidera en arrière-plan une fois l'UI affichée.
+  const cacheKey='aes_gcache_'+gUid;
+  let usedCache=false;
+  try{
+    const cached=JSON.parse(localStorage.getItem(cacheKey)||'null');
+    if(cached && cached.appUid && cached.user){
+      appUid=cached.appUid; user=cached.user; usedCache=true;
+    }
+  }catch(e){}
+
+  // 1) Lien déjà connu (connexions suivantes) → résolution rapide (1 lecture)
+  if(!user){
+    const linkSnap=await db.ref('googleLinks/'+gUid).once('value');
+    if(linkSnap.exists()){
+      appUid=linkSnap.val();
+      const uSnap=await db.ref('users/'+appUid).once('value');
+      user=uSnap.val();
+    }
   }
 
-  // 2) Pas de lien encore → cherche un ancien compte par email (migration)
+  // 2) Pas de lien encore → cherche un ancien compte par email (migration, une seule fois)
   if(!user && fbUser.email){
     const bySnap=await db.ref('users').orderByChild('email').equalTo(fbUser.email).once('value');
     if(bySnap.exists()){
       const entries=Object.entries(bySnap.val());
       appUid=entries[0][0];
       user=entries[0][1];
-      // Nettoyage sécurité : on n'a plus besoin du mot de passe en clair, Google gère l'auth désormais
-      if(user.pass) db.ref('users/'+appUid+'/pass').remove();
-      // Complète l'avatar/nom si l'ancien compte n'en avait pas
+      // Nettoyage sécurité + complétion avatar/nom + création du lien, en parallèle (pas besoin d'attendre l'un après l'autre)
       const patch={};
       if(!user.avatar && fbUser.photoURL) patch.avatar=fbUser.photoURL;
       if(!user.name && fbUser.displayName) patch.name=fbUser.displayName;
-      if(Object.keys(patch).length){ await db.ref('users/'+appUid).update(patch); Object.assign(user,patch); }
-      await db.ref('googleLinks/'+gUid).set(appUid);
+      Object.assign(user,patch);
+      await Promise.all([
+        user.pass?db.ref('users/'+appUid+'/pass').remove():Promise.resolve(),
+        Object.keys(patch).length?db.ref('users/'+appUid).update(patch):Promise.resolve(),
+        db.ref('googleLinks/'+gUid).set(appUid)
+      ]);
     }
   }
 
@@ -6036,16 +6052,19 @@ async function finalizeGoogleUser(fbUser, isNewUser){
       country:null,
       createdAt:Date.now()
     };
-    await db.ref('users/'+appUid).set(user);
-    await db.ref('googleLinks/'+gUid).set(appUid);
+    // Écritures indépendantes → en parallèle plutôt qu'en séquence
+    await Promise.all([
+      db.ref('users/'+appUid).set(user),
+      db.ref('googleLinks/'+gUid).set(appUid)
+    ]);
   }
 
   user.uid=appUid; // s'assure que le champ uid interne correspond bien à la clé users/
   currentUser=user;
   localStorage.setItem('aes_user',JSON.stringify(currentUser));
-  const fSnap=await db.ref('following/'+currentUser.uid).once('value');
-  following=fSnap.val()||{};
-  localStorage.setItem('aes_following',JSON.stringify(following));
+  try{ localStorage.setItem(cacheKey, JSON.stringify({appUid,user})); }catch(e){}
+
+  // Affichage immédiat : on n'attend plus le chargement des "following" pour débloquer l'UI
   closeAuth();applyUserUI();
   showToast('👋 Bienvenue '+currentUser.name+' !');
   startNotifListener();loadNotifs();loadDMs();
@@ -6053,13 +6072,39 @@ async function finalizeGoogleUser(fbUser, isNewUser){
   if(pendingAction){pendingAction();pendingAction=null;}
   if(wasNew) setTimeout(()=>kikoShowOnboarding(), 600);
 
+  // "following" chargé en arrière-plan, n'empêche plus l'écran de s'afficher
+  db.ref('following/'+currentUser.uid).once('value').then(fSnap=>{
+    following=fSnap.val()||{};
+    localStorage.setItem('aes_following',JSON.stringify(following));
+  }).catch(()=>{});
+
+  // Si on s'est connecté via le cache local, on revalide en arrière-plan (silencieux)
+  // pour rattraper d'éventuels changements de profil sans ralentir la connexion.
+  if(usedCache){
+    db.ref('googleLinks/'+gUid).once('value').then(async linkSnap=>{
+      if(!linkSnap.exists())return;
+      const freshAppUid=linkSnap.val();
+      const uSnap=await db.ref('users/'+freshAppUid).once('value');
+      const freshUser=uSnap.val();
+      if(freshUser){
+        freshUser.uid=freshAppUid;
+        localStorage.setItem(cacheKey, JSON.stringify({appUid:freshAppUid,user:freshUser}));
+        if(currentUser && currentUser.uid===freshAppUid && JSON.stringify(freshUser)!==JSON.stringify(currentUser)){
+          currentUser=freshUser;
+          localStorage.setItem('aes_user',JSON.stringify(currentUser));
+          applyUserUI();
+        }
+      }
+    }).catch(()=>{});
+  }
+
   // Demande la position pour déterminer le pays automatiquement (utilisé par l'algo vidéo)
   if(!currentUser.country){
     kikoGetUserCountry().then(country=>{
       if(country){
         currentUser.country=country;
         localStorage.setItem('aes_user',JSON.stringify(currentUser));
-        db.ref('users/'+uid+'/country').set(country);
+        db.ref('users/'+currentUser.uid+'/country').set(country);
       }
     });
   }
