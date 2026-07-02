@@ -5946,21 +5946,13 @@ async function doAuthGoogle(){
   }
   btn.disabled=true;btn.style.opacity='.6';
   try{
-    let result;
-    try{
-      result=await auth.signInWithPopup(googleProvider);
-    }catch(popupErr){
-      // Fallback redirection si le popup est bloqué (fréquent sur mobile/PWA)
-      if(popupErr.code==='auth/popup-blocked'||popupErr.code==='auth/cancelled-popup-request'){
-        await auth.signInWithRedirect(googleProvider);
-        return; // la suite est gérée par handleGoogleRedirectResult() au rechargement
-      }
-      throw popupErr;
-    }
+    const result=await auth.signInWithPopup(googleProvider);
     await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
   }catch(e){
-    if(e.code==='auth/popup-closed-by-user'){
-      // rien à afficher, l'utilisateur a juste annulé
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
+      // rien à afficher, l'utilisateur a juste annulé ou re-cliqué trop vite
+    } else if(e.code==='auth/popup-blocked'){
+      errEl.innerText="⚠️ Chrome bloque la fenêtre popup. Va dans Réglages Chrome → Paramètres du site → Popups et redirections → Autoriser, puis réessaie.";
     } else if(e.code==='auth/operation-not-supported-in-this-environment' || (e.message||'').includes('missing initial state')){
       errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
     } else {
