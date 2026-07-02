@@ -4,20 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#071A3D">
-<link rel="manifest" href="./manifest.json">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22AES%F0%9F%91%91%20Vid%C3%A9os%22%2C%22short_name%22%3A%22AES%20Vid%C3%A9os%22%2C%22description%22%3A%22La%20plateforme%20vid%C3%A9o%20de%20l%27AES%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFFFFF%22%2C%22theme_color%22%3A%22%23C9A84C%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fapi.dicebear.com%2F7.x%2Fshapes%2Fsvg%3Fseed%3DAES%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com">
-<title>KIKO👑</title>
+<title>AES👑 Vidéos</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    AES👑 — DESIGN SYSTEM PREMIUM "SAHEL PRESTIGE"
@@ -650,7 +648,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .vadv-panel.show { opacity: 1; pointer-events: auto; }
 .vmute-btn {
-  position: absolute; top: 58px; right: 14px; z-index: 20;
+  position: absolute; top: 72px; right: 14px; z-index: 20;
   width: 36px; height: 36px; border-radius: 50%;
   background: rgba(7,26,61,0.55);
   border: 1.5px solid rgba(255,255,255,0.18);
@@ -658,17 +656,6 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   font-size: 16px; cursor: pointer; transition: all 0.2s;
 }
 .vmute-btn:active { transform: scale(0.85); }
-.vdownload-btn {
-  position: absolute; right: 14px; bottom: 106px; z-index: 8;
-  width: 42px; height: 42px; border-radius: 50%;
-  background: rgba(20,21,26,0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(255,255,255,0.14);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px; cursor: pointer; transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-}
-.vdownload-btn:active { transform: scale(0.85); }
-.vdownload-btn.loading { pointer-events: none; opacity: 0.6; }
 .vspeed-btn {
   background: rgba(255,255,255,0.15);
   border: 1px solid rgba(255,255,255,0.25); border-radius: 22px;
@@ -763,13 +750,13 @@ body:not(.screen-home) .logo span { color: var(--gold); }
    Remplace les boutons fixes latéraux
 ═══════════════════════════════════════════════════════ */
 
-/* Overlay invisible pour détecter le tap hors menu */
-#kikoRadialOverlay {
+/* Overlay invisible pour détecter le tap hors menu vidéo */
+#kikoVidRadialOverlay {
   position: fixed; inset: 0; z-index: 200;
   display: none;
   pointer-events: none;
 }
-#kikoRadialOverlay.active {
+#kikoVidRadialOverlay.active {
   display: block;
   pointer-events: auto;
 }
@@ -2074,7 +2061,7 @@ textarea.inp { resize: none; }
   padding: 7px 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
   cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow-gold);
 }
-.share-btns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 14px 12px 20px; }
+.share-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 14px 18px 20px; }
 .share-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
 .share-btn-icon {
   width: 54px; height: 54px; border-radius: 18px;
@@ -2122,202 +2109,8 @@ textarea.inp { resize: none; }
 #cameraScreen.active { display: flex; }
 .cam-viewport { position: relative; flex: 1; overflow: hidden; border-radius: 0 0 32px 32px; }
 .cam-viewport video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cam-flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:5; }
-.cam-flash.snap { animation: camSnap .4s ease; }
-@keyframes camSnap { 0%{opacity:.85;} 100%{opacity:0;} }
-.cam-corner { position:absolute; width:22px; height:22px; border-color:rgba(255,255,255,0.55); opacity:.5; pointer-events:none; }
-.cam-corner-tl { top:70px; left:14px; border-top:2px solid; border-left:2px solid; border-radius:6px 0 0 0; }
-.cam-corner-tr { top:70px; right:14px; border-top:2px solid; border-right:2px solid; border-radius:0 6px 0 0; }
-.cam-corner-bl { bottom:150px; left:14px; border-bottom:2px solid; border-left:2px solid; border-radius:0 0 0 6px; }
-.cam-corner-br { bottom:150px; right:14px; border-bottom:2px solid; border-right:2px solid; border-radius:0 0 6px 0; }
-.cam-filter-label { position:absolute; top:16px; left:50%; transform:translateX(-50%); color:#fff; font-family:'Syne',sans-serif; font-weight:700; font-size:13px; letter-spacing:.4px; background:rgba(0,0,0,0.35); padding:5px 14px; border-radius:20px; backdrop-filter:blur(6px); transition:transform .22s ease; z-index:4; }
-.cam-topbar { position:absolute; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:16px 16px 0; z-index:6; }
-.cam-close-btn, .cam-flip-btn { width:38px; height:38px; border-radius:50%; background:rgba(20,21,26,0.55); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; cursor:pointer; border:1px solid rgba(255,255,255,0.12); transition:transform .15s ease; }
-.cam-close-btn:active, .cam-flip-btn:active { transform:scale(0.88); }
-.cam-rec-badge { display:none; align-items:center; gap:6px; background:rgba(255,92,114,0.16); border:1px solid var(--red); color:#fff; font-size:12px; font-weight:700; padding:6px 12px; border-radius:20px; backdrop-filter:blur(6px); letter-spacing:.3px; }
-.cam-rec-badge.active { display:flex; }
-.cam-rec-dot { width:8px; height:8px; border-radius:50%; background:var(--red); animation:camPulseDot 1s ease-in-out infinite; }
-@keyframes camPulseDot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.35;transform:scale(.75);} }
-.cam-filters-strip { position:absolute; left:0; right:0; bottom:14px; z-index:6; overflow:hidden; }
-.cam-filters-row { display:flex; gap:10px; padding:0 16px; overflow-x:auto; scrollbar-width:none; }
-.cam-filters-row::-webkit-scrollbar { display:none; }
-.filt-chip { flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; opacity:.6; transition:opacity .2s ease, transform .2s ease; }
-.filt-chip.active { opacity:1; transform:translateY(-3px); }
-.filt-thumb { position:relative; width:44px; height:44px; border-radius:50%; overflow:hidden; border:2px solid transparent; }
-.filt-chip.active .filt-thumb { border-color:var(--gold); box-shadow:0 0 0 3px var(--gold3); }
-.filt-thumb-overlay { position:absolute; inset:0; border-radius:50%; box-shadow:inset 0 0 8px rgba(0,0,0,0.4); }
-.filt-name { font-size:9px; color:#fff; font-weight:600; opacity:.85; }
-#camResultOverlay { display:none; position:absolute; inset:0; z-index:8; background:rgba(10,10,14,0.94); flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:20px 0; }
-#camResultOverlay.active { display:flex; }
-.cam-result-name { display:flex; align-items:center; gap:8px; color:#fff; font-size:13px; font-weight:700; }
-.cam-result-filt { color:var(--gold2); font-weight:600; }
-.cam-result-actions { display:flex; gap:12px; width:calc(100% - 32px); }
-.cam-result-retry, .cam-result-use { flex:1; padding:14px 0; border-radius:16px; border:none; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
-.cam-result-retry { background:var(--surface2); color:#fff; border:1px solid rgba(255,255,255,0.14); }
-.cam-result-use { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#fff; box-shadow:0 6px 20px var(--gold-glow); }
-.cam-result-retry:active, .cam-result-use:active { transform:scale(0.96); }
 
-.cam-controls { position:relative; display:flex; align-items:center; justify-content:space-between; padding:22px 34px 34px; background:#000; }
-.cam-gallery-btn { width:46px; height:46px; border-radius:14px; background:var(--surface2); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .15s ease; }
-.cam-gallery-btn:active { transform:scale(0.9); }
-
-/* Bouton obturateur — anneau de progression unique (pas TikTok) */
-.cam-shutter { position:relative; width:78px; height:78px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-.cam-shutter-outer { position:absolute; inset:0; border-radius:50%; border:3px solid rgba(255,255,255,0.85); transition:border-color .25s ease; }
-.cam-shutter-inner { width:60px; height:60px; border-radius:50%; background:#fff; transition:all .25s cubic-bezier(.4,0,.2,1); }
-.cam-shutter.photo-mode { animation: camShutterPulse 2.2s ease-in-out infinite; }
-@keyframes camShutterPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(255,255,255,0.18);} 50%{ box-shadow:0 0 0 10px rgba(255,255,255,0);} }
-.cam-shutter.video-mode .cam-shutter-outer { border-color:var(--gold2); }
-.cam-shutter.video-mode .cam-shutter-inner { background:var(--gold2); width:64px; height:64px; border-radius:22px; }
-.cam-shutter.recording .cam-shutter-outer { border-color:var(--red); }
-.cam-shutter.recording .cam-shutter-inner { background:var(--red); width:28px; height:28px; border-radius:8px; }
-.cam-shutter:active .cam-shutter-inner { transform:scale(0.88); }
-.cam-shutter-ring { position:absolute; inset:-8px; transform:rotate(-90deg); pointer-events:none; }
-.cam-shutter-ring circle { fill:none; stroke-width:4; }
-.cam-shutter-ring .ring-bg { stroke:rgba(255,255,255,0.15); }
-.cam-shutter-ring .ring-fg { stroke:var(--red); stroke-linecap:round; stroke-dasharray:270; stroke-dashoffset:270; transition:stroke-dashoffset .3s linear; }
-
-.cam-mode-btn { display:flex; flex-direction:column; align-items:center; gap:3px; width:46px; cursor:pointer; }
-.cam-mode-icon { font-size:20px; opacity:.9; }
-.cam-mode-label { font-size:9px; color:rgba(255,255,255,0.7); font-weight:700; letter-spacing:.3px; }
-.cam-mode-btn.video-active .cam-mode-label { color:var(--gold2); }
-
-/* ─── Anneau de progression d'upload — signature KIKO (≠ TikTok) ─── */
-.upl-ring-wrap { display:none; position:relative; width:104px; height:104px; margin:16px auto 4px; }
-.upl-ring-wrap.show { display:block; animation:uplFadeIn .3s ease; }
-@keyframes uplFadeIn { from{opacity:0;transform:scale(.9);} to{opacity:1;transform:scale(1);} }
-.upl-ring-svg { transform:rotate(-90deg); }
-.upl-ring-bg { fill:none; stroke:var(--surface2); stroke-width:6; }
-.upl-ring-fg { fill:none; stroke:var(--green); stroke-width:6; stroke-linecap:round; stroke-dasharray:283; stroke-dashoffset:283; transition:stroke-dashoffset .25s linear, stroke .4s ease; }
-.upl-ring-center { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; }
-.upl-ring-pct { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; color:var(--text); }
-.upl-ring-icon { font-size:16px; margin-top:1px; }
-.upl-status-label { text-align:center; font-size:12.5px; color:var(--muted); margin-top:8px; font-weight:600; letter-spacing:.2px; min-height:16px; }
-
-/* ─── RÉACTION KIKO — bouton circulaire 2 états (😍 / 😎) ─── */
-.kiko-react-btn {
-  position: absolute; right: 14px; bottom: 168px; z-index: 7;
-  width: 54px; height: 54px; border-radius: 50%;
-  background: rgba(20,21,26,0.55); backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(255,255,255,0.14);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: box-shadow .3s ease, border-color .3s ease, transform .15s ease;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-}
-.kiko-react-btn:active { transform: scale(0.88); }
-.kiko-react-btn .kiko-react-emoji { font-size: 26px; line-height: 1; }
-.kiko-react-btn.glow-like {
-  border-color: rgba(255,92,114,0.55);
-  box-shadow: 0 0 0 4px rgba(255,92,114,0.16), 0 4px 20px rgba(255,92,114,0.35);
-}
-.kiko-react-btn.glow-recognize {
-  border-color: rgba(122,140,255,0.6);
-  box-shadow: 0 0 0 4px rgba(122,140,255,0.18), 0 4px 20px rgba(122,140,255,0.4);
-}
-.kiko-react-btn.reacted .kiko-react-emoji { animation: kikoZoomSwap .4s cubic-bezier(.34,1.56,.64,1); }
-.kiko-react-emoji.kiko-swap { animation: kikoZoomSwap .4s cubic-bezier(.34,1.56,.64,1); }
-@keyframes kikoZoomSwap {
-  0%   { transform: scale(1) rotate(0deg); }
-  40%  { transform: scale(1.5) rotate(-8deg); }
-  70%  { transform: scale(0.9) rotate(4deg); }
-  100% { transform: scale(1) rotate(0deg); }
-}
-
-/* Particules flottantes (bas de l'écran) — 😍 simple / 😎 dispersion */
-.kiko-particles-layer { position: fixed; inset: 0; pointer-events: none; z-index: 750; overflow: hidden; }
-.kiko-particle {
-  position: absolute; font-size: 22px; transform: translate(-50%,-50%);
-  animation-name: kikoFloatUp; animation-timing-function: ease-out; animation-fill-mode: forwards;
-  will-change: transform, opacity;
-}
-@keyframes kikoFloatUp {
-  0%   { transform: translate(-50%,-50%) translate(0,0) scale(0.6); opacity: 0; }
-  15%  { opacity: 1; transform: translate(-50%,-50%) translate(calc(var(--driftX) * 0.2), calc(var(--rise) * 0.2)) scale(1.1); }
-  70%  { opacity: 0.9; transform: translate(-50%,-50%) translate(calc(var(--driftX) * 0.7), calc(var(--rise) * 0.75)) scale(1); }
-  100% { opacity: 0; transform: translate(-50%,-50%) translate(var(--driftX), var(--rise)) scale(0.7); }
-}
-
-/* Animation "Reconnaissent" — découpe + envol vers le coin + recomposition */
-.kiko-recon-overlay {
-  position: fixed; inset: 0; z-index: 760; pointer-events: none;
-  display: none; align-items: center; justify-content: center;
-}
-.kiko-recon-overlay.active { display: flex; }
-.kiko-recon-word, .kiko-recon-split { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 30px; color: #fff; }
-.kiko-recon-word {
-  display: none; opacity: 0; transform: scale(0.75);
-  text-shadow: 0 0 18px rgba(122,140,255,0.85), 0 0 40px rgba(122,140,255,0.5);
-  transition: opacity .32s ease-in-out, transform .32s cubic-bezier(.34,1.56,.64,1);
-}
-.kiko-recon-word.kr-appear { opacity: 1; transform: scale(1); }
-.kiko-recon-split { display: none; align-items: center; gap: 2px; }
-.kiko-recon-part {
-  text-shadow: 0 0 16px rgba(122,140,255,0.8), 0 0 34px rgba(122,140,255,0.45);
-  transition: transform .55s cubic-bezier(.4,0,.2,1), opacity .55s ease-in-out;
-  will-change: transform, opacity;
-}
-.kiko-recon-part.kr-part-up  { transform: translateY(-16px); }
-.kiko-recon-part.kr-part-dip { animation: kikoDip .5s ease-in-out; }
-@keyframes kikoDip { 0%{transform:translateY(0);} 40%{transform:translateY(10px);} 100%{transform:translateY(0);} }
-
-/* Badge coin haut-droit — reçoit le mot recomposé */
-.kiko-recon-toast {
-  position: fixed; top: 78px; right: 16px; z-index: 761;
-  display: flex; align-items: center; gap: 6px;
-  background: linear-gradient(135deg, rgba(122,140,255,0.22), rgba(168,122,255,0.22));
-  border: 1px solid rgba(122,140,255,0.5); backdrop-filter: blur(10px);
-  color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
-  padding: 8px 14px; border-radius: 22px;
-  box-shadow: 0 0 20px rgba(122,140,255,0.35);
-  opacity: 0; transform: translateY(-6px) scale(0.92); pointer-events: none;
-  transition: opacity .35s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
-}
-.kiko-recon-toast.show { opacity: 1; transform: translateY(0) scale(1); }
-
-/* ─── Barre d'actions horizontale — Partager · Favori · Signaler ─── */
-.kiko-quickbar {
-  position: absolute; left: 14px; right: 14px;
-  bottom: calc(14px + env(safe-area-inset-bottom));
-  z-index: 15;
-  display: flex; align-items: center; gap: 2px;
-  background: rgba(20,21,26,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.14); border-radius: 20px; padding: 8px 6px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-}
-.kiko-qb-btn {
-  display: flex; align-items: center; justify-content: center; gap: 7px; background: none; border: none; color: #fff;
-  padding: 9px 6px; border-radius: 14px; cursor: pointer; font-family: inherit;
-  font-size: 13.5px; font-weight: 800; flex: 1; -webkit-tap-highlight-color: transparent;
-  transition: background .2s ease, transform .15s ease, color .25s ease;
-}
-.kiko-qb-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.12); }
-.kiko-qb-icon { width: 21px; height: 21px; flex-shrink: 0; }
-.kiko-qb-btn span { opacity: .95; }
-.kiko-qb-btn.active { color: var(--gold2); }
-.kiko-qb-btn.active .kiko-qb-icon { animation: kikoStarPop .45s cubic-bezier(.34,1.56,.64,1); filter: drop-shadow(0 0 6px rgba(255,157,92,0.7)); }
-@keyframes kikoStarPop { 0%{transform:scale(1);} 45%{transform:scale(1.4) rotate(-10deg);} 100%{transform:scale(1) rotate(0deg);} }
-
-/* ─── Popup de signalement — 4 choix clairs, design sérieux ─── */
-.kiko-report-title { font-family:'Syne',sans-serif; font-weight:800; font-size:17px; color:var(--text); margin-bottom:4px; }
-.kiko-report-sub { font-size:12.5px; color:var(--muted); margin-bottom:16px; }
-.kiko-report-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-.kiko-report-opt {
-  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
-  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-  padding: 13px 14px; border-radius: 14px; font-family: inherit; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: background .15s ease, transform .1s ease, border-color .2s ease;
-}
-.kiko-report-opt:active { transform: scale(0.98); background: var(--surface3); }
-.kiko-report-opt .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.kiko-report-opt.rep-spam .dot { background: #FFC94D; }
-.kiko-report-opt.rep-inappropriate .dot { background: #FF9D5C; }
-.kiko-report-opt.rep-violence .dot { background: var(--red); }
-.kiko-report-opt.rep-other .dot { background: var(--muted); }
-.kiko-report-opt.rep-violence { border-color: rgba(255,92,114,0.35); }
-
-
-
+/* ─── INFOS / NEWS ─── */
 .infos-sticky { position: sticky; top: 0; z-index: 10; background: var(--bg2); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-xs); }
 .infos-top { display: flex; align-items: center; justify-content: space-between; padding: 80px 18px 12px; }
 .infos-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: var(--navy); }
@@ -2999,7 +2792,7 @@ body:not(.screen-home) #topnav{
   transition: transform 0.38s var(--ease-out), opacity 0.3s var(--ease-out);
 }
 .kiko-radial-item span{ font-size: 8.5px; font-weight: 700; color: var(--text2); letter-spacing: 0.2px; }
-#kikoPublishRadialOverlay.active .kiko-radial-item{ opacity: 1; pointer-events: auto; }
+#kikoRadialOverlay.active .kiko-radial-item{ opacity: 1; pointer-events: auto; }
 .kiko-radial-item:active{ transform: translate(-50%,0) scale(0.92) !important; }
 
 /* ─── MARKETPLACE — cartes inclinées en verre ─── */
@@ -3319,6 +3112,7 @@ body:not(.screen-home) #topnav{
       <div style="width:46px;height:46px;border-radius:11px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📸</div>
       <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;">Ajouter un statut</div><div style="font-size:12px;color:var(--muted);">Photo ou vidéo · visible 24h</div></div>
     </div>
+    <button class="btn-ghost" id="logoutBtn" style="display:none;max-width:180px;margin:0 auto;" onclick="doLogout()">🚪 Déconnexion</button>
     <div style="margin-top:16px;">
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center;" id="langLabel">🌍 Langue</div>
       <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;">
@@ -3485,7 +3279,7 @@ body:not(.screen-home) #topnav{
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 14px;display:flex;flex-direction:column;gap:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:13px;color:var(--text2);">Version</span>
-        <span style="font-size:13px;font-weight:700;color:var(--gold);">KIKO👑 v1.0</span>
+        <span style="font-size:13px;font-weight:700;color:var(--gold);">AES👑 v2.0</span>
       </div>
       <div style="height:1px;background:var(--border);"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -3493,12 +3287,7 @@ body:not(.screen-home) #topnav{
         <span style="font-size:13px;color:var(--text2);">AES · Burkina · Mali · Niger</span>
       </div>
       <div style="height:1px;background:var(--border);"></div>
-      <div onclick="window.open('./privacy-policy.html','_blank')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
-        <span style="font-size:13px;color:var(--text2);">Politique de confidentialité</span>
-        <span style="font-size:14px;color:var(--muted);">›</span>
-      </div>
-      <div style="height:1px;background:var(--border);"></div>
-      <div style="font-size:12px;color:var(--muted);text-align:center;line-height:1.5;">Made with 🧡 for Africa<br>© 2026 KIKO 👑</div>
+      <div style="font-size:12px;color:var(--muted);text-align:center;line-height:1.5;">Made with 🧡 for Africa<br>© 2025 ELKA 👑</div>
     </div>
 
     <!-- DÉCONNEXION -->
@@ -3915,8 +3704,8 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
-<!-- MENU RADIAL KIKO👑 (bouton Publier) -->
-<div id="kikoPublishRadialOverlay" onclick="kikoClosePublishRadial()">
+<!-- MENU RADIAL KIKO👑 -->
+<div id="kikoRadialOverlay" onclick="_kikoClosePublishRadial()">
   <div class="kiko-radial-item" id="krVideo" onclick="event.stopPropagation();kikoRadialAction('video')">🎬<span>Vidéo</span></div>
   <div class="kiko-radial-item" id="krPhoto" onclick="event.stopPropagation();kikoRadialAction('photo')">📸<span>Photo</span></div>
   <div class="kiko-radial-item" id="krProduit" onclick="event.stopPropagation();kikoRadialAction('produit')">🛍️<span>Produit</span></div>
@@ -3929,16 +3718,11 @@ body:not(.screen-home) #topnav{
     <div class="auth-handle"></div>
     <div class="auth-logo">AES👑</div>
     <div class="auth-sub" id="authSubText">Rejoins la communauté africaine 🌍</div>
-    <div class="auth-tabs">
-      <div class="auth-tab active" onclick="switchTab('login')">Connexion</div>
-      <div class="auth-tab" onclick="switchTab('register')">Inscription</div>
-    </div>
     <div class="auth-err" id="authErr"></div>
-    <input type="text" class="inp" id="authName" placeholder="Ton pseudo" style="display:none">
-    <input type="text" class="inp" id="authPhone" placeholder="Numéro WhatsApp (+226...)" style="display:none">
-    <input type="email" class="inp" id="authEmail" placeholder="Email">
-    <input type="password" class="inp" id="authPass" placeholder="Mot de passe">
-    <button class="btn-gold" id="authBtn" onclick="doAuth()">Se connecter</button>
+    <button class="btn-gold" id="authBtn" onclick="doAuthGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px;">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.7 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.6 0-14.1 4.3-17.4 10.7z"/><path fill="#4CAF50" d="M24 45c5.3 0 10.2-2 13.9-5.4l-6.4-5.4C29.4 35.6 26.8 36.5 24 36.5c-5.4 0-9.9-3.4-11.5-8.2l-6.5 5C9.8 40.5 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3 5.3-5.7 6.9l6.4 5.4C39.6 37.4 45 31.2 45 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
+      Continuer avec Google
+    </button>
     <button class="auth-skip" onclick="closeAuth()">Continuer sans compte →</button>
   </div>
 </div>
@@ -4009,7 +3793,7 @@ body:not(.screen-home) #topnav{
           <label for="videoInput" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:22px;padding:5px 12px;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(6px);">
             🔄 Changer
           </label>
-          <div id="vpsDuration" style="display:none;position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#fff;"></div>
+          <div id="vpsDurationQuick" style="display:none;position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#fff;"></div>
         </div>
 
         <!-- Nom du fichier -->
@@ -4020,13 +3804,13 @@ body:not(.screen-home) #topnav{
         </div>
 
         <!-- Description -->
-        <textarea class="inp" id="vpsDescInput" rows="3" placeholder="Décris ta vidéo... #hashtags 🔥"></textarea>
+        <textarea class="inp" id="vpsDescInputQuick" rows="3" placeholder="Décris ta vidéo... #hashtags 🔥"></textarea>
 
         <!-- Confidentialité -->
         <div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;">
           <span style="font-size:16px;">🌍</span>
           <span style="font-size:13px;font-weight:500;flex:1;">Confidentialité</span>
-          <select id="vpsPrivacy" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;">
+          <select id="vpsPrivacyQuick" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;">
             <option value="public">🌍 Public</option>
             <option value="followers">👥 Abonnés</option>
             <option value="private">🔒 Privé</option>
@@ -4035,18 +3819,11 @@ body:not(.screen-home) #topnav{
 
         <div id="sharedMusicSection"></div>
 
-        <!-- Anneau de progression circulaire — signature KIKO (≠ barre TikTok) -->
-        <div id="mprog" class="upl-ring-wrap">
-          <svg class="upl-ring-svg" width="104" height="104" viewBox="0 0 100 100">
-            <circle class="upl-ring-bg" cx="50" cy="50" r="45"></circle>
-            <circle class="upl-ring-fg" id="mprogRing" cx="50" cy="50" r="45"></circle>
-          </svg>
-          <div class="upl-ring-center">
-            <div class="upl-ring-pct" id="mprogPct">0%</div>
-            <div class="upl-ring-icon" id="mprogIcon">📶</div>
-          </div>
+        <!-- Barre de progression (cachée par défaut) -->
+        <div id="mprog" class="mprog" style="display:none;">
+          <div class="mprog-bg"><div class="mprog-fill" id="mprogFill"></div></div>
+          <div class="mprog-label" id="mprogLabel">Envoi en cours...</div>
         </div>
-        <div class="upl-status-label" id="mprogLabel">Préparation...</div>
 
         <!-- Boutons -->
         <button class="btn-gold" id="publishBtn" onclick="uploadVideo()">🚀 Publier</button>
@@ -4315,10 +4092,6 @@ body:not(.screen-home) #topnav{
     </div>
     <input type="file" id="camGalleryInput" accept="image/*,video/*" style="display:none" onchange="camGallerySelected(this)">
     <div class="cam-shutter photo-mode" id="camShutter" onclick="camCapture()">
-      <svg class="cam-shutter-ring" viewBox="0 0 100 100">
-        <circle class="ring-bg" cx="50" cy="50" r="43"></circle>
-        <circle class="ring-fg" id="camShutterRing" cx="50" cy="50" r="43"></circle>
-      </svg>
       <div class="cam-shutter-outer"></div>
       <div class="cam-shutter-inner"></div>
     </div>
@@ -4420,8 +4193,8 @@ body:not(.screen-home) #topnav{
 </div>
 
 <!-- STORY VIEWER -->
-<!-- ═══ KIKO RADIAL ACTION MENU ═══ -->
-<div id="kikoRadialOverlay" onclick="kikoCloseRadial()"></div>
+<!-- ═══ KIKO RADIAL ACTION MENU (vidéos) ═══ -->
+<div id="kikoVidRadialOverlay" onclick="kikoCloseRadial()"></div>
 <div id="kikoRadialMenu">
   <div class="kiko-radial-origin"></div>
   <!-- Les boutons sont injectés dynamiquement par JS -->
@@ -4532,10 +4305,6 @@ body:not(.screen-home) #topnav{
         <div class="share-btn-icon" style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.25);">📱</div>
         <span class="share-btn-label">WhatsApp</span>
       </div>
-      <div class="share-btn" onclick="shareToFacebook()">
-        <div class="share-btn-icon" style="background:rgba(24,119,242,0.15);border:1px solid rgba(24,119,242,0.25);">📘</div>
-        <span class="share-btn-label">Facebook</span>
-      </div>
       <div class="share-btn" onclick="shareToTelegram()">
         <div class="share-btn-icon" style="background:rgba(38,132,240,0.15);border:1px solid rgba(38,132,240,0.25);">✈️</div>
         <span class="share-btn-label">Telegram</span>
@@ -4554,45 +4323,6 @@ body:not(.screen-home) #topnav{
 
 <div id="toast"></div>
 
-<!-- ═══ FX RÉACTION KIKO — overlay global unique, réutilisé pour toutes les vidéos ═══ -->
-<div id="kikoParticlesLayer" class="kiko-particles-layer" aria-hidden="true"></div>
-<div id="kikoReconOverlay" class="kiko-recon-overlay" aria-hidden="true">
-  <div class="kiko-recon-word" id="kikoReconWord">Reconnaissent</div>
-  <div class="kiko-recon-split" id="kikoReconSplit">
-    <span class="kiko-recon-part" id="kikoReconPart1">Recon</span><span class="kiko-recon-part" id="kikoReconPart2">naissent</span>
-  </div>
-</div>
-<div class="kiko-recon-toast" id="kikoReconToast">😎 <span>Reconnaissent</span></div>
-
-<!-- ═══ POPUP SIGNALEMENT VIDÉO — 4 raisons + envoi API ═══ -->
-<div id="kikoReportModal" class="modal-overlay">
-  <div class="modal-sheet" style="max-width:480px;margin:0 auto;">
-    <div class="modal-handle"></div>
-    <div class="kiko-report-title">🚨 Signaler cette vidéo</div>
-    <div class="kiko-report-sub">Dis-nous pourquoi ce contenu pose problème — c'est anonyme pour l'auteur.</div>
-    <div class="kiko-report-opts">
-      <button class="kiko-report-opt rep-spam" onclick="submitVideoReport('Spam')"><span class="dot"></span> Spam</button>
-      <button class="kiko-report-opt rep-inappropriate" onclick="submitVideoReport('Contenu inapproprié')"><span class="dot"></span> Contenu inapproprié</button>
-      <button class="kiko-report-opt rep-violence" onclick="submitVideoReport('Violence')"><span class="dot"></span> Violence</button>
-      <button class="kiko-report-opt rep-other" onclick="submitVideoReport('Autre')"><span class="dot"></span> Autre</button>
-    </div>
-    <button class="btn-ghost" onclick="closeVideoReportPopup()">Annuler</button>
-  </div>
-</div>
-
-<!-- ═══ MODALE EXPLICATIVE AVANT DEMANDE DE PERMISSION ═══ -->
-<div id="permModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:24px;">
-  <div style="background:var(--bg2,#15171c);border-radius:18px;padding:24px 20px;max-width:340px;width:100%;text-align:center;">
-    <div id="permModalIcon" style="font-size:40px;margin-bottom:10px;">📷</div>
-    <div id="permModalTitle" style="font-weight:700;font-size:17px;margin-bottom:8px;color:#fff;">Autoriser la caméra</div>
-    <div id="permModalText" style="font-size:13.5px;color:var(--muted,#9aa0a8);line-height:1.5;margin-bottom:18px;">KIKO a besoin d'accéder à ta caméra pour filmer une vidéo ou prendre une photo.</div>
-    <div style="display:flex;gap:10px;">
-      <button onclick="kikoDenyPerm()" style="flex:1;padding:11px;border-radius:12px;border:none;background:transparent;color:var(--muted,#9aa0a8);font-weight:600;font-size:14px;">Pas maintenant</button>
-      <button onclick="kikoAcceptPerm()" style="flex:1;padding:11px;border-radius:12px;border:none;background:var(--orange,#FF7A30);color:#fff;font-weight:700;font-size:14px;">Continuer</button>
-    </div>
-  </div>
-</div>
-
 <script>
 // ═══════════════════════════════════════
 //  FIREBASE
@@ -4607,6 +4337,8 @@ firebase.initializeApp({
   appId:"1:641440139975:web:ad794e3e7c0b151dd98ce2"
 });
 const db=firebase.database();
+const auth=firebase.auth();
+const googleProvider=new firebase.auth.GoogleAuthProvider();
 
 // ═══════════════════════════════════════
 //  CLOUDINARY (sans watermark — fix lecteur)
@@ -4801,31 +4533,40 @@ async function kikoShowTranslation(postId, text, btn){
 //  RECHERCHE PAR LOCALISATION — Géolocalisation + rayon
 // ═══════════════════════════════════════════════════════════
 let _userGeoCity = localStorage.getItem('kiko_geo_city') || null;
+let _userGeoCountry = localStorage.getItem('kiko_geo_country') || null;
+let _geoResolvePromise = null;
 
-async function kikoGetUserCity(){
-  if(_userGeoCity) return _userGeoCity;
-  if(!navigator.geolocation) return null;
-  const geoAlreadyAsked = localStorage.getItem('kiko_perm_location_asked');
-  if(!geoAlreadyAsked){
-    const ok = await kikoAskPermission('location');
-    localStorage.setItem('kiko_perm_location_asked','1');
-    if(!ok) return null;
-  }
-  return new Promise(resolve=>{
+// Résout ville + pays en un seul appel géoloc + reverse-geocoding (évite de redemander 2x la permission)
+function kikoResolveGeo(){
+  if(_geoResolvePromise) return _geoResolvePromise;
+  _geoResolvePromise = new Promise(resolve=>{
+    if(!navigator.geolocation){ resolve({city:null,country:null}); return; }
     navigator.geolocation.getCurrentPosition(async pos=>{
       try{
         const {latitude:lat, longitude:lng} = pos.coords;
         const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, { headers:{'Accept-Language':'fr'} });
         const json = await res.json();
         const city = json?.address?.city || json?.address?.town || json?.address?.village || json?.address?.county || null;
-        if(city){
-          _userGeoCity = city;
-          localStorage.setItem('kiko_geo_city', city);
-        }
-        resolve(city);
-      }catch{ resolve(null); }
-    }, ()=>resolve(null), { timeout:6000, enableHighAccuracy:false });
+        const country = json?.address?.country || null;
+        if(city){ _userGeoCity = city; localStorage.setItem('kiko_geo_city', city); }
+        if(country){ _userGeoCountry = country; localStorage.setItem('kiko_geo_country', country); }
+        resolve({city,country});
+      }catch{ resolve({city:null,country:null}); }
+    }, ()=>resolve({city:null,country:null}), { timeout:6000, enableHighAccuracy:false });
   });
+  return _geoResolvePromise;
+}
+
+async function kikoGetUserCity(){
+  if(_userGeoCity) return _userGeoCity;
+  const {city}=await kikoResolveGeo();
+  return city;
+}
+
+async function kikoGetUserCountry(){
+  if(_userGeoCountry) return _userGeoCountry;
+  const {country}=await kikoResolveGeo();
+  return country;
 }
 
 // Filtre les posts/produits par ville (champ city dans Firebase)
@@ -4917,10 +4658,6 @@ function kikoShowOnboarding(){
 // ═══════════════════════════════════════
 let currentUser=JSON.parse(localStorage.getItem('aes_user')||'null');
 let liked=JSON.parse(localStorage.getItem('aes_liked')||'[]');
-// Réactions KIKO — système unique à 2 états : {videoId: 'like'|'recognize'}
-let kikoReactions=JSON.parse(localStorage.getItem('kiko_reactions')||'{}');
-// Favoris vidéo (bouton ⭐ dédié, distinct des favoris marketplace)
-let videoFavorites=JSON.parse(localStorage.getItem('kiko_fav_videos')||'[]');
 let favorites=JSON.parse(localStorage.getItem('aes_favs')||'[]');
 let following=JSON.parse(localStorage.getItem('aes_following')||'{}');
 let allVids=[],allProds=[];
@@ -5017,11 +4754,11 @@ function _getModalChecks(){
     // panels glissants
     { id:'commentsPanel',      fn:()=>{ if(typeof closeComments==='function') closeComments(true); else _close('commentsPanel'); } },
     { id:'sellerProfile',      fn:()=>_close('sellerProfile') },
-    { id:'kikoPublishRadialOverlay', fn:()=>{ if(typeof kikoClosePublishRadial==='function') kikoClosePublishRadial(); else _close('kikoPublishRadialOverlay'); } },
-    { id:'kikoRadialOverlay',  fn:()=>{ if(typeof kikoCloseRadial==='function') kikoCloseRadial(); else _close('kikoRadialOverlay'); } },
+    { id:'kikoRadialOverlay',    fn:()=>_kikoClosePublishRadial() },
+    { id:'kikoVidRadialOverlay', fn:()=>kikoCloseRadial() },
+    { id:'kikoMoreSheet',        fn:()=>kikoCloseMoreSheet() },
     // modals classiques
     { id:'uploadModal',        fn:()=>{ if(typeof closeModal==='function') closeModal(); else _close('uploadModal'); } },
-    { id:'kikoReportModal',    fn:()=>{ if(typeof closeVideoReportPopup==='function') closeVideoReportPopup(); else _close('kikoReportModal'); } },
     { id:'authModal',          fn:()=>{ if(typeof closeAuth==='function') closeAuth(); else _close('authModal'); } },
     { id:'productModal',       fn:()=>{ if(typeof closeProductModal==='function') closeProductModal(); else _close('productModal'); } },
     { id:'editProfileModal',   fn:()=>_close('editProfileModal') },
@@ -5124,26 +4861,10 @@ function switchUploadTab(tab){
     musicBlock.style.display='none';
   }
 }
-// ═══ MENU RADIAL KIKO👑 (bouton Publier) ═══
+// ═══ MENU RADIAL KIKO👑 — publication ═══
 let kikoRadialOpen=false;
-function vpsTriggerThumbPick(){
-  const input=document.getElementById('vpsThumbInput');
-  if(input) input.click();
-}
-function vpsOnThumbSelected(input){
-  const file=input.files&&input.files[0];
-  if(!file) return;
-  const preview=document.getElementById('vpsThumbnailPreview');
-  if(!preview) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    preview.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
-  };
-  reader.readAsDataURL(file);
-  window.vpsCustomThumbFile=file;
-}
-function kikoToggleRadial(){ kikoRadialOpen?kikoClosePublishRadial():kikoOpenPublishRadial(); }
-function kikoOpenPublishRadial(){
+function kikoToggleRadial(){ kikoRadialOpen?_kikoClosePublishRadial():_kikoOpenPublishRadial(); }
+function _kikoOpenPublishRadial(){
   const npost=document.querySelector('.npost');
   if(!npost) return;
   const r=npost.getBoundingClientRect();
@@ -5157,6 +4878,7 @@ function kikoOpenPublishRadial(){
   const dist=92;
   items.forEach((it,i)=>{
     const el=document.getElementById(it.id);
+    if(!el)return;
     const rad=it.angle*Math.PI/180;
     const dx=Math.cos(rad)*dist, dy=-Math.sin(rad)*dist;
     el.style.left=(cx+dx)+'px';
@@ -5165,17 +4887,17 @@ function kikoOpenPublishRadial(){
     el.style.transform=`translate(-50%,-50%) scale(0.3)`;
     setTimeout(()=>{ el.style.transform=`translate(-50%,-50%) scale(1)`; }, i*45);
   });
-  document.getElementById('kikoPublishRadialOverlay').classList.add('active');
+  document.getElementById('kikoRadialOverlay').classList.add('active');
   kikoRadialOpen=true;
   if(navigator.vibrate) navigator.vibrate(8);
 }
-function kikoClosePublishRadial(){
-  document.getElementById('kikoPublishRadialOverlay').classList.remove('active');
+function _kikoClosePublishRadial(){
+  document.getElementById('kikoRadialOverlay').classList.remove('active');
   document.querySelectorAll('.kiko-radial-item').forEach(el=>{ el.style.transform='translate(-50%,-50%) scale(0.3)'; });
   kikoRadialOpen=false;
 }
 function kikoRadialAction(type){
-  kikoClosePublishRadial();
+  _kikoClosePublishRadial();
   needAuth(()=>{
     if(type==='video'){ openModal(); switchUploadTab('video'); }
     else if(type==='photo'){ openModal(); switchUploadTab('photo'); }
@@ -5556,6 +5278,220 @@ function resetPhotoPanel(){
 //  FEED VIDÉOS — réservé à 🔥 Buzz (jamais sur l'accueil)
 // ═══════════════════════════════════════
 let allPosts=[];
+// ── Catégories KIKO ──
+const KIKO_CATS = ['music','comedy','sport','news','dance','fashion','food','travel','tech','culture'];
+
+// ── Profil utilisateur local (localStorage + runtime) ──
+const kikoUserProfile = (() => {
+  const uid = (() => { try { return JSON.parse(localStorage.getItem('aes_user') || '{}').uid || 'anon'; } catch { return 'anon'; } })();
+  const key = 'kiko_up_' + uid;
+  let p;
+  try { p = JSON.parse(localStorage.getItem(key) || 'null'); } catch { p = null; }
+  if (!p || !p.categoryScore) {
+    p = {
+      userId: uid,
+      watchedVideos: [],    // [{id, at}] — 50 max FIFO
+      likedVideos: [],      // [id]
+      skippedVideos: [],    // [id] — skip < 3s
+      categoryScore: {}     // {music:0, comedy:0, ...}
+    };
+    KIKO_CATS.forEach(c => { p.categoryScore[c] = 0; });
+  }
+  const save = () => { try { localStorage.setItem(key, JSON.stringify(p)); } catch {} };
+  return {
+    get: () => p,
+    save,
+    // Marque une vidéo regardée (>70% de complétion)
+    markWatched(videoId, category) {
+      if (p.watchedVideos.find(x => x.id === videoId)) return;
+      p.watchedVideos.push({ id: videoId, at: Date.now() });
+      if (p.watchedVideos.length > 50) p.watchedVideos.shift(); // FIFO 50
+      if (category && p.categoryScore[category] !== undefined) {
+        p.categoryScore[category] = Math.min(100, (p.categoryScore[category] || 0) + 3);
+      }
+      save();
+    },
+    // Marque un like
+    markLiked(videoId, category) {
+      if (!p.likedVideos.includes(videoId)) p.likedVideos.push(videoId);
+      if (category && p.categoryScore[category] !== undefined) {
+        p.categoryScore[category] = Math.min(100, (p.categoryScore[category] || 0) + 5);
+      }
+      save();
+    },
+    // Marque un skip (< 3s)
+    markSkipped(videoId, category) {
+      if (!p.skippedVideos.includes(videoId)) p.skippedVideos.push(videoId);
+      if (category && p.categoryScore[category] !== undefined) {
+        p.categoryScore[category] = Math.max(-20, (p.categoryScore[category] || 0) - 3);
+      }
+      save();
+    },
+    // Reset partiel si toutes les vidéos ont été vues
+    partialReset() {
+      // Garde seulement les 10 vidéos les plus récemment vues
+      p.watchedVideos = p.watchedVideos.slice(-10);
+      p.skippedVideos = [];
+      save();
+    },
+    hasWatched(videoId) { return !!p.watchedVideos.find(x => x.id === videoId); },
+    hasSkipped(videoId) { return p.skippedVideos.includes(videoId); }
+  };
+})();
+
+// ── Poids du score de base ──
+const FEED_WEIGHTS = {
+  completion: 35,
+  engagement: 25,
+  freshness:  20,
+  boost:      15,
+  newcomer:   20,
+  geo:         8,
+  reportPenalty: 30
+};
+
+// ── Score de base d'une vidéo (inchangé) ──
+function computeFeedScore(item, viewerCountry) {
+  const views    = item.views    || 0;
+  const likes    = item.likes    || 0;
+  const comments = item.commentCount || 0;
+  const shares   = item.shares   || 0;
+  const reports  = item.reportsCount || 0;
+  const boost    = item.visibilityBoost || 0;
+
+  const engagementRate = Math.min(1, ((likes * 2 + comments * 3 + shares * 4) / Math.max(views, 1)) / 10);
+  const completionRate = (typeof item.avgWatchSeconds === 'number' && item.duration)
+    ? Math.min(1, item.avgWatchSeconds / item.duration) : 0.5;
+  const ageHours  = Math.max(0, (Date.now() - (item.createdAt || Date.now())) / 3600000);
+  const freshness = 1 / (1 + ageHours / 72);
+  const newcomerBonus = Math.max(0, 1 - (item.authorTotalViews || 0) / 50);
+  const geoBonus = (viewerCountry && item.country && viewerCountry === item.country) ? 1 : 0;
+
+  if (item.visibility === 'hidden') return -Infinity;
+  const visibilityMultiplier = item.visibility === 'limited' ? 0.25 : 1;
+
+  return (
+    FEED_WEIGHTS.completion * completionRate +
+    FEED_WEIGHTS.engagement * engagementRate +
+    FEED_WEIGHTS.freshness  * freshness +
+    FEED_WEIGHTS.boost      * (boost / 100) +
+    FEED_WEIGHTS.newcomer   * newcomerBonus +
+    FEED_WEIGHTS.geo        * geoBonus -
+    FEED_WEIGHTS.reportPenalty * Math.min(1, reports / 3)
+  ) * visibilityMultiplier;
+}
+
+// ── Score personnalisé = score base + bonus catégorie utilisateur ──
+function computePersonalScore(item, viewerCountry) {
+  const base = computeFeedScore(item, viewerCountry);
+  const up   = kikoUserProfile.get();
+  const cat  = (item.category || '').toLowerCase();
+  const catBonus = (cat && up.categoryScore[cat] !== undefined)
+    ? (up.categoryScore[cat] / 100) * 30  // max +30 pts si catégorie adorée
+    : 0;
+  // Malus vidéos déjà vues (pas exclues — juste poussées en bas)
+  const seenPenalty = kikoUserProfile.hasWatched(item.id) ? -40 : 0;
+  // Malus vidéos souvent skippées
+  const skipPenalty = kikoUserProfile.hasSkipped(item.id) ? -25 : 0;
+  return base + catBonus + seenPenalty + skipPenalty;
+}
+
+// ── Algorithme de sélection 3 groupes ──
+function kikoRankFeed(vids, viewerCountry) {
+  const up = kikoUserProfile.get();
+  if (!vids.length) return [];
+
+  // Calcule le score de chaque vidéo
+  const scored = vids.map(v => ({
+    ...v,
+    _score:  computePersonalScore(v, viewerCountry),
+    _base:   computeFeedScore(v, viewerCountry)
+  }));
+
+  // Vidéos totalement exclues (visibilité cachée)
+  const valid = scored.filter(v => v._score !== -Infinity);
+  if (!valid.length) return vids.slice(0, 20);
+
+  // Reset partiel si 80% des vidéos ont déjà été vues
+  const watchedCount = valid.filter(v => kikoUserProfile.hasWatched(v.id)).length;
+  if (watchedCount >= valid.length * 0.8) kikoUserProfile.partialReset();
+
+  // ── Groupe 1 : Pertinentes 60% (catégorie préférée + pas vues) ──
+  const relevant = valid
+    .filter(v => !kikoUserProfile.hasWatched(v.id))
+    .sort((a, b) => b._score - a._score);
+
+  // ── Groupe 2 : Tendances 25% (score de base élevé, vu ou non) ──
+  const trending = [...valid]
+    .sort((a, b) => b._base - a._base)
+    .filter(v => !relevant.slice(0, 8).find(r => r.id === v.id));
+
+  // ── Groupe 3 : Découverte 15% (aléatoire) ──
+  const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+  const discovery = shuffle(valid)
+    .filter(v => !relevant.slice(0, 8).find(r => r.id === v.id)
+              && !trending.slice(0, 5).find(t => t.id === v.id));
+
+  // ── Mélange 60/25/15 sur 20 vidéos ──
+  const take = (arr, n) => arr.slice(0, n);
+  const R = take(relevant,  Math.round(20 * 0.60)); // 12
+  const T = take(trending,  Math.round(20 * 0.25)); // 5
+  const D = take(discovery, Math.round(20 * 0.15)); // 3
+
+  // Interleave intelligemment (pas 12 pertinentes d'affilée)
+  const merged = [];
+  const pools  = [R, R, R, T, R, R, R, T, D, R, R, T, R, D, T, R, R, T, R, D];
+  const used   = new Set();
+  for (const pool of pools) {
+    const item = pool.find(v => !used.has(v.id));
+    if (item) { merged.push(item); used.add(item.id); }
+  }
+  // Complète avec les restants si < 20
+  valid.forEach(v => { if (!used.has(v.id) && merged.length < 20) merged.push(v); });
+
+  return diversifyFeed(merged);
+}
+
+// ── Anti-monopole auteur inchangé ──
+function diversifyFeed(sortedItems) {
+  const result = []; const pending = [...sortedItems];
+  let lastAuthor = null, streak = 0;
+  while (pending.length) {
+    let idx = pending.findIndex(it => (it.authorUid || it.auteur) !== lastAuthor || streak < 2);
+    if (idx === -1) idx = 0;
+    const item = pending.splice(idx, 1)[0];
+    const author = item.authorUid || item.auteur;
+    streak = (author === lastAuthor) ? streak + 1 : 1;
+    lastAuthor = author;
+    result.push(item);
+  }
+  return result;
+}
+
+// ── Tracking durée de visionnage par vidéo (pour watchedVideos + skip) ──
+const _vidStartTimes = {};  // { videoId: timestamp }
+function kikoTrackVideoStart(videoId) {
+  _vidStartTimes[videoId] = Date.now();
+}
+function kikoTrackVideoEnd(videoId, video, category) {
+  const startTime = _vidStartTimes[videoId];
+  if (!startTime) return;
+  const watchedMs   = Date.now() - startTime;
+  const watchedSec  = watchedMs / 1000;
+  const duration    = video.duration || 0;
+  // Skip < 3s
+  if (watchedSec < 3) {
+    kikoUserProfile.markSkipped(videoId, category);
+    return;
+  }
+  // Vue > 70%
+  if (duration > 0 && (watchedSec / duration) >= 0.7) {
+    kikoUserProfile.markWatched(videoId, category);
+  }
+  delete _vidStartTimes[videoId];
+}
+
+
 // ═══════════════════════════════════════════════════════════
 //  KIKO CACHE LOCAL — affichage instantané avant Firebase
 //  Cache localStorage : vidéos + posts, TTL 5 minutes
@@ -5609,13 +5545,10 @@ async function loadFeedMixed(){
     const vidSnap = await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
     const vids = vidSnap.val() ? Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})) : [];
     const viewerCountry = currentUser?.country || null;
-    let ranked = vids
-      .map(item=>({...item,authorTotalViews:0}))
-      .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
-      .sort((a,b)=>b._score-a._score);
-    ranked = diversifyFeed(ranked);
+    // ── Algorithme intelligent KIKO ──
+    const ranked = kikoRankFeed(vids, viewerCountry);
     allVids = vids;
-    KIKO_CACHE.set('videos', ranked.slice(0, 20)); // sauvegarde pour la prochaine ouverture
+    KIKO_CACHE.set('videos', ranked.slice(0, 20));
 
     if(!ranked.length){
       if(!cached || !cached.length) feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucune vidéo encore</div><div class="ph-sub">Sois le premier !</div></div>';
@@ -5635,7 +5568,7 @@ async function loadFeedMixed(){
     }
     setTimeout(()=>{
       loadCommentCounts(vids.slice(0,10));
-      if(currentUser){ syncLikedFromFirebase(vids); syncVideoFavoritesFromFirebase(vids); }
+      if(currentUser) syncLikedFromFirebase(vids);
       loadRealtimeStats(vids.slice(0,8));
     }, 600);
   }catch(e){
@@ -5976,49 +5909,115 @@ function openAuth(reason){
   document.getElementById('authModal').classList.add('active');
 }
 function closeAuth(){document.getElementById('authModal').classList.remove('active');}
-function switchTab(mode){
-  authMode=mode;
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(mode==='login'&&i===0)||(mode==='register'&&i===1)));
-  document.getElementById('authName').style.display=mode==='register'?'block':'none';
-  document.getElementById('authPhone').style.display=mode==='register'?'block':'none';
-  document.getElementById('authBtn').innerText=mode==='login'?'Se connecter':"S'inscrire";
-  document.getElementById('authErr').innerText='';
-}
-async function doAuth(){
-  const email=document.getElementById('authEmail').value.trim();
-  const pass=document.getElementById('authPass').value;
-  const name=document.getElementById('authName').value.trim();
-  const phone=document.getElementById('authPhone').value.trim();
+async function doAuthGoogle(){
   const errEl=document.getElementById('authErr');
-  if(!email||!pass){errEl.innerText='Remplis tous les champs';return;}
-  const btn=document.getElementById('authBtn');btn.disabled=true;btn.innerText='⏳...';
+  const btn=document.getElementById('authBtn');
+  errEl.innerText='';
+  btn.disabled=true;btn.style.opacity='.6';
   try{
-    if(authMode==='register'){
-      if(!name){errEl.innerText='Entre ton pseudo';btn.disabled=false;btn.innerText="S'inscrire";return;}
-      const snap=await db.ref('users').orderByChild('email').equalTo(email).once('value');
-      if(snap.exists()){errEl.innerText='Email déjà utilisé';btn.disabled=false;btn.innerText="S'inscrire";return;}
-      const uid='u_'+Date.now();
-      const user={uid,name,email,pass,phone:phone||'',avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
-      await db.ref('users/'+uid).set(user);
-      currentUser=user;
-    } else {
-      const snap=await db.ref('users').orderByChild('email').equalTo(email).once('value');
-      if(!snap.exists()){errEl.innerText='Email introuvable';btn.disabled=false;btn.innerText='Se connecter';return;}
-      const user=Object.values(snap.val()).find(u=>u.pass===pass);
-      if(!user){errEl.innerText='Mot de passe incorrect';btn.disabled=false;btn.innerText='Se connecter';return;}
-      currentUser=user;
+    let result;
+    try{
+      result=await auth.signInWithPopup(googleProvider);
+    }catch(popupErr){
+      // Fallback redirection si le popup est bloqué (fréquent sur mobile/PWA)
+      if(popupErr.code==='auth/popup-blocked'||popupErr.code==='auth/cancelled-popup-request'||popupErr.code==='auth/operation-not-supported-in-this-environment'){
+        await auth.signInWithRedirect(googleProvider);
+        return; // la suite est gérée par handleGoogleRedirectResult() au rechargement
+      }
+      throw popupErr;
     }
-    localStorage.setItem('aes_user',JSON.stringify(currentUser));
-    const fSnap=await db.ref('following/'+currentUser.uid).once('value');
-    following=fSnap.val()||{};
-    localStorage.setItem('aes_following',JSON.stringify(following));
-    closeAuth();applyUserUI();
-    showToast('👋 Bienvenue '+currentUser.name+' !');
-    startNotifListener();loadNotifs();loadDMs();
-    if(pendingAction){pendingAction();pendingAction=null;}
-    // Onboarding uniquement pour les nouveaux inscrits
-    if(authMode==='register') setTimeout(()=>kikoShowOnboarding(), 600);
-  }catch(e){errEl.innerText='Erreur: '+e.message;btn.disabled=false;btn.innerText=authMode==='login'?'Se connecter':"S'inscrire";}
+    await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
+  }catch(e){
+    if(e.code!=='auth/popup-closed-by-user'){
+      errEl.innerText='Erreur: '+e.message;
+    }
+    btn.disabled=false;btn.style.opacity='1';
+  }
+}
+
+// Gère le retour de signInWithRedirect (fallback mobile)
+async function handleGoogleRedirectResult(){
+  try{
+    const result=await auth.getRedirectResult();
+    if(result && result.user){
+      await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
+    }
+  }catch(e){ /* silencieux : pas de redirection en cours */ }
+}
+
+// Crée/charge le profil Firebase à partir du compte Google, et déclenche la géoloc pays.
+// Important : les comptes créés AVANT Google (uid = "u_...") sont retrouvés par email
+// et RÉUTILISÉS tels quels, pour ne pas faire perdre posts/follows/vidéos aux anciens utilisateurs.
+async function finalizeGoogleUser(fbUser, isNewUser){
+  const gUid=fbUser.uid;
+  let appUid=null, user=null, wasNew=false;
+
+  // 1) Lien déjà connu (connexions suivantes) → résolution instantanée
+  const linkSnap=await db.ref('googleLinks/'+gUid).once('value');
+  if(linkSnap.exists()){
+    appUid=linkSnap.val();
+    const uSnap=await db.ref('users/'+appUid).once('value');
+    user=uSnap.val();
+  }
+
+  // 2) Pas de lien encore → cherche un ancien compte par email (migration)
+  if(!user && fbUser.email){
+    const bySnap=await db.ref('users').orderByChild('email').equalTo(fbUser.email).once('value');
+    if(bySnap.exists()){
+      const entries=Object.entries(bySnap.val());
+      appUid=entries[0][0];
+      user=entries[0][1];
+      // Nettoyage sécurité : on n'a plus besoin du mot de passe en clair, Google gère l'auth désormais
+      if(user.pass) db.ref('users/'+appUid+'/pass').remove();
+      // Complète l'avatar/nom si l'ancien compte n'en avait pas
+      const patch={};
+      if(!user.avatar && fbUser.photoURL) patch.avatar=fbUser.photoURL;
+      if(!user.name && fbUser.displayName) patch.name=fbUser.displayName;
+      if(Object.keys(patch).length){ await db.ref('users/'+appUid).update(patch); Object.assign(user,patch); }
+      await db.ref('googleLinks/'+gUid).set(appUid);
+    }
+  }
+
+  // 3) Toujours rien → nouveau compte, cette fois avec l'uid Google directement
+  if(!user){
+    appUid=gUid;
+    wasNew=true;
+    user={
+      uid:appUid,
+      name:fbUser.displayName||'Utilisateur KIKO',
+      email:fbUser.email||'',
+      avatar:fbUser.photoURL||'',
+      phone:fbUser.phoneNumber||'',
+      bio:'Créateur de contenu africain 🌍',
+      country:null,
+      createdAt:Date.now()
+    };
+    await db.ref('users/'+appUid).set(user);
+    await db.ref('googleLinks/'+gUid).set(appUid);
+  }
+
+  user.uid=appUid; // s'assure que le champ uid interne correspond bien à la clé users/
+  currentUser=user;
+  localStorage.setItem('aes_user',JSON.stringify(currentUser));
+  const fSnap=await db.ref('following/'+currentUser.uid).once('value');
+  following=fSnap.val()||{};
+  localStorage.setItem('aes_following',JSON.stringify(following));
+  closeAuth();applyUserUI();
+  showToast('👋 Bienvenue '+currentUser.name+' !');
+  startNotifListener();loadNotifs();loadDMs();
+  if(pendingAction){pendingAction();pendingAction=null;}
+  if(wasNew) setTimeout(()=>kikoShowOnboarding(), 600);
+
+  // Demande la position pour déterminer le pays automatiquement (utilisé par l'algo vidéo)
+  if(!currentUser.country){
+    kikoGetUserCountry().then(country=>{
+      if(country){
+        currentUser.country=country;
+        localStorage.setItem('aes_user',JSON.stringify(currentUser));
+        db.ref('users/'+uid+'/country').set(country);
+      }
+    });
+  }
 }
 function doLogout(){currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');}
 function needAuth(action){if(currentUser){action();return;}pendingAction=action;openAuth('Crée un compte pour accéder 🔒');}
@@ -6027,6 +6026,7 @@ function applyUserUI(){
   // Met à jour l'onclick du bouton avatar topnav
   const loginBtn=document.getElementById('loginTopBtn');
   if(loginBtn)loginBtn.onclick=isLogged?()=>showScreen('profile'):openAuth;
+  document.getElementById('logoutBtn').style.display=isLogged?'block':'none';
   document.getElementById('editProfileBtn').style.display=isLogged?'block':'none';
   document.getElementById('feedTabs').style.display=isLogged?'flex':'none';
 
@@ -6307,23 +6307,6 @@ async function saveProfile(){
 
 // Affichage pur — ne modifie pas le NAV stack (utilisé par handleAndroidBack)
 function _doShowScreen(n){
-  // ─── Mode Buzz immersif : détecté ici pour marcher aussi bien via showScreen()
-  //     (navigation normale) que via handleAndroidBack() (bouton retour physique) ───
-  const _wasInBuzz = document.body.classList.contains('kiko-buzz-mode');
-  const _enteringBuzz = (n === 'buzz');
-  if(_enteringBuzz){
-    document.body.classList.add('kiko-buzz-mode');
-    document.body.classList.remove('kiko-buzz-exit');
-    document.body.classList.remove('kiko-controls-idle');
-    if(typeof _kikoResetControlsIdle==='function') _kikoResetControlsIdle();
-  } else if(_wasInBuzz){
-    document.body.classList.remove('kiko-buzz-mode');
-    document.body.classList.remove('kiko-controls-idle');
-    document.body.classList.add('kiko-buzz-exit');
-    clearTimeout(window._buzzExitT);
-    window._buzzExitT = setTimeout(()=>document.body.classList.remove('kiko-buzz-exit'), 650);
-  }
-
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   const screenMap = {
@@ -6531,10 +6514,7 @@ async function refreshFeedSilent(){
     const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
     const viewerCountry=currentUser?.country||null;
-    let ranked=vids
-      .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
-      .sort((a,b)=>b._score-a._score);
-    ranked=diversifyFeed(ranked);
+    const ranked = kikoRankFeed(vids, viewerCountry);
     allVids=vids;
     if(!ranked.length)return;
     const feed=document.getElementById('feed');
@@ -6547,7 +6527,7 @@ async function refreshFeedSilent(){
     initObserver();initProgress();
     setTimeout(()=>{
       loadCommentCounts(vids.slice(0,10));
-      if(currentUser){syncLikedFromFirebase(vids);syncVideoFavoritesFromFirebase(vids);}
+      if(currentUser)syncLikedFromFirebase(vids);
       loadRealtimeStats(vids.slice(0,8));
     },300);
   }catch(e){console.warn('refreshFeedSilent',e);}
@@ -6652,7 +6632,7 @@ function renderFeed(vids){
   // Tag data-* sur les vcards après rendu
   setTimeout(()=>vids.forEach(v=>_tagVCard(v.id,v)),100);
   if(vids[0])loadOneCommentCount(vids[0].id);
-  setTimeout(()=>{loadCommentCounts(vids.slice(1));if(currentUser){syncLikedFromFirebase(vids);syncVideoFavoritesFromFirebase(vids);}loadRealtimeStats(vids.slice(0,10));},600);
+  setTimeout(()=>{loadCommentCounts(vids.slice(1));if(currentUser)syncLikedFromFirebase(vids);loadRealtimeStats(vids.slice(0,10));},600);
 }
 
 function viralScore(v){
@@ -6665,79 +6645,14 @@ const TREND_THRESHOLD=50; // score minimum pour badge Tendance
 //  SCORING DU FEED — visibilité & ranking
 // ═══════════════════════════════════════
 // Pondérations (modifiables ici, tout est centralisé)
-const FEED_WEIGHTS={
-  completion:35,   // % de la vidéo/contenu réellement consommé (signal le plus fiable)
-  engagement:25,   // likes/comments/shares pondérés / vues
-  freshness:20,    // décroît doucement sur ~72h (pas un crash en 24h)
-  boost:15,        // boost admin manuel (0-100), réglable depuis l'admin
-  newcomer:20,     // bonus dégressif pour les comptes < 50 vues cumulées
-  geo:8,           // léger bonus si même pays que le viewer (pas un filtre, juste un coup de pouce)
-  reportPenalty:30 // pénalité forte si contenu signalé
-};
+// ═══════════════════════════════════════════════════════════════════
+//  KIKO BUZZ ALGORITHM — Feed intelligent adaptatif
+//  Tracking comportemental + scoring 3 groupes + anti-répétition
+// ═══════════════════════════════════════════════════════════════════
 
-function computeFeedScore(item,viewerCountry){
-  const views=item.views||0;
-  const likes=item.likes||0;
-  const comments=item.commentCount||0;
-  const shares=item.shares||0;
-  const reports=item.reportsCount||0;
-  const boost=item.visibilityBoost||0; // 0-100, réglé manuellement depuis l'admin
-  const authorTotalViews=item.authorTotalViews||0; // cumul de vues de l'auteur, pour détecter un nouveau créateur
-
-  // Engagement : pondéré, normalisé par les vues pour ne pas juste favoriser les gros comptes
-  const engagementRate=Math.min(1,((likes*2+comments*3+shares*4)/Math.max(views,1))/10);
-
-  // Complétion (si trackée) — sinon valeur neutre 0.5 pour ne pas désavantager les vidéos non instrumentées
-  const completionRate=(typeof item.avgWatchSeconds==='number'&&item.duration)
-    ?Math.min(1,item.avgWatchSeconds/item.duration)
-    :0.5;
-
-  // Fraîcheur douce : decay sur 72h plutôt que 24h
-  const ageHours=Math.max(0,(Date.now()-(item.createdAt||Date.now()))/3600000);
-  const freshness=1/(1+ageHours/72);
-
-  // Bonus nouveau créateur, dégressif jusqu'à 50 vues cumulées
-  const newcomerBonus=Math.max(0,1-authorTotalViews/50);
-
-  // Bonus géo léger — n'agit que si les deux pays sont renseignés
-  const geoBonus=(viewerCountry&&item.country&&viewerCountry===item.country)?1:0;
-
-  // Visibilité masquée/limitée par modération manuelle
-  if(item.visibility==='hidden')return -Infinity;
-  const visibilityMultiplier=item.visibility==='limited'?0.25:1;
-
-  const score=
-    FEED_WEIGHTS.completion*completionRate +
-    FEED_WEIGHTS.engagement*engagementRate +
-    FEED_WEIGHTS.freshness*freshness +
-    FEED_WEIGHTS.boost*(boost/100) +
-    FEED_WEIGHTS.newcomer*newcomerBonus +
-    FEED_WEIGHTS.geo*geoBonus -
-    FEED_WEIGHTS.reportPenalty*Math.min(1,reports/3);
-
-  return score*visibilityMultiplier;
-}
-
-// Anti-monopole : pas plus de 2 contenus consécutifs du même auteur
-function diversifyFeed(sortedItems){
-  const result=[];const pending=[...sortedItems];
-  let lastAuthor=null,streak=0;
-  while(pending.length){
-    let idx=pending.findIndex(it=>(it.authorUid||it.auteur)!==lastAuthor||streak<2);
-    if(idx===-1)idx=0;
-    const item=pending.splice(idx,1)[0];
-    const author=item.authorUid||item.auteur;
-    streak=(author===lastAuthor)?streak+1:1;
-    lastAuthor=author;
-    result.push(item);
-  }
-  return result;
-}
 
 function buildVCard(v,i){
   const isLiked=liked.includes(v.id);
-  const reactType=kikoReactions[v.id]||null;
-  const isFav=videoFavorites.includes(v.id);
   const init=(v.auteur||'A')[0].toUpperCase();
   const tags=(v.desc||'').match(/#\w+/g)||[];
   const desc=(v.desc||'').replace(/#\w+/g,'').trim();
@@ -6753,7 +6668,6 @@ function buildVCard(v,i){
       onclick="tapVid(this,${i})" id="vid-${v.id}"></video>
     <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}">⏸</div></div>
     <div class="vmute-btn" id="vmute-${v.id}" onclick="toggleMute('${v.id}')">🔇</div>
-    <div class="vdownload-btn" id="vdl-${v.id}" onclick="event.stopPropagation();needAuth(()=>downloadVid('${v.videoUrl||''}','${v.id}','${esc(v.auteur||'')}',this))" title="Télécharger">⬇️</div>
     <div class="heart-anim" id="ha-${i}">❤️</div>
 
     ${isTrending?`<div class="vtrend-badge"><span class="fire">🔥</span> Tendance AES</div>`:''}
@@ -6797,43 +6711,30 @@ function buildVCard(v,i){
           ?`<div class="vmusic" style="cursor:pointer;" onclick="event.stopPropagation();useThisSound('${jsStr(v.musicName)}','${jsStr(v.musicArtist)}','${jsStr(v.musicEmoji||'🎵')}','${jsStr(v.musicUrl)}','${jsStr(v.musicCover||'')}','video')"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`
           :`<div class="vmusic"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`;
       })()}
-      <div class="vstats-row" style="display:flex;gap:14px;margin-top:5px;">
+      <div style="display:flex;gap:10px;margin-top:5px;">
         <span class="vviews-badge" id="vv-${v.id}">👁 ${fmt(v.views||0)}</span>
-        <span class="vviews-badge" id="fc-${v.id}">⭐ ${fmt(Object.keys(v.favoritedBy||{}).length)}</span>
       </div>
     </div>
 
     <!-- Bouton ⋮ Plus -->
     <div class="vmore-btn" onclick="event.stopPropagation();kikoOpenMoreSheet('${v.id}','${esc(v.auteur||'')}','${v.authorUid||''}',${isOwn})">⋮</div>
 
-    <!-- Barre d'actions horizontale — Partager · Favori · Signaler (icônes ligne, pas emoji) -->
-    <div class="kiko-quickbar" onclick="event.stopPropagation();">
-      <button class="kiko-qb-btn" onclick="openShareSheet('${v.id}')" aria-label="Partager">
-        <svg class="kiko-qb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        <span>Partager</span>
-      </button>
-      <button class="kiko-qb-btn ${isFav?'active':''}" id="fvb-${v.id}" onclick="needAuth(()=>toggleVideoFavorite('${v.id}', this))" aria-label="Favori">
-        <svg class="kiko-qb-icon" viewBox="0 0 24 24" fill="${isFav?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span>Favori</span>
-      </button>
-      <button class="kiko-qb-btn" onclick="needAuth(()=>openVideoReportPopup('${v.id}'))" aria-label="Signaler">
-        <svg class="kiko-qb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="22" x2="4" y2="15"/><path d="M4 15V3a1 1 0 0 1 1-1h14l-3 6 3 6H5"/></svg>
-        <span>Signaler</span>
-      </button>
+    <!-- Compteurs discrets -->
+    <div class="vkiko-stats">
+      <div class="vkiko-stat">❤️ <span id="lc-${v.id}">${fmt(v.likes||0)}</span></div>
+      <div class="vkiko-stat">💬 <span id="cc-${v.id}">0</span></div>
+      <div class="vkiko-stat">👁 <span id="vv2-${v.id}">${fmt(v.views||0)}</span></div>
     </div>
 
     <!-- Boutons .vactions conservés (cachés) pour compatibilité des fonctions existantes -->
     <div class="vactions" style="display:none!important;">
       <div class="aav"></div>
-      <div class="aitem"><div class="acircle"></div><span></span></div>
+      <div class="aitem" onclick="needAuth(()=>toggleLike('${v.id}'))">
+        <div class="acircle ${isLiked?'liked':''}" id="lk-${v.id}">${isLiked?'❤️':'🤍'}</div>
+        <span id="lc-hidden-${v.id}">${fmt(v.likes||0)}</span>
+      </div>
       <div class="aitem" onclick="openComments('${v.id}')"><div class="acircle">💬</div><span></span></div>
       <div class="aitem" onclick="openShareSheet('${v.id}')"><div class="acircle">↗️</div><span id="sc-${v.id}">${fmt(v.shares||0)}</span></div>
-    </div>
-
-    <!-- Bouton de réaction KIKO — 2 états uniques (😍 J'aime / 😎 Reconnaissent) -->
-    <div class="kiko-react-btn ${reactType?KIKO_REACT_CONF[reactType].glowClass+' reacted':''}" id="lk-${v.id}" data-vid="${v.id}"
-         onclick="event.stopPropagation();needAuth(()=>cycleKikoReaction('${v.id}', this))">
-      <span class="kiko-react-emoji" id="lke-${v.id}">${reactType?KIKO_REACT_CONF[reactType].emoji:'🤍'}</span>
     </div>
   </div>`;
 }
@@ -6846,11 +6747,9 @@ function loadRealtimeStats(vids){
       const lc=document.getElementById('lc-'+v.id);
       const vv=document.getElementById('vv-'+v.id);
       const vv2=document.getElementById('vv2-'+v.id);
-      const fc=document.getElementById('fc-'+v.id);
       if(lc)lc.innerText=fmt(d.likes||0);
       if(vv)vv.innerText='👁 '+fmt(d.views||0);
       if(vv2)vv2.innerText=fmt(d.views||0);
-      if(fc)fc.innerText='⭐ '+fmt(Object.keys(d.favoritedBy||{}).length);
     });
   });
 }
@@ -6876,30 +6775,6 @@ function initInfiniteScroll(){
       loadMoreVideos();
     }
   },{passive:true});
-  // ─── Mode Buzz : fondu doux des boutons d'action pendant le swipe/scroll ───
-  feed.addEventListener('scroll', _buzzHandleFeedScroll, {passive:true});
-}
-
-let _buzzScrollFadeT=null;
-function _buzzHandleFeedScroll(){
-  if(!document.body.classList.contains('kiko-buzz-mode')) return;
-  document.querySelectorAll('#buzzScreen .kiko-quickbar, #buzzScreen .kiko-react-btn, #buzzScreen .vmore-btn, #buzzScreen .vdownload-btn, #buzzScreen .vmute-btn, #buzzScreen .vstats-row')
-    .forEach(el=>el.classList.add('kiko-fade-scroll'));
-  clearTimeout(_buzzScrollFadeT);
-  _buzzScrollFadeT=setTimeout(()=>{
-    document.querySelectorAll('#buzzScreen .kiko-fade-scroll')
-      .forEach(el=>el.classList.remove('kiko-fade-scroll'));
-  },220);
-  _kikoResetControlsIdle();
-}
-
-// ─── Disparition auto des boutons si inactif, réapparition douce au toucher ───
-let _kikoIdleT=null;
-function _kikoResetControlsIdle(){
-  if(!document.body.classList.contains('kiko-buzz-mode')) return;
-  document.body.classList.remove('kiko-controls-idle');
-  clearTimeout(_kikoIdleT);
-  _kikoIdleT=setTimeout(()=>{ document.body.classList.add('kiko-controls-idle'); }, 3200);
 }
 
 function loadMoreVideos(){
@@ -7008,7 +6883,7 @@ const RADIAL_RADIUS = 88; // px entre le centre et chaque bouton
 
 // Actions disponibles dans le menu radial
 function _radialActions(vidId, vidIdx){
-  const reactType = kikoReactions[vidId] || null;
+  const isLiked = liked.includes(vidId);
   const vcard   = document.getElementById('vc-'+vidId);
   const authorUid = vcard?.dataset.authorUid || '';
   const authorName = vcard?.dataset.authorName || '';
@@ -7016,22 +6891,22 @@ function _radialActions(vidId, vidIdx){
   const isOwn = currentUser && authorUid === currentUser.uid;
   return [
     {
-      icon: reactType ? KIKO_REACT_CONF[reactType].emoji : '🤍',
-      label: reactType ? KIKO_REACT_CONF[reactType].label : 'J\'aime',
-      cls: reactType ? 'liked' : '',
+      icon: isLiked ? '❤️' : '🤍',
+      label: isLiked ? 'Aimé' : 'J\'aime',
+      cls: isLiked ? 'liked' : '',
       angle: -90,  // haut
-      action: ()=>needAuth(()=>{ const btn=document.getElementById('lk-'+vidId); cycleKikoReaction(vidId, btn||{getBoundingClientRect:()=>({left:window.innerWidth/2,top:window.innerHeight/2,width:0,height:0})}); kikoCloseRadial(); })
+      action: ()=>needAuth(()=>{ toggleLike(vidId); kikoCloseRadial(); })
     },
     {
-      icon: '🍎', label: 'Commenter', angle: -30,
+      icon: '💬', label: 'Commenter', angle: -30,
       action: ()=>{ openComments(vidId); kikoCloseRadial(); }
     },
     {
-      icon: '🥕', label: 'Envoyer', angle: 30,
+      icon: '↗️', label: 'Partager', angle: 30,
       action: ()=>{ openShareSheet(vidId); kikoCloseRadial(); }
     },
     {
-      icon: '📤', label: 'Télécharger', angle: 90,
+      icon: '🔖', label: 'Sauvegarder', angle: 90,
       action: ()=>{ needAuth(()=>downloadVid(vcard?.dataset.videoUrl||'',vidId,authorName)); kikoCloseRadial(); }
     },
     {
@@ -7062,9 +6937,7 @@ function kikoOpenRadial(e, vidId, vidIdx){
   const cy = touch.clientY;
 
   const menu    = document.getElementById('kikoRadialMenu');
-  const overlay = document.getElementById('kikoRadialOverlay');
-
-  // Réinitialise
+  const overlay = document.getElementById('kikoVidRadialOverlay');
   menu.innerHTML = '<div class="kiko-radial-origin"></div>';
   menu.style.left = cx + 'px';
   menu.style.top  = cy + 'px';
@@ -7109,7 +6982,7 @@ function kikoOpenRadial(e, vidId, vidIdx){
 function kikoCloseRadial(instant){
   clearTimeout(_radialTimeout);
   const menu    = document.getElementById('kikoRadialMenu');
-  const overlay = document.getElementById('kikoRadialOverlay');
+  const overlay = document.getElementById('kikoVidRadialOverlay');
   if(!menu) return;
   menu.querySelectorAll('.kiko-radial-btn').forEach(b=>{
     b.style.transform = 'translate(-50%,-50%) scale(0)';
@@ -7205,118 +7078,7 @@ async function kikoSubmitReport(vidId, reason){
   }catch{ showToast('Erreur lors du signalement'); }
 }
 
-// ═══════════════════════════════════════════════════════════
-//  ⭐ FAVORI VIDÉO — état actif/inactif, stockage local + serveur
-// ═══════════════════════════════════════════════════════════
-function toggleVideoFavorite(id, btnEl){
-  if(!currentUser)return;
-  const isFav = videoFavorites.includes(id);
-  const btn = (btnEl && btnEl.classList) ? btnEl : document.getElementById('fvb-'+id);
-  const fc = document.getElementById('fc-'+id);
-  const fcNow = fc ? parseInt((fc.innerText.match(/\d+/)||['0'])[0],10)||0 : 0;
-
-  if(isFav){
-    videoFavorites = videoFavorites.filter(x=>x!==id);
-    db.ref('videos/'+id+'/favoritedBy/'+currentUser.uid).remove();
-    if(btn){
-      btn.classList.remove('active');
-      const svg = btn.querySelector('.kiko-qb-icon'); if(svg) svg.setAttribute('fill','none');
-    }
-    if(fc) fc.innerText='⭐ '+fmt(Math.max(0,fcNow-1));
-    showToast('☆ Retiré des favoris');
-  } else {
-    videoFavorites.push(id);
-    db.ref('videos/'+id+'/favoritedBy/'+currentUser.uid).set(true);
-    if(btn){
-      btn.classList.remove('active'); void btn.offsetWidth; btn.classList.add('active'); // rejoue l'animation
-      const svg = btn.querySelector('.kiko-qb-icon'); if(svg) svg.setAttribute('fill','currentColor');
-    }
-    if(fc) fc.innerText='⭐ '+fmt(fcNow+1);
-    if(navigator.vibrate) navigator.vibrate(14);
-    showToast('⭐ Ajouté aux favoris');
-  }
-  localStorage.setItem('kiko_fav_videos', JSON.stringify(videoFavorites));
-}
-
-async function syncVideoFavoritesFromFirebase(vids){
-  if(!currentUser)return;
-  await Promise.all(vids.slice(0,20).map(async v=>{
-    const snap = await db.ref('videos/'+v.id+'/favoritedBy/'+currentUser.uid).once('value');
-    if(snap.val() && !videoFavorites.includes(v.id)){
-      videoFavorites.push(v.id);
-      const btn = document.getElementById('fvb-'+v.id);
-      if(btn){ btn.classList.add('active'); const svg=btn.querySelector('.kiko-qb-icon'); if(svg) svg.setAttribute('fill','currentColor'); }
-    }
-  }));
-  localStorage.setItem('kiko_fav_videos', JSON.stringify(videoFavorites));
-}
-
-// ═══════════════════════════════════════════════════════════
-//  🚨 SIGNALEMENT VIDÉO — popup 4 choix + requête API + fallback Firebase
-// ═══════════════════════════════════════════════════════════
-// Renseigner l'URL de ton backend ici une fois déployé (voir exemple Node fourni séparément)
-const REPORT_API_URL = null; // ex: 'https://api.kiko-app.com/report'
-
-let _reportTargetVidId = null;
-
-function openVideoReportPopup(vidId){
-  if(!currentUser)return;
-  _reportTargetVidId = vidId;
-  document.getElementById('kikoReportModal').classList.add('active');
-}
-function closeVideoReportPopup(){
-  document.getElementById('kikoReportModal').classList.remove('active');
-  _reportTargetVidId = null;
-}
-
-async function submitVideoReport(reason){
-  const vidId = _reportTargetVidId;
-  if(!vidId || !currentUser){ closeVideoReportPopup(); return; }
-  closeVideoReportPopup();
-
-  const payload = {
-    video_id: vidId,
-    user_id: currentUser.uid,
-    reason,
-    timestamp: Date.now()
-  };
-
-  // 1. Stockage fiable côté Firebase (toujours exécuté — ne dépend d'aucun serveur externe)
-  try{
-    await db.ref('reports/'+vidId+'/'+currentUser.uid).set({ reason, at: payload.timestamp });
-    await db.ref('videos/'+vidId+'/reportsCount').transaction(n=>(n||0)+1);
-  }catch(e){ /* non bloquant */ }
-
-  // 2. Requête vers le backend de modération (POST /report) — voir exemple Node/Express fourni
-  if(REPORT_API_URL){
-    try{
-      await fetch(REPORT_API_URL, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-      });
-    }catch(e){ /* échec réseau silencieux — le signalement est déjà en base via Firebase */ }
-  }
-
-  showToast('✅ Signalement envoyé — merci de nous aider à garder KIKO sain');
-}
-document.getElementById('kikoReportModal')?.addEventListener('click', e=>{
-  if(e.target.id==='kikoReportModal') closeVideoReportPopup();
-});
-
-// ═══════════════════════════════════════════════════════════
-//  📤 PARTAGE — Facebook (WhatsApp/Telegram/natif déjà couverts par openShareSheet)
-// ═══════════════════════════════════════════════════════════
-function shareToFacebook(){
-  if(!curShareVid)return;
-  const url=encodeURIComponent(getShareLink(curShareVid.id));
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`,'_blank');
-  incrementShares(curShareVid.id);
-  closeShareSheet();
-}
-
 function tapVid(video, i){
-  _kikoResetControlsIdle();
   const ctrl = document.getElementById('vc-ctrl-'+i);
   const icon = document.getElementById('vplay-'+i);
   if(video.paused){
@@ -7337,7 +7099,7 @@ function initRadialLongPress(){
   feedEl.addEventListener('touchstart', e=>{
     const vcard = e.target.closest('.vcard');
     if(!vcard) return;
-    if(e.target.closest('.vprogress,.vadv-panel,.vinfo,.vmore-btn,.vmute-btn,.vdownload-btn,.vcontrols')) return;
+    if(e.target.closest('.vprogress,.vadv-panel,.vinfo,.vmore-btn,.vmute-btn,.vcontrols')) return;
     const vidId = vcard.id.replace('vc-','');
 
     // Feedback visuel immédiat (ripple léger)
@@ -7423,19 +7185,9 @@ function goFullscreen(vidId){
 
 function doubleTapLike(id,i){
   if(!currentUser){needAuth(()=>openComments(id));return;}
+  if(!liked.includes(id))toggleLike(id);
   const ha=document.getElementById('ha-'+i);
-  const wasNone=!kikoReactions[id];
-  // Double-tap ne fait que réagir une 1ère fois (comportement attendu type "aimer"),
-  // il ne fait pas cycler vers 😎 pour ne pas surprendre l'utilisateur — le cycle
-  // complet 😍 → 😎 se fait via le bouton circulaire dédié.
-  if(wasNone){
-    const btn=document.getElementById('lk-'+id);
-    cycleKikoReaction(id, btn||{getBoundingClientRect:()=>({left:window.innerWidth/2,top:window.innerHeight*0.6,width:0,height:0})});
-  }
-  if(ha){
-    ha.textContent = kikoReactions[id]==='recognize' ? '😎' : '😍';
-    ha.classList.add('show');setTimeout(()=>ha.classList.remove('show'),700);
-  }
+  if(ha){ha.classList.add('show');setTimeout(()=>ha.classList.remove('show'),700);}
 }
 let _globalObs=null;
 // Garde-fou anti-superposition de sons : un seul <video> du feed peut jouer
@@ -7470,12 +7222,19 @@ function initObserver(){
         }
         const id=e.target.id.replace('vc-','');
         const vid=allVids.find(x=>x.id===id);
-        if(vid)trackView(id,vid.authorUid||'');
+        if(vid){
+          trackView(id,vid.authorUid||'');
+          kikoTrackVideoStart(id); // tracking durée
+        }
         const btn=document.getElementById('vmute-'+id);
         if(btn)btn.innerText=globalMuted?'🔇':'🔊';
       } else {
         v.pause();
         if(_activePlayingVideo===v)_activePlayingVideo=null;
+        // Fin de visionnage → tracking comportemental
+        const id=e.target.id.replace('vc-','');
+        const vid=allVids.find(x=>x.id===id);
+        if(vid) kikoTrackVideoEnd(id, v, vid.category||'');
         const rect=e.target.getBoundingClientRect();
         if(Math.abs(rect.top)>window.innerHeight*3&&v.src){
           v.dataset.src=v.src;v.removeAttribute('src');v.load();
@@ -7529,178 +7288,41 @@ function trackView(vidId,authorUid){
   if(authorUid)db.ref('users/'+authorUid+'/totalViews').transaction(v=>(v||0)+1);
 }
 
-// ═══════════════════════════════════════════════════════════
-//  RÉACTION KIKO — système unique à 2 états (😍 J'aime / 😎 Reconnaissent)
-//  1er clic → 😍 · 2e clic → 😎 · 3e clic → revient à 😍 (jamais d'état "off")
-// ═══════════════════════════════════════════════════════════
-const KIKO_REACT_CONF = {
-  like:      { emoji:'😍', label:'J\u2019aime',       glowClass:'glow-like' },
-  recognize: { emoji:'😎', label:'Reconnaissent', glowClass:'glow-recognize' }
-};
-
-function isSlowKikoNetwork(){
-  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if(!c) return false;
-  return !!(c.saveData || ['slow-2g','2g'].includes(c.effectiveType));
-}
-
-function cycleKikoReaction(id, btnEl){
+// ═══════════════════════════════════════
+//  LIKE — temps réel
+// ═══════════════════════════════════════
+function toggleLike(id){
   if(!currentUser)return;
-  const current = kikoReactions[id] || null;
-  const next = current==='recognize' ? 'like' : (current==='like' ? 'recognize' : 'like');
-  const wasNone = !current;
-  kikoReactions[id] = next;
-  localStorage.setItem('kiko_reactions', JSON.stringify(kikoReactions));
-
-  // Le compteur global (❤️/😍 affiché en dur dans vkiko-stats) n'augmente
-  // qu'à la toute première réaction — passer de 😍 à 😎 ne change que le
-  // "type" de réaction, pas le total (on ne veut pas d'état "off" ici).
-  if(wasNone){
-    if(!liked.includes(id)){ liked.push(id); localStorage.setItem('aes_liked',JSON.stringify(liked)); }
+  const isLiked=liked.includes(id);
+  const circle=document.getElementById('lk-'+id);
+  if(isLiked){
+    liked=liked.filter(x=>x!==id);
+    if(circle){circle.innerText='🤍';circle.classList.remove('liked');}
+    db.ref('videos/'+id+'/likes').transaction(v=>Math.max(0,(v||0)-1));
+    db.ref('videos/'+id+'/likedBy/'+currentUser.uid).remove();
+  } else {
+    liked.push(id);
+    if(circle){circle.innerText='❤️';circle.classList.add('liked');}
     db.ref('videos/'+id+'/likes').transaction(v=>(v||0)+1);
     db.ref('videos/'+id+'/likedBy/'+currentUser.uid).set(true);
     const vid=allVids.find(x=>x.id===id);
+    // Tracking comportemental
+    if(vid) kikoUserProfile.markLiked(id, vid.category||'');
     if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'like',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',vidId:id,at:Date.now(),read:false});
   }
-  db.ref('videos/'+id+'/reactType/'+currentUser.uid).set(next); // sauvegarde du TYPE choisi
-
-  applyKikoReactionUI(id, next, btnEl);
-  triggerKikoReactionFx(next, btnEl);
-
-  // Haptique léger, différencié selon l'état (bonus)
-  if(navigator.vibrate) navigator.vibrate(next==='recognize' ? [12,35,12] : 16);
+  localStorage.setItem('aes_liked',JSON.stringify(liked));
 }
-
-// Ancien nom conservé pour compatibilité avec d'éventuels appels externes
-function toggleLike(id){
-  const btn=document.getElementById('lk-'+id);
-  cycleKikoReaction(id, btn||{getBoundingClientRect:()=>({left:innerWidth/2,top:innerHeight/2,width:0,height:0})});
-}
-
-function applyKikoReactionUI(id, type, btnEl){
-  const conf = KIKO_REACT_CONF[type];
-  const btn = (btnEl && btnEl.classList) ? btnEl : document.getElementById('lk-'+id);
-  if(!btn) return;
-  btn.classList.remove('glow-like','glow-recognize');
-  btn.classList.add(conf.glowClass,'reacted');
-  const em = btn.querySelector ? (btn.querySelector('.kiko-react-emoji')||btn) : btn;
-  if(em.classList) em.classList.remove('kiko-swap');
-  if('offsetWidth' in em) void em.offsetWidth; // reflow → rejoue l'animation à chaque clic
-  em.textContent = conf.emoji;
-  if(em.classList) em.classList.add('kiko-swap');
-}
-
-function triggerKikoReactionFx(type, btnEl){
-  const rect = btnEl.getBoundingClientRect ? btnEl.getBoundingClientRect() : {left:innerWidth/2,top:innerHeight/2,width:0,height:0};
-  const originX = rect.left + rect.width/2;
-  const originY = rect.top + rect.height/2;
-  const light = isSlowKikoNetwork();
-
-  if(type==='like'){
-    // 😍 — pulse + petit envol simple et propre
-    spawnKikoParticles(originX, originY, '😍', light?3:6, light);
-  } else {
-    // 😎 — envol dispersé en bas + animation de texte découpé en haut
-    spawnKikoParticles(originX, originY, '😎', light?3:7, light);
-    playReconnaissentAnim(light);
-  }
-}
-
-// Effet du bas : particules qui montent puis se dispersent (léger, DOM auto-nettoyé)
-function spawnKikoParticles(x, y, emoji, count, light){
-  const layer = document.getElementById('kikoParticlesLayer');
-  if(!layer) return;
-  for(let i=0;i<count;i++){
-    const p = document.createElement('span');
-    p.className = 'kiko-particle';
-    p.textContent = emoji;
-    p.style.left = x+'px'; p.style.top = y+'px';
-    p.style.setProperty('--driftX', (Math.random()*70-35).toFixed(0)+'px');
-    p.style.setProperty('--rise', '-'+(80+Math.random()*60).toFixed(0)+'px');
-    p.style.animationDelay = (i*55)+'ms';
-    p.style.animationDuration = (light?'800ms':(1000+Math.random()*400)+'ms');
-    layer.appendChild(p);
-    const cleanup=()=>{ if(p.parentNode) p.remove(); };
-    p.addEventListener('animationend', cleanup);
-    setTimeout(cleanup, 2200); // filet de sécurité anti-fuite mémoire
-  }
-}
-
-// Effet du haut : "Reconnaissent" apparaît, se découpe en 2, part vers le
-// coin en haut à droite puis se recolle — signature visuelle KIKO (~1.6s)
-function playReconnaissentAnim(light){
-  const overlay = document.getElementById('kikoReconOverlay');
-  const word    = document.getElementById('kikoReconWord');
-  const split   = document.getElementById('kikoReconSplit');
-  const part1   = document.getElementById('kikoReconPart1');
-  const part2   = document.getElementById('kikoReconPart2');
-  const toast   = document.getElementById('kikoReconToast');
-  if(!overlay) return;
-
-  // Réseau lent / appareil bas de gamme → version courte, sans la découpe
-  // (moins de reflows, moins de transitions simultanées)
-  if(light){
-    overlay.classList.add('active');
-    word.style.display='block'; split.style.display='none';
-    word.classList.add('kr-appear');
-    setTimeout(()=>{
-      overlay.classList.remove('active'); word.classList.remove('kr-appear');
-      toast.classList.add('show');
-      setTimeout(()=>toast.classList.remove('show'),650);
-    },450);
-    return;
-  }
-
-  overlay.classList.add('active');
-  word.style.display='block'; split.style.display='none';
-  word.classList.add('kr-appear');
-
-  setTimeout(()=>{ // 1. le mot se découpe en 2
-    word.style.display='none'; word.classList.remove('kr-appear');
-    split.style.display='flex';
-    part1.classList.add('kr-part-up');
-    part2.classList.add('kr-part-dip');
-  },320);
-
-  setTimeout(()=>{ // 2. les 2 parties filent vers le coin haut-droit
-    const t = toast.getBoundingClientRect();
-    const p1 = part1.getBoundingClientRect();
-    const p2 = part2.getBoundingClientRect();
-    part1.style.transform = `translate(${t.left-p1.left+12}px, ${t.top-p1.top+8}px) scale(.45)`;
-    part1.style.opacity = '0.15';
-    part2.style.transform = `translate(${t.left-p2.left+34}px, ${t.top-p2.top+8}px) scale(.45)`;
-    part2.style.opacity = '0.15';
-  },780);
-
-  setTimeout(()=>{ // 3. elles se recollent → le badge coin affiche le mot entier
-    toast.classList.add('show');
-  },1350);
-
-  setTimeout(()=>{ // 4. nettoyage
-    overlay.classList.remove('active');
-    split.style.display='none';
-    part1.classList.remove('kr-part-up'); part1.style.transform=''; part1.style.opacity='';
-    part2.classList.remove('kr-part-dip'); part2.style.transform=''; part2.style.opacity='';
-    setTimeout(()=>toast.classList.remove('show'),700);
-  },1700);
-}
-
 async function syncLikedFromFirebase(vids){
   if(!currentUser)return;
   await Promise.all(vids.slice(0,20).map(async v=>{
-    const [likedSnap, typeSnap] = await Promise.all([
-      db.ref('videos/'+v.id+'/likedBy/'+currentUser.uid).once('value'),
-      db.ref('videos/'+v.id+'/reactType/'+currentUser.uid).once('value')
-    ]);
-    if(likedSnap.val() && !liked.includes(v.id)) liked.push(v.id);
-    const type = typeSnap.val() || (likedSnap.val() ? 'like' : null); // rétro-compatibilité anciens likes
-    if(type){
-      kikoReactions[v.id] = type;
-      applyKikoReactionUI(v.id, type);
+    const snap=await db.ref('videos/'+v.id+'/likedBy/'+currentUser.uid).once('value');
+    if(snap.val()&&!liked.includes(v.id)){
+      liked.push(v.id);
+      const c=document.getElementById('lk-'+v.id);
+      if(c){c.innerText='❤️';c.classList.add('liked');}
     }
   }));
   localStorage.setItem('aes_liked',JSON.stringify(liked));
-  localStorage.setItem('kiko_reactions',JSON.stringify(kikoReactions));
 }
 
 // ═══════════════════════════════════════
@@ -8224,9 +7846,9 @@ function resetVideoPanel(){
   const pb = document.getElementById('publishBtn');
   if(pb){ pb.disabled=false; pb.textContent='🚀 Publier'; }
   const mp = document.getElementById('mprog');
-  if(mp) mp.classList.remove('show');
-  resetUploadRing();
-  _uploadInProgress = false;
+  if(mp) mp.style.display='none';
+  const mf = document.getElementById('mprogFill');
+  if(mf) mf.style.width='0%';
 }
 
 // Appelé dès qu'un fichier est choisi dans la galerie
@@ -8260,141 +7882,72 @@ function fmtDur(s){
   return m+':'+(sec<10?'0':'')+sec;
 }
 
-// ── Upload direct ──
-// ═══════════════════════════════════════════════════════════
-//  UPLOAD — anneau circulaire, couleur adaptative réseau, retry
-// ═══════════════════════════════════════════════════════════
-let _uploadInProgress = false;
-const UPL_RING_CIRC = 2*Math.PI*45; // ≈ 282.7 — doit matcher r du cercle SVG (#mprogRing)
-
-function resetUploadRing(){
-  const ring = document.getElementById('mprogRing');
-  const pct  = document.getElementById('mprogPct');
-  const icon = document.getElementById('mprogIcon');
-  const label= document.getElementById('mprogLabel');
-  if(ring){ ring.style.strokeDashoffset = UPL_RING_CIRC; ring.style.stroke = 'var(--green)'; }
-  if(pct)  pct.textContent = '0%';
-  if(icon) icon.textContent = '📶';
-  if(label) label.textContent = '';
+// ── Miniature vidéo personnalisée ──
+function vpsTriggerThumbPick(){
+  const inp = document.getElementById('vpsThumbInput');
+  if(inp) inp.click();
 }
-
-// Couleur + icône selon la VITESSE réseau instantanée (pas juste le %) —
-// c'est ce qui rend l'anneau "intelligent" et différent d'une simple barre.
-function uplSpeedStyle(kbps){
-  if(kbps >= 400)  return { color:'#34D399', icon:'🟢' }; // rapide
-  if(kbps >= 100)  return { color:'#FFC94D', icon:'🟡' }; // moyen
-  return                  { color:'#FF5C72', icon:'🔴' }; // lent
-}
-
-function setUploadProgress(pct, label, kbps){
-  const ring = document.getElementById('mprogRing');
-  const pctEl= document.getElementById('mprogPct');
-  const icon = document.getElementById('mprogIcon');
-  const lbl  = document.getElementById('mprogLabel');
-  const clamped = Math.max(0, Math.min(100, pct));
-  if(ring) ring.style.strokeDashoffset = UPL_RING_CIRC * (1 - clamped/100);
-  if(pctEl) pctEl.textContent = Math.round(clamped)+'%';
-  if(lbl) lbl.textContent = label;
-  if(typeof kbps === 'number' && ring && icon){
-    const s = uplSpeedStyle(kbps);
-    ring.style.stroke = s.color;
-    icon.textContent = s.icon;
+function vpsOnThumbSelected(inp){
+  const f = inp.files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  const prev = document.getElementById('vpsThumbnailPreview');
+  if(prev){
+    prev.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
   }
+  // Stocke pour l'upload
+  window._vpsCustomThumb = f;
+  showToast('🖼️ Miniature sélectionnée');
 }
 
-// Force la livraison finale en MP4/H.264 quelle que soit la source
-// (utile car MediaRecorder produit du WebM sur la plupart des Android) :
-// Cloudinary retranscode à la volée dès qu'on demande l'extension .mp4,
-// avec qualité automatique optimisée pour la taille (q_auto).
-function toMp4DeliveryUrl(url){
-  if(!url || !url.includes('res.cloudinary.com') || !url.includes('/video/upload/')) return url;
-  return url
-    .replace('/video/upload/', '/video/upload/q_auto,f_mp4/')
-    .replace(/\.(webm|mov|avi|mkv)$/i, '.mp4');
-}
-
-// Upload avec retry automatique (réseau lent/instable) + suivi de vitesse
-function uploadFileWithProgress(file, {onProgress, maxRetries=2}={}){
-  return new Promise((resolve, reject)=>{
-    let attempt = 0;
-
-    const tryOnce = ()=>{
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('upload_preset','Aes-upload');
-      const xhr = new XMLHttpRequest();
-      _vpsXHR = xhr;
-
-      let lastLoaded = 0, lastTime = performance.now();
-
-      xhr.open('POST','https://api.cloudinary.com/v1_1/dvmpv8pdi/video/upload');
-      xhr.upload.onprogress = e=>{
-        if(!e.lengthComputable) return;
-        const now = performance.now();
-        const dt = Math.max((now-lastTime)/1000, 0.001);
-        const kbps = ((e.loaded-lastLoaded)/1024) / dt; // Ko/s instantané
-        lastLoaded = e.loaded; lastTime = now;
-        const pct = Math.round(e.loaded/e.total*100);
-        onProgress && onProgress(pct, kbps);
-      };
-      xhr.onload = ()=>{
-        _vpsXHR = null;
-        if(xhr.status===200){ resolve(JSON.parse(xhr.responseText).secure_url); return; }
-        handleFailure(new Error((()=>{ try{return JSON.parse(xhr.responseText)?.error?.message;}catch(_){return null;} })() || 'Upload échoué'));
-      };
-      xhr.onerror  = ()=>{ _vpsXHR=null; handleFailure(new Error('Erreur réseau')); };
-      xhr.ontimeout= ()=>{ _vpsXHR=null; handleFailure(new Error('Délai dépassé')); };
-      xhr.send(fd);
-    };
-
-    const handleFailure = (err)=>{
-      if(attempt < maxRetries){
-        attempt++;
-        onProgress && onProgress(null, null, `🔁 Nouvelle tentative (${attempt}/${maxRetries})...`);
-        setTimeout(tryOnce, 1200 * attempt); // backoff progressif
-      } else {
-        reject(err);
-      }
-    };
-
-    tryOnce();
-  });
-}
-
+// ── Upload direct ──
 async function uploadVideo(){
-  if(_uploadInProgress) return; // empêche tout double upload (double-tap, etc.)
   if(!selFile){ showToast('⚠️ Choisis une vidéo'); return; }
 
-  // Mode hors-ligne → on met en attente plutôt que d'échouer
-  if(!navigator.onLine){
-    await queueOfflineUpload();
-    return;
-  }
-
-  _uploadInProgress = true;
-  const desc    = (document.getElementById('vpsDescInput')?.value||'').trim();
-  const privacy = document.getElementById('vpsPrivacy')?.value||'public';
+  // Lit depuis l'écran actif (VPS complet ou VPS rapide dans modal)
+  const descEl    = document.getElementById('vpsDescInput') || document.getElementById('vpsDescInputQuick');
+  const privacyEl = document.getElementById('vpsPrivacy')   || document.getElementById('vpsPrivacyQuick');
+  const desc    = (descEl?.value||'').trim();
+  const privacy = privacyEl?.value||'public';
 
   const btn = document.getElementById('publishBtn');
   btn.disabled = true; btn.textContent = '⏳ Envoi...';
 
   const mprog = document.getElementById('mprog');
-  mprog.classList.add('show');
-  resetUploadRing();
-  setUploadProgress(2, 'Préparation...');
+  const fill  = document.getElementById('mprogFill');
+  const label = document.getElementById('mprogLabel');
+  mprog.style.display = 'block';
+
+  const setP = (pct, txt)=>{
+    fill.style.width = pct+'%';
+    label.textContent = txt;
+  };
+  setP(2, 'Connexion...');
 
   try{
-    const rawVideoUrl = await uploadFileWithProgress(selFile, {
-      onProgress: (pct, kbps, retryMsg)=>{
-        if(retryMsg){ setUploadProgress(document.getElementById('mprogPct') ? parseInt(document.getElementById('mprogPct').textContent)||5 : 5, retryMsg); return; }
-        const scaled = 5 + pct*0.85; // 5% → 90%
-        const msg = pct < 100 ? `Upload en cours...` : `Optimisation...`;
-        setUploadProgress(scaled, msg, kbps);
-      }
+    const videoUrl = await new Promise((res, rej)=>{
+      const fd = new FormData();
+      fd.append('file', selFile);
+      fd.append('upload_preset','Aes-upload');
+      const xhr = new XMLHttpRequest();
+      _vpsXHR = xhr;
+      xhr.open('POST','https://api.cloudinary.com/v1_1/dvmpv8pdi/video/upload');
+      xhr.upload.onprogress = e=>{
+        if(e.lengthComputable){
+          const pct = Math.round(e.loaded/e.total*100);
+          setP(5 + pct*0.88, `Envoi ${pct}%...`);
+        }
+      };
+      xhr.onload = ()=>{
+        _vpsXHR = null;
+        if(xhr.status===200) res(JSON.parse(xhr.responseText).secure_url);
+        else { try{ rej(new Error(JSON.parse(xhr.responseText)?.error?.message||'Upload échoué')); }catch(e){ rej(new Error('Erreur upload')); } }
+      };
+      xhr.onerror = ()=>{ _vpsXHR=null; rej(new Error('Erreur réseau')); };
+      xhr.send(fd);
     });
 
-    setUploadProgress(93, 'Optimisation...');
-    const videoUrl = toMp4DeliveryUrl(rawVideoUrl);
+    setP(96, 'Sauvegarde...');
 
     const thumbnail = videoUrl
       .replace('/video/upload/','/video/upload/so_0,w_480,f_jpg/')
@@ -8407,8 +7960,6 @@ async function uploadVideo(){
       musicAllowReuse:reuseToggle?reuseToggle.checked:true
     } : {};
 
-    setUploadProgress(97, 'Sauvegarde...');
-
     await db.ref('videos').push({
       videoUrl, thumbnail, ...musicData,
       auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
@@ -8417,7 +7968,7 @@ async function uploadVideo(){
     });
     KIKO_CACHE.clear('videos'); // invalide le cache pour forcer rechargement
 
-    setUploadProgress(100, 'Terminé ✅');
+    setP(100, '✅ Publié !');
     showToast('🎉 Vidéo publiée avec succès !');
 
     setTimeout(()=>{
@@ -8431,71 +7982,17 @@ async function uploadVideo(){
     }, 800);
 
   } catch(e){
-    mprog.classList.remove('show');
+    mprog.style.display = 'none';
     btn.disabled = false; btn.textContent = '🚀 Publier';
-    _uploadInProgress = false;
     showToast('❌ '+e.message);
-    return;
-  }
-  _uploadInProgress = false;
-}
-
-// Stub pour compatibilité (ancien appelant)
-function setProg(pct,label){ setUploadProgress(pct,label); }
-
-// ═══════════════════════════════════════════════════════════
-//  BONUS — mode hors-ligne : upload différé
-//  Stocke le fichier (Blob) + métadonnées en IndexedDB, publie
-//  automatiquement dès que la connexion revient.
-// ═══════════════════════════════════════════════════════════
-function kikoOfflineDB(){
-  return new Promise((resolve, reject)=>{
-    const req = indexedDB.open('kiko_offline', 1);
-    req.onupgradeneeded = ()=>{ req.result.createObjectStore('pending', {keyPath:'id'}); };
-    req.onsuccess = ()=>resolve(req.result);
-    req.onerror = ()=>reject(req.error);
-  });
-}
-
-async function queueOfflineUpload(){
-  try{
-    const desc    = (document.getElementById('vpsDescInput')?.value||'').trim();
-    const privacy = document.getElementById('vpsPrivacy')?.value||'public';
-    const db_ = await kikoOfflineDB();
-    const tx = db_.transaction('pending','readwrite');
-    tx.objectStore('pending').put({ id:'up_'+Date.now(), file:selFile, desc, privacy, createdAt:Date.now() });
-    showToast('📴 Hors-ligne : vidéo mise en attente, elle sera publiée automatiquement dès que le réseau revient.');
-    closeModal();
-  } catch(e){
-    showToast('❌ Impossible de mettre en attente : '+e.message);
   }
 }
 
-async function flushOfflinePendingUploads(){
-  if(!navigator.onLine) return;
-  try{
-    const db_ = await kikoOfflineDB();
-    const tx = db_.transaction('pending','readonly');
-    const items = await new Promise((res,rej)=>{ const r=tx.objectStore('pending').getAll(); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); });
-    for(const item of items){
-      try{
-        const rawUrl = await uploadFileWithProgress(item.file, {});
-        const videoUrl = toMp4DeliveryUrl(rawUrl);
-        const thumbnail = videoUrl.replace('/video/upload/','/video/upload/so_0,w_480,f_jpg/').replace(/\.(mp4|mov|avi|webm)$/i,'.jpg');
-        await db.ref('videos').push({
-          videoUrl, thumbnail, auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
-          authorUid:currentUser.uid, country:currentUser.country||null,
-          desc:item.desc, privacy:item.privacy, likes:0, views:0, createdAt:Date.now()
-        });
-        KIKO_CACHE.clear('videos');
-        const dtx = db_.transaction('pending','readwrite'); dtx.objectStore('pending').delete(item.id);
-        showToast('🎉 Vidéo en attente publiée avec succès !');
-      } catch(e){ /* on réessaiera au prochain retour réseau */ }
-    }
-  } catch(e){ /* IndexedDB indisponible — pas bloquant */ }
+// Stub pour compatibilité
+function setProg(pct,label){
+  const f=document.getElementById('mprogFill'); if(f) f.style.width=pct+'%';
+  const l=document.getElementById('mprogLabel'); if(l) l.textContent=label;
 }
-window.addEventListener('online', flushOfflinePendingUploads);
-document.addEventListener('DOMContentLoaded', ()=>{ if(navigator.onLine) flushOfflinePendingUploads(); });
 
 // Stubs pour les fonctions de l'écran VPS (plus utilisées mais référencées ailleurs)
 function openVideoPublishScreen(){}
@@ -9160,212 +8657,97 @@ function kikoDrawWatermark(ctx,canvasW,canvasH,corner,username){
 }
 
 function kikoPickMime(){
-  // On essaie D'ABORD les variantes MP4/H.264+AAC (format Android standard,
-  // compatible WhatsApp/Instagram/Messenger/Telegram/Bluetooth/tout lecteur).
-  // Sur la plupart des téléphones Android, le navigateur ne sait PAS encoder
-  // du H.264 via MediaRecorder — dans ce cas on retombe sur WebM, le seul
-  // format que le navigateur sait réellement produire localement.
-  const opts=[
-    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
-    'video/mp4;codecs=h264,aac',
-    'video/mp4',
-    'video/webm;codecs=vp9,opus',
-    'video/webm;codecs=vp8,opus',
-    'video/webm'
-  ];
+  const opts=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'];
   for(const m of opts){ if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m; }
   return '';
 }
 
-// Vérifie qu'un blob vidéo est réellement lisible (durée finie, dimensions valides)
-// avant de le proposer au partage — évite de renvoyer un fichier "cassé" que
-// WhatsApp/Instagram/Telegram refusent ou affichent comme vidéo invalide.
-function kikoValidateVideoBlob(blob, minBytes){
-  return new Promise((resolve)=>{
-    if(!blob || blob.size < minBytes){ resolve(false); return; }
-    const testUrl=URL.createObjectURL(blob);
-    const testVid=document.createElement('video');
-    testVid.preload='metadata';
-    testVid.src=testUrl;
-    const cleanup=(ok)=>{ URL.revokeObjectURL(testUrl); resolve(ok); };
-    const t=setTimeout(()=>cleanup(false),4000);
-    testVid.onloadedmetadata=()=>{
-      clearTimeout(t);
-      const okDuration=isFinite(testVid.duration) && testVid.duration>0;
-      const okDims=testVid.videoWidth>0 && testVid.videoHeight>0;
-      cleanup(okDuration && okDims);
-    };
-    testVid.onerror=()=>{ clearTimeout(t); cleanup(false); };
-  });
-}
+async function downloadVid(url,id,username){
+  // Fallback si l'appareil ne supporte pas Canvas captureStream / MediaRecorder
+  const supportsExport = !!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream);
+  if(!supportsExport){
+    showToast('⏳ Préparation...');
+    try{
+      const res=await fetch(url);const blob=await res.blob();const blobUrl=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=blobUrl;a.download='Kiko_'+id+'.mp4';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);showToast('⬇️ Téléchargement démarré !');
+    }catch{const a=document.createElement('a');a.href=url;a.target='_blank';a.click();showToast('⬇️ Téléchargement démarré !');}
+    return;
+  }
 
-// Téléchargement / partage "simple" et fiable : la vidéo ORIGINALE, telle quelle,
-// sans ré-encodage. C'est le chemin le plus sûr — garantit toujours un fichier
-// valide et partageable, même si le filigrane échoue plus haut.
-async function kikoPlainDownload(url,id){
-  showToast('⏳ Préparation du téléchargement...');
+  showToast('⏳ Ajout du filigrane Kiko...');
   try{
-    const res=await fetch(url);
-    if(!res.ok) throw new Error('fetch failed');
-    const blob=await res.blob();
-    const mimeType=blob.type && blob.type.startsWith('video/') ? blob.type : 'video/mp4';
-    const ext=mimeType.includes('webm')?'webm':'mp4';
-    const filename='Kiko_'+id+'.'+ext;
-    const file=new File([blob],filename,{type:mimeType});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{ await navigator.share({files:[file],title:'KIKO👑'}); showToast('✅ Vidéo prête à partager !'); return; }
-      catch(e){ /* partage annulé/échoué → on télécharge quand même ci-dessous */ }
+    const video=document.createElement('video');
+    video.src=url;video.crossOrigin='anonymous';video.muted=false;video.playsInline=true;
+    video.style.position='fixed';video.style.left='-9999px';video.style.top='-9999px';
+    document.body.appendChild(video);
+
+    await new Promise((res,rej)=>{
+      video.onloadedmetadata=res;video.onerror=rej;
+      setTimeout(rej,8000); // sécurité si le flux ne charge pas
+    });
+
+    const w=video.videoWidth||720, h=video.videoHeight||1280;
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d');
+
+    let mediaStream;
+    try{
+      mediaStream=video.captureStream?video.captureStream():video.mozCaptureStream();
+    }catch(e){mediaStream=null;}
+
+    const canvasStream=canvas.captureStream(30);
+    const finalStream=new MediaStream();
+    canvasStream.getVideoTracks().forEach(t=>finalStream.addTrack(t));
+    if(mediaStream){ mediaStream.getAudioTracks().forEach(t=>finalStream.addTrack(t)); }
+
+    const mime=kikoPickMime();
+    const recorder=new MediaRecorder(finalStream, mime?{mimeType:mime,videoBitsPerSecond:4_000_000}:{});
+    const chunks=[];
+    recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
+
+    const stopped=new Promise(res=>{ recorder.onstop=res; });
+
+    let rafId;
+    const startTs=performance.now();
+    function drawFrame(){
+      if(video.paused||video.ended){ return; }
+      ctx.drawImage(video,0,0,w,h);
+      const elapsed=video.currentTime*1000;
+      const cornerIdx=Math.floor(elapsed/KIKO_WM.rotateMs)%4;
+      kikoDrawWatermark(ctx,w,h,KIKO_WM.corners[cornerIdx],username);
+      rafId=requestAnimationFrame(drawFrame);
     }
-    const blobUrl=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=blobUrl;a.download=filename;
+
+    video.currentTime=0;
+    await video.play();
+    drawFrame();
+    recorder.start(250);
+
+    video.onended=()=>{
+      cancelAnimationFrame(rafId);
+      setTimeout(()=>{ if(recorder.state!=='inactive') recorder.stop(); },150);
+    };
+
+    await stopped;
+    document.body.removeChild(video);
+
+    const outBlob=new Blob(chunks,{type:mime.split(';')[0]||'video/webm'});
+    const blobUrl=URL.createObjectURL(outBlob);
+    const ext=(mime.indexOf('mp4')>-1)?'mp4':'webm';
+    const a=document.createElement('a');
+    a.href=blobUrl;a.download='Kiko_'+id+'.'+ext;
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(blobUrl),8000);
-    showToast('⬇️ Vidéo téléchargée !');
+    showToast('⬇️ Vidéo filigranée téléchargée !');
   }catch(err){
-    console.error('Kiko plain download error:',err);
-    try{ const a=document.createElement('a');a.href=url;a.target='_blank';a.click(); }
-    catch{ showToast('❌ Le téléchargement a échoué — réessaie'); return; }
-    showToast('⬇️ Téléchargement démarré !');
-  }
-}
-
-async function downloadVid(url,id,username,btnEl){
-  if(!url){ showToast('❌ Vidéo indisponible'); return; }
-  if(btnEl){ btnEl.classList.add('loading'); }
-  try{
-    // Fallback si l'appareil ne supporte pas Canvas captureStream / MediaRecorder :
-    // on part directement sur le téléchargement simple et fiable.
-    const supportsExport = !!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream);
-    if(!supportsExport){
-      await kikoPlainDownload(url,id);
-      return;
-    }
-
-    showToast('⏳ Ajout du filigrane Kiko...');
+    console.error('Kiko watermark export error:',err);
+    showToast('⏳ Téléchargement simple...');
     try{
-      const video=document.createElement('video');
-      video.src=url;video.crossOrigin='anonymous';video.muted=false;video.playsInline=true;
-      video.style.position='fixed';video.style.left='-9999px';video.style.top='-9999px';
-      document.body.appendChild(video);
-
-      await new Promise((res,rej)=>{
-        video.onloadedmetadata=res;video.onerror=rej;
-        setTimeout(rej,8000); // sécurité si le flux ne charge pas
-      });
-
-      const w=video.videoWidth||720, h=video.videoHeight||1280;
-      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-      const ctx=canvas.getContext('2d');
-
-      let mediaStream;
-      try{
-        mediaStream=video.captureStream?video.captureStream():video.mozCaptureStream();
-      }catch(e){mediaStream=null;}
-
-      const canvasStream=canvas.captureStream(30);
-      const finalStream=new MediaStream();
-      canvasStream.getVideoTracks().forEach(t=>finalStream.addTrack(t));
-      if(mediaStream){ mediaStream.getAudioTracks().forEach(t=>finalStream.addTrack(t)); }
-
-      const mime=kikoPickMime();
-      const recorder=new MediaRecorder(finalStream, mime?{mimeType:mime,videoBitsPerSecond:4_000_000}:{});
-      const chunks=[];
-      recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
-
-      const stopped=new Promise(res=>{ recorder.onstop=res; });
-
-      let rafId;
-      function drawFrame(){
-        if(video.paused||video.ended){ return; }
-        ctx.drawImage(video,0,0,w,h);
-        const elapsed=video.currentTime*1000;
-        const cornerIdx=Math.floor(elapsed/KIKO_WM.rotateMs)%4;
-        kikoDrawWatermark(ctx,w,h,KIKO_WM.corners[cornerIdx],username);
-        rafId=requestAnimationFrame(drawFrame);
-      }
-
-      video.currentTime=0;
-      await video.play();
-      drawFrame();
-      recorder.start(250);
-
-      // Filet de sécurité global : si l'événement 'ended' ne se déclenche jamais
-      // (flux distant capricieux, décodeur qui cale...), on arrête quand même
-      // l'enregistrement après la durée de la vidéo (+marge) plutôt que de
-      // bloquer indéfiniment et de produire un fichier vide/incomplet.
-      const durMs = isFinite(video.duration) && video.duration>0 ? video.duration*1000 : 60000;
-      const safetyTimer = setTimeout(()=>{
-        cancelAnimationFrame(rafId);
-        if(recorder.state!=='inactive') recorder.stop();
-      }, durMs + 6000);
-
-      video.onended=()=>{
-        clearTimeout(safetyTimer);
-        cancelAnimationFrame(rafId);
-        setTimeout(()=>{ if(recorder.state!=='inactive') recorder.stop(); },150);
-      };
-
-      await stopped;
-      clearTimeout(safetyTimer);
-      video.remove();
-
-      const outMime=mime?mime.split(';')[0]:'video/webm'; // type RÉEL du fichier produit — jamais falsifié
-      const outBlob=new Blob(chunks,{type:outMime});
-
-      // Vérification anti-fichier-cassé : si l'enregistrement a échoué à produire
-      // une vidéo lisible (durée nulle/infinie, dimensions absentes, poids
-      // anormalement faible...), on ne le propose JAMAIS au partage — c'est
-      // exactement ce qui causait les vidéos "invalides" une fois envoyées.
-      // On bascule automatiquement sur le téléchargement simple et fiable.
-      const isValid = await kikoValidateVideoBlob(outBlob, 20000);
-      if(!isValid){
-        console.warn('Kiko watermark export produced an invalid/empty video — falling back to plain download.');
-        await kikoPlainDownload(url,id);
-        return;
-      }
-
-      const isRealMp4=outMime==='video/mp4';
-      const ext=isRealMp4?'mp4':'webm';
-      const filename='Kiko_'+id+'.'+ext;
-      const file=new File([outBlob],filename,{type:outMime});
-
-      // 1) Priorité : partage natif avec le VRAI fichier + bon type MIME.
-      //    C'est ce qui permet à WhatsApp/Instagram/Messenger/Telegram/Bluetooth
-      //    de reconnaître correctement le fichier comme une vraie vidéo, au lieu
-      //    de passer par un simple téléchargement non enregistré dans MediaStore.
-      if(navigator.canShare && navigator.canShare({files:[file]})){
-        try{
-          await navigator.share({
-            files:[file],
-            title:'KIKO👑',
-            text:'🔥 Vidéo KIKO (filigranée)'
-          });
-          showToast('✅ Vidéo filigranée prête à partager !');
-          return;
-        }catch(shareErr){
-          // L'utilisateur a annulé le partage, ou le partage a échoué : on retombe
-          // sur le téléchargement classique ci-dessous plutôt que de bloquer.
-        }
-      }
-
-      // 2) Repli : téléchargement classique du fichier (navigateur desktop, ou
-      //    appareil sans Web Share API niveau fichiers).
-      const blobUrl=URL.createObjectURL(outBlob);
-      const a=document.createElement('a');
-      a.href=blobUrl;a.download=filename;
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(blobUrl),8000);
-      if(isRealMp4){
-        showToast('⬇️ Vidéo filigranée téléchargée (MP4) !');
-      } else {
-        showToast('⬇️ Vidéo filigranée téléchargée (.webm — ton appareil ne sait pas encoder en MP4 localement)');
-      }
-    }catch(err){
-      console.error('Kiko watermark export error:',err);
-      await kikoPlainDownload(url,id);
-    }
-  } finally {
-    if(btnEl){ btnEl.classList.remove('loading'); }
+      const res=await fetch(url);const blob=await res.blob();const blobUrl=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=blobUrl;a.download='Kiko_'+id+'.mp4';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);showToast('⬇️ Téléchargement démarré !');
+    }catch{const a=document.createElement('a');a.href=url;a.target='_blank';a.click();}
   }
 }
 
@@ -9811,6 +9193,7 @@ async function deleteMaTrack(key){
 }
 
 applyUserUI();
+handleGoogleRedirectResult();
 document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===currentLang));
 applyLang();
 checkDeepLink();
@@ -9859,44 +9242,6 @@ let _camRecInterval = null;
 let _camResultBlob = null;
 let _camResultType = 'photo';    // 'photo' | 'video'
 let _camCalledFrom = 'post';     // 'post' | 'story' | 'status'
-let _camMimeExt = 'webm';        // extension réelle utilisée pour l'enregistrement en cours
-
-// ═══════════════════════════════════════
-//  QUALITÉ VIDÉO — sélection codec + bitrate adaptatif réseau
-// ═══════════════════════════════════════
-function getBestVideoRecorderConfig(){
-  // On tente MP4/H.264 en priorité (natif Safari iOS, Chrome Android récents) :
-  // s'il n'est pas supporté, on retombe sur WebM (VP9 puis VP8), toujours
-  // livré en .mp4 côté serveur via transcodage Cloudinary (cf. toMp4DeliveryUrl).
-  const candidates = [
-    { mime:'video/mp4;codecs=avc1.42E01E,mp4a.40.2', ext:'mp4' },
-    { mime:'video/mp4', ext:'mp4' },
-    { mime:'video/webm;codecs=vp9,opus', ext:'webm' },
-    { mime:'video/webm;codecs=vp8,opus', ext:'webm' },
-    { mime:'video/webm', ext:'webm' },
-  ];
-  for(const c of candidates){
-    if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c.mime)){
-      return c;
-    }
-  }
-  return { mime:'', ext:'webm' }; // laisse le navigateur choisir par défaut
-}
-
-function getAdaptiveVideoBitrate(){
-  // Bonus : on adapte le débit vidéo cible à la qualité du réseau détectée,
-  // pour garder une bonne qualité perçue sans exploser la taille du fichier
-  // sur connexion lente (2G/3G courant au Burkina/Mali/Niger).
-  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if(!conn) return 2_500_000; // ~2.5 Mbps par défaut, bon compromis 720x1280@30fps
-  switch(conn.effectiveType){
-    case 'slow-2g':
-    case '2g':  return 700_000;   // très faible, on protège le devis data
-    case '3g':  return 1_400_000;
-    case '4g':  return 2_800_000;
-    default:    return conn.downlink && conn.downlink < 1 ? 1_000_000 : 2_800_000;
-  }
-}
 
 function initCameraModule(){
   buildFilterStrip();
@@ -9954,66 +9299,18 @@ async function openCamera(mode='photo', calledFrom='post'){
   await startCamStream();
 }
 
-// ═══════════════════════════════════════════════════════════
-//  SYSTÈME DE PERMISSIONS AVEC CONTEXTE
-//  (explique POURQUOI avant de déclencher la popup native Android)
-// ═══════════════════════════════════════════════════════════
-let _permResolve = null;
-const PERM_INFO = {
-  camera:   { icon:'📷', title:'Autoriser la caméra',     text:"KIKO a besoin d'accéder à ta caméra pour filmer une vidéo ou prendre une photo. Rien n'est enregistré tant que tu n'appuies pas sur le bouton de capture." },
-  location: { icon:'📍', title:'Autoriser la localisation', text:"KIKO utilise ta position pour te montrer du contenu et des opportunités proches de chez toi. Ta position exacte n'est jamais partagée publiquement." },
-  storage:  { icon:'🖼️', title:"Autoriser l'accès aux fichiers", text:"KIKO a besoin d'accéder à tes photos/vidéos pour que tu puisses les publier." }
-};
-
-function kikoAskPermission(type){
-  return new Promise(resolve=>{
-    const info = PERM_INFO[type] || PERM_INFO.camera;
-    document.getElementById('permModalIcon').innerText  = info.icon;
-    document.getElementById('permModalTitle').innerText = info.title;
-    document.getElementById('permModalText').innerText  = info.text;
-    document.getElementById('permModal').style.display  = 'flex';
-    _permResolve = resolve;
-  });
-}
-function kikoAcceptPerm(){
-  document.getElementById('permModal').style.display='none';
-  if(_permResolve){ _permResolve(true); _permResolve=null; }
-}
-function kikoDenyPerm(){
-  document.getElementById('permModal').style.display='none';
-  if(_permResolve){ _permResolve(false); _permResolve=null; }
-}
-
 async function startCamStream(){
   if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); }
-  const camAlreadyAsked = localStorage.getItem('kiko_perm_camera_asked');
-  if(!camAlreadyAsked){
-    const ok = await kikoAskPermission('camera');
-    localStorage.setItem('kiko_perm_camera_asked','1');
-    if(!ok){ showToast('📷 Caméra non activée'); closeCamera(); return; }
-  }
   try{
     _camStream = await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:_camFacing,
-        // Portrait natif 720x1280 @30fps — évite le lag de démarrage lié
-        // à des contraintes trop hautes (1080p) sur du matériel bas de gamme.
-        width:{ ideal:720, max:720 },
-        height:{ ideal:1280, max:1280 },
-        aspectRatio:{ ideal:9/16 },
-        frameRate:{ ideal:30, max:30 }
-      },
-      audio:{ echoCancellation:true, noiseSuppression:true }
+      video:{ facingMode:_camFacing, width:{ideal:1280}, height:{ideal:720} },
+      audio:true
     });
     const vid = document.getElementById('camVideo');
     vid.srcObject = _camStream;
     await vid.play();
   } catch(e){
-    if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
-      showToast('❌ Caméra refusée — active-la dans les réglages du téléphone');
-    } else {
-      showToast('❌ Caméra non disponible : '+e.message);
-    }
+    showToast('❌ Caméra non disponible : '+e.message);
     closeCamera();
   }
 }
@@ -10092,62 +9389,36 @@ function takePhoto(){
   },'image/jpeg',0.92);
 }
 
-const CAM_MAX_REC_SECONDS = 180;   // 3 min max
-const CAM_RING_CIRC = 2*Math.PI*43; // ≈ 270.2 — doit matcher le r du cercle SVG
-
 function startVideoRec(){
   if(!_camStream) return;
   _camChunks = [];
-
-  const cfg = getBestVideoRecorderConfig();
-  _camMimeExt = cfg.ext;
-  const recOpts = {
-    videoBitsPerSecond: getAdaptiveVideoBitrate(),
-    audioBitsPerSecond: 96_000
-  };
-  if(cfg.mime) recOpts.mimeType = cfg.mime;
-
-  try{
-    _camMediaRecorder = new MediaRecorder(_camStream, recOpts);
-  } catch(e){
-    // Le codec/bitrate demandé n'est pas accepté par ce téléphone → on
-    // relance sans contraintes pour ne jamais bloquer l'enregistrement.
-    _camMediaRecorder = new MediaRecorder(_camStream);
-    _camMimeExt = 'webm';
-  }
-
+  const opts = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+    ? {mimeType:'video/webm;codecs=vp9'}
+    : MediaRecorder.isTypeSupported('video/webm')
+    ? {mimeType:'video/webm'}
+    : {};
+  _camMediaRecorder = new MediaRecorder(_camStream, opts);
   _camMediaRecorder.ondataavailable = e=>{ if(e.data.size>0)_camChunks.push(e.data); };
   _camMediaRecorder.onstop = ()=>{
-    const blob = new Blob(_camChunks, {type:_camMediaRecorder.mimeType || (_camMimeExt==='mp4'?'video/mp4':'video/webm')});
+    const blob = new Blob(_camChunks, {type:_camMediaRecorder.mimeType||'video/webm'});
     _camResultBlob = blob;
     _camResultType = 'video';
     showCamResult(URL.createObjectURL(blob), CAM_FILTERS[_camFilterIdx].name, 'video');
   };
-  // Démarrage immédiat (le flux caméra est déjà ouvert depuis startCamStream,
-  // donc pas de latence perceptible à l'appui du bouton).
-  _camMediaRecorder.start(200);
+  _camMediaRecorder.start(100);
   _camRecording = true;
   _camRecSeconds = 0;
 
-  const shutter = document.getElementById('camShutter');
-  const ring = document.getElementById('camShutterRing');
-  shutter.classList.add('recording');
+  // Shutter → stop square
+  document.getElementById('camShutter').classList.add('recording');
   document.getElementById('camRecBadge').classList.add('active');
-  if(ring){ ring.style.strokeDashoffset = CAM_RING_CIRC; }
 
   _camRecInterval = setInterval(()=>{
     _camRecSeconds++;
     const m=String(Math.floor(_camRecSeconds/60)).padStart(2,'0');
     const s=String(_camRecSeconds%60).padStart(2,'0');
     document.getElementById('camRecTimer').textContent=`${m}:${s}`;
-    // L'anneau autour du bouton se remplit en fonction du temps écoulé —
-    // signature visuelle unique de KIKO (≠ barre TikTok).
-    if(ring){
-      const pct = Math.min(_camRecSeconds / CAM_MAX_REC_SECONDS, 1);
-      ring.style.strokeDashoffset = CAM_RING_CIRC * (1 - pct);
-    }
-    if(navigator.vibrate && _camRecSeconds===1) navigator.vibrate(15); // léger retour tactile au démarrage
-    if(_camRecSeconds>=CAM_MAX_REC_SECONDS) stopVideoRec();
+    if(_camRecSeconds>=180) stopVideoRec(); // max 3 min
   },1000);
 }
 
@@ -10158,9 +9429,6 @@ function stopVideoRec(){
   try{_camMediaRecorder.stop();}catch(e){}
   document.getElementById('camShutter').classList.remove('recording');
   document.getElementById('camRecBadge').classList.remove('active');
-  const ring = document.getElementById('camShutterRing');
-  if(ring) ring.style.strokeDashoffset = CAM_RING_CIRC;
-  if(navigator.vibrate) navigator.vibrate(20);
   updateCamModeUI();
 }
 
@@ -10207,8 +9475,8 @@ function camUseResult(){
   closeCamera();
 
   // Créer un File depuis le blob
-  const ext = type==='video' ? _camMimeExt : 'jpg';
-  const mimeType = type==='video' ? (blob.type||(ext==='mp4'?'video/mp4':'video/webm')) : 'image/jpeg';
+  const ext = type==='video' ? 'webm' : 'jpg';
+  const mimeType = type==='video' ? (blob.type||'video/webm') : 'image/jpeg';
   const file = new File([blob], `cam_${filterName}_${Date.now()}.${ext}`, {type:mimeType});
 
   if(_camCalledFrom==='story' || _camCalledFrom==='status'){
@@ -10261,85 +9529,6 @@ function camGallerySelected(input){
   closeCamera();
   if(_camCalledFrom==='post'){ handleCamFileForPost(file, type); }
   else { handleCamFileForStory(file, type); }
-}
-
-// ═══════════════════════════════════════
-//  ADMIN MUSIQUE (?admin=music)
-// ═══════════════════════════════════════
-let maFile=null;
-function closeMusicAdmin(){
-  document.getElementById('musicAdminOverlay').style.display='none';
-  history.replaceState({},'',location.pathname);
-}
-function onMaFileSelected(inp){
-  const f=inp.files[0];
-  if(!f)return;
-  maFile=f;
-  document.getElementById('maFileZone').innerText='🎧 '+f.name;
-  if(!document.getElementById('maName').value){
-    document.getElementById('maName').value=f.name.replace(/\.[^/.]+$/,'');
-  }
-}
-async function submitMusicAdmin(){
-  const name=document.getElementById('maName').value.trim();
-  const artist=document.getElementById('maArtist').value.trim()||'AES👑 Music';
-  const genre=document.getElementById('maGenre').value.trim()||'Tendance';
-  const emoji=document.getElementById('maEmoji').value.trim()||'🎵';
-  if(!maFile){showToast('⚠️ Choisis un fichier audio');return;}
-  if(!name){showToast('⚠️ Donne un titre au son');return;}
-  const btn=document.getElementById('maSubmitBtn');
-  const progWrap=document.getElementById('maProgWrap');
-  const progFill=document.getElementById('maProgFill');
-  btn.disabled=true;btn.innerText='Envoi...';progWrap.style.display='block';
-  try{
-    const url=await clUpload(maFile,p=>{progFill.style.width=p+'%';});
-    const newRef=db.ref('musicLibrary').push();
-    await newRef.set({name,artist,genre,emoji,url,createdAt:Date.now()});
-    showToast('✅ Son ajouté à la bibliothèque !');
-    maFile=null;
-    document.getElementById('maFileZone').innerText='🎧 Choisir un fichier audio (MP3, M4A, AAC)';
-    document.getElementById('maName').value='';
-    document.getElementById('maGenre').value='';
-    document.getElementById('maEmoji').value='🎵';
-    progWrap.style.display='none';progFill.style.width='0%';
-    customMusicLoaded=false; // forcer le rechargement à la prochaine ouverture du sélecteur musique
-    renderMaExistingList();
-  }catch(e){
-    showToast('❌ '+e.message);
-  }finally{
-    btn.disabled=false;btn.innerText='+ Ajouter à la bibliothèque';
-  }
-}
-async function renderMaExistingList(){
-  const list=document.getElementById('maExistingList');
-  const countEl=document.getElementById('maCount');
-  list.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:12px;">Chargement...</div>';
-  try{
-    const snap=await db.ref('musicLibrary').once('value');
-    const data=snap.val()||{};
-    const keys=Object.keys(data);
-    countEl.innerText=keys.length;
-    if(!keys.length){list.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:12px;">Aucun son ajouté pour le moment.</div>';return;}
-    list.innerHTML=keys.map(key=>{
-      const t=data[key];
-      return `<div class="ma-track-row">
-        <div class="ma-disc">${t.emoji||'🎵'}</div>
-        <div class="ma-info"><b>${t.name||'Sans titre'}</b><span>${t.artist||''} · ${t.genre||''}</span></div>
-        <div class="ma-del" onclick="deleteMaTrack('${key}')">🗑️</div>
-      </div>`;
-    }).join('');
-  }catch(e){
-    list.innerHTML='<div style="color:#ff5a5a;font-size:12px;">Erreur de chargement</div>';
-  }
-}
-async function deleteMaTrack(key){
-  if(!confirm('Supprimer ce son de la bibliothèque ?'))return;
-  try{
-    await db.ref('musicLibrary/'+key).remove();
-    customMusicLoaded=false;
-    showToast('🗑️ Son supprimé');
-    renderMaExistingList();
-  }catch(e){showToast('❌ '+e.message);}
 }
 
 const FEED_FILTERS = [
@@ -10823,98 +10012,145 @@ function initSFPullToRefresh(){
 #buzzScreen .vcard .vtrend-badge{ top:calc(14px + env(safe-area-inset-top)); left:14px; }
 /* Les cartes photo/texte mixées dans Buzz restent en format carte normale (pas plein écran) */
 #buzzScreen .pcard{ margin:14px; }
-
-/* ═══════════════════════════════════════════════════════
-   MODE BUZZ IMMERSIF — nav cachée, transitions, quickbar
-   ═══════════════════════════════════════════════════════ */
-
-/* Nav flottante — toujours transitionnable en douceur */
-#bottomnav{ transition: transform .38s cubic-bezier(.22,1,.36,1), opacity .3s ease; }
-
-/* En mode Buzz : la nav du bas disparaît complètement (glisse + fade) */
-body.kiko-buzz-mode #bottomnav{
-  transform: translateY(140%);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Le header "← 🔥 Buzz" s'efface aussi : immersion totale, seul le retour
-   physique Android (déjà géré par handleAndroidBack) permet de sortir */
-#buzzScreen .buzz-screen-head{ transition: opacity .3s ease, transform .3s ease; }
-body.kiko-buzz-mode #buzzScreen .buzz-screen-head{
-  opacity: 0;
-  transform: translateY(-14px);
-  pointer-events: none;
-}
-
-/* Entrée en Buzz : léger zoom vidéo */
-@keyframes kikoBuzzZoomIn{
-  from{ transform:scale(1.07); opacity:.4; }
-  to{ transform:scale(1); opacity:1; }
-}
-body.kiko-buzz-mode #buzzScreen.active{
-  animation: kikoBuzzZoomIn .42s cubic-bezier(.22,1,.36,1);
-}
-
-/* Sortie de Buzz : l'écran qui réapparaît (accueil, etc.) fait un fade + slide doux */
-@keyframes kikoBuzzExitIn{
-  from{ opacity:0; transform:translateY(14px); }
-  to{ opacity:1; transform:translateY(0); }
-}
-body.kiko-buzz-exit .screen.active:not(#buzzScreen){
-  animation: kikoBuzzExitIn .4s ease;
-}
-
-/* Nav légèrement "assagie" juste après la sortie de Buzz : icônes plus petites,
-   couleurs moins flashy — puis retour en douceur au style normal (KIKO Sahel Futur) */
-#bottomnav .nbtn .ni,
-#bottomnav .nbtn span{ transition: transform .5s cubic-bezier(.22,1,.36,1), filter .5s ease, opacity .5s ease; }
-body.kiko-buzz-exit #bottomnav .nbtn .ni{
-  transform: scale(0.86);
-  filter: saturate(.55) brightness(.92);
-}
-body.kiko-buzz-exit #bottomnav .nbtn span{ opacity: .7; }
-
-/* Boutons d'action (Partager/Favori/Signaler, réaction, ⋮, téléchargement, stats) —
-   apparition/disparition douce pendant le scroll/swipe entre vidéos. Le style visuel ne change pas. */
-#buzzScreen .kiko-quickbar,
-#buzzScreen .kiko-react-btn,
-#buzzScreen .vmore-btn,
-#buzzScreen .vdownload-btn,
-#buzzScreen .vmute-btn,
-#buzzScreen .vstats-row{ transition: opacity .28s ease, transform .28s ease; }
-#buzzScreen .kiko-quickbar.kiko-fade-scroll{ opacity:.12; transform: translateY(8px) scale(.97); }
-#buzzScreen .kiko-react-btn.kiko-fade-scroll{ opacity:.12; transform: scale(.88); }
-#buzzScreen .vmore-btn.kiko-fade-scroll,
-#buzzScreen .vdownload-btn.kiko-fade-scroll,
-#buzzScreen .vmute-btn.kiko-fade-scroll{ opacity:.12; }
-#buzzScreen .vstats-row.kiko-fade-scroll{ opacity:.12; }
-
-/* Disparition auto après quelques secondes d'inactivité (aucun tap/scroll) —
-   réapparition immédiate au moindre toucher. Le player vidéo reste le seul focus. */
-body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .kiko-quickbar,
-body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .kiko-react-btn,
-body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vmore-btn,
-body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vdownload-btn,
-body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vmute-btn,
-body.kiko-buzz-mode.kiko-controls-idle #buzzScreen .vstats-row{
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .5s ease;
-}
-
-@media (prefers-reduced-motion: reduce){
-  body.kiko-buzz-mode #buzzScreen.active,
-  body.kiko-buzz-exit .screen.active:not(#buzzScreen){ animation:none !important; }
-}
 </style>
 
 <script>
 // ═══════════════════════════════════════════════════════════
-//  PWA — SERVICE WORKER (offline + cache intelligent)
+//  PWA — SERVICE WORKER AVANCÉ (offline + cache intelligent)
 // ═══════════════════════════════════════════════════════════
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./service-worker.js',{scope:'./'})
+  const swCode = `
+const CACHE_SHELL  = 'kiko-shell-v3';
+const CACHE_IMG    = 'kiko-img-v3';
+const CACHE_FONT   = 'kiko-font-v3';
+const IMG_LIMIT    = 60;   // max images en cache
+const OFFLINE_URL  = './';
+
+// Ressources du shell applicatif
+const SHELL_ASSETS = [
+  './',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap'
+];
+
+// ── Install : préchargement du shell ──
+self.addEventListener('install', e=>{
+  e.waitUntil(
+    caches.open(CACHE_SHELL)
+      .then(c=>c.addAll(SHELL_ASSETS).catch(()=>{}))
+      .then(()=>self.skipWaiting())
+  );
+});
+
+// ── Activate : nettoyage des anciens caches ──
+self.addEventListener('activate', e=>{
+  const keep=[CACHE_SHELL,CACHE_IMG,CACHE_FONT];
+  e.waitUntil(
+    caches.keys()
+      .then(keys=>Promise.all(keys.filter(k=>!keep.includes(k)).map(k=>caches.delete(k))))
+      .then(()=>self.clients.claim())
+  );
+});
+
+// ── Helpers ──
+function isFirebase(url){ return url.includes('firebaseio.com')||url.includes('firebase')||url.includes('googleapis.com/identitytoolkit'); }
+function isMedia(url){ return url.includes('cloudinary')||url.includes('imagekit')||url.includes('ik.imagekit'); }
+function isFont(url){ return url.includes('fonts.googleapis')||url.includes('fonts.gstatic'); }
+function isImage(dest){ return dest==='image'; }
+
+// ── Eviction FIFO pour le cache images ──
+async function cacheImageFIFO(cache, request, response){
+  const keys = await cache.keys();
+  if(keys.length >= IMG_LIMIT){
+    // Supprime les 10 plus anciens
+    const toDelete = keys.slice(0, 10);
+    await Promise.all(toDelete.map(k=>cache.delete(k)));
+  }
+  await cache.put(request, response);
+}
+
+// ── Fetch : stratégie par type de ressource ──
+self.addEventListener('fetch', e=>{
+  const { request } = e;
+  const url = request.url;
+
+  // 1. Firebase / APIs dynamiques → toujours réseau, jamais de cache
+  if(isFirebase(url)||isMedia(url)) return;
+
+  // 2. Fonts → cache-first (immutable)
+  if(isFont(url)){
+    e.respondWith(
+      caches.open(CACHE_FONT).then(async c=>{
+        const cached = await c.match(request);
+        if(cached) return cached;
+        const res = await fetch(request).catch(()=>null);
+        if(res && res.ok) c.put(request, res.clone());
+        return res || new Response('', {status:503});
+      })
+    );
+    return;
+  }
+
+  // 3. Images (thumbnails, avatars, photos du feed) → cache-first + FIFO
+  if(isImage(request.destination)){
+    e.respondWith(
+      caches.open(CACHE_IMG).then(async c=>{
+        const cached = await c.match(request);
+        if(cached) return cached;
+        try{
+          const res = await fetch(request);
+          if(res && res.ok) await cacheImageFIFO(c, request, res.clone());
+          return res;
+        }catch{
+          // Hors-ligne : retourne un placeholder SVG transparent
+          return new Response(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
+            {headers:{'Content-Type':'image/svg+xml'}}
+          );
+        }
+      })
+    );
+    return;
+  }
+
+  // 4. Navigation (app shell) → network-first, fallback cache
+  if(request.mode==='navigate'){
+    e.respondWith(
+      fetch(request)
+        .then(res=>{
+          // Met à jour le cache shell en arrière-plan
+          caches.open(CACHE_SHELL).then(c=>c.put(request, res.clone())).catch(()=>{});
+          return res;
+        })
+        .catch(async ()=>{
+          const cached = await caches.match(request) || await caches.match(OFFLINE_URL);
+          return cached || new Response('<h1>Hors-ligne</h1><p>Reconnecte-toi pour accéder à KIKO.</p>',{headers:{'Content-Type':'text/html'}});
+        })
+    );
+    return;
+  }
+
+  // 5. Reste (scripts, CSS inline, etc.) → stale-while-revalidate
+  e.respondWith(
+    caches.open(CACHE_SHELL).then(async c=>{
+      const cached = await c.match(request);
+      const fetchProm = fetch(request).then(res=>{
+        if(res && res.ok) c.put(request, res.clone()).catch(()=>{});
+        return res;
+      }).catch(()=>null);
+      return cached || fetchProm || new Response('',{status:503});
+    })
+  );
+});
+
+// ── Message : forcer le rechargement depuis l'app ──
+self.addEventListener('message', e=>{
+  if(e.data==='SKIP_WAITING') self.skipWaiting();
+});
+`;
+
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl,{scope:'./'})
     .then(reg=>{
       reg.addEventListener('updatefound',()=>{
         const nw=reg.installing;
