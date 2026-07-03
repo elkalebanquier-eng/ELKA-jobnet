@@ -4,14 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#071A3D">
-<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22AES%F0%9F%91%91%20Vid%C3%A9os%22%2C%22short_name%22%3A%22AES%20Vid%C3%A9os%22%2C%22description%22%3A%22La%20plateforme%20vid%C3%A9o%20de%20l%27AES%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFFFFF%22%2C%22theme_color%22%3A%22%23C9A84C%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fapi.dicebear.com%2F7.x%2Fshapes%2Fsvg%3Fseed%3DAES%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<link rel="manifest" href="./manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com">
-<title>AES👑 Vidéos</title>
+<title>KIKO👑</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    AES👑 — DESIGN SYSTEM PREMIUM "SAHEL PRESTIGE"
@@ -746,13 +752,13 @@ body:not(.screen-home) .logo span { color: var(--gold); }
    Remplace les boutons fixes latéraux
 ═══════════════════════════════════════════════════════ */
 
-/* Overlay invisible pour détecter le tap hors menu vidéo */
-#kikoVidRadialOverlay {
+/* Overlay invisible pour détecter le tap hors menu */
+#kikoRadialOverlay {
   position: fixed; inset: 0; z-index: 200;
   display: none;
   pointer-events: none;
 }
-#kikoVidRadialOverlay.active {
+#kikoRadialOverlay.active {
   display: block;
   pointer-events: auto;
 }
@@ -916,9 +922,62 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   transform: translate(-50%, -50%) scale(0);
   font-size: 96px; z-index: 25; pointer-events: none; opacity: 0;
   transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
-  
 }
 .heart-anim.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+
+/* ═══ RECONNAISSANCE ANIMATION ═══ */
+.kiko-reco-layer {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 30; overflow: hidden;
+}
+.kiko-reco-word {
+  position: absolute; font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 28px; color: #fff; opacity: 0;
+  text-shadow: 0 0 18px rgba(255,138,0,0.9), 0 0 40px rgba(255,138,0,0.5);
+  pointer-events: none;
+}
+@keyframes kikoRecoA {
+  0%   { opacity:0; transform:translate(0,0) scale(0.6); }
+  25%  { opacity:1; transform:translate(-12px,-30px) scale(1); }
+  70%  { opacity:1; transform:translate(20px,-80px) scale(1.05); }
+  100% { opacity:0; transform:translate(20px,-80px) scale(1.05); }
+}
+@keyframes kikoRecoB {
+  0%   { opacity:0; transform:translate(0,0) scale(0.6); }
+  25%  { opacity:1; transform:translate(8px,20px) scale(1); }
+  70%  { opacity:1; transform:translate(20px,-80px) scale(1.05); }
+  100% { opacity:0; transform:translate(20px,-80px) scale(1.05); }
+}
+@keyframes kikoRecoFull {
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
+  15%  { opacity:1; transform:translate(-50%,-50%) scale(1.15); }
+  60%  { opacity:1; transform:translate(-50%,-120px) scale(1); }
+  100% { opacity:0; transform:translate(-50%,-140px) scale(0.9); }
+}
+
+/* ═══ BOUTONS VIDÉO FLOTTANTS (original, non-TikTok) ═══ */
+.kiko-vid-actions {
+  position: absolute; bottom: 110px; right: 12px;
+  display: flex; flex-direction: column; gap: 10px; z-index: 15;
+  align-items: center;
+}
+.kiko-vid-btn {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.18s; gap: 1px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+}
+.kiko-vid-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.65); }
+.kiko-vid-btn.liked { border-color: rgba(255,80,80,0.6); background: rgba(180,20,20,0.35); }
+.kiko-vid-btn.reconnu { border-color: rgba(255,138,0,0.7); background: rgba(120,60,0,0.4); }
+.kiko-vid-btn-ico { font-size: 18px; line-height: 1; }
+.kiko-vid-btn-lbl { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.2px; }
+.kiko-reco-btn-ico { font-size: 16px; }
+
+/* Ligne de séparation tactile entre les groupes de boutons */
+.kiko-vid-btn-sep { width: 24px; height: 1px; background: rgba(255,255,255,0.12); margin: 0; }
 
 .ad-info { position: absolute; bottom: 88px; left: 14px; right: 72px; z-index: 10; }
 .ad-av {
@@ -2788,7 +2847,7 @@ body:not(.screen-home) #topnav{
   transition: transform 0.38s var(--ease-out), opacity 0.3s var(--ease-out);
 }
 .kiko-radial-item span{ font-size: 8.5px; font-weight: 700; color: var(--text2); letter-spacing: 0.2px; }
-#kikoRadialOverlay.active .kiko-radial-item{ opacity: 1; pointer-events: auto; }
+#kikoPublishRadialOverlay.active .kiko-radial-item{ opacity: 1; pointer-events: auto; }
 .kiko-radial-item:active{ transform: translate(-50%,0) scale(0.92) !important; }
 
 /* ─── MARKETPLACE — cartes inclinées en verre ─── */
@@ -2886,8 +2945,6 @@ body:not(.screen-home) #topnav{
   font-size: 13px;
 }
 </style>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap"></noscript>
 </head>
 <body>
 
@@ -3277,7 +3334,7 @@ body:not(.screen-home) #topnav{
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 14px;display:flex;flex-direction:column;gap:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:13px;color:var(--text2);">Version</span>
-        <span style="font-size:13px;font-weight:700;color:var(--gold);">AES👑 v2.0</span>
+        <span style="font-size:13px;font-weight:700;color:var(--gold);">KIKO👑 v1.0</span>
       </div>
       <div style="height:1px;background:var(--border);"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -3285,7 +3342,12 @@ body:not(.screen-home) #topnav{
         <span style="font-size:13px;color:var(--text2);">AES · Burkina · Mali · Niger</span>
       </div>
       <div style="height:1px;background:var(--border);"></div>
-      <div style="font-size:12px;color:var(--muted);text-align:center;line-height:1.5;">Made with 🧡 for Africa<br>© 2025 ELKA 👑</div>
+      <div onclick="window.open('./privacy-policy.html','_blank')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <span style="font-size:13px;color:var(--text2);">Politique de confidentialité</span>
+        <span style="font-size:14px;color:var(--muted);">›</span>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="font-size:12px;color:var(--muted);text-align:center;line-height:1.5;">Made with 🧡 for Africa<br>© 2026 KIKO 👑</div>
     </div>
 
     <!-- DÉCONNEXION -->
@@ -3702,8 +3764,8 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
-<!-- MENU RADIAL KIKO👑 -->
-<div id="kikoRadialOverlay" onclick="_kikoClosePublishRadial()">
+<!-- MENU RADIAL KIKO👑 (bouton Publier) -->
+<div id="kikoPublishRadialOverlay" onclick="kikoClosePublishRadial()">
   <div class="kiko-radial-item" id="krVideo" onclick="event.stopPropagation();kikoRadialAction('video')">🎬<span>Vidéo</span></div>
   <div class="kiko-radial-item" id="krPhoto" onclick="event.stopPropagation();kikoRadialAction('photo')">📸<span>Photo</span></div>
   <div class="kiko-radial-item" id="krProduit" onclick="event.stopPropagation();kikoRadialAction('produit')">🛍️<span>Produit</span></div>
@@ -3716,22 +3778,17 @@ body:not(.screen-home) #topnav{
     <div class="auth-handle"></div>
     <div class="auth-logo">AES👑</div>
     <div class="auth-sub" id="authSubText">Rejoins la communauté africaine 🌍</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchTab('login')">Connexion</div>
+      <div class="auth-tab" onclick="switchTab('register')">Inscription</div>
+    </div>
     <div class="auth-err" id="authErr"></div>
-    <button class="btn-gold" id="authBtn" onclick="doAuthGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px;">
-      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.7 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.6 0-14.1 4.3-17.4 10.7z"/><path fill="#4CAF50" d="M24 45c5.3 0 10.2-2 13.9-5.4l-6.4-5.4C29.4 35.6 26.8 36.5 24 36.5c-5.4 0-9.9-3.4-11.5-8.2l-6.5 5C9.8 40.5 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3 5.3-5.7 6.9l6.4 5.4C39.6 37.4 45 31.2 45 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
-      Continuer avec Google
-    </button>
+    <input type="text" class="inp" id="authName" placeholder="Ton pseudo" style="display:none">
+    <input type="text" class="inp" id="authPhone" placeholder="Numéro WhatsApp (+226...)" style="display:none">
+    <input type="email" class="inp" id="authEmail" placeholder="Email">
+    <input type="password" class="inp" id="authPass" placeholder="Mot de passe">
+    <button class="btn-gold" id="authBtn" onclick="doAuth()">Se connecter</button>
     <button class="auth-skip" onclick="closeAuth()">Continuer sans compte →</button>
-  </div>
-</div>
-
-<!-- Confirmation du nom après connexion Google (nouveaux comptes) -->
-<div id="nameConfirmModal" style="display:none;position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
-  <div style="background:#14141c;border-radius:18px;padding:26px 22px;width:85%;max-width:340px;text-align:center;">
-    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:19px;color:#fff;margin-bottom:6px;">Ton nom sur KIKO 👑</div>
-    <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:18px;line-height:1.4;">Garde ton nom Google ou choisis un pseudo différent</div>
-    <input type="text" class="inp" id="nameConfirmInput" placeholder="Ton nom" style="margin-bottom:16px;text-align:center;">
-    <button class="btn-gold" id="nameConfirmBtn" style="width:100%;">Confirmer ✓</button>
   </div>
 </div>
 
@@ -3801,7 +3858,7 @@ body:not(.screen-home) #topnav{
           <label for="videoInput" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:22px;padding:5px 12px;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(6px);">
             🔄 Changer
           </label>
-          <div id="vpsDurationQuick" style="display:none;position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#fff;"></div>
+          <div id="vpsDuration" style="display:none;position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#fff;"></div>
         </div>
 
         <!-- Nom du fichier -->
@@ -3812,13 +3869,13 @@ body:not(.screen-home) #topnav{
         </div>
 
         <!-- Description -->
-        <textarea class="inp" id="vpsDescInputQuick" rows="3" placeholder="Décris ta vidéo... #hashtags 🔥"></textarea>
+        <textarea class="inp" id="vpsDescInput" rows="3" placeholder="Décris ta vidéo... #hashtags 🔥"></textarea>
 
         <!-- Confidentialité -->
         <div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;">
           <span style="font-size:16px;">🌍</span>
           <span style="font-size:13px;font-weight:500;flex:1;">Confidentialité</span>
-          <select id="vpsPrivacyQuick" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;">
+          <select id="vpsPrivacy" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;">
             <option value="public">🌍 Public</option>
             <option value="followers">👥 Abonnés</option>
             <option value="private">🔒 Privé</option>
@@ -4201,8 +4258,8 @@ body:not(.screen-home) #topnav{
 </div>
 
 <!-- STORY VIEWER -->
-<!-- ═══ KIKO RADIAL ACTION MENU (vidéos) ═══ -->
-<div id="kikoVidRadialOverlay" onclick="kikoCloseRadial()"></div>
+<!-- ═══ KIKO RADIAL ACTION MENU ═══ -->
+<div id="kikoRadialOverlay" onclick="kikoCloseRadial()"></div>
 <div id="kikoRadialMenu">
   <div class="kiko-radial-origin"></div>
   <!-- Les boutons sont injectés dynamiquement par JS -->
@@ -4331,10 +4388,19 @@ body:not(.screen-home) #topnav{
 
 <div id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+<!-- ═══ MODALE EXPLICATIVE AVANT DEMANDE DE PERMISSION ═══ -->
+<div id="permModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--bg2,#15171c);border-radius:18px;padding:24px 20px;max-width:340px;width:100%;text-align:center;">
+    <div id="permModalIcon" style="font-size:40px;margin-bottom:10px;">📷</div>
+    <div id="permModalTitle" style="font-weight:700;font-size:17px;margin-bottom:8px;color:#fff;">Autoriser la caméra</div>
+    <div id="permModalText" style="font-size:13.5px;color:var(--muted,#9aa0a8);line-height:1.5;margin-bottom:18px;">KIKO a besoin d'accéder à ta caméra pour filmer une vidéo ou prendre une photo.</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="kikoDenyPerm()" style="flex:1;padding:11px;border-radius:12px;border:none;background:transparent;color:var(--muted,#9aa0a8);font-weight:600;font-size:14px;">Pas maintenant</button>
+      <button onclick="kikoAcceptPerm()" style="flex:1;padding:11px;border-radius:12px;border:none;background:var(--orange,#FF7A30);color:#fff;font-weight:700;font-size:14px;">Continuer</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════
 //  FIREBASE
@@ -4349,15 +4415,6 @@ firebase.initializeApp({
   appId:"1:641440139975:web:ad794e3e7c0b151dd98ce2"
 });
 const db=firebase.database();
-const auth=firebase.auth();
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
-const googleProvider=new firebase.auth.GoogleAuthProvider();
-googleProvider.setCustomParameters({prompt:'select_account'});
-
-// ⚠️ Remplace par ta clé VAPID : Firebase Console → ⚙️ Paramètres du projet →
-// Cloud Messaging → onglet "Web configuration" → "Générer une paire de clés"
-const KIKO_VAPID_KEY = "REMPLACE_PAR_TA_CLE_VAPID";
-const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
 
 // ═══════════════════════════════════════
 //  CLOUDINARY (sans watermark — fix lecteur)
@@ -4552,40 +4609,31 @@ async function kikoShowTranslation(postId, text, btn){
 //  RECHERCHE PAR LOCALISATION — Géolocalisation + rayon
 // ═══════════════════════════════════════════════════════════
 let _userGeoCity = localStorage.getItem('kiko_geo_city') || null;
-let _userGeoCountry = localStorage.getItem('kiko_geo_country') || null;
-let _geoResolvePromise = null;
 
-// Résout ville + pays en un seul appel géoloc + reverse-geocoding (évite de redemander 2x la permission)
-function kikoResolveGeo(){
-  if(_geoResolvePromise) return _geoResolvePromise;
-  _geoResolvePromise = new Promise(resolve=>{
-    if(!navigator.geolocation){ resolve({city:null,country:null}); return; }
+async function kikoGetUserCity(){
+  if(_userGeoCity) return _userGeoCity;
+  if(!navigator.geolocation) return null;
+  const geoAlreadyAsked = localStorage.getItem('kiko_perm_location_asked');
+  if(!geoAlreadyAsked){
+    const ok = await kikoAskPermission('location');
+    localStorage.setItem('kiko_perm_location_asked','1');
+    if(!ok) return null;
+  }
+  return new Promise(resolve=>{
     navigator.geolocation.getCurrentPosition(async pos=>{
       try{
         const {latitude:lat, longitude:lng} = pos.coords;
         const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, { headers:{'Accept-Language':'fr'} });
         const json = await res.json();
         const city = json?.address?.city || json?.address?.town || json?.address?.village || json?.address?.county || null;
-        const country = json?.address?.country || null;
-        if(city){ _userGeoCity = city; localStorage.setItem('kiko_geo_city', city); }
-        if(country){ _userGeoCountry = country; localStorage.setItem('kiko_geo_country', country); }
-        resolve({city,country});
-      }catch{ resolve({city:null,country:null}); }
-    }, ()=>resolve({city:null,country:null}), { timeout:6000, enableHighAccuracy:false });
+        if(city){
+          _userGeoCity = city;
+          localStorage.setItem('kiko_geo_city', city);
+        }
+        resolve(city);
+      }catch{ resolve(null); }
+    }, ()=>resolve(null), { timeout:6000, enableHighAccuracy:false });
   });
-  return _geoResolvePromise;
-}
-
-async function kikoGetUserCity(){
-  if(_userGeoCity) return _userGeoCity;
-  const {city}=await kikoResolveGeo();
-  return city;
-}
-
-async function kikoGetUserCountry(){
-  if(_userGeoCountry) return _userGeoCountry;
-  const {country}=await kikoResolveGeo();
-  return country;
 }
 
 // Filtre les posts/produits par ville (champ city dans Firebase)
@@ -4773,9 +4821,8 @@ function _getModalChecks(){
     // panels glissants
     { id:'commentsPanel',      fn:()=>{ if(typeof closeComments==='function') closeComments(true); else _close('commentsPanel'); } },
     { id:'sellerProfile',      fn:()=>_close('sellerProfile') },
-    { id:'kikoRadialOverlay',    fn:()=>_kikoClosePublishRadial() },
-    { id:'kikoVidRadialOverlay', fn:()=>kikoCloseRadial() },
-    { id:'kikoMoreSheet',        fn:()=>kikoCloseMoreSheet() },
+    { id:'kikoPublishRadialOverlay', fn:()=>{ if(typeof kikoClosePublishRadial==='function') kikoClosePublishRadial(); else _close('kikoPublishRadialOverlay'); } },
+    { id:'kikoRadialOverlay',  fn:()=>{ if(typeof kikoCloseRadial==='function') kikoCloseRadial(); else _close('kikoRadialOverlay'); } },
     // modals classiques
     { id:'uploadModal',        fn:()=>{ if(typeof closeModal==='function') closeModal(); else _close('uploadModal'); } },
     { id:'authModal',          fn:()=>{ if(typeof closeAuth==='function') closeAuth(); else _close('authModal'); } },
@@ -4880,10 +4927,26 @@ function switchUploadTab(tab){
     musicBlock.style.display='none';
   }
 }
-// ═══ MENU RADIAL KIKO👑 — publication ═══
+// ═══ MENU RADIAL KIKO👑 (bouton Publier) ═══
 let kikoRadialOpen=false;
-function kikoToggleRadial(){ kikoRadialOpen?_kikoClosePublishRadial():_kikoOpenPublishRadial(); }
-function _kikoOpenPublishRadial(){
+function vpsTriggerThumbPick(){
+  const input=document.getElementById('vpsThumbInput');
+  if(input) input.click();
+}
+function vpsOnThumbSelected(input){
+  const file=input.files&&input.files[0];
+  if(!file) return;
+  const preview=document.getElementById('vpsThumbnailPreview');
+  if(!preview) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    preview.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+  };
+  reader.readAsDataURL(file);
+  window.vpsCustomThumbFile=file;
+}
+function kikoToggleRadial(){ kikoRadialOpen?kikoClosePublishRadial():kikoOpenPublishRadial(); }
+function kikoOpenPublishRadial(){
   const npost=document.querySelector('.npost');
   if(!npost) return;
   const r=npost.getBoundingClientRect();
@@ -4897,7 +4960,6 @@ function _kikoOpenPublishRadial(){
   const dist=92;
   items.forEach((it,i)=>{
     const el=document.getElementById(it.id);
-    if(!el)return;
     const rad=it.angle*Math.PI/180;
     const dx=Math.cos(rad)*dist, dy=-Math.sin(rad)*dist;
     el.style.left=(cx+dx)+'px';
@@ -4906,17 +4968,17 @@ function _kikoOpenPublishRadial(){
     el.style.transform=`translate(-50%,-50%) scale(0.3)`;
     setTimeout(()=>{ el.style.transform=`translate(-50%,-50%) scale(1)`; }, i*45);
   });
-  document.getElementById('kikoRadialOverlay').classList.add('active');
+  document.getElementById('kikoPublishRadialOverlay').classList.add('active');
   kikoRadialOpen=true;
   if(navigator.vibrate) navigator.vibrate(8);
 }
-function _kikoClosePublishRadial(){
-  document.getElementById('kikoRadialOverlay').classList.remove('active');
+function kikoClosePublishRadial(){
+  document.getElementById('kikoPublishRadialOverlay').classList.remove('active');
   document.querySelectorAll('.kiko-radial-item').forEach(el=>{ el.style.transform='translate(-50%,-50%) scale(0.3)'; });
   kikoRadialOpen=false;
 }
 function kikoRadialAction(type){
-  _kikoClosePublishRadial();
+  kikoClosePublishRadial();
   needAuth(()=>{
     if(type==='video'){ openModal(); switchUploadTab('video'); }
     else if(type==='photo'){ openModal(); switchUploadTab('photo'); }
@@ -4952,15 +5014,21 @@ async function kikoSubmitOpportunity(){
   const contact=document.getElementById('oppContact').value.trim();
   if(!titre||!desc){ showToast('⚠️ Remplis le titre et la description'); return; }
   try{
-    await db.ref('opportunities').push({
+    await db.ref('posts').push({
+      type:'opportunity',
       titre, desc, contact,
       auteur: currentUser?currentUser.name:'Anonyme',
-      auteurId: currentUser?currentUser.uid:null,
-      date: Date.now()
+      authorUid: currentUser?currentUser.uid:null,
+      authorAvatar: currentUser?currentUser.avatar:null,
+      createdAt: Date.now(),
+      visibilityBoost: 15, // léger coup de pouce : les opportunités sont le cœur de KIKO
+      likes:0, commentCount:0, shares:0, views:0
     });
     document.getElementById('kikoOppModal').classList.remove('active');
     document.getElementById('oppTitle').value='';document.getElementById('oppDesc').value='';document.getElementById('oppContact').value='';
-    showToast('✅ Opportunité publiée !');
+    showToast('✅ Opportunité publiée sur l\'accueil !');
+    KIKO_CACHE.clear('posts');
+    if(typeof loadHomeFeed==='function') loadHomeFeed();
   }catch(e){ console.error(e); showToast('❌ Erreur, réessaie'); }
 }
 
@@ -5297,220 +5365,6 @@ function resetPhotoPanel(){
 //  FEED VIDÉOS — réservé à 🔥 Buzz (jamais sur l'accueil)
 // ═══════════════════════════════════════
 let allPosts=[];
-// ── Catégories KIKO ──
-const KIKO_CATS = ['music','comedy','sport','news','dance','fashion','food','travel','tech','culture'];
-
-// ── Profil utilisateur local (localStorage + runtime) ──
-const kikoUserProfile = (() => {
-  const uid = (() => { try { return JSON.parse(localStorage.getItem('aes_user') || '{}').uid || 'anon'; } catch { return 'anon'; } })();
-  const key = 'kiko_up_' + uid;
-  let p;
-  try { p = JSON.parse(localStorage.getItem(key) || 'null'); } catch { p = null; }
-  if (!p || !p.categoryScore) {
-    p = {
-      userId: uid,
-      watchedVideos: [],    // [{id, at}] — 50 max FIFO
-      likedVideos: [],      // [id]
-      skippedVideos: [],    // [id] — skip < 3s
-      categoryScore: {}     // {music:0, comedy:0, ...}
-    };
-    KIKO_CATS.forEach(c => { p.categoryScore[c] = 0; });
-  }
-  const save = () => { try { localStorage.setItem(key, JSON.stringify(p)); } catch {} };
-  return {
-    get: () => p,
-    save,
-    // Marque une vidéo regardée (>70% de complétion)
-    markWatched(videoId, category) {
-      if (p.watchedVideos.find(x => x.id === videoId)) return;
-      p.watchedVideos.push({ id: videoId, at: Date.now() });
-      if (p.watchedVideos.length > 50) p.watchedVideos.shift(); // FIFO 50
-      if (category && p.categoryScore[category] !== undefined) {
-        p.categoryScore[category] = Math.min(100, (p.categoryScore[category] || 0) + 3);
-      }
-      save();
-    },
-    // Marque un like
-    markLiked(videoId, category) {
-      if (!p.likedVideos.includes(videoId)) p.likedVideos.push(videoId);
-      if (category && p.categoryScore[category] !== undefined) {
-        p.categoryScore[category] = Math.min(100, (p.categoryScore[category] || 0) + 5);
-      }
-      save();
-    },
-    // Marque un skip (< 3s)
-    markSkipped(videoId, category) {
-      if (!p.skippedVideos.includes(videoId)) p.skippedVideos.push(videoId);
-      if (category && p.categoryScore[category] !== undefined) {
-        p.categoryScore[category] = Math.max(-20, (p.categoryScore[category] || 0) - 3);
-      }
-      save();
-    },
-    // Reset partiel si toutes les vidéos ont été vues
-    partialReset() {
-      // Garde seulement les 10 vidéos les plus récemment vues
-      p.watchedVideos = p.watchedVideos.slice(-10);
-      p.skippedVideos = [];
-      save();
-    },
-    hasWatched(videoId) { return !!p.watchedVideos.find(x => x.id === videoId); },
-    hasSkipped(videoId) { return p.skippedVideos.includes(videoId); }
-  };
-})();
-
-// ── Poids du score de base ──
-const FEED_WEIGHTS = {
-  completion: 35,
-  engagement: 25,
-  freshness:  20,
-  boost:      15,
-  newcomer:   20,
-  geo:         8,
-  reportPenalty: 30
-};
-
-// ── Score de base d'une vidéo (inchangé) ──
-function computeFeedScore(item, viewerCountry) {
-  const views    = item.views    || 0;
-  const likes    = item.likes    || 0;
-  const comments = item.commentCount || 0;
-  const shares   = item.shares   || 0;
-  const reports  = item.reportsCount || 0;
-  const boost    = item.visibilityBoost || 0;
-
-  const engagementRate = Math.min(1, ((likes * 2 + comments * 3 + shares * 4) / Math.max(views, 1)) / 10);
-  const completionRate = (typeof item.avgWatchSeconds === 'number' && item.duration)
-    ? Math.min(1, item.avgWatchSeconds / item.duration) : 0.5;
-  const ageHours  = Math.max(0, (Date.now() - (item.createdAt || Date.now())) / 3600000);
-  const freshness = 1 / (1 + ageHours / 72);
-  const newcomerBonus = Math.max(0, 1 - (item.authorTotalViews || 0) / 50);
-  const geoBonus = (viewerCountry && item.country && viewerCountry === item.country) ? 1 : 0;
-
-  if (item.visibility === 'hidden') return -Infinity;
-  const visibilityMultiplier = item.visibility === 'limited' ? 0.25 : 1;
-
-  return (
-    FEED_WEIGHTS.completion * completionRate +
-    FEED_WEIGHTS.engagement * engagementRate +
-    FEED_WEIGHTS.freshness  * freshness +
-    FEED_WEIGHTS.boost      * (boost / 100) +
-    FEED_WEIGHTS.newcomer   * newcomerBonus +
-    FEED_WEIGHTS.geo        * geoBonus -
-    FEED_WEIGHTS.reportPenalty * Math.min(1, reports / 3)
-  ) * visibilityMultiplier;
-}
-
-// ── Score personnalisé = score base + bonus catégorie utilisateur ──
-function computePersonalScore(item, viewerCountry) {
-  const base = computeFeedScore(item, viewerCountry);
-  const up   = kikoUserProfile.get();
-  const cat  = (item.category || '').toLowerCase();
-  const catBonus = (cat && up.categoryScore[cat] !== undefined)
-    ? (up.categoryScore[cat] / 100) * 30  // max +30 pts si catégorie adorée
-    : 0;
-  // Malus vidéos déjà vues (pas exclues — juste poussées en bas)
-  const seenPenalty = kikoUserProfile.hasWatched(item.id) ? -40 : 0;
-  // Malus vidéos souvent skippées
-  const skipPenalty = kikoUserProfile.hasSkipped(item.id) ? -25 : 0;
-  return base + catBonus + seenPenalty + skipPenalty;
-}
-
-// ── Algorithme de sélection 3 groupes ──
-function kikoRankFeed(vids, viewerCountry) {
-  const up = kikoUserProfile.get();
-  if (!vids.length) return [];
-
-  // Calcule le score de chaque vidéo
-  const scored = vids.map(v => ({
-    ...v,
-    _score:  computePersonalScore(v, viewerCountry),
-    _base:   computeFeedScore(v, viewerCountry)
-  }));
-
-  // Vidéos totalement exclues (visibilité cachée)
-  const valid = scored.filter(v => v._score !== -Infinity);
-  if (!valid.length) return vids.slice(0, 20);
-
-  // Reset partiel si 80% des vidéos ont déjà été vues
-  const watchedCount = valid.filter(v => kikoUserProfile.hasWatched(v.id)).length;
-  if (watchedCount >= valid.length * 0.8) kikoUserProfile.partialReset();
-
-  // ── Groupe 1 : Pertinentes 60% (catégorie préférée + pas vues) ──
-  const relevant = valid
-    .filter(v => !kikoUserProfile.hasWatched(v.id))
-    .sort((a, b) => b._score - a._score);
-
-  // ── Groupe 2 : Tendances 25% (score de base élevé, vu ou non) ──
-  const trending = [...valid]
-    .sort((a, b) => b._base - a._base)
-    .filter(v => !relevant.slice(0, 8).find(r => r.id === v.id));
-
-  // ── Groupe 3 : Découverte 15% (aléatoire) ──
-  const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
-  const discovery = shuffle(valid)
-    .filter(v => !relevant.slice(0, 8).find(r => r.id === v.id)
-              && !trending.slice(0, 5).find(t => t.id === v.id));
-
-  // ── Mélange 60/25/15 sur 20 vidéos ──
-  const take = (arr, n) => arr.slice(0, n);
-  const R = take(relevant,  Math.round(20 * 0.60)); // 12
-  const T = take(trending,  Math.round(20 * 0.25)); // 5
-  const D = take(discovery, Math.round(20 * 0.15)); // 3
-
-  // Interleave intelligemment (pas 12 pertinentes d'affilée)
-  const merged = [];
-  const pools  = [R, R, R, T, R, R, R, T, D, R, R, T, R, D, T, R, R, T, R, D];
-  const used   = new Set();
-  for (const pool of pools) {
-    const item = pool.find(v => !used.has(v.id));
-    if (item) { merged.push(item); used.add(item.id); }
-  }
-  // Complète avec les restants si < 20
-  valid.forEach(v => { if (!used.has(v.id) && merged.length < 20) merged.push(v); });
-
-  return diversifyFeed(merged);
-}
-
-// ── Anti-monopole auteur inchangé ──
-function diversifyFeed(sortedItems) {
-  const result = []; const pending = [...sortedItems];
-  let lastAuthor = null, streak = 0;
-  while (pending.length) {
-    let idx = pending.findIndex(it => (it.authorUid || it.auteur) !== lastAuthor || streak < 2);
-    if (idx === -1) idx = 0;
-    const item = pending.splice(idx, 1)[0];
-    const author = item.authorUid || item.auteur;
-    streak = (author === lastAuthor) ? streak + 1 : 1;
-    lastAuthor = author;
-    result.push(item);
-  }
-  return result;
-}
-
-// ── Tracking durée de visionnage par vidéo (pour watchedVideos + skip) ──
-const _vidStartTimes = {};  // { videoId: timestamp }
-function kikoTrackVideoStart(videoId) {
-  _vidStartTimes[videoId] = Date.now();
-}
-function kikoTrackVideoEnd(videoId, video, category) {
-  const startTime = _vidStartTimes[videoId];
-  if (!startTime) return;
-  const watchedMs   = Date.now() - startTime;
-  const watchedSec  = watchedMs / 1000;
-  const duration    = video.duration || 0;
-  // Skip < 3s
-  if (watchedSec < 3) {
-    kikoUserProfile.markSkipped(videoId, category);
-    return;
-  }
-  // Vue > 70%
-  if (duration > 0 && (watchedSec / duration) >= 0.7) {
-    kikoUserProfile.markWatched(videoId, category);
-  }
-  delete _vidStartTimes[videoId];
-}
-
-
 // ═══════════════════════════════════════════════════════════
 //  KIKO CACHE LOCAL — affichage instantané avant Firebase
 //  Cache localStorage : vidéos + posts, TTL 5 minutes
@@ -5539,9 +5393,7 @@ async function loadFeedMixed(){
   const cached = KIKO_CACHE.get('videos');
   if(cached && cached.length){
     allVids = cached;
-    let html = '';
-    cached.forEach((item, i) => { html += buildVCard(item, i); });
-    feed.innerHTML = html;
+    feed.innerHTML = buildFeedHtml(cached);
     const firstVid = feed.querySelector('video');
     if(firstVid){ firstVid.muted = true; firstVid.play().catch(()=>{}); }
     initObserver(); initProgress(); initRadialLongPress();
@@ -5564,10 +5416,13 @@ async function loadFeedMixed(){
     const vidSnap = await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
     const vids = vidSnap.val() ? Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})) : [];
     const viewerCountry = currentUser?.country || null;
-    // ── Algorithme intelligent KIKO ──
-    const ranked = kikoRankFeed(vids, viewerCountry);
+    let ranked = vids
+      .map(item=>({...item,authorTotalViews:0}))
+      .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
+      .sort((a,b)=>b._score-a._score);
+    ranked = diversifyFeed(ranked);
     allVids = vids;
-    KIKO_CACHE.set('videos', ranked.slice(0, 20));
+    KIKO_CACHE.set('videos', ranked.slice(0, 20)); // sauvegarde pour la prochaine ouverture
 
     if(!ranked.length){
       if(!cached || !cached.length) feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucune vidéo encore</div><div class="ph-sub">Sois le premier !</div></div>';
@@ -5577,9 +5432,7 @@ async function loadFeedMixed(){
     const firstId = ranked[0]?.id;
     const currentFirst = feed.querySelector('.vcard')?.id?.replace('vc-','');
     if(firstId !== currentFirst){
-      let html = '';
-      ranked.forEach((item,i)=>{ html += buildVCard(item,i); });
-      feed.innerHTML = html;
+      feed.innerHTML = buildFeedHtml(ranked);
       const firstVid = feed.querySelector('video');
       if(firstVid){ firstVid.muted = true; firstVid.play().catch(()=>{}); }
       initObserver(); initProgress(); initRadialLongPress();
@@ -5611,6 +5464,7 @@ async function loadHomeFeed(){
     cached.forEach((item,i)=>{
       if(item.type==='photo') html += buildPhotoCard(item,i);
       else if(item.type==='text') html += buildTextCard(item,i);
+      else if(item.type==='opportunity') html += buildOpportunityCard(item,i);
     });
     feed.innerHTML = html || '';
     initPhotoCardMusic(); initPhotoCardTouch();
@@ -5651,6 +5505,7 @@ async function loadHomeFeed(){
       ranked.forEach((item,i)=>{
         if(item.type==='photo') html += buildPhotoCard(item,i);
         else if(item.type==='text') html += buildTextCard(item,i);
+        else if(item.type==='opportunity') html += buildOpportunityCard(item,i);
       });
       feed.innerHTML = html || '';
       initPhotoCardMusic(); initPhotoCardTouch();
@@ -5680,6 +5535,7 @@ async function refreshHomeFeedSilent(){
     ranked.forEach((item,i)=>{
       if(item.type==='photo')html+=buildPhotoCard(item,i);
       else if(item.type==='text')html+=buildTextCard(item,i);
+      else if(item.type==='opportunity')html+=buildOpportunityCard(item,i);
     });
     feed.innerHTML=html;
     if(hs)hs.scrollTop=savedScroll;
@@ -5832,6 +5688,46 @@ function togglePhotoCardMusic(pid, event){
 // ═══════════════════════════════════════
 //  BUILD TEXT CARD
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+//  CARTE OPPORTUNITÉ (cœur de KIKO — mise en avant sur l'accueil)
+// ═══════════════════════════════════════
+function buildOpportunityCard(p,i){
+  const init=(p.auteur||'A')[0].toUpperCase();
+  const avH=p.authorAvatar?`<img src="${optImg(p.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:init;
+  const isLiked=liked.includes(p.id);
+  const contact=(p.contact||'').trim();
+  // Numéro WhatsApp : on garde uniquement les chiffres pour bâtir le lien wa.me
+  const phoneDigits=contact.replace(/[^\d+]/g,'').replace(/^\+/,'');
+  const isPhone=/^\d{6,15}$/.test(phoneDigits);
+  const contactBtn = isPhone
+    ? `<a class="kiko-trad-btn" href="https://wa.me/${phoneDigits}" target="_blank" rel="noopener" style="background:#25D366;color:#fff;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">💬 Contacter sur WhatsApp</a>`
+    : (contact ? `<div class="kiko-trad-btn" style="opacity:0.85;">📩 ${esc(contact)}</div>` : '');
+  return `<div class="tcard" id="oppc-${p.id}" style="background:linear-gradient(160deg,#1a1206,#241704 60%,#1a1206);border:1.5px solid rgba(255,138,0,0.35);">
+    <div class="post-type-badge" style="background:var(--orange,#FF7A30);color:#1a1206;">💡 Opportunité</div>
+    <div class="tcard-content">
+      <div class="tcard-author-row">
+        <div class="tcard-av">${avH}</div>
+        <div class="tcard-name" style="color:#FFD9A8;">@${esc(p.auteur||'anonyme')}</div>
+        <div style="margin-left:auto;font-size:11px;color:#FFB347;">${timeAgo(p.createdAt)}</div>
+      </div>
+      <div style="font-weight:800;font-size:16px;color:#fff;margin:8px 0 4px;font-family:'Syne',sans-serif;">${esc(p.titre||'')}</div>
+      <div class="tcard-quote" style="color:#F0DCC0;font-size:13.5px;">${esc(p.desc||'')}</div>
+      <div class="tcard-actions">
+        <div class="tcard-action ${isLiked?'liked':''}" id="olk-${p.id}" onclick="needAuth(()=>togglePostLike('${p.id}','opp'))" style="color:${isLiked?'var(--red)':'#FFD9A8'};">
+          ${isLiked?'❤️':'🤍'} <span id="olc-${p.id}">${fmt(p.likes||0)}</span>
+        </div>
+        <div class="tcard-action" onclick="openPostComments('${p.id}')" style="color:#FFD9A8;">
+          💬 <span id="occ-${p.id}">0</span>
+        </div>
+        <div class="tcard-action" onclick="sharePost('${p.id}','${esc(p.auteur||'')}')" style="color:#FFD9A8;">
+          ↗️ <span>${fmt(p.shares||0)}</span>
+        </div>
+        ${contactBtn}
+      </div>
+    </div>
+  </div>`;
+}
+
 function buildTextCard(p,i){
   const init=(p.auteur||'A')[0].toUpperCase();
   const avH=p.authorAvatar?`<img src="${optImg(p.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:init;
@@ -5874,7 +5770,7 @@ async function togglePostLike(postId,type){
   if(isNowLiked){liked.push(postId);await ref.set(cur+1);}
   else{liked=liked.filter(x=>x!==postId);await ref.set(Math.max(0,cur-1));}
   localStorage.setItem('aes_liked',JSON.stringify(liked));
-  const prefix=type==='photo'?'p':'t';
+  const prefix=type==='photo'?'p':(type==='opp'?'o':'t');
   const lkEl=document.getElementById(prefix+'lk-'+postId);
   const lcEl=document.getElementById(prefix+'lc-'+postId);
   if(lkEl){lkEl.classList.toggle('liked',isNowLiked);lkEl.innerHTML=`${isNowLiked?'❤️':'🤍'} <span id="${prefix}lc-${postId}">${fmt(Math.max(0,cur+(isNowLiked?1:-1)))}</span>`;}
@@ -5928,239 +5824,50 @@ function openAuth(reason){
   document.getElementById('authModal').classList.add('active');
 }
 function closeAuth(){document.getElementById('authModal').classList.remove('active');}
-// Vérifie que le stockage nécessaire à l'auth Google est utilisable (souvent bloqué dans les WebViews intégrées)
-function kikoAuthStorageOk(){
-  try{
-    sessionStorage.setItem('__kiko_test','1');
-    sessionStorage.removeItem('__kiko_test');
-    return true;
-  }catch(e){ return false; }
+function switchTab(mode){
+  authMode=mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(mode==='login'&&i===0)||(mode==='register'&&i===1)));
+  document.getElementById('authName').style.display=mode==='register'?'block':'none';
+  document.getElementById('authPhone').style.display=mode==='register'?'block':'none';
+  document.getElementById('authBtn').innerText=mode==='login'?'Se connecter':"S'inscrire";
+  document.getElementById('authErr').innerText='';
 }
-
-// Détecte une WebView intégrée (app AppMint / Facebook / Instagram / WhatsApp / Android WebView générique...)
-// Dans ces environnements, signInWithPopup laisse souvent un écran blanc car le popup OAuth
-// est bloqué ou les cookies tiers sont partitionnés. On bascule alors directement sur signInWithRedirect.
-function kikoIsEmbeddedWebView(){
-  const ua=navigator.userAgent||'';
-  if(/FBAN|FBAV|Instagram|Line\/|Twitter|MicroMessenger|WhatsApp/i.test(ua)) return true;
-  // WebView Android générique : "; wv)" dans le user-agent, ou Version/X.X Chrome/X sans le vrai Chrome complet
-  if(/\bwv\b/i.test(ua)) return true;
-  // Apps générées par AppMint/Cordova/Capacitor tournent souvent sans référent de navigateur normal
-  if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches && /Android/i.test(ua) && !/SamsungBrowser|Chrome\//i.test(ua)) return true;
-  return false;
-}
-
-async function doAuthGoogle(){
+async function doAuth(){
+  const email=document.getElementById('authEmail').value.trim();
+  const pass=document.getElementById('authPass').value;
+  const name=document.getElementById('authName').value.trim();
+  const phone=document.getElementById('authPhone').value.trim();
   const errEl=document.getElementById('authErr');
-  const btn=document.getElementById('authBtn');
-  errEl.innerText='';
-  if(!kikoAuthStorageOk()){
-    errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
-    return;
-  }
-  btn.disabled=true;btn.style.opacity='.6';
-
-  // Dans une WebView intégrée, on part directement en redirection : le popup y reste souvent bloqué
-  // ou affiche un écran blanc sans jamais revenir.
-  if(kikoIsEmbeddedWebView()){
-    try{
-      sessionStorage.setItem('__kiko_authRedirecting','1');
-      await auth.signInWithRedirect(googleProvider);
-      return; // la page va se recharger, la suite est gérée par handleGoogleRedirectResult()
-    }catch(e){
-      errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
-      btn.disabled=false;btn.style.opacity='1';
-      return;
-    }
-  }
-
+  if(!email||!pass){errEl.innerText='Remplis tous les champs';return;}
+  const btn=document.getElementById('authBtn');btn.disabled=true;btn.innerText='⏳...';
   try{
-    const result=await auth.signInWithPopup(googleProvider);
-    await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
-  }catch(e){
-    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
-      // rien à afficher, l'utilisateur a juste annulé ou re-cliqué trop vite
-    } else if(e.code==='auth/popup-blocked'){
-      // Popup bloqué même dans un vrai navigateur → on retente automatiquement en redirection
-      try{
-        sessionStorage.setItem('__kiko_authRedirecting','1');
-        await auth.signInWithRedirect(googleProvider);
-        return;
-      }catch(e2){
-        errEl.innerText="⚠️ Chrome bloque la fenêtre popup. Va dans Réglages Chrome → Paramètres du site → Popups et redirections → Autoriser, puis réessaie.";
-      }
-    } else if(e.code==='auth/operation-not-supported-in-this-environment' || (e.message||'').includes('missing initial state')){
-      // Même remède : bascule en redirection plutôt que de simplement bloquer l'utilisateur
-      try{
-        sessionStorage.setItem('__kiko_authRedirecting','1');
-        await auth.signInWithRedirect(googleProvider);
-        return;
-      }catch(e2){
-        errEl.innerText='⚠️ Ouvre KIKO dans Chrome (pas dans une app intégrée) pour te connecter avec Google.';
-      }
+    if(authMode==='register'){
+      if(!name){errEl.innerText='Entre ton pseudo';btn.disabled=false;btn.innerText="S'inscrire";return;}
+      const snap=await db.ref('users').orderByChild('email').equalTo(email).once('value');
+      if(snap.exists()){errEl.innerText='Email déjà utilisé';btn.disabled=false;btn.innerText="S'inscrire";return;}
+      const uid='u_'+Date.now();
+      const user={uid,name,email,pass,phone:phone||'',avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
+      await db.ref('users/'+uid).set(user);
+      currentUser=user;
     } else {
-      errEl.innerText='Erreur: '+e.message;
+      const snap=await db.ref('users').orderByChild('email').equalTo(email).once('value');
+      if(!snap.exists()){errEl.innerText='Email introuvable';btn.disabled=false;btn.innerText='Se connecter';return;}
+      const user=Object.values(snap.val()).find(u=>u.pass===pass);
+      if(!user){errEl.innerText='Mot de passe incorrect';btn.disabled=false;btn.innerText='Se connecter';return;}
+      currentUser=user;
     }
-    btn.disabled=false;btn.style.opacity='1';
-  }
-}
-
-// Gère le retour de signInWithRedirect (fallback mobile / WebView intégrée)
-async function handleGoogleRedirectResult(){
-  const wasRedirecting=sessionStorage.getItem('__kiko_authRedirecting')==='1';
-  try{
-    const result=await auth.getRedirectResult();
-    if(result && result.user){
-      sessionStorage.removeItem('__kiko_authRedirecting');
-      await finalizeGoogleUser(result.user, result.additionalUserInfo?.isNewUser);
-    } else if(wasRedirecting){
-      // On revient d'une tentative de redirection mais sans utilisateur : on informe au lieu de rester silencieux
-      sessionStorage.removeItem('__kiko_authRedirecting');
-      showToast("⚠️ La connexion Google n'a pas abouti. Réessaie, idéalement depuis Chrome.");
-    }
-  }catch(e){
-    sessionStorage.removeItem('__kiko_authRedirecting');
-    if(wasRedirecting) showToast('⚠️ Connexion Google échouée : '+(e.message||'réessaie plus tard'));
-    // sinon silencieux : pas de redirection en cours
-  }
-}
-
-// Affiche un petit écran pour garder ou changer le nom Google avant de créer le compte
-function showNameConfirm(defaultName){
-  return new Promise(resolve=>{
-    const modal=document.getElementById('nameConfirmModal');
-    const input=document.getElementById('nameConfirmInput');
-    const btn=document.getElementById('nameConfirmBtn');
-    input.value=defaultName||'';
-    modal.style.display='flex';
-    btn.onclick=()=>{
-      const val=input.value.trim()||defaultName||'Utilisateur KIKO';
-      modal.style.display='none';
-      resolve(val);
-    };
-  });
-}
-
-// Crée/charge le profil Firebase à partir du compte Google, et déclenche la géoloc pays.
-// Important : les comptes créés AVANT Google (uid = "u_...") sont retrouvés par email
-// et RÉUTILISÉS tels quels, pour ne pas faire perdre posts/follows/vidéos aux anciens utilisateurs.
-async function finalizeGoogleUser(fbUser, isNewUser){
-  const gUid=fbUser.uid;
-  let appUid=null, user=null, wasNew=false;
-
-  // 0) Cache locale (appareil) — si ce compte Google a déjà été résolu ici,
-  // on saute directement les lectures Firebase et on se connecte à l'instant.
-  // On revalidera en arrière-plan une fois l'UI affichée.
-  const cacheKey='aes_gcache_'+gUid;
-  let usedCache=false;
-  try{
-    const cached=JSON.parse(localStorage.getItem(cacheKey)||'null');
-    if(cached && cached.appUid && cached.user){
-      appUid=cached.appUid; user=cached.user; usedCache=true;
-    }
-  }catch(e){}
-
-  // 1) Lien déjà connu (connexions suivantes) → résolution rapide (1 lecture)
-  if(!user){
-    const linkSnap=await db.ref('googleLinks/'+gUid).once('value');
-    if(linkSnap.exists()){
-      appUid=linkSnap.val();
-      const uSnap=await db.ref('users/'+appUid).once('value');
-      user=uSnap.val();
-    }
-  }
-
-  // 2) Pas de lien encore → cherche un ancien compte par email (migration, une seule fois)
-  if(!user && fbUser.email){
-    const bySnap=await db.ref('users').orderByChild('email').equalTo(fbUser.email).once('value');
-    if(bySnap.exists()){
-      const entries=Object.entries(bySnap.val());
-      appUid=entries[0][0];
-      user=entries[0][1];
-      // Nettoyage sécurité + complétion avatar/nom + création du lien, en parallèle (pas besoin d'attendre l'un après l'autre)
-      const patch={};
-      if(!user.avatar && fbUser.photoURL) patch.avatar=fbUser.photoURL;
-      if(!user.name && fbUser.displayName) patch.name=fbUser.displayName;
-      Object.assign(user,patch);
-      await Promise.all([
-        user.pass?db.ref('users/'+appUid+'/pass').remove():Promise.resolve(),
-        Object.keys(patch).length?db.ref('users/'+appUid).update(patch):Promise.resolve(),
-        db.ref('googleLinks/'+gUid).set(appUid)
-      ]);
-    }
-  }
-
-  // 3) Toujours rien → nouveau compte, cette fois avec l'uid Google directement
-  if(!user){
-    appUid=gUid;
-    wasNew=true;
-    const chosenName=await showNameConfirm(fbUser.displayName||'Utilisateur KIKO');
-    user={
-      uid:appUid,
-      name:chosenName,
-      email:fbUser.email||'',
-      avatar:fbUser.photoURL||'',
-      phone:fbUser.phoneNumber||'',
-      bio:'Créateur de contenu africain 🌍',
-      country:null,
-      createdAt:Date.now()
-    };
-    // Écritures indépendantes → en parallèle plutôt qu'en séquence
-    await Promise.all([
-      db.ref('users/'+appUid).set(user),
-      db.ref('googleLinks/'+gUid).set(appUid)
-    ]);
-  }
-
-  user.uid=appUid; // s'assure que le champ uid interne correspond bien à la clé users/
-  currentUser=user;
-  localStorage.setItem('aes_user',JSON.stringify(currentUser));
-  try{ localStorage.setItem(cacheKey, JSON.stringify({appUid,user})); }catch(e){}
-
-  // Affichage immédiat : on n'attend plus le chargement des "following" pour débloquer l'UI
-  closeAuth();applyUserUI();
-  showToast('👋 Bienvenue '+currentUser.name+' !');
-  startNotifListener();loadNotifs();loadDMs();
-  initPushNotifications();
-  if(pendingAction){pendingAction();pendingAction=null;}
-  if(wasNew) setTimeout(()=>kikoShowOnboarding(), 600);
-
-  // "following" chargé en arrière-plan, n'empêche plus l'écran de s'afficher
-  db.ref('following/'+currentUser.uid).once('value').then(fSnap=>{
+    localStorage.setItem('aes_user',JSON.stringify(currentUser));
+    const fSnap=await db.ref('following/'+currentUser.uid).once('value');
     following=fSnap.val()||{};
     localStorage.setItem('aes_following',JSON.stringify(following));
-  }).catch(()=>{});
-
-  // Si on s'est connecté via le cache local, on revalide en arrière-plan (silencieux)
-  // pour rattraper d'éventuels changements de profil sans ralentir la connexion.
-  if(usedCache){
-    db.ref('googleLinks/'+gUid).once('value').then(async linkSnap=>{
-      if(!linkSnap.exists())return;
-      const freshAppUid=linkSnap.val();
-      const uSnap=await db.ref('users/'+freshAppUid).once('value');
-      const freshUser=uSnap.val();
-      if(freshUser){
-        freshUser.uid=freshAppUid;
-        localStorage.setItem(cacheKey, JSON.stringify({appUid:freshAppUid,user:freshUser}));
-        if(currentUser && currentUser.uid===freshAppUid && JSON.stringify(freshUser)!==JSON.stringify(currentUser)){
-          currentUser=freshUser;
-          localStorage.setItem('aes_user',JSON.stringify(currentUser));
-          applyUserUI();
-        }
-      }
-    }).catch(()=>{});
-  }
-
-  // Demande la position pour déterminer le pays automatiquement (utilisé par l'algo vidéo)
-  if(!currentUser.country){
-    kikoGetUserCountry().then(country=>{
-      if(country){
-        currentUser.country=country;
-        localStorage.setItem('aes_user',JSON.stringify(currentUser));
-        db.ref('users/'+currentUser.uid+'/country').set(country);
-      }
-    });
-  }
+    closeAuth();applyUserUI();
+    showToast('👋 Bienvenue '+currentUser.name+' !');
+    startNotifListener();loadNotifs();loadDMs();
+    kikoStartPresence(); // démarrer le heartbeat de présence
+    if(pendingAction){pendingAction();pendingAction=null;}
+    // Onboarding uniquement pour les nouveaux inscrits
+    if(authMode==='register') setTimeout(()=>kikoShowOnboarding(), 600);
+  }catch(e){errEl.innerText='Erreur: '+e.message;btn.disabled=false;btn.innerText=authMode==='login'?'Se connecter':"S'inscrire";}
 }
 function doLogout(){currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');}
 function needAuth(action){if(currentUser){action();return;}pendingAction=action;openAuth('Crée un compte pour accéder 🔒');}
@@ -6417,11 +6124,6 @@ function highlightLangBtn2(lang){
 function togglePushNotif(on){
   localStorage.setItem('aes_notif_off',on?'0':'1');
   showToast(on?'🔔 Notifications activées':'🔕 Notifications désactivées');
-  if(on){
-    initPushNotifications();
-  } else if(currentUser){
-    db.ref('users/'+currentUser.uid+'/fcmToken').remove();
-  }
 }
 function toggleMsgSound(on){
   localStorage.setItem('aes_sound_off',on?'0':'1');
@@ -6632,6 +6334,15 @@ function updateHomeHero(items){
     subEl.innerText='Par @'+(item.auteur||'anonyme');
     labelEl.innerText='📸 À LA UNE';
     btnEl.innerText='Voir le post';
+  } else if(item.type==='opportunity'){
+    imgEl.innerHTML=`<div style="width:100%;height:100%;background:linear-gradient(160deg,#1a1206,#241704);display:flex;align-items:center;justify-content:center;font-size:56px;">💡</div>`;
+    titleEl.innerText=item.titre?item.titre.substring(0,60):'Opportunité';
+    subEl.innerText='Par @'+(item.auteur||'anonyme');
+    labelEl.innerText='💡 OPPORTUNITÉ';
+    labelEl.style.background='var(--orange,#FF7A30)';
+    labelEl.style.color='#1a1206';
+    btnEl.innerText='Voir l\'opportunité';
+    btnEl.onclick=()=>{const el=document.getElementById('oppc-'+item.id);if(el)el.scrollIntoView({behavior:'smooth'});};
   }
 }
 
@@ -6662,15 +6373,16 @@ async function refreshFeedSilent(){
     const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
     const viewerCountry=currentUser?.country||null;
-    const ranked = kikoRankFeed(vids, viewerCountry);
+    let ranked=vids
+      .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
+      .sort((a,b)=>b._score-a._score);
+    ranked=diversifyFeed(ranked);
     allVids=vids;
     if(!ranked.length)return;
     const feed=document.getElementById('feed');
     const bs=document.getElementById('buzzScreen');
     const savedScroll=bs?bs.scrollTop:0;
-    let html='';
-    ranked.forEach((item,i)=>{html+=buildVCard(item,i);});
-    feed.innerHTML=html;
+    feed.innerHTML=buildFeedHtml(ranked);
     if(bs)bs.scrollTop=savedScroll;
     initObserver();initProgress();
     setTimeout(()=>{
@@ -6699,6 +6411,28 @@ function prependNewVideoToFeed(v){
   setTimeout(()=>refreshFeedSilent(),2500);
 }
 
+// ═══════════════════════════════════════
+//  MONÉTISATION — Adsterra Smartlink
+//  Ouvre un nouvel onglet/navigateur externe (comportement normal d'un Smartlink).
+//  Le quota (5 pubs/jour/utilisateur) est géré par _adBudget() plus bas,
+//  déclenché quand une carte "Sponsorisé" apparaît dans le feed Buzz.
+// ═══════════════════════════════════════
+const ADSTERRA_SMARTLINK='https://www.effectivecpmnetwork.com/q7w41cikh?key=e394764bb3a6ab981e8bb3591776c7f3';
+function openSmartlink(url){
+  // Certains WebView (apps générées via Appmint/GoNative/etc.) ignorent window.open().
+  // Un vrai <a target="_blank"> cliqué est presque toujours intercepté et ouvert
+  // dans le navigateur système du téléphone — bien plus fiable ici.
+  try{
+    const a=document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>a.remove(),1000);
+  }catch(e){
+    try{ window.open(url,'_blank'); }catch(e2){/* silencieux */}
+  }
+}
 function loadFeed(){loadFeedMixed();loadHomeStories();}
 
 // ═══════════════════════════════════════
@@ -6768,11 +6502,7 @@ function showNewVidsBtn(){
 function renderFeed(vids){
   const feed=document.getElementById('feed');
   if(!vids.length){feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucun résultat</div></div>';return;}
-  let html='';
-  vids.forEach((v,i)=>{
-    html+=buildVCard(v,i);
-  });
-  feed.innerHTML=html;
+  feed.innerHTML=buildFeedHtml(vids);
   const firstVid=feed.querySelector('video');
   if(firstVid)firstVid.play().catch(()=>{});
   initObserver();initProgress();
@@ -6793,13 +6523,146 @@ const TREND_THRESHOLD=50; // score minimum pour badge Tendance
 //  SCORING DU FEED — visibilité & ranking
 // ═══════════════════════════════════════
 // Pondérations (modifiables ici, tout est centralisé)
-// ═══════════════════════════════════════════════════════════════════
-//  KIKO BUZZ ALGORITHM — Feed intelligent adaptatif
-//  Tracking comportemental + scoring 3 groupes + anti-répétition
-// ═══════════════════════════════════════════════════════════════════
+const FEED_WEIGHTS={
+  completion:35,   // % de la vidéo/contenu réellement consommé (signal le plus fiable)
+  engagement:25,   // likes/comments/shares pondérés / vues
+  freshness:20,    // décroît doucement sur ~72h (pas un crash en 24h)
+  boost:15,        // boost admin manuel (0-100), réglable depuis l'admin
+  newcomer:20,     // bonus dégressif pour les comptes < 50 vues cumulées
+  geo:8,           // léger bonus si même pays que le viewer (pas un filtre, juste un coup de pouce)
+  reconnaissance:12, // 😍 signal fort : l'utilisateur a vraiment apprécié
+  reportPenalty:30 // pénalité forte si contenu signalé
+};
 
+function computeFeedScore(item,viewerCountry){
+  const views=item.views||0;
+  const likes=item.likes||0;
+  const comments=item.commentCount||0;
+  const shares=item.shares||0;
+  const reports=item.reportsCount||0;
+  const boost=item.visibilityBoost||0; // 0-100, réglé manuellement depuis l'admin
+  const authorTotalViews=item.authorTotalViews||0; // cumul de vues de l'auteur, pour détecter un nouveau créateur
+
+  const reconnaissance=item.reconnaissance||0;
+  // Engagement : pondéré, normalisé par les vues — reconnaissance compte plus (signal fort)
+  const engagementRate=Math.min(1,((likes*2+comments*3+shares*4+reconnaissance*5)/Math.max(views,1))/10);
+
+  // Complétion (si trackée) — sinon valeur neutre 0.5 pour ne pas désavantager les vidéos non instrumentées
+  const completionRate=(typeof item.avgWatchSeconds==='number'&&item.duration)
+    ?Math.min(1,item.avgWatchSeconds/item.duration)
+    :0.5;
+
+  // Fraîcheur douce : decay sur 72h plutôt que 24h
+  const ageHours=Math.max(0,(Date.now()-(item.createdAt||Date.now()))/3600000);
+  const freshness=1/(1+ageHours/72);
+
+  // Bonus nouveau créateur, dégressif jusqu'à 50 vues cumulées
+  const newcomerBonus=Math.max(0,1-authorTotalViews/50);
+
+  // Bonus géo léger — n'agit que si les deux pays sont renseignés
+  const geoBonus=(viewerCountry&&item.country&&viewerCountry===item.country)?1:0;
+
+  // Visibilité masquée/limitée par modération manuelle
+  if(item.visibility==='hidden')return -Infinity;
+  const visibilityMultiplier=item.visibility==='limited'?0.25:1;
+
+  const reconRate=Math.min(1,reconnaissance/Math.max(views,1)*20);
+  const score=
+    FEED_WEIGHTS.completion*completionRate +
+    FEED_WEIGHTS.engagement*engagementRate +
+    FEED_WEIGHTS.freshness*freshness +
+    FEED_WEIGHTS.boost*(boost/100) +
+    FEED_WEIGHTS.newcomer*newcomerBonus +
+    FEED_WEIGHTS.geo*geoBonus +
+    FEED_WEIGHTS.reconnaissance*reconRate -
+    FEED_WEIGHTS.reportPenalty*Math.min(1,reports/3);
+
+  return score*visibilityMultiplier;
+}
+
+// Anti-monopole : pas plus de 2 contenus consécutifs du même auteur
+function diversifyFeed(sortedItems){
+  const result=[];const pending=[...sortedItems];
+  let lastAuthor=null,streak=0;
+  while(pending.length){
+    let idx=pending.findIndex(it=>(it.authorUid||it.auteur)!==lastAuthor||streak<2);
+    if(idx===-1)idx=0;
+    const item=pending.splice(idx,1)[0];
+    const author=item.authorUid||item.auteur;
+    streak=(author===lastAuthor)?streak+1:1;
+    lastAuthor=author;
+    result.push(item);
+  }
+  return result;
+}
+
+// ═══════════════════════════════════════
+//  PUBLICITÉS DANS LE FEED — cartes "Sponsorisé"
+//  Même format plein écran que les vidéos, même scroll, aucun popup externe.
+//  Quota strict : 5 pubs maximum par utilisateur et par jour.
+// ═══════════════════════════════════════
+const AD_CONFIG={
+  everyN:5,        // espacement : 1 pub toutes les 5 vidéos
+  dailyLimit:5     // maximum de pubs vues par utilisateur et par jour
+};
+// Quota journalier persistant (par appareil/utilisateur), remis à zéro chaque jour
+function _adBudgetRemaining(){
+  try{
+    const today=new Date().toDateString();
+    const raw=JSON.parse(localStorage.getItem('kiko_ad_budget')||'{}');
+    if(raw.day!==today)return AD_CONFIG.dailyLimit;
+    return Math.max(0,AD_CONFIG.dailyLimit-(raw.count||0));
+  }catch(e){return AD_CONFIG.dailyLimit;}
+}
+function _adBudgetConsume(){
+  try{
+    const today=new Date().toDateString();
+    const raw=JSON.parse(localStorage.getItem('kiko_ad_budget')||'{}');
+    const count=(raw.day===today)?(raw.count||0)+1:1;
+    localStorage.setItem('kiko_ad_budget',JSON.stringify({day:today,count}));
+  }catch(e){/* silencieux */}
+}
+// Insère une carte pub toutes les N vidéos réelles, tant qu'il reste du quota pour aujourd'hui.
+// Jamais 2 pubs d'affilée (le compteur ne compte que les vraies vidéos), jamais en tout premier.
+function injectAdsIntoFeed(items){
+  const out=[];
+  let sinceLastAd=0;
+  let budget=_adBudgetRemaining();
+  items.forEach((item,idx)=>{
+    out.push(item);
+    sinceLastAd++;
+    if(sinceLastAd>=AD_CONFIG.everyN&&idx<items.length-1&&budget>0){
+      out.push({
+        id:'ad-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+        _isAd:true
+      });
+      sinceLastAd=0;
+      budget--;
+      _adBudgetConsume();
+    }
+  });
+  return out;
+}
+// Construit le HTML du feed (vraies vidéos + pubs injectées) en gardant des index cohérents
+function buildFeedHtml(items){
+  return injectAdsIntoFeed(items).map((it,i)=>buildVCard(it,i)).join('');
+}
+function buildAdCard(v,i){
+  // Carte pleine écran, même gabarit qu'une vcard vidéo — pas de vidéo réelle ici,
+  // le tap (ou l'apparition à l'écran, via l'observer) ouvre le Smartlink Adsterra.
+  return `<div class="vcard" id="vc-${v.id}" data-ad="1" data-smartlink="1"
+      style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 30%,rgba(255,122,48,0.18),transparent 60%),var(--bg);cursor:pointer;"
+      onclick="openSmartlink('${ADSTERRA_SMARTLINK}')">
+    <div style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;letter-spacing:.3px;z-index:5;">Sponsorisé</div>
+    <div style="font-size:46px;margin-bottom:16px;">📢</div>
+    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:20px;color:var(--text);margin-bottom:8px;padding:0 30px;">Offre partenaire</div>
+    <div style="color:var(--text2);font-size:14px;margin-bottom:24px;padding:0 40px;">Découvre une sélection spéciale pour toi</div>
+    <button onclick="event.stopPropagation();openSmartlink('${ADSTERRA_SMARTLINK}')" style="background:var(--gold);color:#14151A;border:none;padding:13px 32px;border-radius:26px;font-weight:700;font-size:14px;">Découvrir</button>
+  </div>`;
+}
 
 function buildVCard(v,i){
+  if(v._isAd)return buildAdCard(v,i);
   const isLiked=liked.includes(v.id);
   const init=(v.auteur||'A')[0].toUpperCase();
   const tags=(v.desc||'').match(/#\w+/g)||[];
@@ -6874,15 +6737,37 @@ function buildVCard(v,i){
       <div class="vkiko-stat">👁 <span id="vv2-${v.id}">${fmt(v.views||0)}</span></div>
     </div>
 
-    <!-- Boutons .vactions conservés (cachés) pour compatibilité des fonctions existantes -->
+    <!-- ═══ BOUTONS FLOTTANTS VIDÉO (original, non-TikTok) ═══ -->
+    <div class="kiko-vid-actions">
+      <div class="kiko-vid-btn ${isLiked?'liked':''}" id="lk-${v.id}" onclick="event.stopPropagation();needAuth(()=>toggleLike('${v.id}'))" title="J'aime">
+        <div class="kiko-vid-btn-ico">${isLiked?'❤️':'🤍'}</div>
+        <div class="kiko-vid-btn-lbl" id="lc-hidden-${v.id}">${fmt(v.likes||0)}</div>
+      </div>
+      <div class="kiko-vid-btn" id="reco-btn-${v.id}" onclick="event.stopPropagation();needAuth(()=>kikoToggleReconnaissance('${v.id}',${i}))" title="Reconnaissance">
+        <div class="kiko-vid-btn-ico">😍</div>
+        <div class="kiko-vid-btn-lbl" id="reco-lbl-${v.id}">${fmt(v.reconnaissance||0)}</div>
+      </div>
+      <div class="kiko-vid-btn-sep"></div>
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();openShareSheet('${v.id}')" title="Partager">
+        <div class="kiko-vid-btn-ico">↗️</div>
+        <div class="kiko-vid-btn-lbl">Partager</div>
+      </div>
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>kikoToggleFavorite('${v.id}',this))" title="Favori">
+        <div class="kiko-vid-btn-ico" id="fav-ico-${v.id}">⭐</div>
+        <div class="kiko-vid-btn-lbl">Favori</div>
+      </div>
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();kikoOpenReportModal('${v.id}')" title="Signaler">
+        <div class="kiko-vid-btn-ico">🚩</div>
+        <div class="kiko-vid-btn-lbl">Signaler</div>
+      </div>
+    </div>
+    <div class="kiko-reco-layer" id="reco-layer-${i}"></div>
     <div class="vactions" style="display:none!important;">
       <div class="aav"></div>
       <div class="aitem" onclick="needAuth(()=>toggleLike('${v.id}'))">
-        <div class="acircle ${isLiked?'liked':''}" id="lk-${v.id}">${isLiked?'❤️':'🤍'}</div>
-        <span id="lc-hidden-${v.id}">${fmt(v.likes||0)}</span>
+        <div class="acircle ${isLiked?'liked':''}" id="lk-compat-${v.id}">${isLiked?'❤️':'🤍'}</div>
+        <span id="sc-${v.id}">${fmt(v.shares||0)}</span>
       </div>
-      <div class="aitem" onclick="openComments('${v.id}')"><div class="acircle">💬</div><span></span></div>
-      <div class="aitem" onclick="openShareSheet('${v.id}')"><div class="acircle">↗️</div><span id="sc-${v.id}">${fmt(v.shares||0)}</span></div>
     </div>
   </div>`;
 }
@@ -7085,7 +6970,9 @@ function kikoOpenRadial(e, vidId, vidIdx){
   const cy = touch.clientY;
 
   const menu    = document.getElementById('kikoRadialMenu');
-  const overlay = document.getElementById('kikoVidRadialOverlay');
+  const overlay = document.getElementById('kikoRadialOverlay');
+
+  // Réinitialise
   menu.innerHTML = '<div class="kiko-radial-origin"></div>';
   menu.style.left = cx + 'px';
   menu.style.top  = cy + 'px';
@@ -7130,7 +7017,7 @@ function kikoOpenRadial(e, vidId, vidIdx){
 function kikoCloseRadial(instant){
   clearTimeout(_radialTimeout);
   const menu    = document.getElementById('kikoRadialMenu');
-  const overlay = document.getElementById('kikoVidRadialOverlay');
+  const overlay = document.getElementById('kikoRadialOverlay');
   if(!menu) return;
   menu.querySelectorAll('.kiko-radial-btn').forEach(b=>{
     b.style.transform = 'translate(-50%,-50%) scale(0)';
@@ -7215,6 +7102,136 @@ function openReportSheet(vidId, authorUid){
   document.getElementById('kikoMoreSheet').classList.add('active');
 }
 
+// ═══════════════════════════════════════
+//  SIGNALEMENT INTERNE (pas de WhatsApp)
+// ═══════════════════════════════════════
+const REPORT_REASONS = [
+  'Contenu violent ou choquant',
+  'Contenu sexuel inapproprié',
+  'Harcèlement ou intimidation',
+  'Fausse information',
+  'Spam ou publicité abusive',
+  'Discours haineux',
+  'Autre raison'
+];
+function kikoOpenReportModal(vidId){
+  needAuth(()=>{
+    const existing=document.getElementById('kikoReportModal');
+    if(existing) existing.remove();
+    const modal=document.createElement('div');
+    modal.id='kikoReportModal';
+    modal.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;justify-content:center;';
+    modal.innerHTML=`
+      <div style="background:var(--bg2,#15171c);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;">
+        <div style="width:36px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 18px;"></div>
+        <div style="font-weight:800;font-size:16px;font-family:'Syne',sans-serif;margin-bottom:14px;">🚩 Signaler cette vidéo</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${REPORT_REASONS.map(r=>`
+            <div onclick="kikoSubmitReport('${vidId}','${r.replace(/'/g,"\\'")}');document.getElementById('kikoReportModal').remove();"
+              style="padding:13px 14px;background:var(--surface,#1e2026);border-radius:12px;cursor:pointer;font-size:14px;color:var(--text,#f4f5f7);border:1px solid var(--border,#2a2d35);">
+              ${r}
+            </div>`).join('')}
+        </div>
+        <div onclick="document.getElementById('kikoReportModal').remove();"
+          style="margin-top:14px;padding:13px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer;">
+          Annuler
+        </div>
+      </div>`;
+    modal.addEventListener('click',e=>{ if(e.target===modal) modal.remove(); });
+    document.body.appendChild(modal);
+  });
+}
+
+async function kikoSubmitReport(vidId, reason){
+  if(!currentUser){ showToast('Connecte-toi pour signaler'); return; }
+  try{
+    await db.ref('reports/'+vidId+'/'+currentUser.uid).set({
+      reason, userId: currentUser.uid,
+      videoId: vidId, timestamp: Date.now()
+    });
+    await db.ref('videos/'+vidId+'/reportsCount').transaction(n=>(n||0)+1);
+    showToast('✅ Signalement enregistré — Merci !');
+  }catch{ showToast('❌ Erreur lors du signalement'); }
+}
+
+// ═══════════════════════════════════════
+//  RECONNAISSANCE 😍 (avec animation fusion)
+// ═══════════════════════════════════════
+let _reconnu = JSON.parse(localStorage.getItem('kiko_reconnu')||'[]');
+
+function kikoToggleReconnaissance(vidId, cardIdx){
+  const btn=document.getElementById('reco-btn-'+vidId);
+  const lbl=document.getElementById('reco-lbl-'+vidId);
+  const isReconnu=_reconnu.includes(vidId);
+  const ref=db.ref('videos/'+vidId+'/reconnaissance');
+  if(isReconnu){
+    _reconnu=_reconnu.filter(x=>x!==vidId);
+    btn&&btn.classList.remove('reconnu');
+    ref.transaction(n=>Math.max(0,(n||0)-1)).then(r=>{
+      if(lbl) lbl.innerText=fmt(r.snapshot.val()||0);
+    });
+  } else {
+    _reconnu.push(vidId);
+    btn&&btn.classList.add('reconnu');
+    kikoPlayReconnaissanceAnim(cardIdx);
+    ref.transaction(n=>(n||0)+1).then(r=>{
+      if(lbl) lbl.innerText=fmt(r.snapshot.val()||0);
+    });
+    // Notif à l'auteur
+    const vid=allVids.find(x=>x.id===vidId);
+    if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid){
+      sendNotif(vid.authorUid,{type:'reconnaissance',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',vidId,at:Date.now(),read:false});
+    }
+  }
+  localStorage.setItem('kiko_reconnu',JSON.stringify(_reconnu));
+}
+
+function kikoPlayReconnaissanceAnim(cardIdx){
+  const layer=document.getElementById('reco-layer-'+cardIdx);
+  if(!layer) return;
+  layer.innerHTML=''; // nettoyer
+  const cx=layer.offsetWidth*0.55, cy=layer.offsetHeight*0.45;
+
+  // Partie 1 : "Recon"
+  const w1=document.createElement('div');
+  w1.className='kiko-reco-word';
+  w1.innerText='Recon';
+  w1.style.cssText=`left:${cx-30}px;top:${cy}px;animation:kikoRecoA 1.4s ease forwards;`;
+  // Partie 2 : "naissent"
+  const w2=document.createElement('div');
+  w2.className='kiko-reco-word';
+  w2.innerText='naissent';
+  w2.style.cssText=`left:${cx+30}px;top:${cy+30}px;animation:kikoRecoB 1.4s ease forwards;`;
+  // Fusion : "Reconnaissent" après 0.7s
+  const wFull=document.createElement('div');
+  wFull.className='kiko-reco-word';
+  wFull.innerText='Reconnaissent';
+  wFull.style.cssText=`left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;animation:kikoRecoFull 1.2s 0.7s ease forwards;opacity:0;`;
+  layer.append(w1,w2,wFull);
+  setTimeout(()=>layer.innerHTML='', 2200);
+}
+
+// ═══════════════════════════════════════
+//  FAVORIS ⭐
+// ═══════════════════════════════════════
+let _favorites=JSON.parse(localStorage.getItem('kiko_favorites')||'[]');
+function kikoToggleFavorite(vidId,btnEl){
+  const isFav=_favorites.includes(vidId);
+  const icoEl=document.getElementById('fav-ico-'+vidId);
+  if(isFav){
+    _favorites=_favorites.filter(x=>x!==vidId);
+    if(icoEl) icoEl.innerText='⭐';
+    db.ref('favorites/'+currentUser.uid+'/'+vidId).remove();
+    showToast('Retiré des favoris');
+  } else {
+    _favorites.push(vidId);
+    if(icoEl) icoEl.innerText='🌟';
+    db.ref('favorites/'+currentUser.uid+'/'+vidId).set(Date.now());
+    showToast('⭐ Ajouté aux favoris !');
+  }
+  localStorage.setItem('kiko_favorites',JSON.stringify(_favorites));
+}
+
 async function kikoSubmitReport(vidId, reason){
   kikoCloseMoreSheet();
   if(!currentUser){ showToast('Connecte-toi pour signaler'); return; }
@@ -7247,6 +7264,7 @@ function initRadialLongPress(){
   feedEl.addEventListener('touchstart', e=>{
     const vcard = e.target.closest('.vcard');
     if(!vcard) return;
+    if(vcard.dataset.ad) return; // pas de menu radial (like/favoris/etc) sur une pub
     if(e.target.closest('.vprogress,.vadv-panel,.vinfo,.vmore-btn,.vmute-btn,.vcontrols')) return;
     const vidId = vcard.id.replace('vc-','');
 
@@ -7370,19 +7388,17 @@ function initObserver(){
         }
         const id=e.target.id.replace('vc-','');
         const vid=allVids.find(x=>x.id===id);
-        if(vid){
-          trackView(id,vid.authorUid||'');
-          kikoTrackVideoStart(id); // tracking durée
+        if(vid)trackView(id,vid.authorUid||'');
+        // Carte "Sponsorisé" qui vient d'apparaître à l'écran → déclenche le Smartlink (1 fois par carte)
+        if(e.target.dataset.ad&&e.target.dataset.smartlink&&!e.target.dataset.fired){
+          e.target.dataset.fired='1';
+          openSmartlink(ADSTERRA_SMARTLINK);
         }
         const btn=document.getElementById('vmute-'+id);
         if(btn)btn.innerText=globalMuted?'🔇':'🔊';
       } else {
         v.pause();
         if(_activePlayingVideo===v)_activePlayingVideo=null;
-        // Fin de visionnage → tracking comportemental
-        const id=e.target.id.replace('vc-','');
-        const vid=allVids.find(x=>x.id===id);
-        if(vid) kikoTrackVideoEnd(id, v, vid.category||'');
         const rect=e.target.getBoundingClientRect();
         if(Math.abs(rect.top)>window.innerHeight*3&&v.src){
           v.dataset.src=v.src;v.removeAttribute('src');v.load();
@@ -7454,8 +7470,6 @@ function toggleLike(id){
     db.ref('videos/'+id+'/likes').transaction(v=>(v||0)+1);
     db.ref('videos/'+id+'/likedBy/'+currentUser.uid).set(true);
     const vid=allVids.find(x=>x.id===id);
-    // Tracking comportemental
-    if(vid) kikoUserProfile.markLiked(id, vid.category||'');
     if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'like',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',vidId:id,at:Date.now(),read:false});
   }
   localStorage.setItem('aes_liked',JSON.stringify(liked));
@@ -7568,34 +7582,6 @@ async function sendComment(){
   await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',text:txt,at:Date.now()});
   const vid=allVids.find(v=>v.id===curVidId);
   if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'comment',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,vidId:curVidId,at:Date.now(),read:false});
-}
-
-// ═══════════════════════════════════════
-//  NOTIFICATIONS PUSH — Firebase Cloud Messaging (arrive même app fermée)
-// ═══════════════════════════════════════
-async function initPushNotifications(){
-  if(!messaging || !currentUser) return;
-  if(localStorage.getItem('aes_notif_off')==='1') return; // désactivé par l'utilisateur
-  try{
-    const perm = await Notification.requestPermission();
-    if(perm!=='granted'){ return; }
-    const reg = await navigator.serviceWorker.ready;
-    const token = await messaging.getToken({ vapidKey: KIKO_VAPID_KEY, serviceWorkerRegistration: reg });
-    if(token){
-      await db.ref('users/'+currentUser.uid+'/fcmToken').set(token);
-    }
-  }catch(e){ console.warn('Push notif init:', e.message); }
-}
-
-// Notification reçue pendant que l'app est ouverte au premier plan
-if(messaging){
-  messaging.onMessage(payload=>{
-    const title = payload.notification?.title || 'KIKO';
-    const body  = payload.notification?.body  || '';
-    showToast('🔔 '+title+(body?' — '+body:''));
-    document.getElementById('newsDot').style.display='block';
-    loadNotifs();
-  });
 }
 
 // ═══════════════════════════════════════
@@ -8058,33 +8044,12 @@ function fmtDur(s){
   return m+':'+(sec<10?'0':'')+sec;
 }
 
-// ── Miniature vidéo personnalisée ──
-function vpsTriggerThumbPick(){
-  const inp = document.getElementById('vpsThumbInput');
-  if(inp) inp.click();
-}
-function vpsOnThumbSelected(inp){
-  const f = inp.files[0];
-  if(!f) return;
-  const url = URL.createObjectURL(f);
-  const prev = document.getElementById('vpsThumbnailPreview');
-  if(prev){
-    prev.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
-  }
-  // Stocke pour l'upload
-  window._vpsCustomThumb = f;
-  showToast('🖼️ Miniature sélectionnée');
-}
-
 // ── Upload direct ──
 async function uploadVideo(){
   if(!selFile){ showToast('⚠️ Choisis une vidéo'); return; }
 
-  // Lit depuis l'écran actif (VPS complet ou VPS rapide dans modal)
-  const descEl    = document.getElementById('vpsDescInput') || document.getElementById('vpsDescInputQuick');
-  const privacyEl = document.getElementById('vpsPrivacy')   || document.getElementById('vpsPrivacyQuick');
-  const desc    = (descEl?.value||'').trim();
-  const privacy = privacyEl?.value||'public';
+  const desc    = (document.getElementById('vpsDescInput')?.value||'').trim();
+  const privacy = document.getElementById('vpsPrivacy')?.value||'public';
 
   const btn = document.getElementById('publishBtn');
   btn.disabled = true; btn.textContent = '⏳ Envoi...';
@@ -8454,34 +8419,57 @@ function dmKey(a,b){return [a,b].sort().join('_');}
 function openDMWith(uid,name,avatar){if(!currentUser){needAuth(()=>openDMWith(uid,name,avatar));return;}if(!uid||uid===currentUser.uid)return;openChat(uid,name,avatar);}
 
 let _chatMsgListener = null;
+let _chatListenerKey = null; // clé active du listener pour éviter les conflits
 
 function openChat(uid,name,avatar){
   if(!currentUser)return;
-  curChatUid=uid;curChatName=name;
-  const hav = document.getElementById('chatHav');
-  hav.innerHTML = avatar?`<img src="${avatar}" alt="">`:((name||'?')[0].toUpperCase());
-  document.getElementById('chatHname').innerText = name||uid;
-  document.getElementById('chatHstatus').innerText = 'En ligne';
+  // ── Détacher l'ancien listener proprement ──
+  if(_chatMsgListener && _chatListenerKey){
+    db.ref('messages/'+_chatListenerKey).off('value',_chatMsgListener);
+    _chatMsgListener=null; _chatListenerKey=null;
+  }
+  curChatUid=uid; curChatName=name;
+  _lastMsgCount=0;
+  const hav=document.getElementById('chatHav');
+  hav.innerHTML=avatar?`<img src="${avatar}" alt="">`:((name||'?')[0].toUpperCase());
+  document.getElementById('chatHname').innerText=name||uid;
+  document.getElementById('chatHstatus').innerText='...';
   document.getElementById('chatScreen').classList.add('active');
-  // Stopper l'ancien listener
-  if(_chatMsgListener){const key=dmKey(currentUser.uid,curChatUid);db.ref('messages/'+key).off('value',_chatMsgListener);_chatMsgListener=null;}
+
+  // Présence de l'interlocuteur
+  kikoWatchPresence(uid, status=>{
+    const el=document.getElementById('chatHstatus');
+    if(el) el.innerHTML=status==='online'
+      ? '<span style="color:#4CAF50;">● En ligne</span>'
+      : `<span style="color:var(--muted);">● ${status}</span>`;
+  });
+
   loadMessages();
-  // Écoute temps réel
-  const key = dmKey(currentUser.uid,uid);
-  _chatMsgListener = db.ref('messages/'+key).orderByChild('at').limitToLast(60).on('value', snap=>{
-    renderMessages(Object.values(snap.val()||{}), uid, name, avatar);
+  // Nouveau listener strictement lié à cette paire (currentUser.uid ↔ uid)
+  const key=dmKey(currentUser.uid,uid);
+  _chatListenerKey=key;
+  _chatMsgListener=db.ref('messages/'+key).orderByChild('at').limitToLast(60).on('value',snap=>{
+    // Guard : si l'utilisateur a changé de conversation entre-temps, ignorer
+    if(curChatUid!==uid) return;
+    const msgs=Object.values(snap.val()||{});
+    // Filtrer strictement : seuls les messages de cette paire
+    const filtered=msgs.filter(m=>
+      (m.from===currentUser.uid && m.to===uid) ||
+      (m.from===uid && m.to===currentUser.uid)
+    );
+    renderMessages(filtered, uid, name, avatar);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
   });
 }
 
 function closeChatScreen(){
-  if(_chatMsgListener&&currentUser&&curChatUid){
-    const key=dmKey(currentUser.uid,curChatUid);
-    db.ref('messages/'+key).off('value',_chatMsgListener);
-    _chatMsgListener=null;
+  if(_chatMsgListener && _chatListenerKey){
+    db.ref('messages/'+_chatListenerKey).off('value',_chatMsgListener);
+    _chatMsgListener=null; _chatListenerKey=null;
   }
+  kikoUnwatchPresence(); // stopper le watcher de présence
   document.getElementById('chatScreen').classList.remove('active');
-  curChatUid=null;curChatName=null;
+  curChatUid=null; curChatName=null;
 }
 
 function loadMessages(){
@@ -8533,6 +8521,51 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar){
   });
   mc.innerHTML = html;
   mc.scrollTop = mc.scrollHeight;
+}
+
+// ═══════════════════════════════════════
+//  SYSTÈME DE PRÉSENCE (lastSeen / point vert)
+// ═══════════════════════════════════════
+let _presenceInterval=null;
+let _presenceWatchRef=null;
+let _presenceWatchCb=null;
+
+function kikoStartPresence(){
+  if(!currentUser) return;
+  const ref=db.ref('presence/'+currentUser.uid);
+  function beat(){ ref.set({online:true,lastSeen:Date.now()}); }
+  beat();
+  clearInterval(_presenceInterval);
+  _presenceInterval=setInterval(beat,15000);
+  // Marquer offline proprement à la fermeture
+  window.addEventListener('beforeunload',()=>ref.set({online:false,lastSeen:Date.now()}));
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden) ref.update({online:false,lastSeen:Date.now()});
+    else beat();
+  });
+}
+
+function kikoWatchPresence(uid, cb){
+  kikoUnwatchPresence();
+  _presenceWatchCb=cb;
+  _presenceWatchRef=db.ref('presence/'+uid);
+  _presenceWatchRef.on('value',snap=>{
+    const d=snap.val();
+    if(!d){ cb('Hors-ligne'); return; }
+    const isOnline=d.online===true && (Date.now()-d.lastSeen)<30000;
+    cb(isOnline?'online':kikoLastSeenLabel(d.lastSeen));
+  });
+}
+function kikoUnwatchPresence(){
+  if(_presenceWatchRef){ _presenceWatchRef.off('value'); _presenceWatchRef=null; _presenceWatchCb=null; }
+}
+function kikoLastSeenLabel(ts){
+  if(!ts) return 'Hors-ligne';
+  const diff=Math.floor((Date.now()-ts)/1000);
+  if(diff<60) return 'Vu il y a quelques secondes';
+  if(diff<3600) return `Vu il y a ${Math.floor(diff/60)}min`;
+  if(diff<86400) return `Vu il y a ${Math.floor(diff/3600)}h`;
+  return `Vu il y a ${Math.floor(diff/86400)}j`;
 }
 
 async function sendMessage(){
@@ -8833,7 +8866,19 @@ function kikoDrawWatermark(ctx,canvasW,canvasH,corner,username){
 }
 
 function kikoPickMime(){
-  const opts=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'];
+  // On essaie D'ABORD les variantes MP4/H.264+AAC (format Android standard,
+  // compatible WhatsApp/Instagram/Messenger/Telegram/Bluetooth/tout lecteur).
+  // Sur la plupart des téléphones Android, le navigateur ne sait PAS encoder
+  // du H.264 via MediaRecorder — dans ce cas on retombe sur WebM, le seul
+  // format que le navigateur sait réellement produire localement.
+  const opts=[
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=h264,aac',
+    'video/mp4',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm'
+  ];
   for(const m of opts){ if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m; }
   return '';
 }
@@ -8844,7 +8889,13 @@ async function downloadVid(url,id,username){
   if(!supportsExport){
     showToast('⏳ Préparation...');
     try{
-      const res=await fetch(url);const blob=await res.blob();const blobUrl=URL.createObjectURL(blob);
+      const res=await fetch(url);const blob=await res.blob();
+      const mimeType=blob.type&&blob.type.startsWith('video/')?blob.type:'video/mp4';
+      const file=new File([blob],'Kiko_'+id+'.mp4',{type:mimeType});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        try{ await navigator.share({files:[file],title:'KIKO👑'}); showToast('✅ Vidéo prête à partager !'); return; }catch{}
+      }
+      const blobUrl=URL.createObjectURL(blob);
       const a=document.createElement('a');a.href=blobUrl;a.download='Kiko_'+id+'.mp4';document.body.appendChild(a);a.click();document.body.removeChild(a);
       setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);showToast('⬇️ Téléchargement démarré !');
     }catch{const a=document.createElement('a');a.href=url;a.target='_blank';a.click();showToast('⬇️ Téléchargement démarré !');}
@@ -8908,14 +8959,44 @@ async function downloadVid(url,id,username){
     await stopped;
     document.body.removeChild(video);
 
-    const outBlob=new Blob(chunks,{type:mime.split(';')[0]||'video/webm'});
+    const outMime=mime?mime.split(';')[0]:'video/webm'; // type RÉEL du fichier produit — jamais falsifié
+    const outBlob=new Blob(chunks,{type:outMime});
+    const isRealMp4=outMime==='video/mp4';
+    const ext=isRealMp4?'mp4':'webm';
+    const filename='Kiko_'+id+'.'+ext;
+    const file=new File([outBlob],filename,{type:outMime});
+
+    // 1) Priorité : partage natif Android avec le VRAI fichier + bon type MIME.
+    //    C'est ce qui permet à WhatsApp/Instagram/Messenger/Telegram/Bluetooth
+    //    de reconnaître correctement le fichier comme une vraie vidéo, au lieu
+    //    de passer par un simple téléchargement non enregistré dans MediaStore.
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({
+          files:[file],
+          title:'KIKO👑',
+          text: isRealMp4 ? '🔥 Vidéo KIKO (filigranée)' : '🔥 Vidéo KIKO (filigranée)'
+        });
+        showToast('✅ Vidéo filigranée prête à partager !');
+        return;
+      }catch(shareErr){
+        // L'utilisateur a annulé le partage, ou le partage a échoué : on retombe
+        // sur le téléchargement classique ci-dessous plutôt que de bloquer.
+      }
+    }
+
+    // 2) Repli : téléchargement classique du fichier (navigateur desktop, ou
+    //    appareil sans Web Share API niveau fichiers).
     const blobUrl=URL.createObjectURL(outBlob);
-    const ext=(mime.indexOf('mp4')>-1)?'mp4':'webm';
     const a=document.createElement('a');
-    a.href=blobUrl;a.download='Kiko_'+id+'.'+ext;
+    a.href=blobUrl;a.download=filename;
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(blobUrl),8000);
-    showToast('⬇️ Vidéo filigranée téléchargée !');
+    if(isRealMp4){
+      showToast('⬇️ Vidéo filigranée téléchargée (MP4) !');
+    } else {
+      showToast('⬇️ Vidéo filigranée téléchargée (.webm — ton appareil ne sait pas encoder en MP4 localement)');
+    }
   }catch(err){
     console.error('Kiko watermark export error:',err);
     showToast('⏳ Téléchargement simple...');
@@ -9369,7 +9450,6 @@ async function deleteMaTrack(key){
 }
 
 applyUserUI();
-handleGoogleRedirectResult();
 document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===currentLang));
 applyLang();
 checkDeepLink();
@@ -9382,7 +9462,7 @@ setTimeout(()=>loadHomeStories(), 200);               // stories après le 1er r
 setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
 setTimeout(()=>loadHomeMarket(), 800);                // marketplace
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
-if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); initPushNotifications(); }, 1000); }
+if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); }, 1000); }
 setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
 
 // ═══════════════════════════════════════
@@ -9475,8 +9555,44 @@ async function openCamera(mode='photo', calledFrom='post'){
   await startCamStream();
 }
 
+// ═══════════════════════════════════════════════════════════
+//  SYSTÈME DE PERMISSIONS AVEC CONTEXTE
+//  (explique POURQUOI avant de déclencher la popup native Android)
+// ═══════════════════════════════════════════════════════════
+let _permResolve = null;
+const PERM_INFO = {
+  camera:   { icon:'📷', title:'Autoriser la caméra',     text:"KIKO a besoin d'accéder à ta caméra pour filmer une vidéo ou prendre une photo. Rien n'est enregistré tant que tu n'appuies pas sur le bouton de capture." },
+  location: { icon:'📍', title:'Autoriser la localisation', text:"KIKO utilise ta position pour te montrer du contenu et des opportunités proches de chez toi. Ta position exacte n'est jamais partagée publiquement." },
+  storage:  { icon:'🖼️', title:"Autoriser l'accès aux fichiers", text:"KIKO a besoin d'accéder à tes photos/vidéos pour que tu puisses les publier." }
+};
+
+function kikoAskPermission(type){
+  return new Promise(resolve=>{
+    const info = PERM_INFO[type] || PERM_INFO.camera;
+    document.getElementById('permModalIcon').innerText  = info.icon;
+    document.getElementById('permModalTitle').innerText = info.title;
+    document.getElementById('permModalText').innerText  = info.text;
+    document.getElementById('permModal').style.display  = 'flex';
+    _permResolve = resolve;
+  });
+}
+function kikoAcceptPerm(){
+  document.getElementById('permModal').style.display='none';
+  if(_permResolve){ _permResolve(true); _permResolve=null; }
+}
+function kikoDenyPerm(){
+  document.getElementById('permModal').style.display='none';
+  if(_permResolve){ _permResolve(false); _permResolve=null; }
+}
+
 async function startCamStream(){
   if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); }
+  const camAlreadyAsked = localStorage.getItem('kiko_perm_camera_asked');
+  if(!camAlreadyAsked){
+    const ok = await kikoAskPermission('camera');
+    localStorage.setItem('kiko_perm_camera_asked','1');
+    if(!ok){ showToast('📷 Caméra non activée'); closeCamera(); return; }
+  }
   try{
     _camStream = await navigator.mediaDevices.getUserMedia({
       video:{ facingMode:_camFacing, width:{ideal:1280}, height:{ideal:720} },
@@ -9486,7 +9602,11 @@ async function startCamStream(){
     vid.srcObject = _camStream;
     await vid.play();
   } catch(e){
-    showToast('❌ Caméra non disponible : '+e.message);
+    if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
+      showToast('❌ Caméra refusée — active-la dans les réglages du téléphone');
+    } else {
+      showToast('❌ Caméra non disponible : '+e.message);
+    }
     closeCamera();
   }
 }
@@ -9707,6 +9827,85 @@ function camGallerySelected(input){
   else { handleCamFileForStory(file, type); }
 }
 
+// ═══════════════════════════════════════
+//  ADMIN MUSIQUE (?admin=music)
+// ═══════════════════════════════════════
+let maFile=null;
+function closeMusicAdmin(){
+  document.getElementById('musicAdminOverlay').style.display='none';
+  history.replaceState({},'',location.pathname);
+}
+function onMaFileSelected(inp){
+  const f=inp.files[0];
+  if(!f)return;
+  maFile=f;
+  document.getElementById('maFileZone').innerText='🎧 '+f.name;
+  if(!document.getElementById('maName').value){
+    document.getElementById('maName').value=f.name.replace(/\.[^/.]+$/,'');
+  }
+}
+async function submitMusicAdmin(){
+  const name=document.getElementById('maName').value.trim();
+  const artist=document.getElementById('maArtist').value.trim()||'AES👑 Music';
+  const genre=document.getElementById('maGenre').value.trim()||'Tendance';
+  const emoji=document.getElementById('maEmoji').value.trim()||'🎵';
+  if(!maFile){showToast('⚠️ Choisis un fichier audio');return;}
+  if(!name){showToast('⚠️ Donne un titre au son');return;}
+  const btn=document.getElementById('maSubmitBtn');
+  const progWrap=document.getElementById('maProgWrap');
+  const progFill=document.getElementById('maProgFill');
+  btn.disabled=true;btn.innerText='Envoi...';progWrap.style.display='block';
+  try{
+    const url=await clUpload(maFile,p=>{progFill.style.width=p+'%';});
+    const newRef=db.ref('musicLibrary').push();
+    await newRef.set({name,artist,genre,emoji,url,createdAt:Date.now()});
+    showToast('✅ Son ajouté à la bibliothèque !');
+    maFile=null;
+    document.getElementById('maFileZone').innerText='🎧 Choisir un fichier audio (MP3, M4A, AAC)';
+    document.getElementById('maName').value='';
+    document.getElementById('maGenre').value='';
+    document.getElementById('maEmoji').value='🎵';
+    progWrap.style.display='none';progFill.style.width='0%';
+    customMusicLoaded=false; // forcer le rechargement à la prochaine ouverture du sélecteur musique
+    renderMaExistingList();
+  }catch(e){
+    showToast('❌ '+e.message);
+  }finally{
+    btn.disabled=false;btn.innerText='+ Ajouter à la bibliothèque';
+  }
+}
+async function renderMaExistingList(){
+  const list=document.getElementById('maExistingList');
+  const countEl=document.getElementById('maCount');
+  list.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:12px;">Chargement...</div>';
+  try{
+    const snap=await db.ref('musicLibrary').once('value');
+    const data=snap.val()||{};
+    const keys=Object.keys(data);
+    countEl.innerText=keys.length;
+    if(!keys.length){list.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:12px;">Aucun son ajouté pour le moment.</div>';return;}
+    list.innerHTML=keys.map(key=>{
+      const t=data[key];
+      return `<div class="ma-track-row">
+        <div class="ma-disc">${t.emoji||'🎵'}</div>
+        <div class="ma-info"><b>${t.name||'Sans titre'}</b><span>${t.artist||''} · ${t.genre||''}</span></div>
+        <div class="ma-del" onclick="deleteMaTrack('${key}')">🗑️</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    list.innerHTML='<div style="color:#ff5a5a;font-size:12px;">Erreur de chargement</div>';
+  }
+}
+async function deleteMaTrack(key){
+  if(!confirm('Supprimer ce son de la bibliothèque ?'))return;
+  try{
+    await db.ref('musicLibrary/'+key).remove();
+    customMusicLoaded=false;
+    showToast('🗑️ Son supprimé');
+    renderMaExistingList();
+  }catch(e){showToast('❌ '+e.message);}
+}
+
 const FEED_FILTERS = [
   {name:'Normal',css:'none'},{name:'Vivid',css:'saturate(1.8) contrast(1.1)'},
   {name:'Warm',css:'sepia(0.35) saturate(1.5)'},{name:'Cold',css:'saturate(0.7) hue-rotate(190deg)'},
@@ -9811,7 +10010,8 @@ function buildSFPost(p){
   const shortText=rawText.length>90?rawText.slice(0,90)+'\u2026':rawText;
 
   const typeBadge=p.type==='remix'?'<span class="pfcard-badge pfcard-remix">🔁 Remix</span>':
-                  p.type==='text'?'<span class="pfcard-badge pfcard-text">✍️ Texte</span>':'';
+                  p.type==='text'?'<span class="pfcard-badge pfcard-text">✍️ Texte</span>':
+                  p.type==='opportunity'?'<span class="pfcard-badge" style="background:rgba(255,138,0,0.15);color:#FF7A30;border:1px solid rgba(255,138,0,0.3);">💡 Opportunité</span>':'';
 
   if(mainPhoto){
     return `<article class="pfcard" id="hfp-${p.id}" onclick="_openPost('${p.id}')">
@@ -10192,168 +10392,10 @@ function initSFPullToRefresh(){
 
 <script>
 // ═══════════════════════════════════════════════════════════
-//  PWA — SERVICE WORKER AVANCÉ (offline + cache intelligent)
+//  PWA — SERVICE WORKER (offline + cache intelligent)
 // ═══════════════════════════════════════════════════════════
 if('serviceWorker' in navigator){
-  const swCode = `
-const CACHE_SHELL  = 'kiko-shell-v3';
-const CACHE_IMG    = 'kiko-img-v3';
-const CACHE_FONT   = 'kiko-font-v3';
-const IMG_LIMIT    = 60;   // max images en cache
-const OFFLINE_URL  = './';
-
-// Ressources du shell applicatif
-const SHELL_ASSETS = [
-  './',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap'
-];
-
-// ── Install : préchargement du shell ──
-self.addEventListener('install', e=>{
-  e.waitUntil(
-    caches.open(CACHE_SHELL)
-      .then(c=>c.addAll(SHELL_ASSETS).catch(()=>{}))
-      .then(()=>self.skipWaiting())
-  );
-});
-
-// ── Activate : nettoyage des anciens caches ──
-self.addEventListener('activate', e=>{
-  const keep=[CACHE_SHELL,CACHE_IMG,CACHE_FONT];
-  e.waitUntil(
-    caches.keys()
-      .then(keys=>Promise.all(keys.filter(k=>!keep.includes(k)).map(k=>caches.delete(k))))
-      .then(()=>self.clients.claim())
-  );
-});
-
-// ── Helpers ──
-function isFirebase(url){ return url.includes('firebaseio.com')||url.includes('firebase')||url.includes('googleapis.com/identitytoolkit'); }
-function isMedia(url){ return url.includes('cloudinary')||url.includes('imagekit')||url.includes('ik.imagekit'); }
-function isFont(url){ return url.includes('fonts.googleapis')||url.includes('fonts.gstatic'); }
-function isImage(dest){ return dest==='image'; }
-
-// ── Eviction FIFO pour le cache images ──
-async function cacheImageFIFO(cache, request, response){
-  const keys = await cache.keys();
-  if(keys.length >= IMG_LIMIT){
-    // Supprime les 10 plus anciens
-    const toDelete = keys.slice(0, 10);
-    await Promise.all(toDelete.map(k=>cache.delete(k)));
-  }
-  await cache.put(request, response);
-}
-
-// ── Fetch : stratégie par type de ressource ──
-self.addEventListener('fetch', e=>{
-  const { request } = e;
-  const url = request.url;
-
-  // 1. Firebase / APIs dynamiques → toujours réseau, jamais de cache
-  if(isFirebase(url)||isMedia(url)) return;
-
-  // 2. Fonts → cache-first (immutable)
-  if(isFont(url)){
-    e.respondWith(
-      caches.open(CACHE_FONT).then(async c=>{
-        const cached = await c.match(request);
-        if(cached) return cached;
-        const res = await fetch(request).catch(()=>null);
-        if(res && res.ok) c.put(request, res.clone());
-        return res || new Response('', {status:503});
-      })
-    );
-    return;
-  }
-
-  // 3. Images (thumbnails, avatars, photos du feed) → cache-first + FIFO
-  if(isImage(request.destination)){
-    e.respondWith(
-      caches.open(CACHE_IMG).then(async c=>{
-        const cached = await c.match(request);
-        if(cached) return cached;
-        try{
-          const res = await fetch(request);
-          if(res && res.ok) await cacheImageFIFO(c, request, res.clone());
-          return res;
-        }catch{
-          // Hors-ligne : retourne un placeholder SVG transparent
-          return new Response(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
-            {headers:{'Content-Type':'image/svg+xml'}}
-          );
-        }
-      })
-    );
-    return;
-  }
-
-  // 4. Navigation (app shell) → network-first, fallback cache
-  if(request.mode==='navigate'){
-    e.respondWith(
-      fetch(request)
-        .then(res=>{
-          // Met à jour le cache shell en arrière-plan
-          caches.open(CACHE_SHELL).then(c=>c.put(request, res.clone())).catch(()=>{});
-          return res;
-        })
-        .catch(async ()=>{
-          const cached = await caches.match(request) || await caches.match(OFFLINE_URL);
-          return cached || new Response('<h1>Hors-ligne</h1><p>Reconnecte-toi pour accéder à KIKO.</p>',{headers:{'Content-Type':'text/html'}});
-        })
-    );
-    return;
-  }
-
-  // 5. Reste (scripts, CSS inline, etc.) → stale-while-revalidate
-  e.respondWith(
-    caches.open(CACHE_SHELL).then(async c=>{
-      const cached = await c.match(request);
-      const fetchProm = fetch(request).then(res=>{
-        if(res && res.ok) c.put(request, res.clone()).catch(()=>{});
-        return res;
-      }).catch(()=>null);
-      return cached || fetchProm || new Response('',{status:503});
-    })
-  );
-});
-
-// ── Message : forcer le rechargement depuis l'app ──
-self.addEventListener('message', e=>{
-  if(e.data==='SKIP_WAITING') self.skipWaiting();
-});
-
-// ── Push : réception d'une notification FCM app fermée/en arrière-plan ──
-self.addEventListener('push', event=>{
-  let data={};
-  try{ data = event.data ? event.data.json() : {}; }catch(e){}
-  const notif = data.notification || {};
-  const title = notif.title || 'KIKO';
-  const options = {
-    body: notif.body || '',
-    icon: 'https://api.dicebear.com/7.x/shapes/svg?seed=AES',
-    badge: 'https://api.dicebear.com/7.x/shapes/svg?seed=AES',
-    data: data.data || {},
-    vibrate: [80,40,80]
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
-});
-
-// ── Clic sur la notification : ouvre/refocus l'app ──
-self.addEventListener('notificationclick', event=>{
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({type:'window', includeUncontrolled:true}).then(list=>{
-      for(const c of list){ if('focus' in c) return c.focus(); }
-      if(clients.openWindow) return clients.openWindow('./');
-    })
-  );
-});
-`;
-
-  const blob=new Blob([swCode],{type:'application/javascript'});
-  const swUrl=URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl,{scope:'./'})
+  navigator.serviceWorker.register('./service-worker.js',{scope:'./'})
     .then(reg=>{
       reg.addEventListener('updatefound',()=>{
         const nw=reg.installing;
@@ -10396,5 +10438,14 @@ self.addEventListener('notificationclick', event=>{
 }
 </script>
 
+<!-- ═══ ADSTERRA SOCIAL BAR ═══
+     Remplace ce bloc par le VRAI script que te donne Adsterra :
+     Adsterra dashboard → Websites → ton domaine → +Ad Unit → Social Bar → copier le code.
+     Il ressemble à : <script type="text/javascript" src="//xxxxxxx.xxxxx.com/xx/xx/xx.js"></script>
+     Colle-le tel quel ici, il tourne sur toutes les pages sans rien connecter d'autre. -->
+<script type="text/javascript">
+  // PLACEHOLDER — remplace "src" par le lien réel fourni par Adsterra une fois ton site approuvé
+  // var s=document.createElement('script'); s.src='//COLLE-ICI-TON-LIEN-SOCIAL-BAR.js'; s.async=true; document.body.appendChild(s);
+</script>
 </body>
 </html>
