@@ -16,8 +16,6 @@
 <link rel="preconnect" href="https://www.gstatic.com">
 <title>KIKO👑</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    AES👑 — DESIGN SYSTEM PREMIUM "SAHEL PRESTIGE"
@@ -3784,11 +3782,27 @@ body:not(.screen-home) #topnav{
     </div>
     <div class="auth-err" id="authErr"></div>
     <input type="text" class="inp" id="authName" placeholder="Ton pseudo" style="display:none">
-    <input type="text" class="inp" id="authPhone" placeholder="Numéro WhatsApp (+226...)" style="display:none">
-    <input type="email" class="inp" id="authEmail" placeholder="Email">
+    <input type="tel" class="inp" id="authPhone" placeholder="Numéro (+226...)">
     <input type="password" class="inp" id="authPass" placeholder="Mot de passe">
     <button class="btn-gold" id="authBtn" onclick="doAuth()">Se connecter</button>
     <button class="auth-skip" onclick="closeAuth()">Continuer sans compte →</button>
+  </div>
+</div>
+
+<!-- AVERTISSEMENT AVANT DÉCONNEXION : rappel mot de passe -->
+<div id="logoutWarnModal" class="modal-overlay">
+  <div class="modal-sheet" style="text-align:center;">
+    <div class="modal-handle"></div>
+    <div style="font-size:32px;margin-bottom:8px;">🔐</div>
+    <div class="modal-title" style="margin-bottom:8px;">Sauvegarde ton mot de passe !</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5;">
+      Il n'y a pas d'email de récupération. Copie bien ton numéro et ton mot de passe maintenant : c'est ce qu'il te faudra pour te reconnecter après.
+    </div>
+    <input type="text" class="inp" id="logoutWarnPhone" readonly style="text-align:center;font-weight:700;margin-bottom:8px;">
+    <input type="text" class="inp" id="logoutWarnPass" readonly style="text-align:center;font-weight:700;">
+    <button class="btn-gold" style="margin-top:14px;" onclick="copyLogoutCreds()">📋 Copier numéro + mot de passe</button>
+    <button class="btn-gold" style="margin-top:10px;background:var(--red);" onclick="confirmLogout()">🚪 J'ai copié, me déconnecter</button>
+    <button class="auth-skip" onclick="document.getElementById('logoutWarnModal').classList.remove('active')">Annuler</button>
   </div>
 </div>
 
@@ -4401,6 +4415,8 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script>
 // ═══════════════════════════════════════
 //  FIREBASE
@@ -4826,6 +4842,7 @@ function _getModalChecks(){
     // modals classiques
     { id:'uploadModal',        fn:()=>{ if(typeof closeModal==='function') closeModal(); else _close('uploadModal'); } },
     { id:'authModal',          fn:()=>{ if(typeof closeAuth==='function') closeAuth(); else _close('authModal'); } },
+    { id:'logoutWarnModal',    fn:()=>document.getElementById('logoutWarnModal').classList.remove('active') },
     { id:'productModal',       fn:()=>{ if(typeof closeProductModal==='function') closeProductModal(); else _close('productModal'); } },
     { id:'editProfileModal',   fn:()=>_close('editProfileModal') },
     { id:'priceModal',         fn:()=>_close('priceModal') },
@@ -5828,30 +5845,30 @@ function switchTab(mode){
   authMode=mode;
   document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(mode==='login'&&i===0)||(mode==='register'&&i===1)));
   document.getElementById('authName').style.display=mode==='register'?'block':'none';
-  document.getElementById('authPhone').style.display=mode==='register'?'block':'none';
   document.getElementById('authBtn').innerText=mode==='login'?'Se connecter':"S'inscrire";
   document.getElementById('authErr').innerText='';
 }
+function normPhone(p){return p.replace(/[^\d+]/g,'');}
 async function doAuth(){
-  const email=document.getElementById('authEmail').value.trim();
+  const phone=normPhone(document.getElementById('authPhone').value.trim());
   const pass=document.getElementById('authPass').value;
   const name=document.getElementById('authName').value.trim();
-  const phone=document.getElementById('authPhone').value.trim();
   const errEl=document.getElementById('authErr');
-  if(!email||!pass){errEl.innerText='Remplis tous les champs';return;}
+  if(!phone||!pass){errEl.innerText='Remplis tous les champs';return;}
+  if(phone.replace('+','').length<8){errEl.innerText='Numéro invalide';return;}
   const btn=document.getElementById('authBtn');btn.disabled=true;btn.innerText='⏳...';
   try{
     if(authMode==='register'){
       if(!name){errEl.innerText='Entre ton pseudo';btn.disabled=false;btn.innerText="S'inscrire";return;}
-      const snap=await db.ref('users').orderByChild('email').equalTo(email).once('value');
-      if(snap.exists()){errEl.innerText='Email déjà utilisé';btn.disabled=false;btn.innerText="S'inscrire";return;}
+      const snap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
+      if(snap.exists()){errEl.innerText='Numéro déjà utilisé';btn.disabled=false;btn.innerText="S'inscrire";return;}
       const uid='u_'+Date.now();
-      const user={uid,name,email,pass,phone:phone||'',avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
+      const user={uid,name,phone,pass,avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
       await db.ref('users/'+uid).set(user);
       currentUser=user;
     } else {
-      const snap=await db.ref('users').orderByChild('email').equalTo(email).once('value');
-      if(!snap.exists()){errEl.innerText='Email introuvable';btn.disabled=false;btn.innerText='Se connecter';return;}
+      const snap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
+      if(!snap.exists()){errEl.innerText='Numéro introuvable';btn.disabled=false;btn.innerText='Se connecter';return;}
       const user=Object.values(snap.val()).find(u=>u.pass===pass);
       if(!user){errEl.innerText='Mot de passe incorrect';btn.disabled=false;btn.innerText='Se connecter';return;}
       currentUser=user;
@@ -5869,7 +5886,43 @@ async function doAuth(){
     if(authMode==='register') setTimeout(()=>kikoShowOnboarding(), 600);
   }catch(e){errEl.innerText='Erreur: '+e.message;btn.disabled=false;btn.innerText=authMode==='login'?'Se connecter':"S'inscrire";}
 }
-function doLogout(){currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');}
+async function doLogout(){
+  if(!currentUser)return;
+  document.getElementById('logoutWarnPhone').value=currentUser.phone||'';
+  document.getElementById('logoutWarnPass').value=currentUser.pass||'⏳...';
+  document.getElementById('logoutWarnModal').classList.add('active');
+  // Sécurité : si le mot de passe n'est pas en mémoire locale, on va le rechercher dans Firebase
+  if(!currentUser.pass){
+    try{
+      const snap=await db.ref('users/'+currentUser.uid).once('value');
+      const fresh=snap.val();
+      if(fresh&&fresh.pass){
+        currentUser.pass=fresh.pass;
+        currentUser.phone=fresh.phone||currentUser.phone;
+        localStorage.setItem('aes_user',JSON.stringify(currentUser));
+        document.getElementById('logoutWarnPhone').value=currentUser.phone||'';
+        document.getElementById('logoutWarnPass').value=currentUser.pass;
+      } else {
+        document.getElementById('logoutWarnPass').value='';
+        document.getElementById('logoutWarnPass').placeholder='Mot de passe introuvable';
+      }
+    }catch(e){
+      document.getElementById('logoutWarnPass').value='';
+      document.getElementById('logoutWarnPass').placeholder='Erreur réseau';
+    }
+  }
+}
+function copyLogoutCreds(){
+  const phone=document.getElementById('logoutWarnPhone').value;
+  const pass=document.getElementById('logoutWarnPass').value;
+  if(!pass){showToast('⚠️ Mot de passe introuvable, réessaie ou contacte le support');return;}
+  const txt='Numéro: '+phone+'\nMot de passe: '+pass;
+  navigator.clipboard?.writeText(txt).then(()=>showToast('📋 Copié ! Garde-les bien précieusement')).catch(()=>showToast('Copie manuelle : '+txt));
+}
+function confirmLogout(){
+  document.getElementById('logoutWarnModal').classList.remove('active');
+  currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');
+}
 function needAuth(action){if(currentUser){action();return;}pendingAction=action;openAuth('Crée un compte pour accéder 🔒');}
 function applyUserUI(){
   const isLogged=!!currentUser;
@@ -7337,18 +7390,6 @@ function kikoOpenReportModal(vidId){
     modal.addEventListener('click',e=>{ if(e.target===modal) modal.remove(); });
     document.body.appendChild(modal);
   });
-}
-
-async function kikoSubmitReport(vidId, reason){
-  if(!currentUser){ showToast('Connecte-toi pour signaler'); return; }
-  try{
-    await db.ref('reports/'+vidId+'/'+currentUser.uid).set({
-      reason, userId: currentUser.uid,
-      videoId: vidId, timestamp: Date.now()
-    });
-    await db.ref('videos/'+vidId+'/reportsCount').transaction(n=>(n||0)+1);
-    showToast('✅ Signalement enregistré — Merci !');
-  }catch{ showToast('❌ Erreur lors du signalement'); }
 }
 
 // ═══════════════════════════════════════
@@ -8831,7 +8872,16 @@ function filterSearch(q){
   else if(searchTabCurrent==='accounts')renderAccounts(q);
 }
 function searchByTag(tag){showScreen('search');document.getElementById('searchInput').value=tag;switchSearchTab('videos',document.querySelectorAll('.s-tab')[0]);filterSearch(tag);}
-function goToVid(id){showScreen('home');setTimeout(()=>{const el=document.getElementById('vc-'+id);if(el)el.scrollIntoView({behavior:'smooth'});},200);}
+function goToVid(id){
+  showScreen('buzz');
+  const scrollToIt=()=>{const el=document.getElementById('vc-'+id);if(el)el.scrollIntoView({behavior:'smooth'});};
+  if(window._buzzLoaded && document.getElementById('vc-'+id)){
+    setTimeout(scrollToIt,150);
+  } else {
+    // Le feed vient d'être chargé (ou est en cours) → laisser le temps au DOM de se remplir
+    setTimeout(scrollToIt,500);
+  }
+}
 
 // ═══════════════════════════════════════
 //  SYSTÈME VIRAL — share sheet + tendances
@@ -9529,7 +9579,6 @@ function applyLang(){
 // ═══════════════════════════════════════
 //  UTILS
 // ═══════════════════════════════════════
-//DUPLICATE: function timeAgo(ts){const m=Math.round((Date.now()-ts)/60000);return m<1?'maintenant':m<60?`${m}min`:m<1440?`${Math.round(m/60)}h`:`${Math.round(m/1440)}j`;}
 let _searchTimer=null;
 function debounceSearch(val){clearTimeout(_searchTimer);_searchTimer=setTimeout(()=>filterSearch(val),280);}
 // ═══════════════════════════════════════
@@ -9581,81 +9630,8 @@ function checkMusicAdminAccess(){
     renderMaExistingList();
   }
 }
-function closeMusicAdmin(){
-  document.getElementById('musicAdminOverlay').style.display='none';
-  history.replaceState({},'',location.pathname);
-}
-function onMaFileSelected(inp){
-  const f=inp.files[0];
-  if(!f)return;
-  maSelectedFile=f;
-  document.getElementById('maFileZone').innerHTML=`✅ ${f.name}`;
-  if(!document.getElementById('maName').value){
-    document.getElementById('maName').value=f.name.replace(/\.[^/.]+$/,'');
-  }
-}
-async function submitMusicAdmin(){
-  const name=document.getElementById('maName').value.trim();
-  const artist=document.getElementById('maArtist').value.trim()||'AES👑 Music';
-  const genre=document.getElementById('maGenre').value.trim()||'Tendance';
-  const emoji=document.getElementById('maEmoji').value.trim()||'🎵';
-  if(!maSelectedFile){showToast('⚠️ Choisis un fichier audio');return;}
-  if(!name){showToast('⚠️ Mets un titre');return;}
-  const btn=document.getElementById('maSubmitBtn');
-  const prog=document.getElementById('maProgWrap');
-  const fill=document.getElementById('maProgFill');
-  btn.disabled=true;btn.innerText='Upload en cours...';prog.style.display='block';
-  try{
-    const url=await clUpload(maSelectedFile,p=>{fill.style.width=p+'%';});
-    await db.ref('musicLibrary').push({name,artist,genre,emoji,url,createdAt:Date.now()});
-    showToast('🎉 Son ajouté à la bibliothèque !');
-    maSelectedFile=null;
-    document.getElementById('maFileZone').innerHTML='🎧 Choisir un fichier audio (MP3, M4A, AAC)';
-    document.getElementById('maName').value='';
-    document.getElementById('maGenre').value='';
-    document.getElementById('maEmoji').value='🎵';
-    customMusicLoaded=false; // forcer un rechargement la prochaine fois
-    renderMaExistingList();
-  }catch(e){
-    showToast('❌ '+e.message);
-  }finally{
-    btn.disabled=false;btn.innerText='+ Ajouter à la bibliothèque';prog.style.display='none';fill.style.width='0%';
-  }
-}
-async function renderMaExistingList(){
-  const list=document.getElementById('maExistingList');
-  const countEl=document.getElementById('maCount');
-  list.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:12px;">Chargement...</div>';
-  try{
-    const snap=await db.ref('musicLibrary').once('value');
-    const data=snap.val()||{};
-    const customKeys=Object.keys(data);
-    countEl.innerText=customKeys.length+MUSIC_LIBRARY.filter(t=>!t._custom).length;
-    if(!customKeys.length){
-      list.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:12px;">Aucun son ajouté manuellement pour le moment — la bibliothèque par défaut compte '+MUSIC_LIBRARY.length+' sons.</div>';
-      return;
-    }
-    list.innerHTML=customKeys.map(key=>{
-      const t=data[key];
-      return `<div class="ma-track-row">
-        <div class="ma-disc">${t.emoji||'🎵'}</div>
-        <div class="ma-info"><b>${t.name||'Sans titre'}</b><span>${t.artist||''} · ${t.genre||''}</span></div>
-        <div class="ma-del" onclick="deleteMaTrack('${key}')">🗑️</div>
-      </div>`;
-    }).join('');
-  }catch(e){
-    list.innerHTML='<div style="color:#ff5a5a;font-size:12px;">Erreur de chargement: '+e.message+'</div>';
-  }
-}
-async function deleteMaTrack(key){
-  if(!confirm('Supprimer ce son de la bibliothèque ?'))return;
-  try{
-    await db.ref('musicLibrary/'+key).remove();
-    showToast('🗑️ Son supprimé');
-    customMusicLoaded=false;
-    renderMaExistingList();
-  }catch(e){showToast('❌ '+e.message);}
-}
+// (closeMusicAdmin / onMaFileSelected / submitMusicAdmin / renderMaExistingList / deleteMaTrack
+//  sont définies plus bas — code mort dupliqué supprimé ici pour alléger le fichier)
 
 applyUserUI();
 document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===currentLang));
