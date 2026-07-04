@@ -3334,7 +3334,7 @@ body:not(.screen-home) #topnav{
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 14px;display:flex;flex-direction:column;gap:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:13px;color:var(--text2);">Version</span>
-        <span style="font-size:13px;font-weight:700;color:var(--gold);">KIKO👑 v1.0</span>
+        <span onclick="_tapStatsAccess()" style="font-size:13px;font-weight:700;color:var(--gold);">KIKO👑 v1.0</span>
       </div>
       <div style="height:1px;background:var(--border);"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -5897,7 +5897,7 @@ function applyUserUI(){
   if(isLogged){
     // Profil screen
     document.getElementById('profileAvEl').innerHTML=currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:currentUser.name[0].toUpperCase();
-    document.getElementById('profileNameEl').innerText=currentUser.name;
+    document.getElementById('profileNameEl').innerHTML=esc(currentUser.name)+verifiedBadge(currentUser.verified);
     document.getElementById('profileHandleEl').innerText='@'+currentUser.name.toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,'');
     document.getElementById('profileBioEl').innerText=currentUser.bio||'Créateur de contenu africain 🌍';
     // Avatars nav
@@ -6418,7 +6418,8 @@ function prependNewVideoToFeed(v){
 //  déclenché quand une carte "Sponsorisé" apparaît dans le feed Buzz.
 // ═══════════════════════════════════════
 const ADSTERRA_SMARTLINK='https://www.effectivecpmnetwork.com/q7w41cikh?key=e394764bb3a6ab981e8bb3591776c7f3';
-function openSmartlink(url){
+function openSmartlink(url,statType){
+  if(statType)logStat(statType);
   // Certains WebView (apps générées via Appmint/GoNative/etc.) ignorent window.open().
   // Un vrai <a target="_blank"> cliqué est presque toujours intercepté et ouvert
   // dans le navigateur système du téléphone — bien plus fiable ici.
@@ -6431,6 +6432,145 @@ function openSmartlink(url){
     setTimeout(()=>a.remove(),1000);
   }catch(e){
     try{ window.open(url,'_blank'); }catch(e2){/* silencieux */}
+  }
+}
+
+// ═══════════════════════════════════════
+//  STATS — compteurs journaliers légers dans Firebase (gratuit, plan Spark)
+// ═══════════════════════════════════════
+function _todayKey(){return new Date().toISOString().slice(0,10);} // ex: 2026-07-04
+function logStat(type){
+  try{ db.ref('stats/'+_todayKey()+'/'+type).set(firebase.database.ServerValue.increment(1)); }catch(e){/* silencieux */}
+}
+// Accès discret : 5 taps rapides sur "KIKO👑 v1.0" dans Paramètres → ouvre le tableau de stats
+let _statsTapCount=0,_statsTapTimer=null;
+function _tapStatsAccess(){
+  _statsTapCount++;
+  clearTimeout(_statsTapTimer);
+  _statsTapTimer=setTimeout(()=>{_statsTapCount=0;},1500);
+  if(_statsTapCount>=5){_statsTapCount=0;openStatsOverlay();}
+}
+async function openStatsOverlay(){
+  let overlay=document.getElementById('statsOverlay');
+  if(!overlay){
+    overlay=document.createElement('div');
+    overlay.id='statsOverlay';
+    overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:#0d0d0f;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));';
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML='<div style="color:var(--text2);text-align:center;padding:40px 0;">Chargement…</div>';
+  overlay.style.display='block';
+  try{
+    const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return d.toISOString().slice(0,10);});
+    const snaps=await Promise.all(days.map(d=>db.ref('stats/'+d).once('value')));
+    const totals={videoViews:0,videoCompletions:0,adImpressions:0,adClicks:0};
+    const todayVals=snaps[0].val()||{};
+    snaps.forEach(s=>{const v=s.val()||{};Object.keys(totals).forEach(k=>totals[k]+=(v[k]||0));});
+    const completionRate=totals.videoViews?Math.round(totals.videoCompletions/totals.videoViews*100):0;
+    const ctr=totals.adImpressions?Math.round(totals.adClicks/totals.adImpressions*100):0;
+    const card=(label,val)=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;flex:1;min-width:140px;">
+        <div style="font-size:24px;font-weight:800;color:var(--gold);font-family:Syne,sans-serif;">${val}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px;">${label}</div>
+      </div>`;
+    overlay.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div style="font-family:Syne,sans-serif;font-weight:800;font-size:19px;color:var(--text);">📊 Stats KIKO</div>
+        <div style="display:flex;gap:14px;align-items:center;">
+          <div onclick="openVerifyAdmin()" style="font-size:13px;font-weight:700;color:var(--gold);cursor:pointer;">✓ Badges</div>
+          <div onclick="document.getElementById('statsOverlay').style.display='none'" style="font-size:22px;color:var(--text2);cursor:pointer;padding:4px 10px;">✕</div>
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">Aujourd'hui (${days[0]})</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+        ${card('Vues vidéo',fmt(todayVals.videoViews||0))}
+        ${card('Pubs vues',fmt(todayVals.adImpressions||0))}
+        ${card('Clics pub',fmt(todayVals.adClicks||0))}
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">7 derniers jours (cumulé)</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        ${card('Vues vidéo',fmt(totals.videoViews))}
+        ${card('Taux complétion',completionRate+'%')}
+        ${card('Pubs vues',fmt(totals.adImpressions))}
+        ${card('CTR pub',ctr+'%')}
+      </div>
+      <div style="color:var(--text2);font-size:12px;margin-top:16px;line-height:1.5;">
+        Taux de complétion = % des vidéos regardées jusqu'au bout.<br>
+        CTR pub = % des pubs vues qui ont été cliquées.
+      </div>`;
+  }catch(e){
+    overlay.innerHTML='<div style="color:var(--text2);text-align:center;padding:40px 0;">Erreur de chargement des stats.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+//  ADMIN — activer/désactiver le badge vérifié sur un utilisateur
+//  Met à jour users/{uid}/verified + propage sur ses vidéos et posts existants.
+// ═══════════════════════════════════════
+async function openVerifyAdmin(){
+  let overlay=document.getElementById('verifyAdminOverlay');
+  if(!overlay){
+    overlay=document.createElement('div');
+    overlay.id='verifyAdminOverlay';
+    overlay.style.cssText='position:fixed;inset:0;z-index:100000;background:#0d0d0f;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display='block';
+  overlay.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-family:Syne,sans-serif;font-weight:800;font-size:19px;color:var(--text);">✓ Gestion des badges</div>
+      <div onclick="document.getElementById('verifyAdminOverlay').style.display='none'" style="font-size:22px;color:var(--text2);cursor:pointer;padding:4px 10px;">✕</div>
+    </div>
+    <input id="verifyAdminSearch" oninput="_searchVerifyAdmin(this.value)" placeholder="Rechercher un utilisateur par nom..."
+      style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:14px;margin-bottom:16px;">
+    <div id="verifyAdminList" style="display:flex;flex-direction:column;gap:8px;"></div>`;
+  _searchVerifyAdmin('');
+}
+let _verifyAdminTimer=null;
+function _searchVerifyAdmin(q){
+  clearTimeout(_verifyAdminTimer);
+  _verifyAdminTimer=setTimeout(()=>_renderVerifyAdminList(q),250);
+}
+async function _renderVerifyAdminList(q){
+  const list=document.getElementById('verifyAdminList');
+  if(!list)return;
+  list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Chargement...</div>';
+  try{
+    const snap=await db.ref('users').limitToFirst(200).once('value');
+    const users=Object.entries(snap.val()||{}).map(([uid,u])=>({uid,...u}));
+    const filtered=q?users.filter(u=>(u.name||'').toLowerCase().includes(q.toLowerCase())):users;
+    list.innerHTML=filtered.length?filtered.slice(0,40).map(u=>{
+      const avH=u.avatar?`<img src="${u.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(u.name||'?')[0].toUpperCase();
+      return `<div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text2);flex-shrink:0;">${avH}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;">${esc(u.name||'anonyme')}${verifiedBadge(u.verified)}</div>
+        </div>
+        <button onclick="_toggleUserVerified('${u.uid}',${!u.verified},this)" style="background:${u.verified?'rgba(255,122,0,0.15)':'var(--gold)'};color:${u.verified?'#ff7a00':'#14151A'};border:${u.verified?'1px solid #ff7a00':'none'};padding:8px 14px;border-radius:20px;font-weight:700;font-size:12px;white-space:nowrap;">${u.verified?'Retirer':'Vérifier'}</button>
+      </div>`;
+    }).join(''):'<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Aucun utilisateur trouvé</div>';
+  }catch(e){
+    list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Erreur de chargement</div>';
+  }
+}
+async function _toggleUserVerified(uid,newVal,btn){
+  if(btn){btn.disabled=true;btn.innerText='...';}
+  try{
+    await db.ref('users/'+uid+'/verified').set(newVal);
+    // Propager sur les vidéos et posts existants de cet utilisateur, pour que le badge
+    // apparaisse partout immédiatement (feed vidéo, posts Actu) sans attendre une republication.
+    const [vidsSnap,postsSnap]=await Promise.all([
+      db.ref('videos').orderByChild('authorUid').equalTo(uid).once('value'),
+      db.ref('posts').orderByChild('authorUid').equalTo(uid).once('value')
+    ]);
+    const updates={};
+    Object.keys(vidsSnap.val()||{}).forEach(id=>updates['videos/'+id+'/authorVerified']=newVal);
+    Object.keys(postsSnap.val()||{}).forEach(id=>updates['posts/'+id+'/verified']=newVal);
+    if(Object.keys(updates).length)await db.ref().update(updates);
+    showToast(newVal?'✅ Badge activé':'Badge retiré');
+    _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
+  }catch(e){
+    showToast('⚠️ Erreur — réessaie');
+    if(btn){btn.disabled=false;}
   }
 }
 function loadFeed(){loadFeedMixed();loadHomeStories();}
@@ -6447,7 +6587,7 @@ function loadBuzzHomePreview(){
     const vids=Object.entries(snap.val()).map(([id,v])=>({id,...v})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,8);
     row.innerHTML=vids.map(v=>{
       const dur=v.duration?formatDur(v.duration):'';
-      const verified=(v.authorVerified||v.verified)?'<span class="buzz-verif">✔</span>':'';
+      const verified=verifiedBadge(v.authorVerified||v.verified);
       return `<div class="buzz-card" onclick="showScreen('buzz')">
         <div class="buzz-thumb" style="background-image:url('${optVidThumb(v.thumbnail,240)||''}')">
           ${dur?`<span class="buzz-dur">${dur}</span>`:''}
@@ -6531,8 +6671,32 @@ const FEED_WEIGHTS={
   newcomer:20,     // bonus dégressif pour les comptes < 50 vues cumulées
   geo:8,           // léger bonus si même pays que le viewer (pas un filtre, juste un coup de pouce)
   reconnaissance:12, // 😍 signal fort : l'utilisateur a vraiment apprécié
-  reportPenalty:30 // pénalité forte si contenu signalé
+  reportPenalty:30, // pénalité forte si contenu signalé
+  seenPenalty:45   // pénalité si l'utilisateur a déjà vu cette vidéo (anti-répétition style TikTok/Facebook)
 };
+
+// ═══════════════════════════════════════
+//  ANTI-RÉPÉTITION — mémorise les vidéos déjà vues par l'utilisateur (sur l'appareil)
+//  et les fait redescendre dans le classement au lieu de les repasser en boucle.
+// ═══════════════════════════════════════
+const SEEN_LIMIT=500;
+let _seenCache=null,_seenCacheAt=0;
+function _getSeenVideoIds(){
+  if(_seenCache&&Date.now()-_seenCacheAt<3000)return _seenCache;
+  try{_seenCache=JSON.parse(localStorage.getItem('kiko_seen_videos')||'[]');}catch(e){_seenCache=[];}
+  _seenCacheAt=Date.now();
+  return _seenCache;
+}
+function _markVideoSeen(id){
+  try{
+    let seen=_getSeenVideoIds();
+    if(seen.includes(id))return;
+    seen=[...seen,id];
+    if(seen.length>SEEN_LIMIT)seen=seen.slice(seen.length-SEEN_LIMIT);
+    localStorage.setItem('kiko_seen_videos',JSON.stringify(seen));
+    _seenCache=seen;_seenCacheAt=Date.now();
+  }catch(e){/* silencieux */}
+}
 
 function computeFeedScore(item,viewerCountry){
   const views=item.views||0;
@@ -6567,6 +6731,7 @@ function computeFeedScore(item,viewerCountry){
   const visibilityMultiplier=item.visibility==='limited'?0.25:1;
 
   const reconRate=Math.min(1,reconnaissance/Math.max(views,1)*20);
+  const alreadySeen=_getSeenVideoIds().includes(item.id);
   const score=
     FEED_WEIGHTS.completion*completionRate +
     FEED_WEIGHTS.engagement*engagementRate +
@@ -6575,7 +6740,8 @@ function computeFeedScore(item,viewerCountry){
     FEED_WEIGHTS.newcomer*newcomerBonus +
     FEED_WEIGHTS.geo*geoBonus +
     FEED_WEIGHTS.reconnaissance*reconRate -
-    FEED_WEIGHTS.reportPenalty*Math.min(1,reports/3);
+    FEED_WEIGHTS.reportPenalty*Math.min(1,reports/3) -
+    (alreadySeen?FEED_WEIGHTS.seenPenalty:0);
 
   return score*visibilityMultiplier;
 }
@@ -6601,9 +6767,30 @@ function diversifyFeed(sortedItems){
 //  Même format plein écran que les vidéos, même scroll, aucun popup externe.
 //  Quota strict : 5 pubs maximum par utilisateur et par jour.
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+//  PUBLICITÉS DANS LE FEED — cartes "Sponsorisé"
+//  Même format plein écran que les vidéos, même scroll, aucun popup externe.
+//  Quota strict : 5 pubs maximum par utilisateur et par jour.
+// ═══════════════════════════════════════
 const AD_CONFIG={
-  everyN:5,        // espacement : 1 pub toutes les 5 vidéos
-  dailyLimit:5     // maximum de pubs vues par utilisateur et par jour
+  everyN:5,        // 👉 espacement : nombre de vidéos entre 2 pubs. Change juste ce chiffre.
+  dailyLimit:5,    // 👉 nombre max de pubs vues par utilisateur et par jour. Change juste ce chiffre.
+
+  // 👉 SPONSORS LOCAUX (priorité absolue) — vends ces emplacements à des commerçants/marques AES.
+  // Rapporte souvent plus qu'une régie internationale sur du trafic Tier 3. Tant que cette liste
+  // est vide, seuls les créatifs Adsterra ci-dessous (fallbackCreatives) sont utilisés.
+  sponsors:[
+    // { icon:'🛍️', title:'Nom du sponsor', subtitle:'Message court accrocheur', ctaLabel:'Voir l\'offre', ctaUrl:'https://wa.me/22XXXXXXXXX' }
+  ],
+
+  // Créatifs génériques Adsterra Smartlink — plusieurs variantes affichées en rotation
+  // pour éviter que l'utilisateur voie toujours la même carte.
+  fallbackCreatives:[
+    {icon:'📢',title:'Offre partenaire',subtitle:'Découvre une sélection spéciale pour toi',ctaLabel:'Découvrir'},
+    {icon:'🎁',title:'Bon plan du moment',subtitle:'Une offre à ne pas manquer',ctaLabel:'Voir maintenant'},
+    {icon:'⭐',title:'Recommandé pour toi',subtitle:'Sélectionné spécialement pour ton profil',ctaLabel:'En savoir plus'},
+    {icon:'🔥',title:'Tendance actuellement',subtitle:'Rejoins des milliers d\'utilisateurs',ctaLabel:'Découvrir'}
+  ]
 };
 // Quota journalier persistant (par appareil/utilisateur), remis à zéro chaque jour
 function _adBudgetRemaining(){
@@ -6622,6 +6809,15 @@ function _adBudgetConsume(){
     localStorage.setItem('kiko_ad_budget',JSON.stringify({day:today,count}));
   }catch(e){/* silencieux */}
 }
+// Choisit le prochain créatif à afficher : sponsors locaux en priorité, puis rotation
+// des créatifs Adsterra génériques. ctaUrl retombe sur le Smartlink Adsterra si absent.
+let _adRotationIndex=0;
+function _nextAdCreative(){
+  const pool=[...AD_CONFIG.sponsors,...AD_CONFIG.fallbackCreatives];
+  const c=pool[_adRotationIndex%pool.length];
+  _adRotationIndex++;
+  return {icon:c.icon||'📢',title:c.title||'Sponsorisé',subtitle:c.subtitle||'',ctaLabel:c.ctaLabel||'Découvrir',ctaUrl:c.ctaUrl||ADSTERRA_SMARTLINK};
+}
 // Insère une carte pub toutes les N vidéos réelles, tant qu'il reste du quota pour aujourd'hui.
 // Jamais 2 pubs d'affilée (le compteur ne compte que les vraies vidéos), jamais en tout premier.
 function injectAdsIntoFeed(items){
@@ -6634,7 +6830,8 @@ function injectAdsIntoFeed(items){
     if(sinceLastAd>=AD_CONFIG.everyN&&idx<items.length-1&&budget>0){
       out.push({
         id:'ad-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
-        _isAd:true
+        _isAd:true,
+        ..._nextAdCreative()
       });
       sinceLastAd=0;
       budget--;
@@ -6649,15 +6846,15 @@ function buildFeedHtml(items){
 }
 function buildAdCard(v,i){
   // Carte pleine écran, même gabarit qu'une vcard vidéo — pas de vidéo réelle ici,
-  // le tap (ou l'apparition à l'écran, via l'observer) ouvre le Smartlink Adsterra.
-  return `<div class="vcard" id="vc-${v.id}" data-ad="1" data-smartlink="1"
+  // le tap (ou l'apparition à l'écran, via l'observer) ouvre le lien du créatif (sponsor ou Adsterra).
+  return `<div class="vcard" id="vc-${v.id}" data-ad="1" data-smartlink="1" data-ctaurl="${esc(v.ctaUrl)}"
       style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 30%,rgba(255,122,48,0.18),transparent 60%),var(--bg);cursor:pointer;"
-      onclick="openSmartlink('${ADSTERRA_SMARTLINK}')">
+      onclick="openSmartlink('${esc(v.ctaUrl)}','adClicks')">
     <div style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;letter-spacing:.3px;z-index:5;">Sponsorisé</div>
-    <div style="font-size:46px;margin-bottom:16px;">📢</div>
-    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:20px;color:var(--text);margin-bottom:8px;padding:0 30px;">Offre partenaire</div>
-    <div style="color:var(--text2);font-size:14px;margin-bottom:24px;padding:0 40px;">Découvre une sélection spéciale pour toi</div>
-    <button onclick="event.stopPropagation();openSmartlink('${ADSTERRA_SMARTLINK}')" style="background:var(--gold);color:#14151A;border:none;padding:13px 32px;border-radius:26px;font-weight:700;font-size:14px;">Découvrir</button>
+    <div style="font-size:46px;margin-bottom:16px;">${v.icon}</div>
+    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:20px;color:var(--text);margin-bottom:8px;padding:0 30px;">${esc(v.title)}</div>
+    <div style="color:var(--text2);font-size:14px;margin-bottom:24px;padding:0 40px;">${esc(v.subtitle)}</div>
+    <button onclick="event.stopPropagation();openSmartlink('${esc(v.ctaUrl)}','adClicks')" style="background:var(--gold);color:#14151A;border:none;padding:13px 32px;border-radius:26px;font-weight:700;font-size:14px;">${esc(v.ctaLabel)}</button>
   </div>`;
 }
 
@@ -6708,7 +6905,7 @@ function buildVCard(v,i){
     <div class="vinfo">
       <div class="vauthor-row">
         <div class="vav">${avH}</div>
-        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}')">@${esc(v.auteur||'anonyme')}</div>
+        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}')">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}</div>
         ${!isOwn&&v.authorUid?`<button class="vfollow ${isFollowing?'following':''}" onclick="toggleFollow('${v.authorUid}','${esc(v.auteur||'')}',this)">${isFollowing?'✓ Suivi':'+ Suivre'}</button>`:''}
       </div>
       ${desc?`<div class="vdesc">${esc(desc)}</div>`:''}
@@ -7388,11 +7585,11 @@ function initObserver(){
         }
         const id=e.target.id.replace('vc-','');
         const vid=allVids.find(x=>x.id===id);
-        if(vid)trackView(id,vid.authorUid||'');
+        if(vid){trackView(id,vid.authorUid||'');_markVideoSeen(id);}
         // Carte "Sponsorisé" qui vient d'apparaître à l'écran → déclenche le Smartlink (1 fois par carte)
         if(e.target.dataset.ad&&e.target.dataset.smartlink&&!e.target.dataset.fired){
           e.target.dataset.fired='1';
-          openSmartlink(ADSTERRA_SMARTLINK);
+          openSmartlink(e.target.dataset.ctaurl||ADSTERRA_SMARTLINK,'adImpressions');
         }
         const btn=document.getElementById('vmute-'+id);
         if(btn)btn.innerText=globalMuted?'🔇':'🔊';
@@ -7425,8 +7622,12 @@ function initProgress(){
     const advPanel=card.querySelector('.vadv-panel');
     const pIdx=advPanel?advPanel.id.replace('vadv-',''):null;
 
-    let _raf=false;
+    let _raf=false,_completLogged=false;
     v.addEventListener('timeupdate',()=>{
+      if(!_completLogged&&v.duration&&v.currentTime/v.duration>=0.9){
+        _completLogged=true;
+        logStat('videoCompletions');
+      }
       if(_raf)return;_raf=true;
       requestAnimationFrame(()=>{
         _raf=false;
@@ -7450,6 +7651,7 @@ function trackView(vidId,authorUid){
   sessionStorage.setItem(key,'1');
   db.ref('videos/'+vidId+'/views').transaction(v=>(v||0)+1);
   if(authorUid)db.ref('users/'+authorUid+'/totalViews').transaction(v=>(v||0)+1);
+  logStat('videoViews');
 }
 
 // ═══════════════════════════════════════
@@ -7570,7 +7772,7 @@ function renderComments(cmts){
   const list=document.getElementById('clist');
   const wasAtBottom=list.scrollHeight-list.scrollTop-list.clientHeight<60;
   list.innerHTML=cmts.length
-    ?cmts.map(c=>`<div class="citem"><div class="cav">${c.avatar?`<img src="${c.avatar}" alt="">`:( c.author||'A')[0].toUpperCase()}</div><div><div class="cname">${esc(c.author||'anonyme')}</div><div class="ctext">${esc(c.text)}</div><div class="ctime">${timeAgo(c.at||Date.now())}</div></div></div>`).join('')
+    ?cmts.map(c=>`<div class="citem"><div class="cav">${c.avatar?`<img src="${c.avatar}" alt="">`:( c.author||'A')[0].toUpperCase()}</div><div><div class="cname">${esc(c.author||'anonyme')}${verifiedBadge(c.verified)}</div><div class="ctext">${esc(c.text)}</div><div class="ctime">${timeAgo(c.at||Date.now())}</div></div></div>`).join('')
     :'<div style="text-align:center;color:var(--muted);padding:28px;font-size:12px;">Aucun commentaire 💬<br>Sois le premier !</div>';
   if(wasAtBottom)list.scrollTop=list.scrollHeight;
 }
@@ -7579,7 +7781,7 @@ async function sendComment(){
   if(!currentUser){closeComments();needAuth(()=>openComments(curVidId));return;}
   const inp=document.getElementById('cinput');const txt=inp.value.trim();if(!txt)return;
   inp.value='';
-  await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',text:txt,at:Date.now()});
+  await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',verified:currentUser.verified||false,text:txt,at:Date.now()});
   const vid=allVids.find(v=>v.id===curVidId);
   if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'comment',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,vidId:curVidId,at:Date.now(),read:false});
 }
@@ -9358,6 +9560,12 @@ function optVid(url){
 }
 function fmt(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n||0);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// ═══ BADGE VÉRIFIÉ — cercle orange + check blanc (style Facebook, couleur perso) ═══
+// N'affiche rien si isVerified est falsy. Utilisé partout : profil, commentaires, vidéos, posts.
+const VERIF_CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 13L9.5 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function verifiedBadge(isVerified){
+  return isVerified?`<span class="verif-badge" title="Compte vérifié">${VERIF_CHECK_SVG}</span>`:'';
+}
 function jsStr(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
 function showToast(msg){const t=document.getElementById('toast');t.innerText=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
@@ -9994,9 +10202,7 @@ function buildSFPost(p){
   const ago=timeAgo(p.createdAt);
   const myReact=currentUser&&p.userReactions&&p.userReactions[currentUser.uid]||null;
   const likeIco=myReact||(isLiked?'❤️':'🤍');
-  const verified=p.verified
-    ?`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M9 12L11 14L15 10M21 12C21 16.97 16.97 21 12 21C7.03 21 3 16.97 3 12C3 7.03 7.03 3 12 3C16.97 3 21 7.03 21 12Z" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-    :'';
+  const verified=verifiedBadge(p.verified);
 
   // Photo principale
   let mainPhoto='';
@@ -10338,6 +10544,22 @@ function initSFPullToRefresh(){
 .buzz-meta{ display:flex; flex-direction:column; gap:2px; margin-top:6px; }
 .buzz-author{ font-size:11.5px; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .buzz-verif{ color:var(--gold); margin-left:3px; font-size:10px; }
+/* ═══ BADGE VÉRIFIÉ — cercle orange + check blanc, style Facebook ═══ */
+.verif-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  width:13px;
+  height:13px;
+  border-radius:50%;
+  background:#ff7a00;
+  vertical-align:middle;
+  margin-left:3px;
+  position:relative;
+  top:-1px;
+}
+.verif-badge svg{ width:64%; height:64%; display:block; }
 .buzz-views{ font-size:10.5px; color:var(--muted); }
 .buzz-more{ flex:0 0 70px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
 .buzz-more-ico{
