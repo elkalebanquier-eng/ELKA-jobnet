@@ -383,11 +383,11 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   bottom: 58px;
 }
 .vcard .vinfo {
-  bottom: 62px;
-  right: 60px;
+  bottom: 130px;
+  right: 14px;
 }
-.vcard .vactions {
-  bottom: 62px; right: 8px;
+.vcard .kiko-vid-actions {
+  bottom: 66px;
 }
 .vcard .vmute-btn {
   top: 10px; right: 10px;
@@ -953,29 +953,41 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   100% { opacity:0; transform:translate(-50%,-140px) scale(0.9); }
 }
 
-/* ═══ BOUTONS VIDÉO FLOTTANTS (original, non-TikTok) ═══ */
+/* ═══ DOCK D'ACTIONS VIDÉO — barre horizontale flottante, signature KIKO ═══
+   (ni colonne latérale façon TikTok/Instagram : un dock capsule centré en bas,
+   verre doré, aligné avec le reste de l'esthétique "Sahel Futur") */
 .kiko-vid-actions {
-  position: absolute; bottom: 110px; right: 12px;
-  display: flex; flex-direction: column; gap: 10px; z-index: 15;
-  align-items: center;
+  position: absolute; left: 50%; bottom: 110px;
+  transform: translateX(-50%);
+  display: flex; flex-direction: row; align-items: center; gap: 5px; z-index: 15;
+  background: rgba(10,12,18,0.5);
+  border: 1px solid rgba(212,165,74,0.3);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  padding: 7px 9px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .kiko-vid-btn {
-  width: 44px; height: 44px; border-radius: 14px;
-  background: rgba(0,0,0,0.45); backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.12);
+  width: 38px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.18s; gap: 1px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  cursor: pointer; transition: transform 0.15s; gap: 2px;
 }
-.kiko-vid-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.65); }
-.kiko-vid-btn.liked { border-color: rgba(255,80,80,0.6); background: rgba(180,20,20,0.35); }
-.kiko-vid-btn.reconnu { border-color: rgba(255,138,0,0.7); background: rgba(120,60,0,0.4); }
-.kiko-vid-btn-ico { font-size: 18px; line-height: 1; }
-.kiko-vid-btn-lbl { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.2px; }
+.kiko-vid-btn:active { transform: scale(0.86); }
+.kiko-vid-btn-ico {
+  width: 32px; height: 32px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16.5px; line-height: 1;
+  background: rgba(255,255,255,0.07);
+  transition: background 0.18s;
+}
+.kiko-vid-btn.liked .kiko-vid-btn-ico { background: rgba(255,60,90,0.28); }
+.kiko-vid-btn.reconnu .kiko-vid-btn-ico { background: linear-gradient(135deg,var(--gold),var(--gold2)); }
+.kiko-vid-btn-lbl { font-size: 8.5px; font-weight: 700; color: rgba(255,255,255,0.75); letter-spacing: 0.1px; }
 .kiko-reco-btn-ico { font-size: 16px; }
 
-/* Ligne de séparation tactile entre les groupes de boutons */
-.kiko-vid-btn-sep { width: 24px; height: 1px; background: rgba(255,255,255,0.12); margin: 0; }
+/* Séparateur tactile vertical entre les groupes de boutons (mode horizontal) */
+.kiko-vid-btn-sep { width: 1px; height: 26px; background: rgba(255,255,255,0.14); margin: 0 1px; flex-shrink: 0; }
+
 
 .ad-info { position: absolute; bottom: 88px; left: 14px; right: 72px; z-index: 10; }
 .ad-av {
@@ -2036,6 +2048,22 @@ textarea.inp { resize: none; }
   -webkit-user-drag: none; user-select: none; -webkit-user-select: none;
 }
 @keyframes pcardFadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+
+/* ─── Effet "photo animée" façon CapCut : zoom/pan lent + entrée en fondu ─── */
+@keyframes kikoKenBurnsA { 0%{ transform:scale(1) translate(0,0); } 100%{ transform:scale(1.12) translate(-1.5%,-1%); } }
+@keyframes kikoKenBurnsB { 0%{ transform:scale(1.1) translate(-1%,1%); } 100%{ transform:scale(1) translate(0,0); } }
+@keyframes kikoKenBurnsC { 0%{ transform:scale(1) translate(1%,-1%); } 100%{ transform:scale(1.14) translate(-1%,1.5%); } }
+@keyframes kikoBgPulse { 0%{ transform:scale(1.05); } 100%{ transform:scale(1.18); } }
+.pcard-slide img {
+  animation: kikoKenBurnsA 14s ease-in-out infinite alternate, pcardFadeIn 0.5s ease-out;
+  will-change: transform;
+}
+.pcard-slide:nth-child(2) img { animation-name: kikoKenBurnsB, pcardFadeIn; animation-duration: 16s, 0.5s; }
+.pcard-slide:nth-child(3) img { animation-name: kikoKenBurnsC, pcardFadeIn; animation-duration: 12s, 0.5s; }
+.pcard-slide-bg { animation: kikoBgPulse 16s ease-in-out infinite alternate; will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .pcard-slide img, .pcard-slide-bg { animation: none !important; }
+}
 .pcard-gradient {
   position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
   background: linear-gradient(to top, rgba(7,26,61,0.92) 0%, rgba(7,26,61,0.3) 60%, transparent 100%);
@@ -2596,6 +2624,23 @@ textarea.inp { resize: none; }
   transition: border-color 0.2s, background 0.2s;
 }
 .photo-picker-zone:active { border-color: var(--gold); background: var(--gold3); }
+.photo-preview-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin-bottom: 14px;
+}
+.photo-preview-item {
+  position: relative; aspect-ratio: 1; border-radius: var(--r-sm);
+  overflow: hidden; background: var(--surface2);
+}
+.photo-preview-item img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.photo-preview-remove {
+  position: absolute; top: 5px; right: 5px; width: 22px; height: 22px;
+  border-radius: 50%; background: rgba(10,10,12,0.7); color: #fff;
+  font-size: 12px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 2;
+}
 .cam-open-btn {
   width: 100%; background: var(--navy);
   color: var(--gold); border: none; padding: 13px;
@@ -2821,8 +2866,8 @@ body:not(.screen-home) #topnav{
 .nbtn.active#nb-infos .ni svg { opacity: 1;  }
 
 /* Profil — neon bleu, toujours visible */
-#nb-profile .ni svg { opacity: 0.72; }
-.nbtn.active#nb-profile .ni svg { opacity: 1;  }
+#nb-job .ni { opacity: 0.72; }
+.nbtn.active#nb-job .ni { opacity: 1;  }
 
 /* ─── MENU RADIAL ─── */
 #kikoRadialOverlay{
@@ -3038,6 +3083,7 @@ body:not(.screen-home) #topnav{
     <div class="buzz-back" onclick="showScreen('home')">←</div>
     <div class="buzz-screen-title">🔥 Buzz</div>
   </div>
+  <div id="feedPtr" class="feed-ptr"><div class="feed-ptr-spin"></div><span>Tire pour actualiser</span></div>
   <div id="feed"><div class="feedph" style="height:60vh;"><div class="spinner"></div><span>Chargement...</span></div></div>
 </div>
 
@@ -3178,6 +3224,63 @@ body:not(.screen-home) #topnav{
     </div>
   </div>
   <div class="pgrid" id="profileGrid"></div>
+</div>
+
+<!-- ═══ JOB — annonces emploi & services ═══ -->
+<div id="jobScreen" class="screen">
+  <div class="jb-header">
+    <div class="jb-title">💼 Job & Services</div>
+    <input type="text" class="jb-search" id="jbSearchInput" placeholder="Rechercher un métier, une ville..." oninput="jbSearch(this.value)">
+    <div class="jb-chips">
+      <div class="jb-chip active" onclick="jbFilter('all',this)">Tout</div>
+      <div class="jb-chip" onclick="jbFilter('job',this)">💼 Emplois</div>
+      <div class="jb-chip" onclick="jbFilter('service',this)">🔧 Services</div>
+      <div class="jb-chip" onclick="jbFilter('premium',this)">⭐ Premium</div>
+      <div class="jb-chip" onclick="jbFilter('mine',this)">👤 Mes annonces</div>
+    </div>
+  </div>
+  <div class="jb-feed" id="jbFeed"></div>
+  <div class="jb-fab" onclick="jbOpenPostModal()">+</div>
+</div>
+
+<!-- Modal publication annonce Job -->
+<div id="jbPostModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="jb-type-switch">
+      <div class="jb-type-btn active" id="jbTypeOffre" onclick="jbSwitchType('offre')">Je propose un emploi</div>
+      <div class="jb-type-btn" id="jbTypeService" onclick="jbSwitchType('service')">Je propose un service</div>
+    </div>
+    <label class="jb-form-label">Titre de l'annonce</label>
+    <input type="text" class="jb-input" id="jbTitle" placeholder="Ex : Développeur React Senior">
+    <label class="jb-form-label">Description</label>
+    <textarea class="jb-input" id="jbDesc" rows="3" placeholder="Décris le poste ou le service en quelques lignes..."></textarea>
+    <label class="jb-form-label">Ville</label>
+    <input type="text" class="jb-input" id="jbCity" placeholder="Ex : Ouagadougou">
+    <label class="jb-form-label">Prix / Salaire</label>
+    <input type="text" class="jb-input" id="jbPrice" placeholder="Ex : 150 000 FCFA/mois">
+    <label class="jb-form-label">Compétences (séparées par des virgules)</label>
+    <input type="text" class="jb-input" id="jbSkills" placeholder="Ex : React, Node.js">
+    <label class="jb-form-label">Numéro WhatsApp de contact</label>
+    <input type="tel" class="jb-input" id="jbWa" placeholder="+226 70 00 00 00">
+    <button class="btn-gold" onclick="jbSubmitPost()">Publier gratuitement</button>
+  </div>
+</div>
+
+<!-- Modal boost premium Job -->
+<div id="jbBoostModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:10px;">⭐ Mettre en avant cette annonce</div>
+    <div style="font-size:12.5px;color:var(--text2);margin-bottom:14px;line-height:1.5;">
+      🌟 En tête de liste pendant 7 jours · Badge Premium visible<br>
+      💳 <b>2500 FCFA</b> — Orange Money, Moov Money ou Wave (au choix sur la page de paiement)
+    </div>
+    <button class="btn-gold" onclick="jbProcessPayment()" id="jbPayBtn">💳 Payer 2500 FCFA maintenant</button>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px;">
+      🧪 Mode test PayDunya — aucun argent réel ne sera débité
+    </div>
+  </div>
 </div>
 
 <div id="infosScreen" class="screen">
@@ -3658,6 +3761,46 @@ body:not(.screen-home) #topnav{
 .sett-toggle input:checked+.sett-toggle-track::after{transform:translateX(20px);}
 .lang-btn2{background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);padding:8px 12px;border-radius:22px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
 .lang-btn2.active{background:var(--gold3);border-color:var(--gold);color:var(--gold);}
+
+/* ═══ JOB — annonces emploi & services (thème KIKO) ═══ */
+.jb-header{padding:14px 16px 10px;position:sticky;top:0;background:var(--bg);z-index:20;}
+.jb-title{font-family:var(--font-head,inherit);font-weight:800;font-size:20px;color:var(--text);margin-bottom:10px;}
+.jb-search{width:100%;padding:10px 14px;border-radius:22px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;margin-bottom:10px;}
+.jb-search::placeholder{color:var(--muted);}
+.jb-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
+.jb-chip{flex-shrink:0;padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.jb-chip.active{background:var(--gold3);border-color:var(--gold);color:var(--gold);}
+.jb-feed{padding:4px 16px 90px;display:flex;flex-direction:column;gap:12px;}
+.jb-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;}
+.jb-card.premium{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-glow);}
+.jb-card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.jb-avatar{width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.jb-uname{font-weight:700;font-size:13.5px;color:var(--text);display:flex;align-items:center;gap:6px;}
+.jb-badge-premium{font-size:9px;font-weight:800;background:var(--gold);color:#14151A;padding:2px 6px;border-radius:6px;}
+.jb-type-tag{margin-left:auto;font-size:11px;font-weight:700;padding:4px 9px;border-radius:10px;flex-shrink:0;}
+.jb-tag-job{background:rgba(91,141,239,0.15);color:var(--blue);}
+.jb-tag-service{background:rgba(52,211,153,0.15);color:var(--green);}
+.jb-post-title{font-weight:700;font-size:15px;color:var(--text);margin-bottom:4px;}
+.jb-post-desc{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.jb-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.jb-skill{font-size:11px;background:var(--surface2);color:var(--text2);padding:3px 9px;border-radius:8px;}
+.jb-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.jb-price{font-weight:800;color:var(--gold);font-size:14px;}
+.jb-city{font-size:11.5px;color:var(--muted);}
+.jb-actions{display:flex;gap:8px;}
+.jb-btn-like{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:7px 11px;border-radius:12px;font-size:12.5px;font-weight:600;cursor:pointer;}
+.jb-btn-like.liked{color:var(--red);border-color:var(--red);}
+.jb-btn-wa{background:#25D366;border:none;color:#fff;padding:7px 12px;border-radius:12px;font-size:12.5px;font-weight:700;cursor:pointer;}
+.jb-btn-boost{background:none;border:1px solid var(--gold);color:var(--gold);padding:7px 10px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;}
+.jb-fab{position:fixed;right:16px;bottom:86px;width:52px;height:52px;border-radius:50%;background:var(--gold);color:#14151A;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 18px var(--gold-glow);cursor:pointer;z-index:50;}
+.jb-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px;}
+.jb-form-label{font-size:12.5px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block;}
+.jb-input{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;margin-bottom:12px;}
+.jb-type-switch{display:flex;background:var(--surface2);border-radius:12px;padding:3px;margin-bottom:14px;}
+.jb-type-btn{flex:1;text-align:center;padding:9px;border-radius:10px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;}
+.jb-type-btn.active{background:var(--gold);color:#14151A;}
+.jb-pay-opt{display:flex;align-items:center;gap:10px;padding:11px;border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;}
+.jb-pay-opt.selected{border-color:var(--gold);background:var(--gold3);}
 </style>
 
 <!-- BOTTOM NAV -->
@@ -3740,25 +3883,10 @@ body:not(.screen-home) #topnav{
     <div class="notif-dot" id="newsDot" style="display:none;"></div>
   </div>
 
-  <!-- Profil — neon bleu comme image -->
-  <div class="nbtn" id="nb-profile" onclick="showScreen('profile')">
-    <div class="ni ni-profile">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="7" r="4" stroke="url(#profileGrad)" stroke-width="1.8" fill="none" filter="url(#profileGlow)"/>
-        <path d="M4 20C4 16.686 7.134 14 12 14C16.866 14 20 16.686 20 20" stroke="url(#profileGrad)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-        <defs>
-          <linearGradient id="profileGrad" x1="4" y1="3" x2="20" y2="20" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#60B8FF"/>
-            <stop offset="100%" stop-color="#2080E0"/>
-          </linearGradient>
-          <filter id="profileGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="1.5" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-      </svg>
-    </div>
-    <span>Profil</span>
+  <!-- Job — annonces emploi & services -->
+  <div class="nbtn" id="nb-job" onclick="showScreen('job')">
+    <div class="ni" style="font-size:20px;">💼</div>
+    <span>Job</span>
   </div>
 </div>
 
@@ -4419,6 +4547,19 @@ body:not(.screen-home) #topnav{
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script>
 // ═══════════════════════════════════════
+//  CONFIG POLLINATIONS (IA texte/image)
+//  Va sur https://enter.pollinations.ai pour créer un compte GRATUIT
+//  et générer une clé "publishable" (elle commence par pk_).
+//  Colle-la ci-dessous entre les guillemets.
+//  Laisse vide '' pour rester en mode anonyme (moins fiable, plus limité).
+// ═══════════════════════════════════════
+window.POLLINATIONS_TOKEN = 'sk_bxDRaqJFYt4UoM91qdSCzofvCda77dXj'; // ⚠️ TEST UNIQUEMENT — à remplacer par une clé pk_ avant mise en ligne
+window.pollinationsAuthParam = function(){
+  return window.POLLINATIONS_TOKEN ? ('&key=' + encodeURIComponent(window.POLLINATIONS_TOKEN)) : '';
+};
+</script>
+<script>
+// ═══════════════════════════════════════
 //  FIREBASE
 // ═══════════════════════════════════════
 firebase.initializeApp({
@@ -4625,6 +4766,15 @@ async function kikoShowTranslation(postId, text, btn){
 //  RECHERCHE PAR LOCALISATION — Géolocalisation + rayon
 // ═══════════════════════════════════════════════════════════
 let _userGeoCity = localStorage.getItem('kiko_geo_city') || null;
+let _userGeoCountry = localStorage.getItem('kiko_geo_country') || null; // code ISO2, ex: "bf"
+
+// Indicatifs téléphoniques par code pays ISO2 (AES + voisins régionaux)
+const PHONE_PREFIXES = {
+  bf:'+226', ml:'+223', ne:'+227', // AES
+  sn:'+221', ci:'+225', tg:'+228', bj:'+229', gn:'+224',
+  gh:'+233', ng:'+234', mr:'+222', td:'+235', gm:'+220',
+  lr:'+231', sl:'+232', cv:'+238', gw:'+245'
+};
 
 async function kikoGetUserCity(){
   if(_userGeoCity) return _userGeoCity;
@@ -4642,9 +4792,14 @@ async function kikoGetUserCity(){
         const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, { headers:{'Accept-Language':'fr'} });
         const json = await res.json();
         const city = json?.address?.city || json?.address?.town || json?.address?.village || json?.address?.county || null;
+        const countryCode = json?.address?.country_code || null; // ex: "bf"
         if(city){
           _userGeoCity = city;
           localStorage.setItem('kiko_geo_city', city);
+        }
+        if(countryCode){
+          _userGeoCountry = countryCode;
+          localStorage.setItem('kiko_geo_country', countryCode);
         }
         resolve(city);
       }catch{ resolve(null); }
@@ -4657,6 +4812,31 @@ function kikoFilterByLocation(items, city){
   if(!city) return items;
   const c = city.toLowerCase();
   return items.filter(it=>(it.city||it.location||'').toLowerCase().includes(c));
+}
+
+// Pré-remplit l'indicatif (+226, +223...) dans le champ téléphone selon la position GPS
+async function kikoPrefillPhonePrefix(){
+  const phoneInput = document.getElementById('authPhone');
+  if(!phoneInput || phoneInput.value.trim()) return; // déjà rempli par l'utilisateur → ne pas toucher
+  if(!_userGeoCountry){ await kikoGetUserCity(); } // déclenche la géoloc si pas déjà faite (avec permission)
+  if(!_userGeoCountry) return;
+  const prefix = PHONE_PREFIXES[_userGeoCountry];
+  if(prefix && !phoneInput.value.trim()){
+    phoneInput.value = prefix + ' ';
+    phoneInput.setSelectionRange(phoneInput.value.length, phoneInput.value.length);
+  }
+}
+
+// Rattrapage : les comptes créés avant l'ajout de la géoloc n'ont pas de pays enregistré.
+// On la détecte une fois discrètement (même popup de permission que d'habitude) et on met à jour Firebase.
+async function kikoBackfillUserCountry(){
+  if(!currentUser || currentUser.country) return;
+  await kikoGetUserCity(); // remplit _userGeoCountry/_userGeoCity si autorisé
+  if(!_userGeoCountry) return;
+  currentUser.country=_userGeoCountry;
+  currentUser.city=_userGeoCity||currentUser.city||'';
+  localStorage.setItem('aes_user',JSON.stringify(currentUser));
+  try{ await db.ref('users/'+currentUser.uid).update({country:_userGeoCountry, city:currentUser.city}); }catch(e){}
 }
 
 // Injecte le filtre "Près de moi" dans la barre de recherche produits
@@ -5303,8 +5483,36 @@ function renderPhotoPreviews(){
   countLabel.innerText=`${photoFiles.length}/${MAX_PHOTOS} photos`;
   grid.innerHTML=photoFiles.map((f,i)=>{
     const url=URL.createObjectURL(f);
-    return `<div class="photo-preview-item"><img src="${url}"><div class="photo-preview-remove" onclick="removePhotoFile(${i})">✕</div></div>`;
+    return `<div class="photo-preview-item" style="position:relative;">
+      <img src="${url}">
+      <div class="photo-preview-remove" onclick="removePhotoFile(${i})">✕</div>
+      <div onclick="enhancePhotoPreview(${i})" style="position:absolute;left:6px;bottom:6px;background:rgba(10,10,12,0.75);backdrop-filter:blur(3px);color:var(--gold);font-size:11px;font-weight:700;padding:5px 9px;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:4px;">✨ IA</div>
+    </div>`;
   }).join('');
+}
+
+async function enhancePhotoPreview(idx){
+  const file = photoFiles[idx];
+  if(!file) return;
+  showToast('⏳ Préparation de la photo...');
+  try{
+    const tempUrl = await ikUpload(file,'photos',null);
+    openPhotoEnhancer(tempUrl, async(finalUrl)=>{
+      if(finalUrl && finalUrl!==tempUrl){
+        try{
+          showToast('⏳ Application des modifications...');
+          const enhFile = await peUrlToFile(finalUrl, 'photo_ia_'+idx+'.jpg');
+          photoFiles[idx] = enhFile;
+          renderPhotoPreviews();
+          showToast('✅ Photo mise à jour');
+        }catch(e){
+          showToast('❌ Impossible d\'appliquer la photo modifiée');
+        }
+      }
+    });
+  }catch(e){
+    showToast('❌ Erreur de préparation de la photo');
+  }
 }
 function removePhotoFile(idx){photoFiles.splice(idx,1);renderPhotoPreviews();}
 
@@ -5839,6 +6047,7 @@ function timeAgo(ts){
 function openAuth(reason){
   if(reason&&typeof reason==='string')document.getElementById('authSubText').innerText=reason;
   document.getElementById('authModal').classList.add('active');
+  kikoPrefillPhonePrefix(); // pré-remplit +226/+223/... selon la position GPS, sans bloquer l'ouverture
 }
 function closeAuth(){document.getElementById('authModal').classList.remove('active');}
 function switchTab(mode){
@@ -5863,7 +6072,7 @@ async function doAuth(){
       const snap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
       if(snap.exists()){errEl.innerText='Numéro déjà utilisé';btn.disabled=false;btn.innerText="S'inscrire";return;}
       const uid='u_'+Date.now();
-      const user={uid,name,phone,pass,avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
+      const user={uid,name,phone,pass,country:_userGeoCountry||'',city:_userGeoCity||'',avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
       await db.ref('users/'+uid).set(user);
       currentUser=user;
     } else {
@@ -6215,11 +6424,11 @@ function _doShowScreen(n){
   const screenMap = {
     home:'homeScreen', search:'searchScreen', market:'marketScreen',
     notif:'notifScreen', dm:'dmScreen', profile:'profileScreen',
-    infos:'infosScreen', buzz:'buzzScreen'
+    infos:'infosScreen', buzz:'buzzScreen', job:'jobScreen'
   };
   const navMap = {
     home:'nb-home', market:'nb-market', notif:'nb-notif',
-    profile:'nb-profile', dm:'nb-dm', infos:'nb-infos', buzz:'nb-buzz'
+    dm:'nb-dm', infos:'nb-infos', buzz:'nb-buzz', job:'nb-job'
   };
   const sid = screenMap[n];
   if(sid){ const el=document.getElementById(sid); if(el) el.classList.add('active'); }
@@ -6260,6 +6469,7 @@ function _doShowScreen(n){
     if(!allArticles.length) loadNews(); else applyNewsFilter();
   }
   if(n==='buzz' && !window._buzzLoaded){ window._buzzLoaded=true; loadFeed(); }
+  if(n==='job'){ jbStartFeed(); }
 }
 
 // Navigation normale — empile dans le stack
@@ -6626,7 +6836,7 @@ async function _toggleUserVerified(uid,newVal,btn){
     if(btn){btn.disabled=false;}
   }
 }
-function loadFeed(){loadFeedMixed();loadHomeStories();}
+function loadFeed(){loadFeedMixed();loadHomeStories();initFeedPullToRefresh();}
 
 // ═══════════════════════════════════════
 //  BUZZ — aperçu léger pour l'accueil
@@ -6657,7 +6867,7 @@ function formatDur(sec){sec=Math.round(sec);const m=Math.floor(sec/60),s=sec%60;
 function loadFeedOld(){
   const cached=localStorage.getItem('aes_feed_cache');
   if(cached){
-    try{allVids=JSON.parse(cached);if(allVids.length){feedLastKey=allVids[allVids.length-1]?.createdAt||null;feedAllLoaded=false;renderFeedByMode();loadStories();initInfiniteScroll();refreshFeedSilent();return;}}catch(e){}
+    try{allVids=JSON.parse(cached);if(allVids.length){feedLastKey=allVids[allVids.length-1]?.createdAt||null;feedAllLoaded=false;renderFeedByMode();loadStories();initInfiniteScroll();initFeedPullToRefresh();refreshFeedSilent();return;}}catch(e){}
   }
   const skelHtml=Array(3).fill(0).map(()=>`<div class="skel"><div class="skel-bg"></div><div class="skel-pulse skel-av"></div><div class="skel-pulse skel-name"></div><div class="skel-pulse skel-desc"></div><div class="skel-pulse skel-desc2"></div><div class="skel-pulse skel-like"></div><div class="skel-pulse skel-com"></div></div>`).join('');
   document.getElementById('feed').innerHTML=skelHtml;
@@ -6675,6 +6885,7 @@ function fetchFeedFromFirebase(){
       try{localStorage.setItem('aes_feed_cache',JSON.stringify(allVids));}catch(e){}
       renderFeedByMode();loadStories();
       initInfiniteScroll();
+      initFeedPullToRefresh();
     })
     .catch(e=>document.getElementById('feed').innerHTML=`<div class="feedph"><div class="ph-icon">⚠️</div><div class="ph-msg">Erreur réseau</div><div class="ph-sub">${esc(e.message)}</div></div>`);
 }
@@ -6761,13 +6972,20 @@ function computeFeedScore(item,viewerCountry){
   const authorTotalViews=item.authorTotalViews||0; // cumul de vues de l'auteur, pour détecter un nouveau créateur
 
   const reconnaissance=item.reconnaissance||0;
-  // Engagement : pondéré, normalisé par les vues — reconnaissance compte plus (signal fort)
-  const engagementRate=Math.min(1,((likes*2+comments*3+shares*4+reconnaissance*5)/Math.max(views,1))/10);
+  // Engagement : pondéré, normalisé par les vues.
+  // FIX : reconnaissance n'entre plus ici — elle a déjà son propre poids dédié
+  // (FEED_WEIGHTS.reconnaissance) plus bas. Avant, elle était comptée deux fois
+  // et sur-boostait les vidéos avec beaucoup de 😍.
+  const engagementRate=Math.min(1,((likes*2+comments*3+shares*4)/Math.max(views,1))/10);
 
-  // Complétion (si trackée) — sinon valeur neutre 0.5 pour ne pas désavantager les vidéos non instrumentées
-  const completionRate=(typeof item.avgWatchSeconds==='number'&&item.duration)
-    ?Math.min(1,item.avgWatchSeconds/item.duration)
-    :0.5;
+  // Complétion — trackée uniquement si avgWatchSeconds/duration existent.
+  // FIX : avant, une valeur neutre 0.5 était utilisée par défaut pour "ne pas désavantager"
+  // les vidéos non instrumentées — mais ça les désavantageait quand même face à toute vidéo
+  // instrumentée dépassant 50% de complétion. Maintenant, si la donnée est absente, le signal
+  // est simplement exclu du score et son poids est redistribué sur les autres signaux
+  // disponibles (cf. weightSum plus bas), pour rester comparable entre vidéos.
+  const completionTracked=(typeof item.avgWatchSeconds==='number'&&item.duration);
+  const completionRate=completionTracked?Math.min(1,item.avgWatchSeconds/item.duration):0;
 
   // Fraîcheur douce : decay sur 72h plutôt que 24h
   const ageHours=Math.max(0,(Date.now()-(item.createdAt||Date.now()))/3600000);
@@ -6785,14 +7003,27 @@ function computeFeedScore(item,viewerCountry){
 
   const reconRate=Math.min(1,reconnaissance/Math.max(views,1)*20);
   const alreadySeen=_getSeenVideoIds().includes(item.id);
-  const score=
-    FEED_WEIGHTS.completion*completionRate +
+
+  // Poids "positifs" seulement (hors pénalités) — sert à redistribuer le poids de la
+  // complétion quand elle n'est pas trackée, pour rester comparable entre vidéos.
+  const totalPositiveWeight=FEED_WEIGHTS.completion+FEED_WEIGHTS.engagement+FEED_WEIGHTS.freshness+
+    FEED_WEIGHTS.boost+FEED_WEIGHTS.newcomer+FEED_WEIGHTS.geo+FEED_WEIGHTS.reconnaissance;
+  const usedWeight=totalPositiveWeight-(completionTracked?0:FEED_WEIGHTS.completion);
+
+  const rawScore=
+    (completionTracked?FEED_WEIGHTS.completion*completionRate:0) +
     FEED_WEIGHTS.engagement*engagementRate +
     FEED_WEIGHTS.freshness*freshness +
     FEED_WEIGHTS.boost*(boost/100) +
     FEED_WEIGHTS.newcomer*newcomerBonus +
     FEED_WEIGHTS.geo*geoBonus +
-    FEED_WEIGHTS.reconnaissance*reconRate -
+    FEED_WEIGHTS.reconnaissance*reconRate;
+
+  // Remise à l'échelle : si un signal manque, on ramène le score au même barème
+  // que s'il était complet, plutôt que de laisser la vidéo "perdre" ce poids.
+  const rescaledScore=usedWeight>0?rawScore*(totalPositiveWeight/usedWeight):rawScore;
+
+  const score=rescaledScore -
     FEED_WEIGHTS.reportPenalty*Math.min(1,reports/3) -
     (alreadySeen?FEED_WEIGHTS.seenPenalty:0);
 
@@ -6805,7 +7036,15 @@ function diversifyFeed(sortedItems){
   let lastAuthor=null,streak=0;
   while(pending.length){
     let idx=pending.findIndex(it=>(it.authorUid||it.auteur)!==lastAuthor||streak<2);
-    if(idx===-1)idx=0;
+    // FIX : si idx===-1, c'est qu'il ne reste QUE des vidéos du même auteur (flood/spam) —
+    // on les sert dans l'ordre sans forcer un streak infini à s'accumuler inutilement.
+    if(idx===-1){
+      const item=pending.shift();
+      result.push(item);
+      lastAuthor=item.authorUid||item.auteur;
+      streak=2; // reste plafonné, ne grossit plus indéfiniment
+      continue;
+    }
     const item=pending.splice(idx,1)[0];
     const author=item.authorUid||item.auteur;
     streak=(author===lastAuthor)?streak+1:1;
@@ -6980,8 +7219,10 @@ function buildVCard(v,i){
     <!-- Bouton ⋮ Plus -->
     <div class="vmore-btn" onclick="event.stopPropagation();kikoOpenMoreSheet('${v.id}','${esc(v.auteur||'')}','${v.authorUid||''}',${isOwn})">⋮</div>
 
-    <!-- Compteurs discrets -->
-    <div class="vkiko-stats">
+    <!-- Compteurs discrets — masqués visuellement (déjà affichés via les boutons flottants
+         et le badge de vues en haut), gardés dans le DOM car loadRealtimeStats /
+         loadCommentCounts ciblent ces ids pour les mises à jour temps réel. -->
+    <div class="vkiko-stats" style="display:none;">
       <div class="vkiko-stat">❤️ <span id="lc-${v.id}">${fmt(v.likes||0)}</span></div>
       <div class="vkiko-stat">💬 <span id="cc-${v.id}">0</span></div>
       <div class="vkiko-stat">👁 <span id="vv2-${v.id}">${fmt(v.views||0)}</span></div>
@@ -6998,6 +7239,10 @@ function buildVCard(v,i){
         <div class="kiko-vid-btn-lbl" id="reco-lbl-${v.id}">${fmt(v.reconnaissance||0)}</div>
       </div>
       <div class="kiko-vid-btn-sep"></div>
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>downloadVid('${jsStr(v.videoUrl)}','${v.id}','${jsStr(v.auteur||'')}'))" title="Télécharger">
+        <div class="kiko-vid-btn-ico">⬇️</div>
+        <div class="kiko-vid-btn-lbl">Save</div>
+      </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();openShareSheet('${v.id}')" title="Partager">
         <div class="kiko-vid-btn-ico">↗️</div>
         <div class="kiko-vid-btn-lbl">Partager</div>
@@ -7057,6 +7302,66 @@ function initInfiniteScroll(){
     if(feed.scrollTop+feed.clientHeight>=feed.scrollHeight-400){
       loadMoreVideos();
     }
+  },{passive:true});
+}
+
+// ═══════════════════════════════════════
+//  PULL-TO-REFRESH — feed vidéo (🔥 Buzz)
+//  Tirer vers le bas quand on est tout en haut du feed relance
+//  un chargement frais depuis Firebase (via refreshFeedSilent), avec un
+//  indicateur visuel. Ne dépend d'aucun élément externe (contrairement à
+//  l'ancien #ptrWrap du fil photos qui n'existe pas dans le DOM).
+// ═══════════════════════════════════════
+function initFeedPullToRefresh(){
+  const feed=document.getElementById('feed');
+  const ptr=document.getElementById('feedPtr');
+  if(!feed||!ptr||feed._ptrInit)return;
+  feed._ptrInit=true;
+  const label=ptr.querySelector('span');
+  const THRESHOLD=70;
+  let startY=0,pulling=false,refreshing=false;
+
+  feed.addEventListener('touchstart',e=>{
+    if(refreshing){startY=0;return;}
+    startY=(feed.scrollTop<=0)?e.touches[0].clientY:0;
+  },{passive:true});
+
+  feed.addEventListener('touchmove',e=>{
+    if(!startY||refreshing)return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy>10&&feed.scrollTop<=0){
+      pulling=true;
+      ptr.classList.add('show');
+      const pull=Math.min(dy,130);
+      ptr.style.transform=`translateY(${Math.min(pull*0.45,42)}px)`;
+      label.textContent=dy>THRESHOLD?'Relâche pour actualiser':'Tire pour actualiser';
+    }
+  },{passive:true});
+
+  feed.addEventListener('touchend',e=>{
+    if(pulling){
+      const dy=(e.changedTouches[0].clientY-startY);
+      pulling=false;
+      if(dy>THRESHOLD&&!refreshing){
+        refreshing=true;
+        ptr.classList.add('loading');
+        label.textContent='Actualisation...';
+        Promise.resolve(refreshFeedSilent()).finally(()=>{
+          const bs=document.getElementById('buzzScreen');
+          if(bs)bs.scrollTop=0;
+          setTimeout(()=>{
+            ptr.classList.remove('show','loading');
+            ptr.style.transform='';
+            refreshing=false;
+            showToast('🔄 Fil mis à jour');
+          },350);
+        });
+      }else{
+        ptr.classList.remove('show');
+        ptr.style.transform='';
+      }
+    }
+    startY=0;
   },{passive:true});
 }
 
@@ -8011,8 +8316,29 @@ function closeAddProduct(){
 function onProductPhotoSelected(inp){
   const f=inp.files[0];if(!f)return;prodPhotoFile=f;
   const reader=new FileReader();
-  reader.onload=e=>{const pick=document.getElementById('photoPick');pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img src="${e.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`;};
+  reader.onload=e=>{
+    const pick=document.getElementById('photoPick');
+    pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img id="prodPhotoPreviewImg" src="${e.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><button type="button" onclick="event.stopPropagation();enhanceProductPhoto()" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius:14px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">✨ IA</button>`;
+  };
   reader.readAsDataURL(f);
+}
+async function enhanceProductPhoto(){
+  if(!prodPhotoFile){showToast('⚠️ Choisis une photo d\'abord');return;}
+  showToast('⏳ Préparation...');
+  try{
+    const tempUrl=await ikUpload(prodPhotoFile,'products',null);
+    openPhotoEnhancer(tempUrl, async(finalUrl)=>{
+      if(finalUrl===tempUrl)return; // rien changé, garde le fichier original
+      showToast('⏳ Application...');
+      try{
+        const enhFile=await peUrlToFile(finalUrl,'produit_ia.jpg');
+        prodPhotoFile=enhFile;
+        const img=document.getElementById('prodPhotoPreviewImg');
+        if(img)img.src=URL.createObjectURL(enhFile);
+        showToast('✅ Photo améliorée !');
+      }catch(e){showToast('❌ Erreur: '+e.message);}
+    });
+  }catch(e){showToast('❌ '+e.message);}
 }
 async function submitProduct(){
   const name=document.getElementById('prodName').value.trim();const price=document.getElementById('prodPrice').value.trim();
@@ -8400,9 +8726,17 @@ async function uploadAvatar(input){
   const f=input.files[0];if(!f)return;showToast('⏳ Upload photo...');
   try{
     const url=await ikUpload(f,'avatars',null);
-    currentUser.avatar=url;localStorage.setItem('aes_user',JSON.stringify(currentUser));
-    await db.ref('users/'+currentUser.uid+'/avatar').set(url);
-    applyUserUI();showToast('✅ Photo mise à jour !');
+    openPhotoEnhancer(url, async(finalUrl)=>{
+      let avatarUrl=url;
+      if(finalUrl!==url){
+        showToast('⏳ Sauvegarde...');
+        try{ const enhFile=await peUrlToFile(finalUrl,'avatar_ia.jpg'); avatarUrl=await ikUpload(enhFile,'avatars',null); }
+        catch(e){ avatarUrl=finalUrl; }
+      }
+      currentUser.avatar=avatarUrl;localStorage.setItem('aes_user',JSON.stringify(currentUser));
+      await db.ref('users/'+currentUser.uid+'/avatar').set(avatarUrl);
+      applyUserUI();showToast('✅ Photo mise à jour !');
+    });
   }catch(e){showToast('❌ '+e.message);}
 }
 
@@ -9547,11 +9881,11 @@ function startNewsAutoRefresh(){
 //  LANGUES
 // ═══════════════════════════════════════
 const LANGS={
-  fr:{nav_home:'Accueil',nav_search:'Explorer',nav_chat:'Chat',nav_market:'Marché',nav_infos:'Infos',nav_profile:'Profil',feed_following:'Abonnements',feed_foryou:'Pour toi',profile_edit:'✏️ Modifier',profile_videos:'Vidéos',profile_followers:'Abonnés',profile_following:'Abonnements',profile_logout:'🚪 Déconnexion',market_title:'🛍️ Marketplace',market_sell:'+ Vendre',dm_title:'💬 Messages',notif_title:'🔔 Notifications'},
-  bm:{nav_home:'So',nav_search:'Ɲini',nav_chat:'Bataw',nav_market:'Jamarkaba',nav_infos:'Kibaru',nav_profile:'N yɛrɛ',feed_following:'N ka mɔgɔw',feed_foryou:'I kama',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Jamarkaba',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kibaro'},
-  mos:{nav_home:'Yiri',nav_search:'Baosg',nav_chat:'Sẽkr',nav_market:'Roogã',nav_infos:'Koe',nav_profile:'Maam',feed_following:'M raoamb',feed_foryou:'Fo yell',profile_edit:'✏️ Toeeg',profile_videos:'Videosi',profile_followers:'Neba',profile_following:'Tũusda',profile_logout:'🚪 Yit',market_title:'🛍️ Roogã',market_sell:'+ Koos',dm_title:'💬 Sẽkr',notif_title:'🔔 Koe'},
-  dyu:{nav_home:'So',nav_search:'Ɲinini',nav_chat:'Bataw',nav_market:'Ɲɛgɛnkɛ',nav_infos:'Kuma',nav_profile:'N kɔrɔ',feed_following:'N tɔw',feed_foryou:'I bolo',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Ɲɛgɛnkɛ',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kuma'},
-  ha:{nav_home:'Gida',nav_search:'Nema',nav_chat:'Saƙonni',nav_market:'Kasuwa',nav_infos:'Labarai',nav_profile:'Ni',feed_following:'Abokaina',feed_foryou:'Saboda kai',profile_edit:'✏️ Gyara',profile_videos:'Bidiyo',profile_followers:'Mabiya',profile_following:'Nake bi',profile_logout:'🚪 Fita',market_title:'🛍️ Kasuwa',market_sell:'+ Siyar',dm_title:'💬 Saƙonni',notif_title:'🔔 Sanarwa'}
+  fr:{nav_home:'Accueil',nav_search:'Explorer',nav_chat:'Chat',nav_market:'Marché',nav_infos:'Infos',nav_profile:'Profil',nav_job:'Job',feed_following:'Abonnements',feed_foryou:'Pour toi',profile_edit:'✏️ Modifier',profile_videos:'Vidéos',profile_followers:'Abonnés',profile_following:'Abonnements',profile_logout:'🚪 Déconnexion',market_title:'🛍️ Marketplace',market_sell:'+ Vendre',dm_title:'💬 Messages',notif_title:'🔔 Notifications'},
+  bm:{nav_home:'So',nav_search:'Ɲini',nav_chat:'Bataw',nav_market:'Jamarkaba',nav_infos:'Kibaru',nav_profile:'N yɛrɛ',nav_job:'Baara',feed_following:'N ka mɔgɔw',feed_foryou:'I kama',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Jamarkaba',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kibaro'},
+  mos:{nav_home:'Yiri',nav_search:'Baosg',nav_chat:'Sẽkr',nav_market:'Roogã',nav_infos:'Koe',nav_profile:'Maam',nav_job:'Tʋʋmd',feed_following:'M raoamb',feed_foryou:'Fo yell',profile_edit:'✏️ Toeeg',profile_videos:'Videosi',profile_followers:'Neba',profile_following:'Tũusda',profile_logout:'🚪 Yit',market_title:'🛍️ Roogã',market_sell:'+ Koos',dm_title:'💬 Sẽkr',notif_title:'🔔 Koe'},
+  dyu:{nav_home:'So',nav_search:'Ɲinini',nav_chat:'Bataw',nav_market:'Ɲɛgɛnkɛ',nav_infos:'Kuma',nav_profile:'N kɔrɔ',nav_job:'Baara',feed_following:'N tɔw',feed_foryou:'I bolo',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Ɲɛgɛnkɛ',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kuma'},
+  ha:{nav_home:'Gida',nav_search:'Nema',nav_chat:'Saƙonni',nav_market:'Kasuwa',nav_infos:'Labarai',nav_profile:'Ni',nav_job:'Aiki',feed_following:'Abokaina',feed_foryou:'Saboda kai',profile_edit:'✏️ Gyara',profile_videos:'Bidiyo',profile_followers:'Mabiya',profile_following:'Nake bi',profile_logout:'🚪 Fita',market_title:'🛍️ Kasuwa',market_sell:'+ Siyar',dm_title:'💬 Saƙonni',notif_title:'🔔 Sanarwa'}
 };
 function t(k){return(LANGS[currentLang]||LANGS.fr)[k]||LANGS.fr[k]||k;}
 function setLang(lang){
@@ -9561,7 +9895,7 @@ function setLang(lang){
   showToast({fr:'🇫🇷 Français',bm:'🌍 Bambara',mos:'🌍 Mooré',dyu:'🌍 Dioula',ha:'🌍 Haoussa'}[lang]||lang);
 }
 function applyLang(){
-  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-infos':'nav_infos','nb-profile':'nav_profile'};
+  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-infos':'nav_infos','nb-job':'nav_job'};
   Object.entries(map).forEach(([id,k])=>{
     const btn=document.getElementById(id);
     const span=btn?btn.querySelector('span'):null;
@@ -9647,6 +9981,7 @@ setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
 setTimeout(()=>loadHomeMarket(), 800);                // marketplace
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
 if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); }, 1000); }
+if(currentUser && !currentUser.country){ setTimeout(()=>kikoBackfillUserCountry(), 1800); }
 setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
 
 // ═══════════════════════════════════════
@@ -10562,6 +10897,26 @@ function initSFPullToRefresh(){
 }
 #buzzScreen #feed::-webkit-scrollbar{ display:none; }
 
+/* ── Pull-to-refresh du feed vidéo (Buzz) ── */
+.feed-ptr{
+  position:absolute; left:0; right:0;
+  top:calc(54px + env(safe-area-inset-top));
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  z-index:50; pointer-events:none;
+  color:#fff; font-family:'Syne',sans-serif; font-size:11.5px; font-weight:700;
+  opacity:0; transform:translateY(-14px) scale(0.9);
+  transition:opacity .2s ease, transform .2s ease;
+  text-shadow:0 1px 4px rgba(0,0,0,0.5);
+}
+.feed-ptr.show{ opacity:1; }
+.feed-ptr-spin{
+  width:15px; height:15px; border-radius:50%;
+  border:2px solid rgba(255,255,255,0.3); border-top-color:#fff;
+  flex-shrink:0;
+}
+.feed-ptr.loading .feed-ptr-spin{ animation:feedPtrSpin .7s linear infinite; }
+@keyframes feedPtrSpin{ to{ transform:rotate(360deg); } }
+
 /* Vidéos Buzz — plein écran, une à la fois, défilement vertical */
 #buzzScreen .vcard{
   width:100%; height:100%;
@@ -10578,7 +10933,8 @@ function initSFPullToRefresh(){
   position:absolute; inset:0;
 }
 #buzzScreen .vcard::before{ height:45%; }
-#buzzScreen .vcard .vinfo{ bottom:96px; right:60px; }
+#buzzScreen .vcard .vinfo{ bottom:164px; right:14px; }
+#buzzScreen .vcard .kiko-vid-actions{ bottom:96px; }
 #buzzScreen .vcard .vactions{ bottom:96px; }
 #buzzScreen .vcard .vprogress{ bottom:84px; }
 #buzzScreen .vcard .vtime-row{ bottom:88px; }
@@ -10636,6 +10992,240 @@ if('serviceWorker' in navigator){
 }
 </script>
 
+<!-- ═══ JOB — logique JS (feed, likes, publication, boost) ═══ -->
+<script>
+let jbAllPosts=[];
+let jbCurrentFilter='all';
+let jbPostType='offre';
+let jbSelectedPay=null;
+let jbBoostTargetId=null;
+let jbFeedStarted=false;
+
+function jbOpenModal(id){ document.getElementById(id).classList.add('active'); }
+function jbCloseModal(id){ document.getElementById(id).classList.remove('active'); }
+
+function jbStartFeed(){
+  if(jbFeedStarted) return;
+  jbFeedStarted=true;
+  db.ref('jobPosts').orderByChild('createdAt').limitToLast(200).on('value', snap=>{
+    const data=snap.val()||{};
+    const uid=currentUser?.uid;
+    jbAllPosts=Object.keys(data).map(key=>{
+      const p=data[key];
+      const likesCount=p.likedBy?Object.keys(p.likedBy).length:0;
+      return {
+        id:key, type:p.type, premium:!!p.premium,
+        user:p.user||{name:'Anonyme',avatar:'👤',city:p.city||''},
+        title:p.title, desc:p.desc, skills:p.skills||[], price:p.price,
+        city:p.city, wa:p.wa, likes:likesCount,
+        liked:!!(uid && p.likedBy && p.likedBy[uid]),
+        authorUid:p.authorUid, createdAt:p.createdAt||0
+      };
+    }).sort((a,b)=>(b.premium?1:0)-(a.premium?1:0) || b.createdAt-a.createdAt);
+    jbRenderFeed();
+  });
+}
+
+function jbRenderFeed(){
+  const uid=currentUser?.uid;
+  let list=jbAllPosts;
+  if(jbCurrentFilter==='job') list=list.filter(p=>p.type==='job');
+  else if(jbCurrentFilter==='service') list=list.filter(p=>p.type==='service');
+  else if(jbCurrentFilter==='premium') list=list.filter(p=>p.premium);
+  else if(jbCurrentFilter==='mine') list=uid?list.filter(p=>p.authorUid===uid):[];
+  const feed=document.getElementById('jbFeed');
+  if(!feed) return;
+  if(!list.length){
+    feed.innerHTML='<div class="jb-empty">🔍 Aucune annonce pour le moment.<br>Sois le premier à publier !</div>';
+    return;
+  }
+  feed.innerHTML=list.map(jbRenderPost).join('');
+}
+
+function jbRenderPost(p){
+  const uid=currentUser?.uid;
+  const isMine=uid && p.authorUid===uid;
+  return `
+  <div class="jb-card${p.premium?' premium':''}" id="jb-${p.id}">
+    <div class="jb-card-head">
+      <div class="jb-avatar">${p.user.avatar||'👤'}</div>
+      <div style="flex:1;">
+        <div class="jb-uname">${p.user.name}${p.premium?'<span class="jb-badge-premium">PREMIUM</span>':''}</div>
+        <div class="jb-city">📍 ${p.city||'—'}</div>
+      </div>
+      <span class="jb-type-tag ${p.type==='job'?'jb-tag-job':'jb-tag-service'}">${p.type==='job'?'💼 Job':'🔧 Service'}</span>
+    </div>
+    <div class="jb-post-title">${p.title}</div>
+    <div class="jb-post-desc">${p.desc}</div>
+    <div class="jb-skills">${(p.skills||[]).map(s=>`<span class="jb-skill">${s}</span>`).join('')}</div>
+    <div class="jb-foot">
+      <div class="jb-price">${p.price||'À négocier'}</div>
+      <div class="jb-actions">
+        ${isMine&&!p.premium?`<button class="jb-btn-boost" onclick="jbOpenBoost('${p.id}')">⭐ Booster</button>`:''}
+        <button class="jb-btn-like${p.liked?' liked':''}" onclick="jbToggleLike('${p.id}')">${p.liked?'❤️':'🤍'} ${p.likes}</button>
+        ${p.wa?`<button class="jb-btn-wa" onclick="jbContactWa('${p.wa}')">📱 WhatsApp</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function jbFilter(type,el){
+  document.querySelectorAll('.jb-chips .jb-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  jbCurrentFilter=type;
+  jbRenderFeed();
+}
+
+function jbSearch(q){
+  q=q.toLowerCase().trim();
+  if(!q){ jbRenderFeed(); return; }
+  const feed=document.getElementById('jbFeed');
+  const filtered=jbAllPosts.filter(p=>
+    p.title.toLowerCase().includes(q) || (p.city||'').toLowerCase().includes(q) ||
+    (p.skills||[]).some(s=>s.toLowerCase().includes(q))
+  );
+  feed.innerHTML=filtered.length?filtered.map(jbRenderPost).join(''):'<div class="jb-empty">🔍 Aucun résultat</div>';
+}
+
+function jbToggleLike(id){
+  if(!currentUser){ showToast('⚠️ Connecte-toi pour liker'); return; }
+  const post=jbAllPosts.find(p=>p.id===id);
+  if(!post) return;
+  const ref=db.ref('jobPosts/'+id+'/likedBy/'+currentUser.uid);
+  if(post.liked){ ref.remove(); showToast('🤍 Retiré des favoris'); }
+  else{ ref.set(true); showToast('❤️ Ajouté aux favoris !'); }
+}
+
+function jbContactWa(number){
+  const clean=(number||'').replace(/\s/g,'');
+  if(!clean) return;
+  const msg=encodeURIComponent('Bonjour, je vous contacte via KIKO Job. 👋');
+  window.open(`https://wa.me/${clean}?text=${msg}`,'_blank');
+}
+
+function jbOpenPostModal(){
+  if(!currentUser){ showToast('⚠️ Connecte-toi pour publier une annonce'); openAuth('Connecte-toi pour publier sur Job'); return; }
+  jbOpenModal('jbPostModal');
+}
+
+function jbSwitchType(type){
+  jbPostType=type;
+  document.getElementById('jbTypeOffre').classList.toggle('active', type==='offre');
+  document.getElementById('jbTypeService').classList.toggle('active', type==='service');
+}
+
+async function jbSubmitPost(){
+  if(!currentUser){ showToast('⚠️ Connecte-toi pour publier'); return; }
+  const title=document.getElementById('jbTitle').value.trim();
+  const desc=document.getElementById('jbDesc').value.trim();
+  const city=document.getElementById('jbCity').value.trim();
+  const price=document.getElementById('jbPrice').value.trim();
+  const skills=document.getElementById('jbSkills').value;
+  const wa=document.getElementById('jbWa').value.trim();
+  if(!title||!desc){ showToast('⚠️ Titre et description requis'); return; }
+  const newPost={
+    type: jbPostType==='offre'?'job':'service',
+    premium:false, authorUid:currentUser.uid,
+    user:{name:currentUser.name||'Utilisateur', avatar:'👤', city},
+    title, desc, city, price:price||'À négocier',
+    skills:skills.split(',').map(s=>s.trim()).filter(Boolean),
+    wa: wa||currentUser.phone||'',
+    likedBy:{}, createdAt:Date.now()
+  };
+  try{
+    await db.ref('jobPosts').push(newPost);
+    jbCloseModal('jbPostModal');
+    showToast('🎉 Annonce publiée avec succès !');
+    ['jbTitle','jbDesc','jbCity','jbPrice','jbSkills','jbWa'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){ showToast('❌ Erreur : '+e.message); }
+}
+
+function jbOpenBoost(postId){
+  jbBoostTargetId=postId;
+  jbOpenModal('jbBoostModal');
+}
+
+// ⚠️ Clés de TEST PayDunya — à déplacer derrière un backend (Firebase Cloud Function)
+// avant de passer en mode "live", sinon n'importe qui peut les lire via "Voir le code source".
+const PAYDUNYA_CONFIG = {
+  masterKey: 'mghdhnoj-kWGi-aG4J-7Y2B-LXtWIPCDQ738',
+  privateKey: 'test_private_AmngoODCdyXVgVwk7qANr2EAQSx',
+  token: 'lv6GimXMp5hlo89BH75X',
+  mode: 'test' // 'test' ou 'live'
+};
+function jbPaydunyaBaseUrl(){
+  return PAYDUNYA_CONFIG.mode==='live'
+    ? 'https://app.paydunya.com/api/v1'
+    : 'https://app.paydunya.com/sandbox-api/v1';
+}
+
+async function jbProcessPayment(){
+  if(!currentUser||!jbBoostTargetId){ showToast('⚠️ Sélectionne une annonce à booster'); return; }
+  const post=jbAllPosts.find(p=>p.id===jbBoostTargetId);
+  const btn=document.getElementById('jbPayBtn');
+  btn.disabled=true; btn.innerText='⏳ Création du paiement...';
+  try{
+    const res=await fetch(jbPaydunyaBaseUrl()+'/checkout-invoice/create',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'PAYDUNYA-MASTER-KEY':PAYDUNYA_CONFIG.masterKey,
+        'PAYDUNYA-PRIVATE-KEY':PAYDUNYA_CONFIG.privateKey,
+        'PAYDUNYA-TOKEN':PAYDUNYA_CONFIG.token
+      },
+      body:JSON.stringify({
+        invoice:{ total_amount:2500, description:'Boost annonce KIKO Job : '+(post?.title||'') },
+        store:{ name:'KIKO Job', return_url: location.origin+location.pathname }
+      })
+    });
+    const data=await res.json();
+    if(data.response_code==='00' && data.token){
+      await db.ref('jobBoostRequests/'+data.token).set({
+        postId:jbBoostTargetId, uid:currentUser.uid, status:'pending', createdAt:Date.now()
+      });
+      showToast('🔄 Redirection vers la page de paiement...');
+      window.location.href=data.response_text; // URL de checkout PayDunya
+    } else {
+      showToast('❌ '+(data.response_text||data.description||'Erreur PayDunya'));
+      btn.disabled=false; btn.innerText='💳 Payer 2500 FCFA maintenant';
+    }
+  }catch(e){
+    showToast('❌ Connexion à PayDunya impossible (CORS ou réseau) : '+e.message);
+    btn.disabled=false; btn.innerText='💳 Payer 2500 FCFA maintenant';
+  }
+}
+
+// Au retour de PayDunya, ?token=... est ajouté automatiquement à l'URL → on confirme le paiement
+async function jbCheckReturnFromPaydunya(){
+  const params=new URLSearchParams(location.search);
+  const token=params.get('token');
+  if(!token) return;
+  try{
+    const res=await fetch(jbPaydunyaBaseUrl()+'/checkout-invoice/confirm/'+token,{
+      headers:{
+        'PAYDUNYA-MASTER-KEY':PAYDUNYA_CONFIG.masterKey,
+        'PAYDUNYA-PRIVATE-KEY':PAYDUNYA_CONFIG.privateKey,
+        'PAYDUNYA-TOKEN':PAYDUNYA_CONFIG.token
+      }
+    });
+    const data=await res.json();
+    const reqSnap=await db.ref('jobBoostRequests/'+token).once('value');
+    const reqData=reqSnap.val();
+    if(data.status==='completed' && reqData){
+      await db.ref('jobPosts/'+reqData.postId).update({premium:true});
+      await db.ref('jobBoostRequests/'+token).update({status:'completed'});
+      showToast('🎉 Paiement confirmé ! Ton annonce est maintenant Premium.');
+    } else if(reqData){
+      showToast('⚠️ Paiement non confirmé ('+(data.status||'inconnu')+')');
+    }
+  }catch(e){ console.error(e); }
+  finally{
+    history.replaceState({},'',location.pathname); // nettoyer ?token= de l'URL
+  }
+}
+if(currentUser) jbCheckReturnFromPaydunya();
+</script>
+
 <!-- ═══ ADSTERRA SOCIAL BAR ═══
      Remplace ce bloc par le VRAI script que te donne Adsterra :
      Adsterra dashboard → Websites → ton domaine → +Ad Unit → Social Bar → copier le code.
@@ -10644,6 +11234,423 @@ if('serviceWorker' in navigator){
 <script type="text/javascript">
   // PLACEHOLDER — remplace "src" par le lien réel fourni par Adsterra une fois ton site approuvé
   // var s=document.createElement('script'); s.src='//COLLE-ICI-TON-LIEN-SOCIAL-BAR.js'; s.async=true; document.body.appendChild(s);
+</script>
+
+<!-- ═══════════════════════════════════════════════════
+     🧰 IA MÉTIERS — bouton flottant déplaçable + chat IA
+     Pollinations (gratuit, sans clé API) — texte + image
+     ═══════════════════════════════════════════════════ -->
+<style>
+#jobAiBtn{
+  position:fixed; width:58px; height:58px; border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  box-shadow:0 6px 20px rgba(255,122,48,0.45), 0 0 0 4px rgba(255,122,48,0.12);
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; z-index:99998; cursor:grab; user-select:none;
+  touch-action:none; transition:transform .15s ease;
+  right:18px; bottom:110px;
+}
+#jobAiBtn:active{ transform:scale(0.92); cursor:grabbing; }
+#jobAiBtn.dragging{ box-shadow:0 10px 30px rgba(255,122,48,0.6), 0 0 0 4px rgba(255,122,48,0.2); }
+
+#jobAiOverlay{
+  position:fixed; inset:0; background:rgba(10,10,12,0.72);
+  backdrop-filter:blur(4px); z-index:99999; display:none;
+  align-items:flex-end; justify-content:center;
+}
+#jobAiOverlay.active{ display:flex; }
+#jobAiPanel{
+  width:100%; max-width:480px; height:82vh; background:var(--navy2);
+  border-radius:22px 22px 0 0; display:flex; flex-direction:column;
+  border:1px solid var(--border); box-shadow:0 -10px 40px rgba(0,0,0,0.5);
+  overflow:hidden; animation:jobAiSlideUp .25s ease;
+}
+@keyframes jobAiSlideUp{ from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+#jobAiHead{
+  display:flex; align-items:center; gap:10px; padding:16px 16px 14px;
+  border-bottom:1px solid var(--border); background:var(--navy3);
+}
+#jobAiHead .jaTitle{ font-family:'Syne',sans-serif; font-weight:700; font-size:16px; color:var(--gold); flex:1; }
+#jobAiHead .jaSub{ font-size:11px; color:var(--muted); display:block; font-weight:400; }
+#jobAiClose{
+  width:32px; height:32px; border-radius:50%; background:var(--surface2);
+  display:flex; align-items:center; justify-content:center; color:var(--text2);
+  font-size:16px; cursor:pointer; border:none;
+}
+#jobAiMsgs{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.jaMsg{ max-width:85%; padding:11px 14px; border-radius:16px; font-size:14px; line-height:1.5; white-space:pre-wrap; }
+.jaMsg.user{ align-self:flex-end; background:var(--gold); color:#1a0a00; border-radius:16px 16px 4px 16px; }
+.jaMsg.bot{ align-self:flex-start; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:16px 16px 16px 4px; }
+.jaMsg img{ width:100%; border-radius:10px; margin-top:8px; display:block; background:var(--surface3); }
+.jaMsg.loading{ color:var(--muted); font-style:italic; }
+#jobAiSuggestions{ display:flex; gap:8px; padding:0 16px 10px; overflow-x:auto; flex-wrap:nowrap; }
+.jaChip{ flex-shrink:0; background:var(--surface2); border:1px solid var(--border); color:var(--text2);
+  font-size:12px; padding:7px 12px; border-radius:20px; cursor:pointer; white-space:nowrap; }
+#jobAiInputRow{ display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--border); background:var(--navy3); }
+#jobAiInput{ flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:20px;
+  padding:11px 16px; color:var(--text); font-size:14px; outline:none; }
+#jobAiSend{ width:42px; height:42px; border-radius:50%; background:var(--gold); border:none;
+  display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; flex-shrink:0; color:#1a0a00; }
+#jobAiSend:disabled{ opacity:0.5; }
+</style>
+
+<div id="jobAiBtn" title="Apprendre un métier">🧰</div>
+
+<div id="jobAiOverlay">
+  <div id="jobAiPanel">
+    <div id="jobAiHead">
+      <div>
+        <span class="jaTitle">🧰 Apprends un métier</span>
+        <span class="jaSub">Mécanique, plomberie, électricité, maçonnerie...</span>
+      </div>
+      <button id="jobAiClose">✕</button>
+    </div>
+    <div id="jobAiSuggestions">
+      <div class="jaChip" data-q="Comment vérifier le niveau d'huile d'une voiture ?">🔧 Niveau d'huile</div>
+      <div class="jaChip" data-q="Comment réparer une fuite d'eau simple ?">🚰 Fuite d'eau</div>
+      <div class="jaChip" data-q="Comment brancher une prise électrique en sécurité ?">💡 Prise électrique</div>
+      <div class="jaChip" data-q="Comment faire un mortier de ciment correctement ?">🧱 Mortier ciment</div>
+    </div>
+    <div id="jobAiMsgs"></div>
+    <div id="jobAiInputRow">
+      <input id="jobAiInput" type="text" placeholder="Pose ta question sur un métier..." />
+      <button id="jobAiSend">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const btn = document.getElementById('jobAiBtn');
+  const overlay = document.getElementById('jobAiOverlay');
+  const closeBtn = document.getElementById('jobAiClose');
+  const msgsEl = document.getElementById('jobAiMsgs');
+  const input = document.getElementById('jobAiInput');
+  const sendBtn = document.getElementById('jobAiSend');
+  const chips = document.querySelectorAll('.jaChip');
+
+  // ── Position sauvegardée ──
+  const POS_KEY = 'kiko_jobai_btn_pos';
+  function loadPos(){
+    try{
+      const p = JSON.parse(localStorage.getItem(POS_KEY));
+      if(p && typeof p.x==='number' && typeof p.y==='number'){
+        btn.style.left = p.x+'px'; btn.style.top = p.y+'px';
+        btn.style.right='auto'; btn.style.bottom='auto';
+      }
+    }catch(e){}
+  }
+  function savePos(x,y){ localStorage.setItem(POS_KEY, JSON.stringify({x,y})); }
+  loadPos();
+
+  // ── Drag ──
+  let dragging=false, moved=false, startX=0, startY=0, origX=0, origY=0;
+  function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+
+  btn.addEventListener('pointerdown', e=>{
+    dragging=true; moved=false;
+    btn.classList.add('dragging');
+    btn.setPointerCapture(e.pointerId);
+    const r = btn.getBoundingClientRect();
+    origX=r.left; origY=r.top;
+    startX=e.clientX; startY=e.clientY;
+  });
+  btn.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const dx=e.clientX-startX, dy=e.clientY-startY;
+    if(Math.abs(dx)>4||Math.abs(dy)>4) moved=true;
+    if(!moved) return;
+    let nx=clamp(origX+dx, 4, window.innerWidth-62);
+    let ny=clamp(origY+dy, 4, window.innerHeight-62);
+    btn.style.left=nx+'px'; btn.style.top=ny+'px';
+    btn.style.right='auto'; btn.style.bottom='auto';
+  });
+  btn.addEventListener('pointerup', e=>{
+    dragging=false;
+    btn.classList.remove('dragging');
+    if(moved){
+      const r = btn.getBoundingClientRect();
+      savePos(r.left, r.top);
+    } else {
+      openChat();
+    }
+  });
+
+  function openChat(){
+    overlay.classList.add('active');
+    if(msgsEl.children.length===0){
+      addMsg('bot', "Salut 👋 Je suis ton assistant métiers, spécialisé dans les métiers manuels et artisanaux africains : mécanique, plomberie, électricité, maçonnerie, menuiserie, soudure, couture, coiffure, agriculture, et bien d'autres. Pose-moi ta question, je t'explique étape par étape avec une image.\n\n⚠️ Conseils généraux — pour l'électricité, le gaz ou les travaux de structure, fais toujours vérifier par un professionnel expérimenté avant d'agir.");
+    }
+  }
+  function closeChat(){ overlay.classList.remove('active'); }
+  closeBtn.addEventListener('click', closeChat);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) closeChat(); });
+
+  chips.forEach(c=>c.addEventListener('click', ()=>{
+    input.value = c.dataset.q;
+    sendMsg();
+  }));
+
+  function addMsg(role, text){
+    const div = document.createElement('div');
+    div.className = 'jaMsg '+role;
+    div.textContent = text;
+    msgsEl.appendChild(div);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+    return div;
+  }
+
+  async function sendMsg(){
+    const q = input.value.trim();
+    if(!q) return;
+    input.value='';
+    sendBtn.disabled = true;
+    addMsg('user', q);
+    const loadingDiv = addMsg('bot','⏳ Je réfléchis...');
+    loadingDiv.classList.add('loading');
+
+    const systemPrompt = "Tu es un formateur expert en métiers manuels et artisanaux d'Afrique de l'Ouest (zone AES : Burkina Faso, Mali, Niger, et région Sahel élargie). "
+      + "Tu connais en profondeur ces métiers et leurs réalités de terrain : mécanique auto et moto (dont motos chinoises courantes en Afrique), plomberie, électricité bâtiment et solaire (kits solaires domestiques), maçonnerie, menuiserie bois et métallique, soudure, ferronnerie, forge/forgeron traditionnel, couture et stylisme, coiffure et tresse, cordonnerie et travail du cuir, teinture (bogolan, wax), poterie, vannerie, tissage, agriculture et élevage (bovins, volaille, maraîchage), transformation agroalimentaire (beurre de karité, farine, jus locaux), réparation de téléphones et petit électronique, installation antennes/panneaux solaires, peinture bâtiment, carrelage, plomberie sanitaire, mécanique de forage/pompes à eau villageoises, apiculture, boulangerie/pâtisserie artisanale, restauration de rue (maquis), coiffure/barbier, blanchisserie, transport moto-taxi et entretien associé, artisanat du bijou (bronze, argent), tannerie. "
+      + "Réponds toujours en français simple, avec des étapes numérotées courtes et concrètes, en tenant compte que l'apprenant a souvent peu d'outils et doit se débrouiller avec des matériaux locaux et accessibles au marché. Donne aussi, quand c'est utile, les noms d'outils ou pièces tels qu'on les trouve couramment sur les marchés locaux ouest-africains. Si la question touche à un risque réel (électricité haute tension, gaz, structure porteuse d'un bâtiment), donne les précautions de sécurité clairement et recommande de faire vérifier par un professionnel expérimenté avant de continuer. Question : ";
+
+    try{
+      const url = 'https://gen.pollinations.ai/text/' + encodeURIComponent(systemPrompt + q) + '?model=openai' + window.pollinationsAuthParam();
+      const res = await fetch(url);
+      const text = await res.text();
+      loadingDiv.classList.remove('loading');
+      loadingDiv.textContent = text.trim();
+
+      // Image explicative générée à partir de la question
+      const imgPrompt = 'clear educational diagram illustration, tutorial style, showing: ' + q + ', simple, labeled, instructional';
+      const imgUrl = 'https://gen.pollinations.ai/image/' + encodeURIComponent(imgPrompt) + '?width=640&height=400&nologo=true' + window.pollinationsAuthParam();
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.loading = 'lazy';
+      img.alt = '';
+      loadingDiv.appendChild(img);
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    }catch(err){
+      loadingDiv.classList.remove('loading');
+      loadingDiv.textContent = "⚠️ Connexion impossible. Vérifie ta connexion internet et réessaie.";
+    }finally{
+      sendBtn.disabled = false;
+    }
+  }
+
+  sendBtn.addEventListener('click', sendMsg);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMsg(); });
+})();
+</script><!-- ═══════════════════════════════════════════════════
+     ✨ AMÉLIORER PHOTO IA — Pollinations kontext (sans clé API)
+     Réutilisable pour avatar, photos produits, etc.
+     ═══════════════════════════════════════════════════ -->
+<style>
+#photoEnhOverlay{
+  position:fixed; inset:0; background:rgba(10,10,12,0.78);
+  backdrop-filter:blur(4px); z-index:100000; display:none;
+  align-items:center; justify-content:center; padding:16px;
+}
+#photoEnhOverlay.active{ display:flex; }
+#photoEnhPanel{
+  width:100%; max-width:420px; max-height:90vh; overflow-y:auto;
+  background:var(--navy2); border-radius:20px; border:1px solid var(--border);
+  padding:18px; box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
+#photoEnhPanel h3{ font-family:'Syne',sans-serif; font-size:16px; color:var(--gold); margin:0 0 12px; }
+#photoEnhImgWrap{ width:100%; aspect-ratio:1; border-radius:14px; overflow:hidden; background:var(--surface2); margin-bottom:12px; position:relative; }
+#photoEnhImgWrap img{ width:100%; height:100%; object-fit:cover; display:block; }
+#photoEnhLoading{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(10,10,12,0.6); color:var(--gold); font-size:13px; flex-direction:column; gap:8px; }
+#photoEnhLoading.active{ display:flex; }
+.pe-spin{ width:26px; height:26px; border:3px solid rgba(255,122,48,0.25); border-top-color:var(--gold); border-radius:50%; animation:peSpin .8s linear infinite; }
+@keyframes peSpin{ to{ transform:rotate(360deg); } }
+#photoEnhChips{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
+.peChip{ background:var(--surface2); border:1px solid var(--border); color:var(--text2); font-size:12px; padding:7px 11px; border-radius:16px; cursor:pointer; }
+#photoEnhInputRow{ display:flex; gap:8px; margin-bottom:14px; }
+#photoEnhInput{ flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:10px 13px; color:var(--text); font-size:13px; outline:none; }
+#photoEnhApplyBtn{ background:var(--gold); border:none; border-radius:14px; padding:10px 16px; color:#1a0a00; font-weight:700; font-size:13px; cursor:pointer; flex-shrink:0; }
+.peActions{ display:flex; gap:10px; }
+.peBtnGhost{ flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text2); border-radius:14px; padding:12px; font-size:13px; cursor:pointer; }
+.peBtnGold{ flex:1; background:var(--gold); border:none; color:#1a0a00; font-weight:700; border-radius:14px; padding:12px; font-size:13px; cursor:pointer; }
+.peBtnGold:disabled{ opacity:0.5; }
+</style>
+
+<div id="photoEnhOverlay">
+  <div id="photoEnhPanel">
+    <h3>✨ Améliorer avec l'IA</h3>
+    <div id="photoEnhImgWrap">
+      <img id="photoEnhImg" src="" alt="">
+      <div id="photoEnhLoading"><div class="pe-spin"></div><span>Génération en cours...</span></div>
+    </div>
+    <div id="photoEnhChips">
+      <div class="peChip" data-p="remplace le fond par un fond blanc studio propre, éclairage professionnel doux, ombre légère et réaliste sous le sujet">Fond blanc studio</div>
+      <div class="peChip" data-p="corrige l'exposition et la balance des blancs, augmente légèrement le contraste et la netteté, rendu naturel et professionnel">Améliore la lumière</div>
+      <div class="peChip" data-p="applique un flou d'arrière-plan doux façon bokeh pour mettre le sujet en valeur, garde le sujet parfaitement net">Flou arrière-plan</div>
+      <div class="peChip" data-p="rends les couleurs plus riches et vibrantes sans les dénaturer, style photo de catalogue produit haut de gamme">Couleurs vives</div>
+      <div class="peChip" data-p="mets un fond de studio doré/navy élégant assorti à une identité de marque premium, éclairage cinématique">Fond premium doré</div>
+      <div class="peChip" data-p='ajoute le texte "PROMO -20%" en haut de l&#39;image, grande police lisible, bien centré, fond légèrement assombri derrière le texte pour la lisibilité'>✍️ Ajouter du texte</div>
+    </div>
+    <div id="photoEnhHint" style="font-size:11px;color:var(--text2);margin:-4px 0 12px;">Astuce : sois précis (ex. "fond blanc, lumière douce, garde mon visage identique") pour un rendu plus fidèle et plus beau.</div>
+    <div id="photoEnhInputRow">
+      <input id="photoEnhInput" type="text" placeholder="Ou décris ta propre modification..." />
+      <button id="photoEnhApplyBtn">Appliquer</button>
+    </div>
+    <div class="peActions">
+      <button class="peBtnGhost" id="photoEnhKeepBtn">Garder l'originale</button>
+      <button class="peBtnGold" id="photoEnhUseBtn" disabled>✅ Utiliser cette version</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  let _peSourceUrl=null, _peResultUrl=null, _peOnAccept=null;
+  const overlay = document.getElementById('photoEnhOverlay');
+  const imgEl = document.getElementById('photoEnhImg');
+  const loadingEl = document.getElementById('photoEnhLoading');
+  const input = document.getElementById('photoEnhInput');
+  const applyBtn = document.getElementById('photoEnhApplyBtn');
+  const useBtn = document.getElementById('photoEnhUseBtn');
+  const keepBtn = document.getElementById('photoEnhKeepBtn');
+
+  let _peSourceW=1024, _peSourceH=1024;
+
+  window.openPhotoEnhancer = function(sourceUrl, onAccept){
+    _peSourceUrl = sourceUrl; _peResultUrl = null; _peOnAccept = onAccept;
+    _peSourceW = 1024; _peSourceH = 1024;
+    imgEl.onload = ()=>{
+      if(imgEl.naturalWidth && imgEl.naturalHeight){
+        _peSourceW = imgEl.naturalWidth; _peSourceH = imgEl.naturalHeight;
+      }
+    };
+    imgEl.src = sourceUrl;
+    useBtn.disabled = true;
+    input.value = '';
+    overlay.classList.add('active');
+  };
+  function closeEnh(){ overlay.classList.remove('active'); }
+
+  const peLoadingMsg = loadingEl.querySelector('span');
+
+  function wantsTextInImage(promptText){
+    const t = (promptText||'').toLowerCase();
+    return /["“”«»']|écri|texte|mot\b|titre|logo|slogan|marque|prix|promo|inscription|légende/.test(t);
+  }
+
+  // Calcule des dimensions de sortie qui respectent le ratio de la photo d'origine (évite l'étirement/déformation)
+  function outputDims(){
+    const maxSide = 1280;
+    const ratio = _peSourceW / _peSourceH;
+    let w, h;
+    if(ratio >= 1){ w = maxSide; h = Math.round(maxSide / ratio); }
+    else { h = maxSide; w = Math.round(maxSide * ratio); }
+    // arrondi pair, pollinations préfère des dimensions paires
+    w = w - (w % 2); h = h - (h % 2);
+    return { w, h };
+  }
+
+  // Pollinations ignore le paramètre "seed" en mode image-to-image (bug connu côté API :
+  // https://github.com/pollinations/pollinations/issues/6044) et renvoie une image mise
+  // en cache identique à chaque appel, même avec un seed différent. Comme le cache est
+  // indexé sur (prompt, model, seed) mais que seed n'est pas honoré par le modèle,
+  // on fait varier le PROMPT lui-même via des caractères invisibles (zero-width space)
+  // pour forcer une génération fraîche à chaque tentative.
+  function cacheBuster(seed){
+    const n = 1 + (seed % 8); // 1 à 8 caractères invisibles, dépend du seed
+    return '\u200B'.repeat(n);
+  }
+
+  function buildEditUrl(promptText, seed){
+    const askedForText = wantsTextInImage(promptText);
+    const qualitySuffix = askedForText
+      ? ', exact spelling, bold readable typography, well centered, high contrast, keep everything else identical'
+      : ', natural lighting, sharp detail, keep everything else identical, photorealistic';
+    const { w, h } = outputDims();
+    const fullPrompt = promptText + qualitySuffix + cacheBuster(seed);
+    return 'https://gen.pollinations.ai/image/' + encodeURIComponent(fullPrompt)
+      + '?model=nanobanana&image=' + encodeURIComponent(_peSourceUrl)
+      + '&width=' + w + '&height=' + h + '&nologo=true&referrer=kiko-app&seed=' + seed + window.pollinationsAuthParam();
+  }
+
+  function doApply(promptText, attempt){
+    attempt = attempt || 1;
+    if(!promptText || !_peSourceUrl) return;
+    loadingEl.classList.add('active');
+    applyBtn.disabled = true;
+    if(peLoadingMsg) peLoadingMsg.textContent = attempt===1 ? 'Génération en cours...' : ('Nouvel essai ('+attempt+'/3)...');
+
+    const seed = Date.now() + attempt;
+    const editUrl = buildEditUrl(promptText, seed);
+
+    let done = false;
+    const testImg = new Image();
+
+    // Timeout de sécurité : si ça traîne trop, on relance automatiquement
+    const timeoutMs = 20000;
+    const timer = setTimeout(()=>{
+      if(done) return;
+      done = true;
+      testImg.onload = testImg.onerror = null;
+      if(attempt < 3){
+        doApply(promptText, attempt+1);
+      }else{
+        loadingEl.classList.remove('active');
+        applyBtn.disabled = false;
+        showToast('⏱️ Ça prend trop de temps, réessaie dans un instant');
+      }
+    }, timeoutMs);
+
+    testImg.onload = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      _peResultUrl = editUrl;
+      imgEl.src = testImg.src;
+      loadingEl.classList.remove('active');
+      applyBtn.disabled = false;
+      useBtn.disabled = false;
+    };
+    testImg.onerror = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      if(attempt < 3){
+        doApply(promptText, attempt+1);
+      }else{
+        loadingEl.classList.remove('active');
+        applyBtn.disabled = false;
+        showToast('❌ Erreur de génération, réessaie ou change la description');
+      }
+    };
+    testImg.src = editUrl;
+  }
+
+  applyBtn.addEventListener('click', ()=>{
+    const t = input.value.trim();
+    if(!t){ showToast('⚠️ Décris ce que tu veux changer'); return; }
+    doApply(t);
+  });
+  document.querySelectorAll('.peChip').forEach(c=>c.addEventListener('click', ()=>{
+    input.value = c.dataset.p;
+    doApply(c.dataset.p);
+  }));
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') applyBtn.click(); });
+  keepBtn.addEventListener('click', ()=>{
+    if(_peOnAccept) _peOnAccept(_peSourceUrl);
+    closeEnh();
+  });
+  useBtn.addEventListener('click', ()=>{
+    if(_peOnAccept) _peOnAccept(_peResultUrl || _peSourceUrl);
+    closeEnh();
+  });
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) closeEnh(); });
+
+  // Convertit une image URL en File (pour ré-upload vers ImageKit/Cloudinary)
+  window.peUrlToFile = async function(url, filename){
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new File([blob], filename, {type: blob.type||'image/jpeg'});
+  };
+})();
 </script>
 </body>
 </html>
