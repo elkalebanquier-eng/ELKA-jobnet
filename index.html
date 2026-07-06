@@ -3068,21 +3068,21 @@ body:not(.screen-home) #topnav{
     <div class="buzz-ph" style="width:100%;"><div class="spinner"></div></div>
   </div>
 
-  <!-- 🛍️ MARCHÉ preview (accueil) -->
+  <!-- 📸✍️ FIL PHOTOS & TEXTES — accueil (les vidéos, elles, vivent uniquement dans 🔥 Buzz) -->
   <div class="buzz-head" style="margin-top:4px;">
+    <div class="buzz-head-title">📸 Fil AES</div>
+  </div>
+  <div id="homeFeed"><div class="feedph" style="height:40vh;"><div class="spinner"></div><span>Chargement...</span></div></div>
+
+  <!-- 🛍️ MARCHÉ preview (accueil) — volontairement tout en bas, sous le Fil AES -->
+  <div class="buzz-head" style="margin-top:10px;">
     <div class="buzz-head-title">🛍️ Marché</div>
     <div class="buzz-head-link" onclick="showScreen('market')">Voir tout ›</div>
   </div>
   <div id="homeMarketRow" class="home-market-row" style="display:flex;overflow-x:auto;padding:0 14px 20px;scrollbar-width:none;">
     <div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:70px;"><div class="spinner"></div></div>
   </div>
-  <style>#homeMarketRow::-webkit-scrollbar{display:none;} .home-market-row>*{margin-right:10px;} .home-market-row>*:last-child{margin-right:0;}</style>
-
-  <!-- 📸✍️ FIL PHOTOS & TEXTES — accueil (les vidéos, elles, vivent uniquement dans 🔥 Buzz) -->
-  <div class="buzz-head" style="margin-top:4px;">
-    <div class="buzz-head-title">📸 Fil AES</div>
-  </div>
-  <div id="homeFeed"><div class="feedph" style="height:40vh;"><div class="spinner"></div><span>Chargement...</span></div></div>
+  <style>#homeMarketRow::-webkit-scrollbar{display:none;} .home-market-row{gap:10px;} .home-market-row>*{margin-right:10px !important; flex-shrink:0;} .home-market-row>*:last-child{margin-right:0 !important;}</style>
 
 </div>
 
@@ -6700,11 +6700,12 @@ function renderHomeMarket(prods){
   if(!items.length){row.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:70px;color:var(--muted);font-size:12px;">Aucun produit pour l\'instant</div>';return;}
   row.innerHTML=items.map(p=>{
     const imgH=p.imageUrl
-      ?`<img src="${optImg(p.imageUrl,200)}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`
-      :`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--surface3);">${catEmoji(p.cat)}</div>`;
+      ?`<img src="${optImg(p.imageUrl,200)}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
+      :``;
+    const fallbackH=`<div style="width:100%;height:100%;${p.imageUrl?'display:none;':'display:flex;'}align-items:center;justify-content:center;font-size:24px;background:var(--surface3);position:absolute;inset:0;">${catEmoji(p.cat)}</div>`;
     return `<div onclick="showScreen('market')" style="flex:0 0 110px;cursor:pointer;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-xs);">
-      <div style="width:110px;height:110px;overflow:hidden;position:relative;flex-shrink:0;">
-        ${imgH}
+      <div style="width:110px;height:110px;overflow:hidden;position:relative;flex-shrink:0;background:var(--surface3);">
+        ${imgH}${fallbackH}
         <div style="position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(10,11,14,0.9),transparent);pointer-events:none;"></div>
         <div style="position:absolute;bottom:5px;left:6px;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--gold);">${fmtPrice(p.price)}<span style="font-size:8.5px;"> F</span></div>
       </div>
@@ -7112,9 +7113,124 @@ const FEED_WEIGHTS={
   newcomer:20,     // bonus dégressif pour les comptes < 50 vues cumulées
   geo:8,           // léger bonus si même pays que le viewer (pas un filtre, juste un coup de pouce)
   reconnaissance:12, // 😍 signal fort : l'utilisateur a vraiment apprécié
+  ai:22,           // 🧠 score de personnalisation IA locale (KikoAI), basé sur l'historique de CET utilisateur
   reportPenalty:30, // pénalité forte si contenu signalé
   seenPenalty:45   // pénalité si l'utilisateur a déjà vu cette vidéo (anti-répétition style TikTok/Facebook)
 };
+
+// ═══════════════════════════════════════
+//  🧠 KIKO AI — mini réseau de neurones embarqué (100% offline)
+//  ───────────────────────────────────────
+//  Objectif : apprendre les goûts de CET utilisateur (catégories,
+//  créateurs) à partir de ses vraies interactions (like, temps de
+//  visionnage, replay, skip) et ressortir un score de personnalisation
+//  0..1 réinjecté dans computeFeedScore.
+//
+//  ⚠️ Ce n'est volontairement PAS un modèle .tflite : cette app est une
+//  web app / PWA (index.html) qui sera empaquetée en APK via un wrapper
+//  WebView. Un modèle TensorFlow Lite nécessiterait du code Kotlin/Java
+//  natif (MainActivity, assets/*.tflite, Interpreter API) qu'on ne
+//  contrôle pas dans ce wrapper. La solution ici est l'équivalent
+//  fonctionnel qui, lui, tourne PARTOUT où tourne ce fichier : un vrai
+//  petit réseau de neurones (4 entrées → 6 neurones cachés → 1 sortie),
+//  entraîné EN LIGNE sur l'appareil, sans aucune librairie, sans
+//  aucune connexion internet. Les poids sont sauvegardés dans
+//  localStorage donc l'apprentissage survit aux fermetures de l'app.
+// ═══════════════════════════════════════
+const KikoAI = (function(){
+  const STORAGE_KEY='kiko_ai_model_v1';
+  const LR=0.08;      // taux d'apprentissage (petit = stable)
+  const HIDDEN=6;     // neurones de la couche cachée
+  const INPUTS=4;     // [engagementNorm, watchRatio, catAffinity, authorAffinity]
+
+  function randArr(n){ return Array.from({length:n},()=>(Math.random()*2-1)*0.5); }
+  function freshModel(){
+    return {
+      w1:Array.from({length:HIDDEN},()=>randArr(INPUTS)), // HIDDEN x INPUTS
+      b1:randArr(HIDDEN),
+      w2:randArr(HIDDEN),                                  // HIDDEN -> 1
+      b2:(Math.random()*2-1)*0.5,
+      cat:{}, author:{}, seen:0
+    };
+  }
+  function load(){
+    try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+    return freshModel();
+  }
+  let model=load();
+  let _saveTimer=null;
+  function save(){
+    // Debounce : évite d'écrire dans localStorage à chaque frame pendant le visionnage
+    clearTimeout(_saveTimer);
+    _saveTimer=setTimeout(()=>{ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(model)); }catch(e){} },800);
+  }
+  function sigmoid(x){ return 1/(1+Math.exp(-x)); }
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+  function forward(x){
+    const h=model.w1.map((row,i)=>sigmoid(row.reduce((s,w,j)=>s+w*x[j],0)+model.b1[i]));
+    const out=sigmoid(model.w2.reduce((s,w,i)=>s+w*h[i],0)+model.b2);
+    return {h,out};
+  }
+  // Rétropropagation simplifiée, un exemple à la fois (apprentissage en ligne)
+  function trainStep(x,label){
+    const {h,out}=forward(x);
+    const dOut=(out-label)*out*(1-out);
+    for(let i=0;i<HIDDEN;i++) model.w2[i]-=LR*dOut*h[i];
+    model.b2-=LR*dOut;
+    for(let i=0;i<HIDDEN;i++){
+      const dH=dOut*model.w2[i]*h[i]*(1-h[i]);
+      for(let j=0;j<INPUTS;j++) model.w1[i][j]-=LR*dH*x[j];
+      model.b1[i]-=LR*dH;
+    }
+    model.seen++;
+  }
+  function emaUpdate(map,key,reward){
+    if(!key)return;
+    const prev=(map[key]!==undefined)?map[key]:0;
+    map[key]=clamp(prev*0.85+reward*0.15,-1,1);
+  }
+  function buildInputs(video,watchRatioOverride){
+    const cat=video.cat||'general';
+    const author=video.authorUid||video.auteur||'';
+    const catAff=((model.cat[cat]||0)+1)/2;       // -1..1 → 0..1
+    const authAff=((model.author[author]||0)+1)/2;
+    const engagementNorm=Math.min(1,((video.likes||0)+(video.commentCount||0)*1.5)/50);
+    const watchRatio=(typeof watchRatioOverride==='number')?watchRatioOverride
+      :((typeof video.avgWatchSeconds==='number'&&video.duration)?Math.min(1,video.avgWatchSeconds/video.duration):0.5);
+    return [engagementNorm,watchRatio,catAff,authAff];
+  }
+
+  return {
+    // Score de personnalisation 0..1 pour une vidéo — utilisé dans computeFeedScore.
+    // Fallback neutre (0.5) si jamais quelque chose casse : ne dégrade jamais le classement existant.
+    score(video){
+      try{ return forward(buildInputs(video)).out; }
+      catch(e){ return 0.5; }
+    },
+    // Appelé après une vraie interaction (like, fin de visionnage, scroll) pour affiner
+    // le modèle EN LOCAL. signal = { liked?, replayed?, watchRatio? }
+    record(video,signal){
+      try{
+        if(!video)return;
+        const cat=video.cat||'general';
+        const author=video.authorUid||video.auteur||'';
+        let reward=0;
+        if(signal.liked) reward+=0.6;
+        if(signal.replayed) reward+=0.5;
+        if(typeof signal.watchRatio==='number') reward+=(signal.watchRatio-0.5);
+        reward=clamp(reward,-1,1);
+        emaUpdate(model.cat,cat,reward);
+        emaUpdate(model.author,author,reward);
+        const label=reward>0.15?1:(reward<-0.15?0:0.5);
+        trainStep(buildInputs(video,typeof signal.watchRatio==='number'?signal.watchRatio:0.5),label);
+        save();
+      }catch(e){ /* silencieux : l'IA ne doit jamais casser le feed */ }
+    },
+    reset(){ model=freshModel(); save(); },
+    debugModel(){ return model; }
+  };
+})();
 
 // ═══════════════════════════════════════
 //  ANTI-RÉPÉTITION — mémorise les vidéos déjà vues par l'utilisateur (sur l'appareil)
@@ -7180,11 +7296,12 @@ function computeFeedScore(item,viewerCountry){
 
   const reconRate=Math.min(1,reconnaissance/Math.max(views,1)*20);
   const alreadySeen=_getSeenVideoIds().includes(item.id);
+  const aiScore=(typeof KikoAI!=='undefined')?KikoAI.score(item):0.5; // 0..1, neutre si l'IA locale n'est pas dispo
 
   // Poids "positifs" seulement (hors pénalités) — sert à redistribuer le poids de la
   // complétion quand elle n'est pas trackée, pour rester comparable entre vidéos.
   const totalPositiveWeight=FEED_WEIGHTS.completion+FEED_WEIGHTS.engagement+FEED_WEIGHTS.freshness+
-    FEED_WEIGHTS.boost+FEED_WEIGHTS.newcomer+FEED_WEIGHTS.geo+FEED_WEIGHTS.reconnaissance;
+    FEED_WEIGHTS.boost+FEED_WEIGHTS.newcomer+FEED_WEIGHTS.geo+FEED_WEIGHTS.reconnaissance+FEED_WEIGHTS.ai;
   const usedWeight=totalPositiveWeight-(completionTracked?0:FEED_WEIGHTS.completion);
 
   const rawScore=
@@ -7194,7 +7311,8 @@ function computeFeedScore(item,viewerCountry){
     FEED_WEIGHTS.boost*(boost/100) +
     FEED_WEIGHTS.newcomer*newcomerBonus +
     FEED_WEIGHTS.geo*geoBonus +
-    FEED_WEIGHTS.reconnaissance*reconRate;
+    FEED_WEIGHTS.reconnaissance*reconRate +
+    FEED_WEIGHTS.ai*aiScore;
 
   // Remise à l'échelle : si un signal manque, on ramène le score au même barème
   // que s'il était complet, plutôt que de laisser la vidéo "perdre" ce poids.
@@ -8138,6 +8256,16 @@ function initObserver(){
       } else {
         v.pause();
         if(_activePlayingVideo===v)_activePlayingVideo=null;
+        // 🧠 La vidéo quitte l'écran : c'est le bon moment pour dire à KikoAI
+        // combien l'utilisateur en a réellement regardé (et si replay il y a eu).
+        const leftId=e.target.id.replace('vc-','');
+        const leftVid=allVids.find(x=>x.id===leftId);
+        const wt=_aiWatch[leftId];
+        if(leftVid&&wt&&v.duration){
+          const ratio=wt.loops>0?1:Math.min(1,wt.lastTime/v.duration);
+          recordAiInteraction(leftVid,{watchRatio:ratio,replayed:wt.loops>0});
+          wt.lastTime=0;wt.loops=0; // reset pour la prochaine fois que la carte redevient visible
+        }
         const rect=e.target.getBoundingClientRect();
         if(Math.abs(rect.top)>window.innerHeight*3&&v.src){
           v.dataset.src=v.src;v.removeAttribute('src');v.load();
@@ -8164,8 +8292,14 @@ function initProgress(){
     const advPanel=card.querySelector('.vadv-panel');
     const pIdx=advPanel?advPanel.id.replace('vadv-',''):null;
 
+    // 🧠 Tracker watch-time/replay pour KikoAI (voir plus bas recordAiInteraction)
+    const wt=_aiWatch[id]||(_aiWatch[id]={lastTime:0,loops:0});
+
     let _raf=false,_completLogged=false;
     v.addEventListener('timeupdate',()=>{
+      // Grosse baisse de currentTime = la vidéo a bouclé (loop) → signal replay positif
+      if(v.currentTime<wt.lastTime-1) wt.loops++;
+      wt.lastTime=v.currentTime;
       if(!_completLogged&&v.duration&&v.currentTime/v.duration>=0.9){
         _completLogged=true;
         logStat('videoCompletions');
@@ -8187,6 +8321,15 @@ function initProgress(){
       if(pIdx!==null)showAdvPanel(parseInt(pIdx));
     },{passive:true});
   });
+}
+
+// 🧠 État de visionnage courant par vidéo, alimente KikoAI (watch time + replay)
+const _aiWatch={};
+// Enregistre une interaction réelle auprès de KikoAI (appelé depuis l'observer + le like)
+function recordAiInteraction(vid,extra){
+  if(!vid||typeof KikoAI==='undefined')return;
+  const signal=Object.assign({liked:liked.includes(vid.id)},extra||{});
+  KikoAI.record(vid,signal);
 }
 function trackView(vidId,authorUid){
   const key='viewed_'+vidId;if(sessionStorage.getItem(key))return;
@@ -8215,6 +8358,9 @@ function toggleLike(id){
     db.ref('videos/'+id+'/likedBy/'+currentUser.uid).set(true);
     const vid=allVids.find(x=>x.id===id);
     if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'like',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',vidId:id,at:Date.now(),read:false});
+    // 🧠 Signal fort pour KikoAI : un like compte plus qu'un simple visionnage
+    const wt=_aiWatch[id];
+    recordAiInteraction(vid,{liked:true,watchRatio:wt&&wt.lastTime?Math.min(1,wt.lastTime/(vid?.duration||wt.lastTime||1)):undefined});
   }
   localStorage.setItem('aes_liked',JSON.stringify(liked));
 }
@@ -11162,18 +11308,20 @@ function initSFPullToRefresh(){
 .buzz-head{ display:flex; align-items:center; justify-content:space-between; padding:18px 16px 10px; }
 .buzz-head-title{ font-family:'Syne',sans-serif; font-weight:800; font-size:17px; color:var(--text); }
 .buzz-head-link{ font-size:12.5px; color:var(--gold); font-weight:600; cursor:pointer; }
-.buzz-preview-row{ display:flex; overflow-x:auto; padding:0 16px 18px; scrollbar-width:none; }
+.buzz-preview-row{ display:flex; gap:10px; overflow-x:auto; padding:0 16px 18px; scrollbar-width:none; }
 .buzz-preview-row::-webkit-scrollbar{ display:none; }
-/* margin plutôt que "gap" flex : certains vieux Android WebView (courants
+/* gap + margin (double sécurité) : certains vieux Android WebView (courants
    sur les téléphones d'entrée de gamme) ignorent silencieusement le gap
-   flexbox et collent les cartes les unes aux autres. */
-.buzz-preview-row > *{ margin-right:10px; }
-.buzz-preview-row > *:last-child{ margin-right:0; }
+   flexbox et collent les cartes les unes aux autres, donc on force aussi
+   une marge explicite en plus du gap. */
+.buzz-preview-row > *{ margin-right:10px !important; flex-shrink:0; }
+.buzz-preview-row > *:last-child{ margin-right:0 !important; }
 .buzz-card{ flex:0 0 118px; cursor:pointer; }
 .buzz-thumb{
   width:118px; height:168px; border-radius:var(--r-sm);
   background-color:var(--surface2); background-size:cover; background-position:center;
   position:relative; border:1px solid var(--border); box-shadow:var(--shadow-xs);
+  overflow:hidden; isolation:isolate;
 }
 .buzz-dur{
   position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.65);
