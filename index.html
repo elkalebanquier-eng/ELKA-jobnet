@@ -2199,12 +2199,35 @@ textarea.inp { resize: none; }
 .cam-viewport { position: relative; flex: 1; overflow: hidden; border-radius: 0 0 32px 32px; }
 .cam-viewport video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+.cam-filters-strip, .cam-facefilters-strip {
+  position: absolute; left: 0; right: 0; bottom: 108px; padding: 6px 12px;
+  display: flex; overflow-x: auto; scrollbar-width: none; z-index: 5;
+}
+.cam-facefilters-strip { bottom: 178px; }
+.cam-filters-strip::-webkit-scrollbar, .cam-facefilters-strip::-webkit-scrollbar { display: none; }
+.cam-filters-row { display: flex; gap: 10px; margin: 0 auto; }
+.filt-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0; }
+.filt-thumb {
+  width: 46px; height: 46px; border-radius: 50%; overflow: hidden; position: relative;
+  border: 2px solid rgba(255,255,255,0.25); transition: border-color 0.2s, transform 0.2s;
+}
+.filt-chip.active .filt-thumb { border-color: var(--gold); transform: scale(1.08); }
+.filt-thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.15); }
+.filt-name { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+.filt-chip.active .filt-name { color: var(--gold); }
+/* Filtres visage IA — mêmes chips mais fond sombre uni (pas de couleur de fond, c'est un effet, pas une teinte) */
+.ff-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0; }
+.ff-thumb {
+  width: 46px; height: 46px; border-radius: 50%; background: rgba(10,10,12,0.55); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  border: 2px solid rgba(255,255,255,0.25); transition: border-color 0.2s, transform 0.2s;
+}
+.ff-chip.active .ff-thumb { border-color: var(--gold); transform: scale(1.08); background: rgba(255,122,48,0.18); }
+.ff-name { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+.ff-chip.active .ff-name { color: var(--gold); }
+
 /* ─── INFOS / NEWS ─── */
-.infos-sticky { position: sticky; top: 0; z-index: 10; background: var(--bg2); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-xs); }
-.infos-top { display: flex; align-items: center; justify-content: space-between; padding: 80px 18px 12px; }
-.infos-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: var(--navy); }
-.infos-refresh { font-size: 22px; cursor: pointer; padding: 4px; border-radius: 50%; transition: transform 0.3s; }
-.infos-refresh:active { transform: rotate(180deg); }
+
 .news-sources-row { display: flex; gap: 8px; padding: 0 16px 14px; overflow-x: auto; scrollbar-width: none; }
 .news-sources-row::-webkit-scrollbar { display: none; }
 .nsrc {
@@ -2870,8 +2893,7 @@ body:not(.screen-home) #topnav{
 .nbtn.active#nb-market .ni svg { opacity: 1;  }
 
 /* Infos — document or/argent, toujours visible */
-#nb-infos .ni svg { opacity: 0.72; }
-.nbtn.active#nb-infos .ni svg { opacity: 1;  }
+
 
 /* Profil — neon bleu, toujours visible */
 #nb-job .ni { opacity: 0.72; }
@@ -3291,28 +3313,6 @@ body:not(.screen-home) #topnav{
   </div>
 </div>
 
-<div id="infosScreen" class="screen">
-  <div class="infos-sticky">
-    <div class="infos-top">
-      <div class="infos-title">📰 Actualités AES</div>
-      <div class="infos-refresh" onclick="loadNews(true)">🔄</div>
-    </div>
-    <div class="news-sources-row">
-      <div class="nsrc active" onclick="filterNews('all',this)">Tout</div>
-      <div class="nsrc" onclick="filterNews('aes',this)">👑 AES</div>
-      <div class="nsrc" onclick="filterNews('lefaso',this)">🇧🇫 leFaso</div>
-      <div class="nsrc" onclick="filterNews('rfi',this)">🔴 RFI</div>
-      <div class="nsrc" onclick="filterNews('bbc',this)">🟠 BBC</div>
-      <div class="nsrc" onclick="filterNews('ja',this)">🟡 J.Afrique</div>
-      <div class="nsrc" onclick="filterNews('africanews',this)">🌍 Africanews</div>
-    </div>
-  </div>
-  <div id="newsTicker" style="display:none;background:linear-gradient(90deg,var(--gold),var(--gold2));padding:6px 16px;overflow:hidden;">
-    <div id="newsTickerText" style="color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;white-space:nowrap;animation:ticker 22s linear infinite;"></div>
-  </div>
-  <div id="newsList"><div class="feedph" style="height:60vh;"><div class="spinner"></div><span>Chargement des infos...</span></div></div>
-</div>
-
 <!-- ARTICLE SCREEN -->
 <div id="articleScreen">
   <div class="art-header">
@@ -3434,9 +3434,9 @@ body:not(.screen-home) #topnav{
       <div class="sett-arr">›</div>
     </div>
 
-    <div class="sett-row" onclick="showScreen('infos')">
-      <div class="sett-icon" style="background:rgba(201,168,76,0.15);">📰</div>
-      <div class="sett-label">Actualités</div>
+    <div class="sett-row" onclick="showScreen('job')">
+      <div class="sett-icon" style="background:rgba(201,168,76,0.15);">💼</div>
+      <div class="sett-label">Job</div>
       <div class="sett-arr">›</div>
     </div>
 
@@ -3877,39 +3877,22 @@ body:not(.screen-home) #topnav{
     <span>Marché</span>
   </div>
 
-  <!-- Infos — document or/argent comme image -->
-  <div class="nbtn" id="nb-infos" onclick="showScreen('infos')">
-    <div class="ni ni-infos">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14 2H6C5.45 2 5 2.45 5 3V21C5 21.55 5.45 22 6 22H18C18.55 22 19 21.55 19 21V7L14 2Z" stroke="url(#infosGrad)" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
-        <path d="M14 2V7H19" stroke="url(#infosGradCorner)" stroke-width="1.8" stroke-linejoin="round"/>
-        <line x1="8" y1="11" x2="16" y2="11" stroke="url(#infosLine1)" stroke-width="1.6" stroke-linecap="round"/>
-        <line x1="8" y1="14" x2="16" y2="14" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round"/>
-        <line x1="8" y1="17" x2="13" y2="17" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round"/>
-        <defs>
-          <linearGradient id="infosGrad" x1="5" y1="2" x2="19" y2="22" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#D0D5E0"/>
-            <stop offset="100%" stop-color="#9098A8"/>
-          </linearGradient>
-          <linearGradient id="infosGradCorner" x1="14" y1="2" x2="19" y2="7" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#E8C870"/>
-            <stop offset="100%" stop-color="var(--gold)"/>
-          </linearGradient>
-          <linearGradient id="infosLine1" x1="8" y1="11" x2="16" y2="11" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#D0D5E0"/>
-            <stop offset="100%" stop-color="var(--gold)"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-    <span>Infos</span>
-    <div class="notif-dot" id="newsDot" style="display:none;"></div>
-  </div>
-
-  <!-- Job — annonces emploi & services -->
+  <!-- Job — annonces emploi & services (prend la place d'Infos, supprimée) -->
   <div class="nbtn" id="nb-job" onclick="showScreen('job')">
     <div class="ni" style="font-size:20px;">💼</div>
     <span>Job</span>
+  </div>
+
+  <!-- Profil — de retour dans la nav du bas -->
+  <div class="nbtn" id="nb-profile" onclick="showScreen('profile')">
+    <div class="ni">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8" fill="none"/>
+        <path d="M4 20C4 16.13 7.58 13 12 13C16.42 13 20 16.13 20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <span>Profil</span>
+    <div class="notif-dot" id="activityDot" style="display:none;"></div>
   </div>
 </div>
 
@@ -4291,6 +4274,7 @@ body:not(.screen-home) #topnav{
 <div id="cameraScreen">
   <div class="cam-viewport" id="camViewport">
     <video id="camVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;transition:filter 0.3s;"></video>
+    <canvas id="camFaceCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
     <div class="cam-flash" id="camFlash"></div>
     <div class="cam-corner cam-corner-tl"></div>
     <div class="cam-corner cam-corner-tr"></div>
@@ -4302,6 +4286,8 @@ body:not(.screen-home) #topnav{
       <div class="cam-rec-badge" id="camRecBadge"><div class="cam-rec-dot"></div><span id="camRecTimer">00:00</span></div>
       <div class="cam-flip-btn" onclick="flipCamera()">🔄</div>
     </div>
+    <!-- 😍 Filtres visage IA (MediaPipe Face Mesh, chargé à la demande) -->
+    <div class="cam-facefilters-strip" id="camFaceFiltersRow"></div>
     <div class="cam-filters-strip">
       <div class="cam-filters-row" id="camFiltersRow"></div>
     </div>
@@ -4322,6 +4308,10 @@ body:not(.screen-home) #topnav{
       <span style="font-size:22px;">🖼️</span>
     </div>
     <input type="file" id="camGalleryInput" accept="image/*,video/*" style="display:none" onchange="camGallerySelected(this)">
+    <!-- 🆘 Secours : si le live-preview (getUserMedia) est bloqué par le wrapper Android
+         (permission WebView non accordée), on bascule sur l'appareil photo natif du
+         téléphone via ce input capture= — ça marche toujours, même sans getUserMedia. -->
+    <input type="file" id="camNativeFallbackInput" accept="image/*" capture="environment" style="display:none" onchange="camNativeFallbackSelected(this)">
     <div class="cam-shutter photo-mode" id="camShutter" onclick="camCapture()">
       <div class="cam-shutter-outer"></div>
       <div class="cam-shutter-inner"></div>
@@ -6602,11 +6592,11 @@ function _doShowScreen(n){
   const screenMap = {
     home:'homeScreen', search:'searchScreen', market:'marketScreen',
     notif:'notifScreen', dm:'dmScreen', profile:'profileScreen',
-    infos:'infosScreen', buzz:'buzzScreen', job:'jobScreen'
+    buzz:'buzzScreen', job:'jobScreen'
   };
   const navMap = {
     home:'nb-home', market:'nb-market', notif:'nb-notif',
-    dm:'nb-dm', infos:'nb-infos', buzz:'nb-buzz', job:'nb-job'
+    dm:'nb-dm', buzz:'nb-buzz', job:'nb-job', profile:'nb-profile'
   };
   const sid = screenMap[n];
   if(sid){ const el=document.getElementById(sid); if(el) el.classList.add('active'); }
@@ -6637,15 +6627,11 @@ function _doShowScreen(n){
   }
 
   // Chargements spécifiques à chaque écran
-  if(n==='profile') renderProfile();
+  if(n==='profile'){ renderProfile(); const dot=document.getElementById('activityDot'); if(dot) dot.style.display='none'; }
   if(n==='search'){ renderExplore(); renderAccounts(''); }
   if(n==='market') loadMarket();
   if(n==='notif')  loadNotifs();
   if(n==='dm')     loadDMs();
-  if(n==='infos'){
-    const dot=document.getElementById('newsDot'); if(dot) dot.style.display='none';
-    if(!allArticles.length) loadNews(); else applyNewsFilter();
-  }
   if(n==='buzz' && !window._buzzLoaded){ window._buzzLoaded=true; loadFeed(); }
   if(n==='job'){ jbStartFeed(); }
 }
@@ -6666,7 +6652,6 @@ function showScreen(n){
 function switchHomeTab(tab, el){
   document.querySelectorAll('.home-tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
-  if(tab==='news'){showScreen('infos');return;}
   if(tab==='videos'){
     // Le flux vidéo complet vit désormais dans Buzz (jamais chargé sur l'accueil)
     showScreen('buzz');
@@ -8483,7 +8468,7 @@ function startNotifListener(){
   if(!currentUser||notifListener)return;
   notifListener=db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(1).on('child_added',snap=>{
     const n=snap.val();if(!n||n.read)return;
-    document.getElementById('newsDot').style.display='block';
+    const dot=document.getElementById('activityDot'); if(dot) dot.style.display='block';
     const icons={like:'❤️',comment:'💬',follow:'👤',dm:'💬'};
     const msgs={like:`${n.fromName} a aimé ta vidéo`,comment:`${n.fromName} a commenté`,follow:`${n.fromName} s'est abonné(e)`,dm:`${n.fromName} : ${(n.text||'').slice(0,28)}`};
     if(msgs[n.type]){
@@ -10253,7 +10238,7 @@ function startNewsTicker(){
 }
 function startNewsAutoRefresh(){
   if(newsInterval)clearInterval(newsInterval);
-  newsInterval=setInterval(()=>{if(document.getElementById('infosScreen').classList.contains('active'))loadNews(true);},600000);
+  newsInterval=setInterval(()=>{const el=document.getElementById('infosScreen'); if(el&&el.classList.contains('active'))loadNews(true);},600000);
 }
 
 // ═══════════════════════════════════════
@@ -10289,7 +10274,7 @@ function setLang(lang){
   showToast({fr:'🇫🇷 Français',bm:'🌍 Bambara',mos:'🌍 Mooré',dyu:'🌍 Dioula',ha:'🌍 Haoussa'}[lang]||lang);
 }
 function applyLang(){
-  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-infos':'nav_infos','nb-job':'nav_job'};
+  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-job':'nav_job','nb-profile':'nav_profile'};
   Object.entries(map).forEach(([id,k])=>{
     const btn=document.getElementById(id);
     const span=btn?btn.querySelector('span'):null;
@@ -10421,6 +10406,176 @@ let _camCalledFrom = 'post';     // 'post' | 'story' | 'status'
 
 function initCameraModule(){
   buildFilterStrip();
+  buildFaceFilterStrip();
+}
+
+// ═══════════════════════════════════════════════════
+// 😍 FILTRES VISAGE IA — MediaPipe Face Mesh (Google, gratuit, open-source)
+// Détecte 468 points du visage en temps réel et colle des effets dessus
+// (cœurs, brillance, oreilles, joues roses), comme les lenses Snapchat.
+// Chargé à la demande (lazy) uniquement si l'utilisateur choisit un filtre
+// visage — n'alourdit pas l'ouverture normale de la caméra.
+// ═══════════════════════════════════════════════════
+const FACE_FILTERS = [
+  { id:'none',    name:'Aucun',     emoji:'🚫' },
+  { id:'hearts',  name:'Coeurs',    emoji:'💓' },
+  { id:'sparkle', name:'Brillance', emoji:'✨' },
+  { id:'dog',     name:'Oreilles',  emoji:'🐶' },
+  { id:'blush',   name:'Mignon',    emoji:'😊' },
+];
+let _ffActiveIdx = 0;
+let _ffLibsLoaded = false, _ffLibsLoading = null, _ffMesh = null;
+let _ffRunning = false, _ffLastLandmarks = null, _ffAnimT = 0;
+
+function buildFaceFilterStrip(){
+  const row = document.getElementById('camFaceFiltersRow');
+  if(!row) return;
+  row.innerHTML = FACE_FILTERS.map((f,i)=>`
+    <div class="ff-chip ${i===0?'active':''}" data-idx="${i}" onclick="setFaceFilter(${i})">
+      <div class="ff-thumb">${f.emoji}</div>
+      <div class="ff-name">${f.name}</div>
+    </div>
+  `).join('');
+}
+
+async function setFaceFilter(idx){
+  _ffActiveIdx = idx;
+  document.querySelectorAll('.ff-chip').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  const canvas = document.getElementById('camFaceCanvas');
+  if(FACE_FILTERS[idx].id==='none'){
+    if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+    return; // pas besoin de charger l'IA si on désactive
+  }
+  await ensureFaceMeshRunning();
+}
+
+function _ffLoadScript(src){
+  return new Promise((resolve,reject)=>{
+    if(document.querySelector('script[data-ff-lib="'+src+'"]')){ resolve(); return; }
+    const s=document.createElement('script');
+    s.src=src; s.dataset.ffLib=src;
+    s.onload=()=>resolve(); s.onerror=()=>reject(new Error('offline'));
+    document.head.appendChild(s);
+  });
+}
+async function loadFaceMeshLibs(){
+  if(_ffLibsLoaded) return true;
+  if(_ffLibsLoading) return _ffLibsLoading;
+  _ffLibsLoading=(async()=>{
+    await _ffLoadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js');
+    _ffLibsLoaded=true;
+    return true;
+  })();
+  return _ffLibsLoading;
+}
+
+async function ensureFaceMeshRunning(){
+  if(_ffRunning) return;
+  const canvas = document.getElementById('camFaceCanvas');
+  const vid = document.getElementById('camVideo');
+  if(!canvas||!vid) return;
+  try{
+    showToast('🧠 Chargement du détecteur de visage...');
+    await loadFaceMeshLibs();
+    if(!_ffMesh){
+      _ffMesh = new FaceMesh({locateFile:(f)=>'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/'+f});
+      _ffMesh.setOptions({ maxNumFaces:1, refineLandmarks:false, minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
+      _ffMesh.onResults(onFaceResults);
+    }
+    _ffRunning = true;
+    faceDetectLoop();
+  }catch(e){
+    showToast('❌ Filtres visage indisponibles (besoin d\'internet la 1ère fois)');
+    _ffRunning = false;
+  }
+}
+
+async function faceDetectLoop(){
+  const vid = document.getElementById('camVideo');
+  const screenEl = document.getElementById('cameraScreen');
+  // Stoppe la boucle si la caméra est fermée ou si "Aucun" est sélectionné
+  if(!_ffRunning || !screenEl || screenEl.style.display==='none' || FACE_FILTERS[_ffActiveIdx].id==='none'){
+    _ffRunning=false;
+    return;
+  }
+  try{ if(vid.readyState>=2) await _ffMesh.send({image:vid}); }catch(e){}
+  requestAnimationFrame(faceDetectLoop);
+}
+
+function onFaceResults(results){
+  const canvas = document.getElementById('camFaceCanvas');
+  const vid = document.getElementById('camVideo');
+  if(!canvas||!vid) return;
+  if(canvas.width!==vid.videoWidth && vid.videoWidth){ canvas.width=vid.videoWidth; canvas.height=vid.videoHeight; }
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  _ffAnimT += 0.06;
+  if(!results.multiFaceLandmarks || !results.multiFaceLandmarks.length){ _ffLastLandmarks=null; return; }
+  const lm = results.multiFaceLandmarks[0];
+  _ffLastLandmarks = lm;
+  drawFaceFilter(ctx, lm, canvas.width, canvas.height, FACE_FILTERS[_ffActiveIdx].id, _ffAnimT);
+}
+
+// Dessine l'effet choisi à partir des 468 points du visage (repères MediaPipe standards :
+// 1=bout du nez, 10=haut du front, 33/263=coins des yeux, 50/280=joues, 152=menton).
+// NB : dessiné en espace caméra BRUT (non mirroré), comme la preview live elle-même —
+// c'est takePhoto() qui applique le mirroring final pour la caméra frontale.
+function drawFaceFilter(ctx, lm, w, h, filterId, t){
+  const P = (i)=>({ x:lm[i].x*w, y:lm[i].y*h });
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+
+  if(filterId==='hearts'){
+    const cheekL=P(50), cheekR=P(280), forehead=P(10);
+    [cheekL,cheekR,forehead].forEach((pt,i)=>{
+      const drift=(t*40+i*60)%140; // dérive verticale en boucle
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, 1-drift/140);
+      ctx.font = (18+Math.sin(t*3+i)*3)+'px sans-serif';
+      ctx.fillText('💓', pt.x+Math.sin(t*2+i)*8, pt.y-drift);
+      ctx.restore();
+    });
+  } else if(filterId==='sparkle'){
+    const eyeL=P(33), eyeR=P(263), forehead=P(10);
+    [eyeL,eyeR,forehead].forEach((pt,i)=>{
+      ctx.save();
+      ctx.globalAlpha = 0.55+0.45*Math.sin(t*4+i*2);
+      ctx.font='16px sans-serif';
+      ctx.fillText('✨', pt.x, pt.y-14);
+      ctx.restore();
+    });
+  } else if(filterId==='dog'){
+    const forehead=P(10), noseTip=P(1);
+    const earSize=Math.max(26, Math.abs(P(234).x-P(454).x)*0.32);
+    ctx.save();
+    ctx.font=earSize+'px sans-serif';
+    ctx.fillText('🐶', forehead.x-earSize*0.9, forehead.y-earSize*0.5);
+    ctx.restore();
+    ctx.save();
+    ctx.font=(earSize*0.55)+'px sans-serif';
+    ctx.fillText('👃', noseTip.x, noseTip.y);
+    ctx.restore();
+  } else if(filterId==='blush'){
+    const cheekL=P(50), cheekR=P(280), eyeL=P(33), eyeR=P(263);
+    [cheekL,cheekR].forEach(pt=>{
+      ctx.save();
+      ctx.fillStyle='rgba(255,120,150,0.38)';
+      ctx.beginPath(); ctx.ellipse(pt.x,pt.y,16,11,0,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+    [eyeL,eyeR].forEach(pt=>{
+      ctx.save();
+      ctx.globalAlpha=0.7+0.3*Math.sin(t*5);
+      ctx.font='14px sans-serif';
+      ctx.fillText('✨', pt.x, pt.y-10);
+      ctx.restore();
+    });
+  }
+}
+
+function stopFaceMesh(){
+  _ffRunning = false;
+  const canvas = document.getElementById('camFaceCanvas');
+  if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
 }
 
 function buildFilterStrip(){
@@ -10461,6 +10616,7 @@ async function openCamera(mode='photo', calledFrom='post'){
   _camMode = mode;
   _camFilterIdx = 0;
   _camResultBlob = null;
+  _ffActiveIdx = 0; // filtre visage réinitialisé sur "Aucun" à chaque ouverture
 
   const screen = document.getElementById('cameraScreen');
   screen.style.display = 'flex';
@@ -10470,6 +10626,7 @@ async function openCamera(mode='photo', calledFrom='post'){
   document.getElementById('camResultOverlay').classList.remove('active');
   document.getElementById('camRecBadge').classList.remove('active');
   setCamFilter(0);
+  document.querySelectorAll('.ff-chip').forEach((c,i)=>c.classList.toggle('active',i===0));
   updateCamModeUI();
 
   await startCamStream();
@@ -10588,12 +10745,39 @@ async function startCamStream(){
     vid.srcObject = _camStream;
     await vid.play();
   } catch(e){
-    if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
-      showToast('❌ Caméra refusée — active-la dans les réglages du téléphone');
+    // Le live-preview (getUserMedia) est bloqué — c'est très souvent le wrapper
+    // Android (WebView) qui n'accorde pas la permission caméra à la page, même
+    // si l'app a bien la permission au niveau du téléphone. Plutôt que de
+    // bloquer l'utilisateur, on bascule automatiquement sur l'appareil photo
+    // natif Android (ça, ça marche presque toujours car c'est le même
+    // mécanisme que "Sélectionner des photos" qui fonctionne déjà).
+    console.warn('getUserMedia a échoué, bascule sur la caméra native :', e.name, e.message);
+    if(_camMode==='photo'){
+      showToast('📷 Bascule sur l\'appareil photo du téléphone...');
+      closeCamera();
+      document.getElementById('camNativeFallbackInput').click();
     } else {
-      showToast('❌ Caméra non disponible : '+e.message);
+      if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
+        showToast('❌ Caméra refusée — active-la dans les réglages du téléphone (ou de l\'app)');
+      } else {
+        showToast('❌ Caméra non disponible pour la vidéo : '+e.message);
+      }
+      closeCamera();
     }
-    closeCamera();
+  }
+}
+
+// Reçoit la photo prise via l'appareil photo natif (fallback), et la traite
+// exactement comme une photo prise via le live-preview : direction "post" ou "story".
+function camNativeFallbackSelected(input){
+  const file = input.files[0];
+  input.value='';
+  if(!file) return;
+  if(_camCalledFrom==='story' || _camCalledFrom==='status'){
+    handleCamFileForStory(file, 'photo');
+  } else {
+    handleCamFileForPost(file, 'photo');
+    showToast('💡 Astuce : appuie sur "✨ IA" sur la photo pour ajouter un filtre');
   }
 }
 
@@ -10602,6 +10786,7 @@ function closeCamera(){
   if(_camRecInterval){ clearInterval(_camRecInterval); _camRecInterval=null; }
   if(_camMediaRecorder && _camRecording){ try{_camMediaRecorder.stop();}catch(e){} }
   _camRecording = false;
+  stopFaceMesh();
   document.getElementById('cameraScreen').style.display = 'none';
   const vid = document.getElementById('camVideo');
   vid.srcObject = null; vid.style.filter = 'none';
@@ -10663,6 +10848,13 @@ function takePhoto(){
   // Mirror si front cam
   if(_camFacing==='user'){ ctx.translate(canvas.width,0); ctx.scale(-1,1); }
   ctx.drawImage(vid,0,0,canvas.width,canvas.height);
+  // 😍 Graver le filtre visage IA par-dessus (déjà en espace caméra brut, donc
+  // il suit exactement la même transformation miroir que la vidéo ci-dessus)
+  const faceCanvas = document.getElementById('camFaceCanvas');
+  if(faceCanvas && FACE_FILTERS[_ffActiveIdx].id!=='none' && faceCanvas.width>0){
+    ctx.filter = 'none';
+    ctx.drawImage(faceCanvas,0,0,canvas.width,canvas.height);
+  }
 
   canvas.toBlob(blob=>{
     _camResultBlob = blob;
