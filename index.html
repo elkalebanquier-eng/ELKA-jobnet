@@ -4064,6 +4064,7 @@ body:not(.screen-home) #topnav{
 
     <!-- PANEL PHOTO -->
     <div class="upload-panel" id="upanel-photo">
+      <button type="button" class="cam-open-btn" onclick="openCamera('photo')" style="width:100%;margin-bottom:10px;">📷 Prendre une photo (avec filtres)</button>
       <div class="photo-picker-zone" id="photoPickZone" onclick="kikoOpenFilePicker('photoFilesInput')">
         <input type="file" id="photoFilesInput" accept="image/*" multiple style="display:none" onchange="onPhotosSelected(this)">
         <div style="font-size:36px;margin-bottom:8px;">🖼️</div>
@@ -10392,18 +10393,16 @@ setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermark
 
 // ─── Définition des filtres ───
 const CAM_FILTERS = [
-  { id:'normal',  name:'Normal',   css:'none',                                         emoji:'⬜' },
-  { id:'vivid',   name:'Vivid',    css:'saturate(1.8) contrast(1.1) brightness(1.05)', emoji:'🌈' },
-  { id:'warm',    name:'Warm',     css:'sepia(0.35) saturate(1.5) hue-rotate(5deg)',   emoji:'🌅' },
-  { id:'cold',    name:'Cold',     css:'saturate(0.85) hue-rotate(190deg) brightness(1.08)',emoji:'❄️' },
-  { id:'cinema',  name:'Cinéma',   css:'contrast(1.25) saturate(0.85) brightness(0.92)',emoji:'🎬' },
-  { id:'bw',      name:'N&B',      css:'saturate(0) contrast(1.25) brightness(1.05)', emoji:'⚫' },
-  { id:'neon',    name:'Néon',     css:'saturate(2.2) hue-rotate(260deg) brightness(0.82)',emoji:'💜' },
-  { id:'golden',  name:'Golden',   css:'sepia(0.6) saturate(1.8) hue-rotate(-10deg) brightness(1.1)',emoji:'✨' },
-  { id:'fade',    name:'Fade',     css:'saturate(0.65) brightness(1.15) contrast(0.9)',emoji:'🌫️' },
-  { id:'drama',   name:'Drama',    css:'contrast(1.5) saturate(1.3) brightness(0.85)', emoji:'🌑' },
-  { id:'summer',  name:'Summer',   css:'saturate(1.6) brightness(1.1) hue-rotate(-15deg)',emoji:'☀️' },
-  { id:'rose',    name:'Rose',     css:'saturate(1.3) hue-rotate(320deg) brightness(1.1)',emoji:'🌸' },
+  { id:'original',    name:'Original',      css:'none',                                                     emoji:'⬜' },
+  { id:'vivid',        name:'Vivid',         css:'saturate(1.5) contrast(1.1) brightness(1.05)',            emoji:'🌈' },
+  { id:'vivid-warm',   name:'Vivid Warm',    css:'sepia(0.25) saturate(1.6) hue-rotate(-8deg) brightness(1.05)', emoji:'🌅' },
+  { id:'vivid-cool',   name:'Vivid Cool',    css:'saturate(1.5) hue-rotate(190deg) brightness(1.05) contrast(1.05)', emoji:'❄️' },
+  { id:'dramatic',     name:'Dramatic',      css:'contrast(1.35) saturate(0.9) brightness(0.9)',            emoji:'🎬' },
+  { id:'dramatic-warm',name:'Dramatic Warm', css:'sepia(0.3) contrast(1.3) saturate(1.1) brightness(0.92)', emoji:'🔥' },
+  { id:'dramatic-cool',name:'Dramatic Cool', css:'contrast(1.3) saturate(0.85) hue-rotate(190deg) brightness(0.9)', emoji:'🌊' },
+  { id:'mono',         name:'Mono',          css:'grayscale(1) contrast(1.1)',                               emoji:'⚫' },
+  { id:'silvertone',   name:'Silvertone',    css:'grayscale(1) contrast(0.95) brightness(1.15)',            emoji:'🌫️' },
+  { id:'noir',         name:'Noir',          css:'grayscale(1) contrast(1.5) brightness(0.85)',             emoji:'🌑' },
 ];
 
 // ─── État caméra ───
@@ -10781,16 +10780,18 @@ function handleCamFileForPost(file, type){
     onFileSelected({files:[file]});
     openModal();
   } else {
-    // Photo → ouvrir le modal upload avec la photo préchargée
-    showToast('📸 Photo prête ! Tu peux la poster comme vidéo ou story.');
-    // On ouvre le modal de post pour qu'ils puissent décrire
+    // Photo → l'injecter dans le panel Photos existant (comme si sélectionnée depuis la galerie)
+    const placesLeft = MAX_PHOTOS - photoFiles.length;
+    if(placesLeft<=0){
+      showToast(`⚠️ Maximum ${MAX_PHOTOS} photos par publication`);
+      return;
+    }
+    photoFiles = [...photoFiles, file];
     openModal();
-    // Pré-remplir le chip
-    document.getElementById('fchip').classList.add('show');
-    document.getElementById('fchipName').textContent = file.name;
-    document.getElementById('fchipSize').textContent = (file.size/1024/1024).toFixed(1)+'MB';
-    // Stocker pour upload
-    window._camPhotoFile = file;
+    switchUploadTab('photo');
+    renderPhotoPreviews();
+    setTimeout(initMusicLibrary,100);
+    showToast('📸 Photo ajoutée avec le filtre "'+file.name.split('_')[1]+'"');
   }
 }
 
@@ -11948,6 +11949,12 @@ if(currentUser) jbCheckReturnFromPaydunya();
 @keyframes peSpin{ to{ transform:rotate(360deg); } }
 #photoEnhChips{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
 .peChip{ background:var(--surface2); border:1px solid var(--border); color:var(--text2); font-size:12px; padding:7px 11px; border-radius:16px; cursor:pointer; }
+.peSectionLabel{ font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--text2); margin:2px 0 7px; display:flex; align-items:center; gap:5px; }
+.peSectionLabel .peDot{ width:6px; height:6px; border-radius:50%; }
+#photoEnhOfflineRow{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:4px; }
+.peChipOffline{ background:rgba(52,199,89,0.12); border:1px solid rgba(52,199,89,0.35); color:#34c759; font-size:12px; padding:7px 11px; border-radius:16px; cursor:pointer; font-weight:600; }
+.peChipOffline.pe-ai{ background:rgba(255,122,48,0.12); border:1px solid rgba(255,122,48,0.4); color:var(--gold); }
+.peOfflineHint{ font-size:10.5px; color:var(--text2); margin:0 0 12px; }
 #photoEnhInputRow{ display:flex; gap:8px; margin-bottom:14px; }
 #photoEnhInput{ flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:10px 13px; color:var(--text); font-size:13px; outline:none; }
 #photoEnhApplyBtn{ background:var(--gold); border:none; border-radius:14px; padding:10px 16px; color:#1a0a00; font-weight:700; font-size:13px; cursor:pointer; flex-shrink:0; }
@@ -11964,13 +11971,32 @@ if(currentUser) jbCheckReturnFromPaydunya();
       <img id="photoEnhImg" src="" alt="">
       <div id="photoEnhLoading"><div class="pe-spin"></div><span>Génération en cours...</span></div>
     </div>
+    <div class="peSectionLabel"><span class="peDot" style="background:#34c759;"></span>Hors-ligne — instantané, aucune connexion requise</div>
+    <div id="photoEnhOfflineRow">
+      <div class="peChipOffline pe-ai" id="peBgRemoveBtn">🧠 Supprimer le fond (IA)</div>
+      <div class="peChipOffline" data-f="grayscale(1) contrast(1.05)">⚫ N&B</div>
+      <div class="peChipOffline" data-f="sepia(0.55) contrast(1.05) saturate(1.15) brightness(1.02)">📽️ Vintage</div>
+      <div class="peChipOffline" data-f="brightness(1.15) contrast(1.06)">☀️ Lumineux</div>
+      <div class="peChipOffline" data-f="saturate(1.45) contrast(1.08)">🎨 Vif</div>
+      <div class="peChipOffline" data-f="none">↩️ Original</div>
+    </div>
+    <div class="peOfflineHint">🧠 = vraie IA (réseau de neurones) exécutée sur ton téléphone. 1ère utilisation : télécharge le petit modèle une fois (~3 Mo, besoin d'internet une seule fois), ensuite ça marche hors-ligne. Les autres boutons ⚫📽️☀️🎨 sont des filtres instantanés, toujours hors-ligne.</div>
+    <div class="peSectionLabel"><span class="peDot" style="background:var(--gold);"></span>En ligne — IA générative (Pollinations, internet requis)</div>
     <div id="photoEnhChips">
-      <div class="peChip" data-p="remplace le fond par un fond blanc studio propre, éclairage professionnel doux, ombre légère et réaliste sous le sujet">Fond blanc studio</div>
-      <div class="peChip" data-p="corrige l'exposition et la balance des blancs, augmente légèrement le contraste et la netteté, rendu naturel et professionnel">Améliore la lumière</div>
-      <div class="peChip" data-p="applique un flou d'arrière-plan doux façon bokeh pour mettre le sujet en valeur, garde le sujet parfaitement net">Flou arrière-plan</div>
-      <div class="peChip" data-p="rends les couleurs plus riches et vibrantes sans les dénaturer, style photo de catalogue produit haut de gamme">Couleurs vives</div>
-      <div class="peChip" data-p="mets un fond de studio doré/navy élégant assorti à une identité de marque premium, éclairage cinématique">Fond premium doré</div>
+      <div class="peChip" data-p="remplace le fond par un fond blanc studio propre, éclairage professionnel doux, ombre légère et réaliste sous le sujet">🤍 Fond blanc studio</div>
+      <div class="peChip" data-p="corrige l'exposition et la balance des blancs, augmente légèrement le contraste et la netteté, rendu naturel et professionnel">☀️ Améliore la lumière</div>
+      <div class="peChip" data-p="applique un flou d'arrière-plan doux façon bokeh pour mettre le sujet en valeur, garde le sujet parfaitement net">🌫️ Flou arrière-plan</div>
+      <div class="peChip" data-p="rends les couleurs plus riches et vibrantes sans les dénaturer, style photo de catalogue produit haut de gamme">🎨 Couleurs vives</div>
+      <div class="peChip" data-p="mets un fond de studio doré/navy élégant assorti à une identité de marque premium, éclairage cinématique">✨ Fond premium doré</div>
       <div class="peChip" data-p='ajoute le texte "PROMO -20%" en haut de l&#39;image, grande police lisible, bien centré, fond légèrement assombri derrière le texte pour la lisibilité'>✍️ Ajouter du texte</div>
+      <div class="peChip" data-p="applique un filtre noir et blanc élégant façon photo argentique, contraste marqué, grain léger et fin">⚫ Noir & blanc</div>
+      <div class="peChip" data-p="applique un rendu vintage chaleureux façon pellicule des années 90, tons légèrement délavés et jaunis, grain photo discret">📽️ Vintage rétro</div>
+      <div class="peChip" data-p="remplace l'arrière-plan par un coucher de soleil doré chaud, lumière dorée enveloppante sur le sujet, ambiance golden hour">🌅 Golden hour</div>
+      <div class="peChip" data-p="applique un style néon urbain nocturne, reflets colorés bleu/violet/rose en arrière-plan, garde le sujet net et bien exposé">🌃 Néon urbain</div>
+      <div class="peChip" data-p="lisse et adoucit légèrement la peau de façon naturelle sans effet plastique, garde tous les détails du visage reconnaissables, ne change pas la morphologie">🧴 Peau lissée douce</div>
+      <div class="peChip" data-p="recadre et redresse l'image, améliore la composition selon la règle des tiers, garde tout le sujet visible sans le couper">📐 Recadrage pro</div>
+      <div class="peChip" data-p="ajoute un léger effet de pluie fine et de reflets humides au sol en arrière-plan, ambiance cinématique nocturne">🌧️ Effet pluie</div>
+      <div class="peChip" data-p="transforme la photo en illustration façon dessin animé/cartoon coloré, traits nets, tout en gardant la pose et les proportions du sujet reconnaissables">🖌️ Style cartoon</div>
     </div>
     <div id="photoEnhHint" style="font-size:11px;color:var(--text2);margin:-4px 0 12px;">Astuce : sois précis (ex. "fond blanc, lumière douce, garde mon visage identique") pour un rendu plus fidèle et plus beau.</div>
     <div id="photoEnhInputRow">
@@ -12117,6 +12143,125 @@ if(currentUser) jbCheckReturnFromPaydunya();
     doApply(c.dataset.p);
   }));
   input.addEventListener('keydown', e=>{ if(e.key==='Enter') applyBtn.click(); });
+
+  // ═══════════════════════════════════════════════════
+  // ⚫🎨 FILTRES INSTANTANÉS — 100% hors-ligne, aucune IA, aucun réseau.
+  // Simple Canvas 2D (ctx.filter), résultat immédiat.
+  // ═══════════════════════════════════════════════════
+  function applyInstantFilter(cssFilter){
+    if(!_peSourceUrl) return;
+    if(cssFilter==='none'){ _peResultUrl=null; imgEl.src=_peSourceUrl; useBtn.disabled=true; return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+      try{
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || 1024; canvas.height = img.naturalHeight || 1024;
+        const ctx = canvas.getContext('2d');
+        ctx.filter = cssFilter;
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        canvas.toBlob(blob=>{
+          if(!blob){ showToast('❌ Filtre impossible sur cette image'); return; }
+          _peResultUrl = URL.createObjectURL(blob);
+          imgEl.src = _peResultUrl;
+          useBtn.disabled = false;
+        }, 'image/jpeg', 0.92);
+      }catch(err){
+        // "tainted canvas" si l'image ne renvoie pas les bons en-têtes CORS
+        showToast('❌ Filtre impossible (photo pas encore hébergée, réessaie après upload)');
+      }
+    };
+    img.onerror = ()=> showToast('❌ Impossible de charger la photo pour le filtre');
+    img.src = _peSourceUrl;
+  }
+  document.querySelectorAll('.peChipOffline[data-f]').forEach(c=>{
+    c.addEventListener('click', ()=>applyInstantFilter(c.dataset.f));
+  });
+
+  // ═══════════════════════════════════════════════════
+  // 🧠 IA DE SUPPRESSION DE FOND — 100% hors-ligne après le 1er chargement.
+  // Vrai réseau de neurones (TensorFlow.js + MediaPipe Selfie Segmentation),
+  // exécuté ENTIÈREMENT sur le téléphone. Le modèle (~3 Mo) n'est téléchargé
+  // qu'une seule fois (le navigateur le garde en cache) ; ensuite, aucune
+  // connexion n'est nécessaire pour détourer une photo.
+  // ═══════════════════════════════════════════════════
+  let _bgLibsLoaded = false, _bgLibsLoading = null, _bgSegmenter = null;
+  function _peLoadScript(src){
+    return new Promise((resolve,reject)=>{
+      if(document.querySelector('script[data-pe-lib="'+src+'"]')){ resolve(); return; }
+      const s = document.createElement('script');
+      s.src = src; s.dataset.peLib = src;
+      s.onload = ()=>resolve();
+      s.onerror = ()=>reject(new Error('offline'));
+      document.head.appendChild(s);
+    });
+  }
+  async function loadBgRemovalLibs(){
+    if(_bgLibsLoaded) return true;
+    if(_bgLibsLoading) return _bgLibsLoading;
+    _bgLibsLoading = (async()=>{
+      await _peLoadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.20.0/dist/tf-core.min.js');
+      await _peLoadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.20.0/dist/tf-converter.min.js');
+      await _peLoadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.20.0/dist/tf-backend-webgl.min.js');
+      await _peLoadScript('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js');
+      await _peLoadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/body-segmentation@1.0.2/dist/body-segmentation.min.js');
+      _bgLibsLoaded = true;
+      return true;
+    })();
+    return _bgLibsLoading;
+  }
+  async function getBgSegmenter(){
+    if(_bgSegmenter) return _bgSegmenter;
+    await loadBgRemovalLibs();
+    _bgSegmenter = await bodySegmentation.createSegmenter(
+      bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation,
+      { runtime:'tfjs', modelType:'general' }
+    );
+    return _bgSegmenter;
+  }
+  async function removeBackgroundAI(){
+    if(!_peSourceUrl) return;
+    loadingEl.classList.add('active');
+    applyBtn.disabled = true;
+    if(peLoadingMsg) peLoadingMsg.textContent = _bgLibsLoaded ? 'Détourage en cours...' : 'Téléchargement de l\'IA locale (1ère fois, besoin d\'internet)...';
+    try{
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise((res,rej)=>{ img.onload=()=>res(); img.onerror=()=>rej(new Error('img')); img.src=_peSourceUrl; });
+      const segmenter = await getBgSegmenter();
+      if(peLoadingMsg) peLoadingMsg.textContent = 'Détourage en cours...';
+      const segmentation = await segmenter.segmentPeople(img);
+      if(!segmentation || !segmentation.length) throw new Error('no-segmentation');
+      const mask = await bodySegmentation.toBinaryMask(
+        segmentation,
+        {r:0,g:0,b:0,a:255}, // sujet conservé (opaque)
+        {r:0,g:0,b:0,a:0}    // fond → transparent
+      );
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.putImageData(mask, 0, 0);
+      ctx.globalCompositeOperation = 'source-in';
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob(blob=>{
+        if(!blob){ throw new Error('blob'); }
+        _peResultUrl = URL.createObjectURL(blob);
+        imgEl.src = _peResultUrl;
+        loadingEl.classList.remove('active');
+        applyBtn.disabled = false;
+        useBtn.disabled = false;
+        showToast('✅ Fond supprimé — IA locale, hors-ligne');
+      }, 'image/png');
+    }catch(e){
+      loadingEl.classList.remove('active');
+      applyBtn.disabled = false;
+      showToast(_bgLibsLoaded
+        ? '❌ Aucune personne/objet détecté clairement sur cette photo'
+        : '❌ 1ère utilisation : connecte-toi une fois pour télécharger l\'IA locale (ensuite ça marchera hors-ligne)');
+    }
+  }
+  document.getElementById('peBgRemoveBtn')?.addEventListener('click', removeBackgroundAI);
+
   keepBtn.addEventListener('click', ()=>{
     if(_peOnAccept) _peOnAccept(_peSourceUrl);
     closeEnh();
