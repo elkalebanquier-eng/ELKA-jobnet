@@ -445,6 +445,23 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 .pcard-info {
   position: absolute; bottom: 44px; left: 12px; right: 56px; z-index: 3;
 }
+.pcard-author-row { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.pcard-av {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold), var(--navy2));
+  border: 2px solid rgba(255,255,255,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; color: #fff;
+  overflow: hidden;
+}
+.pcard-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pcard-name {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+  color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
+}
+.pcard-time { font-size: 11px; color: rgba(255,255,255,0.7); text-shadow: 0 1px 3px rgba(0,0,0,0.5); margin-top: 1px; }
+.pcard-desc { font-size: 13px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); margin-top: 6px; line-height: 1.4; word-break: break-word; }
 .pcard-actions {
   position: absolute; right: 8px; bottom: 44px;
   display: flex; flex-direction: column; gap: 2px; z-index: 3;
@@ -3181,19 +3198,6 @@ body:not(.screen-home) #topnav{
     <input type="text" class="market-filter-inp" id="marketSearch" placeholder="🔍 Rechercher un produit, un service..." oninput="applyMarketFilters()">
     <button class="market-price-btn" onclick="openPriceModal()">💰 Prix</button>
   </div>
-  <div class="market-cats" id="marketCats">
-    <div class="mcat active" data-cat="tous" onclick="filterMarket('tous',this)">Tous</div>
-    <div class="mcat" data-cat="produits" onclick="filterMarket('produits',this)">Produits</div>
-    <div class="mcat" data-cat="vehicules" onclick="filterMarket('vehicules',this)">🚗 Véhicules</div>
-    <div class="mcat" data-cat="immobilier" onclick="filterMarket('immobilier',this)">🏠 Immobilier</div>
-    <div class="mcat" data-cat="services" onclick="filterMarket('services',this)">🔧 Services</div>
-    <div class="mcat" data-cat="electronique" onclick="filterMarket('electronique',this)">📱 Électronique</div>
-    <div class="mcat" data-cat="vetements" onclick="filterMarket('vetements',this)">👗 Vêtements</div>
-    <div class="mcat" data-cat="alimentation" onclick="filterMarket('alimentation',this)">🍎 Alimentation</div>
-    <div class="mcat" data-cat="agriculture" onclick="filterMarket('agriculture',this)">🌾 Agriculture</div>
-    <div class="mcat" data-cat="autre" onclick="filterMarket('autre',this)">📦 Autre</div>
-  </div>
-
   <div class="mkt-section">
     <div class="mkt-section-head"><span>Catégories populaires</span><span class="mkt-see-all" onclick="filterMarket('tous', document.querySelector('#marketCats [data-cat=\'tous\']'))">Voir tout</span></div>
     <div class="mkt-cats-grid" id="mktPopularCats"></div>
