@@ -4312,6 +4312,7 @@ body:not(.screen-home) #topnav{
          (permission WebView non accordée), on bascule sur l'appareil photo natif du
          téléphone via ce input capture= — ça marche toujours, même sans getUserMedia. -->
     <input type="file" id="camNativeFallbackInput" accept="image/*" capture="environment" style="display:none" onchange="camNativeFallbackSelected(this)">
+    <input type="file" id="camNativeVideoFallbackInput" accept="video/*" capture="environment" style="display:none" onchange="camNativeVideoFallbackSelected(this)">
     <div class="cam-shutter photo-mode" id="camShutter" onclick="camCapture()">
       <div class="cam-shutter-outer"></div>
       <div class="cam-shutter-inner"></div>
@@ -10757,12 +10758,9 @@ async function startCamStream(){
       closeCamera();
       document.getElementById('camNativeFallbackInput').click();
     } else {
-      if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
-        showToast('❌ Caméra refusée — active-la dans les réglages du téléphone (ou de l\'app)');
-      } else {
-        showToast('❌ Caméra non disponible pour la vidéo : '+e.message);
-      }
+      showToast('🎥 Bascule sur la caméra vidéo du téléphone...');
       closeCamera();
+      document.getElementById('camNativeVideoFallbackInput').click();
     }
   }
 }
@@ -10778,6 +10776,19 @@ function camNativeFallbackSelected(input){
   } else {
     handleCamFileForPost(file, 'photo');
     showToast('💡 Astuce : appuie sur "✨ IA" sur la photo pour ajouter un filtre');
+  }
+}
+
+// Reçoit la vidéo filmée via la caméra native (fallback), et la traite
+// exactement comme une vidéo filmée via le live-preview : direction "post" ou "story".
+function camNativeVideoFallbackSelected(input){
+  const file = input.files[0];
+  input.value='';
+  if(!file) return;
+  if(_camCalledFrom==='story' || _camCalledFrom==='status'){
+    handleCamFileForStory(file, 'video');
+  } else {
+    handleCamFileForPost(file, 'video');
   }
 }
 
