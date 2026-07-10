@@ -356,6 +356,11 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   box-shadow: 0 2px 12px rgba(7,26,61,0.08), 0 1px 3px rgba(7,26,61,0.05);
   border: 1px solid rgba(7,26,61,0.06);
   transition: box-shadow 0.2s ease, transform 0.15s ease;
+  /* Virtualisation légère : le navigateur saute layout/paint pour les cartes
+     loin hors écran (scroll infini avec des centaines de vidéos accumulées).
+     Ne touche jamais au DOM ni au scroll → aucun risque de casser la position. */
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 640px;
 }
 .vcard:active {
   transform: scale(0.993) translateZ(0);
@@ -471,6 +476,79 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .pcard-action-icon { font-size: 20px; }
 .pcard-action span { font-size: 10px; font-weight: 700; color: #fff; }
+
+/* ═══ En-tête façon Instagram — au-dessus de la photo (avatar, nom, bouton suivre) ═══ */
+.pcard-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 13px 10px;
+}
+.pcard-header .pcard-av {
+  width: 38px; height: 38px; font-size: 14px;
+  border: 2px solid var(--border);
+}
+.pcard-header-info { flex: 1; min-width: 0; }
+.pcard-header-name {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+  color: var(--text); display: flex; align-items: center; gap: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pcard-header-time { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.pcard-follow-btn {
+  flex-shrink: 0; border: none; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+  padding: 7px 15px; border-radius: 20px;
+  background: var(--gold); color: #1a0a00;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.pcard-follow-btn.following {
+  background: var(--surface2); color: var(--text2); border: 1px solid var(--border2);
+}
+
+/* Photo propre — plus d'infos superposées (déplacées dans l'en-tête) */
+.pcard.pcard-clean .pcard-gradient { display: none; }
+.pcard.pcard-clean .pcard-info { display: none; } /* ancien overlay, remplacé par l'en-tête */
+.pcard.pcard-clean .pcard-actions { display: none; } /* ancien overlay, remplacé par la barre d'actions */
+
+/* Bande son — sous la photo, en flux normal (plus en overlay) */
+.pcard-music-row {
+  display: flex; align-items: center; gap: 9px;
+  margin: 9px 13px 0; padding: 7px 10px;
+  background: var(--surface2); border-radius: 20px; cursor: pointer;
+}
+.pcard-music-row .pcard-music-disc {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  background: var(--navy2); overflow: hidden;
+}
+.pcard-music-row .pcard-music-text {
+  font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Barre d'actions façon Instagram — icônes seules à gauche, favoris à droite */
+.pcard-actionbar {
+  display: flex; align-items: center; gap: 4px;
+  padding: 8px 6px 2px;
+}
+.pcard-actionbar .pcard-action { flex-direction: row; gap: 0; padding: 6px 8px; }
+.pcard-actionbar .pcard-action-icon { font-size: 21px; color: var(--text); }
+.pcard-actionbar .pcard-action span { display: none; } /* le nombre passe sur la ligne "j'aime" */
+.pcard-save-btn {
+  margin-left: auto; background: none; border: none; cursor: pointer;
+  font-size: 19px; color: var(--text2); padding: 6px 10px;
+}
+.pcard-save-btn.saved { color: var(--gold); }
+
+/* Ligne "X j'aime" */
+.pcard-likecount {
+  padding: 2px 13px 0; font-size: 13px; font-weight: 700; color: var(--text);
+  font-family: 'Syne', sans-serif;
+}
+/* Légende façon Instagram — auteur en gras + texte, même ligne */
+.pcard-caption-line {
+  padding: 4px 13px 10px; font-size: 13px; color: var(--text); line-height: 1.5;
+  word-break: break-word;
+}
+.pcard-caption-line b { font-weight: 700; margin-right: 5px; }
 
 /* tcard inline */
 .tcard {
@@ -953,17 +1031,19 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .heart-anim.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 
-/* ═══ RECONNAISSANCE ANIMATION ═══ */
+/* ═══ RECONNAISSANCE ANIMATION — fusion de l'emblème KIKO 👑 (plus de mots texte) ═══ */
 .kiko-reco-layer {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 30; overflow: hidden;
 }
-.kiko-reco-word {
-  position: absolute; font-family: 'Syne', sans-serif; font-weight: 800;
-  font-size: 28px; color: #fff; opacity: 0;
-  text-shadow: 0 0 18px rgba(255,138,0,0.9), 0 0 40px rgba(255,138,0,0.5);
+.kiko-reco-emblem {
+  position: absolute; width: 46px; height: 46px; opacity: 0;
   pointer-events: none;
+  filter: drop-shadow(0 0 12px rgba(255,138,0,0.85)) drop-shadow(0 0 26px rgba(255,138,0,0.4));
 }
+.kiko-reco-emblem svg { width: 100%; height: 100%; display: block; }
+.kiko-reco-emblem.half-left svg  { clip-path: inset(0 50% 0 0); }
+.kiko-reco-emblem.half-right svg { clip-path: inset(0 0 0 50%); }
 @keyframes kikoRecoA {
   0%   { opacity:0; transform:translate(0,0) scale(0.6); }
   25%  { opacity:1; transform:translate(-12px,-30px) scale(1); }
@@ -977,8 +1057,8 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   100% { opacity:0; transform:translate(20px,-80px) scale(1.05); }
 }
 @keyframes kikoRecoFull {
-  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
-  15%  { opacity:1; transform:translate(-50%,-50%) scale(1.15); }
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5) rotate(-8deg); }
+  15%  { opacity:1; transform:translate(-50%,-50%) scale(1.2) rotate(0deg); }
   60%  { opacity:1; transform:translate(-50%,-120px) scale(1); }
   100% { opacity:0; transform:translate(-50%,-140px) scale(0.9); }
 }
@@ -2418,6 +2498,8 @@ textarea.inp { resize: none; }
     transparent 70%);
   pointer-events: none;
 }
+/* Plus d'infos auteur superposées à la photo (déplacées dans l'en-tête) → pas besoin du dégradé */
+.pfcard-img-wrap.pfcard-clean::after { display: none; }
 
 /* Badge multi-photos */
 .pfcard-multi {
@@ -2470,6 +2552,69 @@ textarea.inp { resize: none; }
 }
 .pfcard-remix { background: rgba(91,141,239,0.8); color: #fff; }
 .pfcard-text  { background: rgba(201,168,76,0.8); color: #000; }
+
+/* ═══ En-tête façon Instagram — au-dessus de la photo (avatar, nom, bouton suivre) ═══ */
+.pfcard-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 13px 10px;
+}
+.pfcard-header .pfcard-av {
+  width: 38px; height: 38px; font-size: 14px;
+  border: 2px solid var(--border);
+  background: linear-gradient(135deg, var(--gold), var(--navy2));
+}
+.pfcard-header .pfcard-info { flex: 1; min-width: 0; }
+.pfcard-header .pfcard-name {
+  color: var(--text); text-shadow: none; font-size: 14px; max-width: none;
+}
+.pfcard-header .pfcard-ago { color: var(--muted); }
+.pfcard-follow-btn {
+  flex-shrink: 0; border: none; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+  padding: 7px 15px; border-radius: 20px;
+  background: var(--gold); color: #1a0a00;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.pfcard-follow-btn.following {
+  background: var(--surface2); color: var(--text2); border: 1px solid var(--border2);
+}
+
+/* Photo — plus d'infos auteur en overlay, juste le badge multi-photo façon "1/9" */
+.pfcard-pagebadge {
+  position: absolute; top: 9px; right: 9px; z-index: 4;
+  background: rgba(0,0,0,0.55); color: #fff;
+  font-size: 11px; font-weight: 700; font-family: 'Syne', sans-serif;
+  padding: 3px 9px; border-radius: 12px;
+  backdrop-filter: blur(4px);
+}
+
+/* Barre d'actions façon Instagram — icônes seules à gauche, favoris à droite */
+.pfcard-actionbar {
+  display: flex; align-items: center; gap: 4px;
+  padding: 8px 6px 2px;
+}
+.pfcard-actionbar .pfact { font-size: 21px; padding: 6px 8px; gap: 0; }
+.pfcard-actionbar .pfact-n { display: none; }
+.pfcard-save-btn {
+  margin-left: auto; background: none; border: none; cursor: pointer;
+  font-size: 19px; color: var(--text2); padding: 6px 10px;
+}
+.pfcard-save-btn.saved { color: var(--gold); }
+
+/* Ligne "X j'aime" */
+.pfcard-likecount {
+  padding: 2px 13px 0;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  font-family: 'Syne', sans-serif;
+}
+
+/* Légende façon Instagram — auteur en gras + texte, même ligne */
+.pfcard-caption-line {
+  padding: 4px 13px 2px;
+  font-size: 13px; color: var(--text); line-height: 1.5;
+  word-break: break-word;
+}
+.pfcard-caption-line b { font-weight: 700; margin-right: 5px; }
 
 /* Caption sous la photo */
 .pfcard-caption {
@@ -2943,20 +3088,62 @@ body:not(.screen-home) #topnav{
 #kikoRadialOverlay.active{ opacity: 1; pointer-events: auto; }
 .kiko-radial-item{
   position: fixed; z-index: 960;
-  width: 64px; height: 64px; border-radius: 50%;
+  width: 68px; height: 68px; border-radius: 20px;
   background: var(--glass);
   border: 1px solid var(--border2);
   box-shadow: var(--shadow-lg);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; font-size: 20px; color: var(--text);
-  left: 50%; bottom: 86px;
-  transform: translate(-50%, 0) scale(0.3);
+  gap: 3px; font-size: 21px; color: var(--text);
+  left: 0; top: 0;
+  transform: translate(-50%, -50%) scale(0.3);
   opacity: 0; pointer-events: none;
   transition: transform 0.38s var(--ease-out), opacity 0.3s var(--ease-out);
 }
-.kiko-radial-item span{ font-size: 8.5px; font-weight: 700; color: var(--text2); letter-spacing: 0.2px; }
+.kiko-radial-item svg{ width:22px; height:22px; }
+.kiko-radial-item span{ font-size: 8.5px; font-weight: 700; color: var(--text2); letter-spacing: 0.2px; text-align:center; }
 #kikoPublishRadialOverlay.active .kiko-radial-item{ opacity: 1; pointer-events: auto; }
-.kiko-radial-item:active{ transform: translate(-50%,0) scale(0.92) !important; }
+.kiko-radial-item:active{ transform: translate(-50%,-50%) scale(0.92) !important; }
+
+/* Bouton central lumineux (X) façon compas */
+.kiko-radial-center{
+  position: fixed; z-index: 961;
+  width: 92px; height: 92px; border-radius: 50%;
+  left: 0; top: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: #fff; font-weight: 300;
+  background: radial-gradient(circle, rgba(255,122,48,0.95) 0%, rgba(255,122,48,0.55) 45%, rgba(255,122,48,0.12) 72%, transparent 100%);
+  box-shadow: 0 0 28px 6px rgba(255,122,48,0.55), 0 0 60px 22px rgba(255,122,48,0.22);
+  transform: translate(-50%,-50%) scale(0.3);
+  opacity: 0; pointer-events: none;
+  transition: transform 0.38s var(--ease-out), opacity 0.3s var(--ease-out), left 0.25s var(--ease-out), top 0.25s var(--ease-out);
+}
+#kikoPublishRadialOverlay.active .kiko-radial-center{ opacity: 1; pointer-events: auto; transform: translate(-50%,-50%) scale(1); }
+.kiko-radial-center:active{ transform: translate(-50%,-50%) scale(0.9) !important; }
+
+/* Anneaux décoratifs autour du centre */
+.kiko-radial-ring{
+  position: fixed; z-index: 955; border-radius: 50%;
+  left: 0; top: 0;
+  border: 1px dashed rgba(255,122,48,0.32);
+  pointer-events: none;
+  opacity: 0; transition: opacity 0.45s ease, left 0.25s var(--ease-out), top 0.25s var(--ease-out);
+}
+#kikoPublishRadialOverlay.active .kiko-radial-ring{ opacity: 1; }
+.kiko-radial-ring.r1{ width: 210px; height: 210px; transform: translate(-50%,-50%); }
+.kiko-radial-ring.r2{ width: 300px; height: 300px; transform: translate(-50%,-50%); animation: kikoRingSpin 20s linear infinite; }
+@keyframes kikoRingSpin{ from{ transform: translate(-50%,-50%) rotate(0deg); } to{ transform: translate(-50%,-50%) rotate(360deg); } }
+
+/* Lignes de connexion entre le centre et chaque bouton */
+.kiko-radial-line{
+  position: fixed; z-index: 954; pointer-events: none;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+#kikoPublishRadialOverlay.active .kiko-radial-line{ opacity: 1; }
+.kiko-radial-line.vert{ width: 0; border-left: 2px dashed rgba(255,122,48,0.45); }
+.kiko-radial-line.horiz{ height: 0; border-top: 2px dashed rgba(255,122,48,0.45); }
+
+/* Verrou de scroll pendant que le menu radial est ouvert */
+html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
 
 /* ─── MARKETPLACE — cartes inclinées en verre ─── */
 .prod-card{
@@ -3256,6 +3443,22 @@ body:not(.screen-home) #topnav{
       <div class="aeschat-conv-preview">Pose tes questions sur un métier — mécanique, plomberie, électricité...</div>
     </div>
   </div>
+
+  <!-- Notifications — épinglées en haut du chat, résumé intelligent (regroupé par type) -->
+  <div class="aeschat-conv-item" id="notifPinnedItem" onclick="showScreen('notif')">
+    <div class="aeschat-conv-av-wrap">
+      <div class="aeschat-conv-av" style="background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;font-size:20px;">🔔</div>
+    </div>
+    <div class="aeschat-conv-body">
+      <div class="aeschat-conv-name">Notifications</div>
+      <div class="aeschat-conv-preview" id="notifPinnedPreview">Aucune nouvelle notification</div>
+    </div>
+    <div class="aeschat-conv-meta">
+      <div class="aeschat-conv-time" id="notifPinnedTime"></div>
+      <div class="aeschat-conv-badge" id="notifPinnedBadge" style="display:none;"></div>
+    </div>
+  </div>
+
 
   <!-- Liste conversations -->
   <div class="aeschat-convlist" id="dmList"></div>
@@ -4012,10 +4215,29 @@ body:not(.screen-home) #topnav{
 
 <!-- MENU RADIAL KIKO👑 (bouton Publier) -->
 <div id="kikoPublishRadialOverlay" onclick="kikoClosePublishRadial()">
-  <div class="kiko-radial-item" id="krVideo" onclick="event.stopPropagation();kikoRadialAction('video')">🎬<span>Vidéo</span></div>
-  <div class="kiko-radial-item" id="krPhoto" onclick="event.stopPropagation();kikoRadialAction('photo')">📸<span>Photo</span></div>
-  <div class="kiko-radial-item" id="krProduit" onclick="event.stopPropagation();kikoRadialAction('produit')">🛍️<span>Produit</span></div>
-  <div class="kiko-radial-item" id="krOpp" onclick="event.stopPropagation();kikoRadialAction('opportunite')">💡<span>Opportunité</span></div>
+  <div class="kiko-radial-ring r2"></div>
+  <div class="kiko-radial-ring r1"></div>
+  <div class="kiko-radial-line vert"   id="krLineTop"></div>
+  <div class="kiko-radial-line vert"   id="krLineBottom"></div>
+  <div class="kiko-radial-line horiz"  id="krLineLeft"></div>
+  <div class="kiko-radial-line horiz"  id="krLineRight"></div>
+  <div class="kiko-radial-center" onclick="event.stopPropagation();kikoClosePublishRadial()">✕</div>
+  <div class="kiko-radial-item" id="krVideo" onclick="event.stopPropagation();kikoRadialAction('video')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6.5" width="13" height="11" rx="2.3"/><path d="M15.5 10.2l5-2.8v9.2l-5-2.8"/></svg>
+    <span>Créer vidéo</span>
+  </div>
+  <div class="kiko-radial-item" id="krPhoto" onclick="event.stopPropagation();kikoRadialAction('photo')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.3"/><circle cx="8.3" cy="9.3" r="1.6"/><path d="M21 15.5l-5.4-5.2a2 2 0 0 0-2.7 0L4 19"/></svg>
+    <span>Photo</span>
+  </div>
+  <div class="kiko-radial-item" id="krProduit" onclick="event.stopPropagation();kikoRadialAction('produit')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1.2 12.2a2 2 0 0 1-2 2.1H6.8a2 2 0 0 1-2-2.1L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+    <span>Produit</span>
+  </div>
+  <div class="kiko-radial-item" id="krOpp" onclick="event.stopPropagation();kikoRadialAction('opportunite')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2.2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5"/><path d="M3 12.5h18"/></svg>
+    <span>Opportunité</span>
+  </div>
 </div>
 
 <!-- AUTH -->
@@ -4705,6 +4927,82 @@ firebase.initializeApp({
 const db=firebase.database();
 
 // ═══════════════════════════════════════
+//  CAPACITOR — pont natif (APK uniquement)
+//  KIKO reste un fichier unique sans bundler : on utilise le pont global
+//  window.Capacitor.Plugins (injecté automatiquement par Capacitor dans
+//  l'APK) plutôt que la syntaxe `import`, qui nécessiterait un bundler.
+//  En navigateur web classique (test local), window.Capacitor n'existe
+//  pas : tout ce bloc devient un no-op silencieux, zéro régression.
+// ═══════════════════════════════════════
+function kikoIsNative(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+
+// Enregistre les notifications push natives (FCM via Capacitor) et relie
+// le token à l'utilisateur connecté + gère le tap sur une notif reçue.
+let _kikoPushInit=false;
+async function kikoInitPush(){
+  if(!kikoIsNative() || !currentUser || _kikoPushInit) return;
+  const Push = window.Capacitor.Plugins.PushNotifications;
+  if(!Push) return;
+  _kikoPushInit=true;
+  try{
+    const perm = await Push.checkPermissions();
+    if(perm.receive!=='granted'){
+      const req = await Push.requestPermissions();
+      if(req.receive!=='granted'){ _kikoPushInit=false; return; }
+    }
+    await Push.register();
+
+    Push.addListener('registration', token=>{
+      if(currentUser && token?.value){
+        db.ref('users/'+currentUser.uid+'/fcmToken').set(token.value);
+      }
+    });
+    Push.addListener('registrationError', err=>{
+      console.warn('Push registration error:', err);
+    });
+    // Notif reçue pendant que l'app est ouverte au premier plan
+    Push.addListener('pushNotificationReceived', notif=>{
+      const title = notif.title || notif.notification?.title || 'KIKO';
+      showToast('🔔 '+title);
+    });
+    // Tap sur une notif (app en arrière-plan ou fermée) → ouvre le bon écran
+    Push.addListener('pushNotificationActionPerformed', action=>{
+      const data = action.notification?.data || {};
+      if(data.type==='chat') showScreen('dm');
+      else if(data.type==='like'||data.type==='comment'||data.type==='follow') showScreen('notif');
+      else if(data.type==='video'&&data.vidId){ showScreen('buzz'); }
+    });
+  }catch(e){
+    console.warn('kikoInitPush error:', e);
+    _kikoPushInit=false;
+  }
+}
+
+// Prend une photo via l'appareil photo natif Capacitor (utilisé uniquement
+// en fallback, quand le live-preview getUserMedia échoue — voir startCamStream).
+// Renvoie un objet File exploitable par handleCamFileForPost/handleCamFileForStory,
+// ou null si indisponible/annulé.
+async function kikoNativeCameraPhoto(){
+  if(!kikoIsNative()) return null;
+  const Cam = window.Capacitor.Plugins.Camera;
+  if(!Cam) return null;
+  try{
+    const photo = await Cam.getPhoto({
+      resultType:'dataUrl', source:'CAMERA', quality:85, saveToGallery:false
+    });
+    if(!photo?.dataUrl) return null;
+    const res = await fetch(photo.dataUrl);
+    const blob = await res.blob();
+    return new File([blob], 'kiko_photo_'+Date.now()+'.jpg', {type:blob.type||'image/jpeg'});
+  }catch(e){
+    console.warn('kikoNativeCameraPhoto annulé/échoué:', e);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════
 //  CLOUDINARY (sans watermark — fix lecteur)
 // ═══════════════════════════════════════
 function clUpload(file,onP){
@@ -5053,12 +5351,13 @@ function kikoShowOnboarding(){
 let currentUser=JSON.parse(localStorage.getItem('aes_user')||'null');
 let liked=JSON.parse(localStorage.getItem('aes_liked')||'[]');
 let favorites=JSON.parse(localStorage.getItem('aes_favs')||'[]');
+let savedPosts=JSON.parse(localStorage.getItem('aes_saved_posts')||'[]');
 let following=JSON.parse(localStorage.getItem('aes_following')||'{}');
 let allVids=[],allProds=[];
 let curVidId=null,storyTmr=null,authMode='login',pendingAction=null,feedMode='forYou';
 let curProd=null,prodPhotoFile=null;
 let priceMin=null,priceMax=null,currentCat='tous';
-let curChatUid=null,curChatName=null;
+let curChatUid=null,curChatName=null,curChatVerified=false;
 let curStories=[],curStoryIdx=0,curGroupIdx=0,allStoryGroups=[];
 let searchTabCurrent='videos';
 let notifListener=null,commentsListener=null;
@@ -5334,42 +5633,93 @@ function vpsOnThumbSelected(input){
   if(!preview) return;
   const reader=new FileReader();
   reader.onload=function(e){
-    preview.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+    preview.innerHTML=`<img src="${e.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
   };
   reader.readAsDataURL(file);
   window.vpsCustomThumbFile=file;
 }
 function kikoToggleRadial(el){ kikoRadialOpen?kikoClosePublishRadial():kikoOpenPublishRadial(el); }
-function kikoOpenPublishRadial(triggerEl){
-  const npost=triggerEl||document.querySelector('.npost')||document.querySelector('.jb-fab');
-  if(!npost) return;
-  const r=npost.getBoundingClientRect();
-  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+
+// Calcule cx/cy/dist en fonction de la taille d'écran, en évitant le header et la nav du bas
+function kikoRadialGeometry(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const headerSafe=64, navSafe=90, itemR=34;
+  let dist=Math.min(132, vw*0.34);
+  const vMax=(vh-headerSafe-navSafe)/2 - itemR;
+  if(vMax>60) dist=Math.min(dist, vMax);
+  dist=Math.max(dist, 78);
+  const cx=vw/2;
+  let cy=vh/2;
+  const minCy=headerSafe+dist+itemR;
+  const maxCy=vh-navSafe-dist-itemR;
+  if(maxCy>minCy) cy=Math.min(Math.max(cy,minCy),maxCy);
+  else cy=(minCy+maxCy)/2;
+  return {cx,cy,dist};
+}
+
+// Positionne tous les éléments (centre, items, lignes) selon la géométrie donnée
+function kikoPlaceRadialElements(animateStagger){
+  const {cx,cy,dist}=kikoRadialGeometry();
+  const centerR=46, itemR=34;
+  const center=document.getElementById('kikoPublishRadialOverlay').querySelector('.kiko-radial-center');
+  center.style.left=cx+'px'; center.style.top=cy+'px';
+  document.querySelectorAll('.kiko-radial-ring').forEach(r=>{ r.style.left=cx+'px'; r.style.top=cy+'px'; });
+
   const items=[
-    {id:'krVideo',angle:200},
-    {id:'krPhoto',angle:160},
-    {id:'krProduit',angle:130},
-    {id:'krOpp',angle:90}
+    {id:'krVideo',  dx:0,     dy:-dist},
+    {id:'krPhoto',  dx:-dist, dy:0},
+    {id:'krProduit',dx:dist,  dy:0},
+    {id:'krOpp',    dx:0,     dy:dist}
   ];
-  const dist=92;
   items.forEach((it,i)=>{
     const el=document.getElementById(it.id);
-    const rad=it.angle*Math.PI/180;
-    const dx=Math.cos(rad)*dist, dy=-Math.sin(rad)*dist;
-    el.style.left=(cx+dx)+'px';
-    el.style.top=(cy+dy)+'px';
-    el.style.bottom='auto';
-    el.style.transform=`translate(-50%,-50%) scale(0.3)`;
-    setTimeout(()=>{ el.style.transform=`translate(-50%,-50%) scale(1)`; }, i*45);
+    el.style.left=(cx+it.dx)+'px';
+    el.style.top=(cy+it.dy)+'px';
+    if(animateStagger){
+      el.style.transform='translate(-50%,-50%) scale(0.3)';
+      setTimeout(()=>{ el.style.transform='translate(-50%,-50%) scale(1)'; }, i*45);
+    } else {
+      el.style.transform='translate(-50%,-50%) scale(1)';
+    }
   });
+
+  const lineLen=Math.max(dist-centerR-itemR, 10);
+  const lTop=document.getElementById('krLineTop');
+  lTop.style.left=cx+'px'; lTop.style.top=(cy-dist+itemR)+'px'; lTop.style.height=lineLen+'px';
+  const lBottom=document.getElementById('krLineBottom');
+  lBottom.style.left=cx+'px'; lBottom.style.top=(cy+centerR)+'px'; lBottom.style.height=lineLen+'px';
+  const lLeft=document.getElementById('krLineLeft');
+  lLeft.style.left=(cx-dist+itemR)+'px'; lLeft.style.top=cy+'px'; lLeft.style.width=lineLen+'px'; lLeft.style.transform='translateY(-50%)';
+  const lRight=document.getElementById('krLineRight');
+  lRight.style.left=(cx+centerR)+'px'; lRight.style.top=cy+'px'; lRight.style.width=lineLen+'px'; lRight.style.transform='translateY(-50%)';
+}
+
+function kikoRadialReposition(){
+  if(!kikoRadialOpen) return;
+  kikoPlaceRadialElements(false);
+}
+
+function kikoLockBodyScroll(lock){
+  document.documentElement.classList.toggle('kiko-noscroll', lock);
+}
+
+function kikoOpenPublishRadial(triggerEl){
+  kikoPlaceRadialElements(true);
   document.getElementById('kikoPublishRadialOverlay').classList.add('active');
   kikoRadialOpen=true;
+  kikoLockBodyScroll(true);
+  if(!window._kikoRadialResizeBound){
+    window.addEventListener('resize', kikoRadialReposition);
+    window.addEventListener('orientationchange', kikoRadialReposition);
+    window._kikoRadialResizeBound=true;
+  }
   if(navigator.vibrate) navigator.vibrate(8);
 }
 function kikoClosePublishRadial(){
   document.getElementById('kikoPublishRadialOverlay').classList.remove('active');
   document.querySelectorAll('.kiko-radial-item').forEach(el=>{ el.style.transform='translate(-50%,-50%) scale(0.3)'; });
   kikoRadialOpen=false;
+  kikoLockBodyScroll(false);
 }
 function kikoRadialAction(type){
   kikoClosePublishRadial();
@@ -5572,7 +5922,7 @@ function renderMusicLibraryList(){
     const el=document.createElement('div');
     el.className='music-lib-item';el.id='mlib-'+track.id;
     if(selectedMusic&&selectedMusic.url===track.url&&!selectedMusic.fromGallery)el.classList.add('active');
-    el.innerHTML=`<div class="music-lib-disc">${track.cover?`<img src="${track.cover}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:track.emoji}</div><div class="music-lib-info"><div class="music-lib-name">${track.name}</div><div class="music-lib-artist">${track.artist} · ${track.genre}</div></div><div class="music-lib-play" id="mplay-${track.id}">▶️</div>`;
+    el.innerHTML=`<div class="music-lib-disc">${track.cover?`<img src="${track.cover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:track.emoji}</div><div class="music-lib-info"><div class="music-lib-name">${track.name}</div><div class="music-lib-artist">${track.artist} · ${track.genre}</div></div><div class="music-lib-play" id="mplay-${track.id}">▶️</div>`;
     el.onclick=()=>selectLibraryTrack(track,el);
     lib.appendChild(el);
     document.getElementById('mplay-'+track.id).onclick=e=>{
@@ -5615,7 +5965,7 @@ function onPhotoMusicSelected(inp){
 function showMusicSelectedUI(emoji,name,artist,cover){
   const el=document.getElementById('photoMusicSelected');
   el.style.display='flex';
-  document.getElementById('photoMusicSelIcon').innerHTML=cover?`<img src="${cover}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:emoji;
+  document.getElementById('photoMusicSelIcon').innerHTML=cover?`<img src="${cover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:emoji;
   document.getElementById('photoMusicSelName').innerText=name;
   document.getElementById('photoMusicSelArtist').innerText=artist;
 }
@@ -5681,7 +6031,7 @@ function renderPhotoPreviews(){
   grid.innerHTML=photoFiles.map((f,i)=>{
     const url=URL.createObjectURL(f);
     return `<div class="photo-preview-item" style="position:relative;">
-      <img src="${url}">
+      <img src="${url}" alt="">
       <div class="photo-preview-remove" onclick="removePhotoFile(${i})">✕</div>
       <div onclick="enhancePhotoPreview(${i})" style="position:absolute;left:6px;bottom:6px;background:rgba(10,10,12,0.75);backdrop-filter:blur(3px);color:var(--gold);font-size:11px;font-weight:700;padding:5px 9px;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:4px;">✨ IA</div>
     </div>`;
@@ -6058,48 +6408,56 @@ function buildPhotoCard(p,i){
   const slides=photos.map(url=>`<div class="pcard-slide"><div class="pcard-slide-bg" style="background-image:url('${optImg(url,60)}')"></div><div class="pcard-slide-overlay"></div><img src="${optImg(url,900)}" alt="" loading="lazy" decoding="async" draggable="false" ondragstart="return false"></div>`).join('');
   const dots=hasManyPhotos?`<div class="pcard-dots">${photos.map((_,idx)=>`<div class="pcard-dot${idx===0?' on':''}" id="dot-${p.id}-${idx}"></div>`).join('')}</div>`:'';
   const canReuseP=p.musicUrl&&p.musicAllowReuse!==false&&!p.musicFromGallery;
-  const discContentP=p.musicCover?`<img src="${p.musicCover}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.musicEmoji||'🎵');
+  const discContentP=p.musicCover?`<img src="${p.musicCover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.musicEmoji||'🎵');
   const musicHtml=p.musicUrl?`
-    <div class="pcard-music"${canReuseP?` id="pmusic-row-${p.id}" onclick="event.stopPropagation();useThisSound('${jsStr(p.musicName)}','${jsStr(p.musicArtist)}','${jsStr(p.musicEmoji||'🎵')}','${jsStr(p.musicUrl)}','${jsStr(p.musicCover||'')}','photo')"`:` id="pmusic-row-${p.id}" style="cursor:default;"`}>
+    <div class="pcard-music-row"${canReuseP?` id="pmusic-row-${p.id}" onclick="event.stopPropagation();useThisSound('${jsStr(p.musicName)}','${jsStr(p.musicArtist)}','${jsStr(p.musicEmoji||'🎵')}','${jsStr(p.musicUrl)}','${jsStr(p.musicCover||'')}','photo')"`:` id="pmusic-row-${p.id}" style="cursor:default;"`}>
       <div class="pcard-music-disc" id="pmusic-disc-${p.id}">${discContentP}</div>
       <div class="pcard-music-text">🎵 ${esc(p.musicName||'Son original')} · ${esc(p.musicArtist||'')}</div>
     </div>
     <audio id="pmusic-${p.id}" src="${p.musicUrl}" loop preload="none"></audio>`:'';
-  return `<div class="pcard" id="pc-${p.id}">
+  const verified=verifiedBadge(p.verified);
+  const isOwn=currentUser&&p.authorUid===currentUser.uid;
+  const isFollowingAuthor=currentUser&&p.authorUid&&following[p.authorUid];
+  const followBtn=(!isOwn&&p.authorUid)
+    ?`<button class="pcard-follow-btn${isFollowingAuthor?' following':''}" id="pcfollow-${p.id}" onclick="event.stopPropagation();needAuth(()=>toggleFollow('${p.authorUid}','${esc(p.auteur||'')}',this))">${isFollowingAuthor?'✅ Suivi ✅':'+ Suivre'}</button>`
+    :'';
+  const isSaved=savedPosts.includes(p.id);
+  const rawDesc=p.desc||'';
+  return `<div class="pcard pcard-clean" id="pc-${p.id}">
+    <div class="pcard-header" onclick="event.stopPropagation()">
+      <div class="pcard-av">${avH}</div>
+      <div class="pcard-header-info">
+        <div class="pcard-header-name">@${esc(p.auteur||'anonyme')} ${verified}</div>
+        <div class="pcard-header-time">${ago}</div>
+      </div>
+      ${followBtn}
+    </div>
     <div class="pcard-media" onclick="togglePhotoCardMusic('${p.id}',event)">
       <div class="pcard-carousel${hasManyPhotos?'':' single'}" id="car-${p.id}" onscroll="onCarouselScroll(this,'${p.id}',${photos.length})">
         ${slides}
       </div>
+      ${dots}
     </div>
     ${p.musicUrl?`<div class="pcard-play-overlay" id="pcard-play-overlay-${p.id}">▶️</div>`:''}
-    <div class="pcard-gradient"></div>
-    ${dots}
-    <div class="pcard-info">
-      <div class="pcard-author-row">
-        <div class="pcard-av">${avH}</div>
-        <div>
-          <div class="pcard-name">@${esc(p.auteur||'anonyme')}</div>
-          <div class="pcard-time">${ago}</div>
-        </div>
-      </div>
-      ${p.desc?`<div class="pcard-desc">${esc(p.desc)}</div>`:''}
-      ${musicHtml}
-    </div>
-    <div class="pcard-actions">
-      <div class="pcard-action${isLiked?' liked':''}" id="plk-${p.id}" onclick="needAuth(()=>togglePostLike('${p.id}','photo'))">
+    ${musicHtml}
+    <div class="pcard-actionbar">
+      <div class="pcard-action${isLiked?' liked':''}" id="plk-${p.id}" onclick="event.stopPropagation();needAuth(()=>togglePostLike('${p.id}','photo'))">
         <div class="pcard-action-icon">${isLiked?'❤️':'🤍'}</div>
         <span id="plc-${p.id}">${fmt(p.likes||0)}</span>
       </div>
-      <div class="pcard-action" onclick="openPostComments('${p.id}')">
+      <div class="pcard-action" onclick="event.stopPropagation();openPostComments('${p.id}')">
         <div class="pcard-action-icon">💬</div>
         <span id="pcc-${p.id}">0</span>
       </div>
-      <div class="pcard-action" onclick="sharePost('${p.id}','${esc(p.auteur||'')}')">
+      <div class="pcard-action" onclick="event.stopPropagation();sharePost('${p.id}','${esc(p.auteur||'')}')">
         <div class="pcard-action-icon">↗️</div>
         <span>${fmt(p.shares||0)}</span>
       </div>
-      ${p.desc ? `<button class="kiko-trad-btn" id="ktb-${p.id}" data-text="${esc(p.desc)}" onclick="kikoShowTranslation('${p.id}',this.dataset.text,this)">🌐 Traduire</button>` : ''}
+      <button class="pcard-save-btn${isSaved?' saved':''}" id="pcsave-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">${isSaved?'🔖':'📑'}</button>
     </div>
+    ${(p.likes||0)>0?`<div class="pcard-likecount" id="pclikecount-${p.id}">${fmt(p.likes||0)} j'aime</div>`:''}
+    ${rawDesc?`<div class="pcard-caption-line"><b>@${esc(p.auteur||'anonyme')}</b>${esc(rawDesc)}</div>`:''}
+    ${rawDesc?`<div style="padding:0 13px 10px;">${`<button class="kiko-trad-btn" id="ktb-${p.id}" data-text="${esc(rawDesc)}" onclick="event.stopPropagation();kikoShowTranslation('${p.id}',this.dataset.text,this)">🌐 Traduire</button>`}</div>`:''}
   </div>`;
 }
 
@@ -6268,13 +6626,19 @@ async function togglePostLike(postId,type){
   const snap=await ref.once('value');
   const cur=snap.val()||0;
   const isNowLiked=!liked.includes(postId);
-  if(isNowLiked){liked.push(postId);await ref.set(cur+1);}
-  else{liked=liked.filter(x=>x!==postId);await ref.set(Math.max(0,cur-1));}
+  const newCount=Math.max(0,cur+(isNowLiked?1:-1));
+  if(isNowLiked){liked.push(postId);}else{liked=liked.filter(x=>x!==postId);}
+  await ref.set(newCount);
   localStorage.setItem('aes_liked',JSON.stringify(liked));
   const prefix=type==='photo'?'p':(type==='opp'?'o':'t');
   const lkEl=document.getElementById(prefix+'lk-'+postId);
+  const iconEl=lkEl?lkEl.querySelector('.pcard-action-icon'):null;
   const lcEl=document.getElementById(prefix+'lc-'+postId);
-  if(lkEl){lkEl.classList.toggle('liked',isNowLiked);lkEl.innerHTML=`${isNowLiked?'❤️':'🤍'} <span id="${prefix}lc-${postId}">${fmt(Math.max(0,cur+(isNowLiked?1:-1)))}</span>`;}
+  if(lkEl)lkEl.classList.toggle('liked',isNowLiked);
+  if(iconEl)iconEl.textContent=isNowLiked?'❤️':'🤍';
+  if(lcEl)lcEl.textContent=fmt(newCount);
+  const likecountLine=document.getElementById(prefix+'clikecount-'+postId);
+  if(likecountLine)likecountLine.textContent=newCount>0?fmt(newCount)+" j'aime":'';
 }
 
 // ═══════════════════════════════════════
@@ -6366,6 +6730,7 @@ async function doAuth(){
     showToast('👋 Bienvenue '+currentUser.name+' !');
     startNotifListener();loadNotifs();loadDMs();
     kikoStartPresence(); // démarrer le heartbeat de présence
+    kikoInitPush(); // enregistrer les notifications push natives (no-op hors APK)
     if(pendingAction){pendingAction();pendingAction=null;}
     // Onboarding uniquement pour les nouveaux inscrits
     if(authMode==='register') setTimeout(()=>kikoShowOnboarding(), 600);
@@ -6720,6 +7085,11 @@ function _doShowScreen(n){
   const nid = navMap[n];
   if(nid){ const el=document.getElementById(nid); if(el) el.classList.add('active'); }
 
+  // En Buzz, la nav du bas disparaît : le dock d'actions vidéo (Save/Partager/
+  // Favori/Signaler) descend prendre exactement sa place en bas de l'écran.
+  const bn=document.getElementById('bottomnav');
+  if(bn) bn.style.display = (n==='buzz') ? 'none' : '';
+
   // Stories toujours cachées
   const sw=document.getElementById('storiesWrap'); if(sw) sw.style.display='none';
 
@@ -6868,12 +7238,12 @@ function updateHomeHero(items){
     titleEl.innerText=item.desc?item.desc.substring(0,60):'Vidéo à la une';
     subEl.innerText='Par @'+(item.auteur||'anonyme');
     labelEl.innerText='🎬 À LA UNE';
-    if(item.thumbnail){imgEl.innerHTML=`<img src="${item.thumbnail}" style="width:100%;height:100%;object-fit:cover;">`;}
+    if(item.thumbnail){imgEl.innerHTML=`<img src="${item.thumbnail}" alt="" style="width:100%;height:100%;object-fit:cover;">`;}
     btnEl.innerText='▶ Regarder';
     btnEl.onclick=()=>{const el=document.getElementById('vc-'+item.id);if(el)el.scrollIntoView({behavior:'smooth'});};
   } else if(item.type==='photo'){
     const url=(item.photoUrls||[])[0];
-    if(url)imgEl.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+    if(url)imgEl.innerHTML=`<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
     titleEl.innerText=item.desc?item.desc.substring(0,60):'Post photo';
     subEl.innerText='Par @'+(item.auteur||'anonyme');
     labelEl.innerText='📸 À LA UNE';
@@ -7100,15 +7470,17 @@ async function _toggleUserVerified(uid,newVal,btn){
   if(btn){btn.disabled=true;btn.innerText='...';}
   try{
     await db.ref('users/'+uid+'/verified').set(newVal);
-    // Propager sur les vidéos et posts existants de cet utilisateur, pour que le badge
-    // apparaisse partout immédiatement (feed vidéo, posts Actu) sans attendre une republication.
-    const [vidsSnap,postsSnap]=await Promise.all([
+    // Propager sur les vidéos, posts et annonces marché existants de cet utilisateur, pour que
+    // le badge apparaisse partout immédiatement (feed vidéo, posts Actu, marché) sans republier.
+    const [vidsSnap,postsSnap,prodSnap]=await Promise.all([
       db.ref('videos').orderByChild('authorUid').equalTo(uid).once('value'),
-      db.ref('posts').orderByChild('authorUid').equalTo(uid).once('value')
+      db.ref('posts').orderByChild('authorUid').equalTo(uid).once('value'),
+      db.ref('products').orderByChild('sellerUid').equalTo(uid).once('value')
     ]);
     const updates={};
     Object.keys(vidsSnap.val()||{}).forEach(id=>updates['videos/'+id+'/authorVerified']=newVal);
     Object.keys(postsSnap.val()||{}).forEach(id=>updates['posts/'+id+'/verified']=newVal);
+    Object.keys(prodSnap.val()||{}).forEach(id=>updates['products/'+id+'/sellerVerified']=newVal);
     if(Object.keys(updates).length)await db.ref().update(updates);
     showToast(newVal?'✅ Badge activé':'Badge retiré');
     _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
@@ -7215,7 +7587,7 @@ const FEED_WEIGHTS={
   boost:15,        // boost admin manuel (0-100), réglable depuis l'admin
   newcomer:20,     // bonus dégressif pour les comptes < 50 vues cumulées
   geo:8,           // léger bonus si même pays que le viewer (pas un filtre, juste un coup de pouce)
-  reconnaissance:12, // 😍 signal fort : l'utilisateur a vraiment apprécié
+  reconnaissance:12, // 👑 signal fort : l'utilisateur a vraiment apprécié
   ai:22,           // 🧠 score de personnalisation IA locale (KikoAI), basé sur l'historique de CET utilisateur
   reportPenalty:30, // pénalité forte si contenu signalé
   seenPenalty:45   // pénalité si l'utilisateur a déjà vu cette vidéo (anti-répétition style TikTok/Facebook)
@@ -7371,7 +7743,7 @@ function computeFeedScore(item,viewerCountry){
   // Engagement : pondéré, normalisé par les vues.
   // FIX : reconnaissance n'entre plus ici — elle a déjà son propre poids dédié
   // (FEED_WEIGHTS.reconnaissance) plus bas. Avant, elle était comptée deux fois
-  // et sur-boostait les vidéos avec beaucoup de 😍.
+  // et sur-boostait les vidéos avec beaucoup de couronnes 👑.
   const engagementRate=Math.min(1,((likes*2+comments*3+shares*4)/Math.max(views,1))/10);
 
   // Complétion — trackée uniquement si avgWatchSeconds/duration existent.
@@ -7564,8 +7936,8 @@ function buildVCard(v,i){
     <div class="vcard-bg" style="background-image:url('${optVidThumb(v.thumbnail,60)||''}')"></div>
     <video ${vidSrcAttr} poster="${optVidThumb(v.thumbnail,480)||''}" loop playsinline muted preload="${preload}"
       onclick="tapVid(this,${i})" id="vid-${v.id}"></video>
-    <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}">⏸</div></div>
-    <div class="vmute-btn" id="vmute-${v.id}" onclick="toggleMute('${v.id}')">🔇</div>
+    <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}" role="button" aria-label="Lecture / Pause">⏸</div></div>
+    <div class="vmute-btn" id="vmute-${v.id}" onclick="toggleMute('${v.id}')" role="button" aria-label="Activer ou couper le son">🔇</div>
     <div class="heart-anim" id="ha-${i}">❤️</div>
 
     ${isTrending?`<div class="vtrend-badge"><span class="fire">🔥</span> Tendance AES</div>`:''}
@@ -7595,15 +7967,15 @@ function buildVCard(v,i){
     <div class="vinfo">
       <div class="vauthor-row">
         <div class="vav">${avH}</div>
-        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}')">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}</div>
-        ${!isOwn&&v.authorUid?`<button class="vfollow ${isFollowing?'following':''}" onclick="toggleFollow('${v.authorUid}','${esc(v.auteur||'')}',this)">${isFollowing?'✓ Suivi':'+ Suivre'}</button>`:''}
+        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}',${(v.authorVerified||v.verified)?1:0})">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}</div>
+        ${!isOwn&&v.authorUid?`<button class="vfollow ${isFollowing?'following':''}" onclick="toggleFollow('${v.authorUid}','${esc(v.auteur||'')}',this)">${isFollowing?'✅ Suivi ✅':'+ Suivre'}</button>`:''}
       </div>
       ${desc?`<div class="vdesc">${esc(desc)}</div>`:''}
       ${tags.length?`<div class="vtags">${tags.map(tg=>`<span class="vtag" onclick="searchByTag('${esc(tg)}')">${esc(tg)}</span>`).join('')}</div>`:''}
       ${(()=>{
         const hasMusic=!!v.musicUrl;
         const canReuseV=hasMusic&&v.musicAllowReuse!==false&&!v.musicFromGallery;
-        const discContentV=v.musicCover?`<img src="${v.musicCover}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(v.musicEmoji||'🎵');
+        const discContentV=v.musicCover?`<img src="${v.musicCover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(v.musicEmoji||'🎵');
         const label=hasMusic?`${esc(v.musicName||'Son')} · ${esc(v.musicArtist||'')}`:`Son original · ${esc(v.auteur||'anonyme')}`;
         return canReuseV
           ?`<div class="vmusic" style="cursor:pointer;" onclick="event.stopPropagation();useThisSound('${jsStr(v.musicName)}','${jsStr(v.musicArtist)}','${jsStr(v.musicEmoji||'🎵')}','${jsStr(v.musicUrl)}','${jsStr(v.musicCover||'')}','video')"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`
@@ -7615,7 +7987,7 @@ function buildVCard(v,i){
     </div>
 
     <!-- Bouton ⋮ Plus -->
-    <div class="vmore-btn" onclick="event.stopPropagation();kikoOpenMoreSheet('${v.id}','${esc(v.auteur||'')}','${v.authorUid||''}',${isOwn})">⋮</div>
+    <div class="vmore-btn" onclick="event.stopPropagation();kikoOpenMoreSheet('${v.id}','${esc(v.auteur||'')}','${v.authorUid||''}',${isOwn})" role="button" aria-label="Plus d'options">⋮</div>
 
     <!-- Compteurs discrets — masqués visuellement (déjà affichés via les boutons flottants
          et le badge de vues en haut), gardés dans le DOM car loadRealtimeStats /
@@ -7628,28 +8000,24 @@ function buildVCard(v,i){
 
     <!-- ═══ BOUTONS FLOTTANTS VIDÉO (original, non-TikTok) ═══ -->
     <div class="kiko-vid-actions">
-      <div class="kiko-vid-btn ${isLiked?'liked':''}" id="lk-${v.id}" onclick="event.stopPropagation();needAuth(()=>toggleLike('${v.id}'))" title="J'aime">
-        <div class="kiko-vid-btn-ico">${isLiked?'❤️':'🤍'}</div>
-        <div class="kiko-vid-btn-lbl" id="lc-hidden-${v.id}">${fmt(v.likes||0)}</div>
-      </div>
-      <div class="kiko-vid-btn" id="reco-btn-${v.id}" onclick="event.stopPropagation();needAuth(()=>kikoToggleReconnaissance('${v.id}',${i}))" title="Reconnaissance">
-        <div class="kiko-vid-btn-ico">😍</div>
+      <div class="kiko-vid-btn" id="reco-btn-${v.id}" onclick="event.stopPropagation();needAuth(()=>kikoToggleReconnaissance('${v.id}',${i}))" title="Couronner" role="button" aria-label="Couronner cette vidéo">
+        <div class="kiko-vid-btn-ico">👑</div>
         <div class="kiko-vid-btn-lbl" id="reco-lbl-${v.id}">${fmt(v.reconnaissance||0)}</div>
       </div>
       <div class="kiko-vid-btn-sep"></div>
-      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>downloadVid('${jsStr(v.videoUrl)}','${v.id}','${jsStr(v.auteur||'')}'))" title="Télécharger">
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>downloadVid('${jsStr(v.videoUrl)}','${v.id}','${jsStr(v.auteur||'')}'))" title="Télécharger" role="button" aria-label="Télécharger la vidéo">
         <div class="kiko-vid-btn-ico">⬇️</div>
         <div class="kiko-vid-btn-lbl">Save</div>
       </div>
-      <div class="kiko-vid-btn" onclick="event.stopPropagation();openShareSheet('${v.id}')" title="Partager">
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();openShareSheet('${v.id}')" title="Partager" role="button" aria-label="Partager la vidéo">
         <div class="kiko-vid-btn-ico">↗️</div>
         <div class="kiko-vid-btn-lbl">Partager</div>
       </div>
-      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>kikoToggleFavorite('${v.id}',this))" title="Favori">
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>kikoToggleFavorite('${v.id}',this))" title="Favori" role="button" aria-label="Ajouter aux favoris">
         <div class="kiko-vid-btn-ico" id="fav-ico-${v.id}">⭐</div>
         <div class="kiko-vid-btn-lbl">Favori</div>
       </div>
-      <div class="kiko-vid-btn" onclick="event.stopPropagation();kikoOpenReportModal('${v.id}')" title="Signaler">
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();kikoOpenReportModal('${v.id}')" title="Signaler" role="button" aria-label="Signaler cette vidéo">
         <div class="kiko-vid-btn-ico">🚩</div>
         <div class="kiko-vid-btn-lbl">Signaler</div>
       </div>
@@ -8096,7 +8464,7 @@ function kikoOpenReportModal(vidId){
 }
 
 // ═══════════════════════════════════════
-//  RECONNAISSANCE 😍 (avec animation fusion)
+//  RECONNAISSANCE 👑 (avec animation fusion emblème)
 // ═══════════════════════════════════════
 let _reconnu = JSON.parse(localStorage.getItem('kiko_reconnu')||'[]');
 
@@ -8127,28 +8495,39 @@ function kikoToggleReconnaissance(vidId, cardIdx){
   localStorage.setItem('kiko_reconnu',JSON.stringify(_reconnu));
 }
 
+// Emblème KIKO 👑 — utilisé pour l'animation de fusion "reconnaissance"
+const KIKO_EMBLEM_SVG = '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">'
+  + '<defs><linearGradient id="kikoEmbGrad" x1="0" y1="0" x2="1" y2="1">'
+  + '<stop offset="0%" stop-color="#FFC94D"/><stop offset="100%" stop-color="#FF7A30"/>'
+  + '</linearGradient></defs>'
+  + '<path d="M8 46 L13 20 L24 33 L32 14 L40 33 L51 20 L56 46 Z" fill="url(#kikoEmbGrad)" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>'
+  + '<rect x="8" y="46" width="48" height="9" rx="3" fill="url(#kikoEmbGrad)" stroke="#fff" stroke-width="2"/>'
+  + '<circle cx="32" cy="14" r="3.4" fill="#FFE9B0"/>'
+  + '<circle cx="13" cy="20" r="3" fill="#FFE9B0"/>'
+  + '<circle cx="51" cy="20" r="3" fill="#FFE9B0"/>'
+  + '</svg>';
+
 function kikoPlayReconnaissanceAnim(cardIdx){
   const layer=document.getElementById('reco-layer-'+cardIdx);
   if(!layer) return;
   layer.innerHTML=''; // nettoyer
   const cx=layer.offsetWidth*0.55, cy=layer.offsetHeight*0.45;
 
-  // Partie 1 : "Recon"
-  const w1=document.createElement('div');
-  w1.className='kiko-reco-word';
-  w1.innerText='Recon';
-  w1.style.cssText=`left:${cx-30}px;top:${cy}px;animation:kikoRecoA 1.4s ease forwards;`;
-  // Partie 2 : "naissent"
-  const w2=document.createElement('div');
-  w2.className='kiko-reco-word';
-  w2.innerText='naissent';
-  w2.style.cssText=`left:${cx+30}px;top:${cy+30}px;animation:kikoRecoB 1.4s ease forwards;`;
-  // Fusion : "Reconnaissent" après 0.7s
-  const wFull=document.createElement('div');
-  wFull.className='kiko-reco-word';
-  wFull.innerText='Reconnaissent';
-  wFull.style.cssText=`left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;animation:kikoRecoFull 1.2s 0.7s ease forwards;opacity:0;`;
-  layer.append(w1,w2,wFull);
+  // Deux moitiés de l'emblème KIKO qui se rejoignent et fusionnent
+  const h1=document.createElement('div');
+  h1.className='kiko-reco-emblem half-left';
+  h1.innerHTML=KIKO_EMBLEM_SVG;
+  h1.style.cssText=`left:${cx-30}px;top:${cy}px;animation:kikoRecoA 1.4s ease forwards;`;
+  const h2=document.createElement('div');
+  h2.className='kiko-reco-emblem half-right';
+  h2.innerHTML=KIKO_EMBLEM_SVG;
+  h2.style.cssText=`left:${cx+30}px;top:${cy+30}px;animation:kikoRecoB 1.4s ease forwards;`;
+  // Fusion : l'emblème complet apparaît après 0.7s
+  const full=document.createElement('div');
+  full.className='kiko-reco-emblem full';
+  full.innerHTML=KIKO_EMBLEM_SVG;
+  full.style.cssText=`left:50%;top:50%;width:64px;height:64px;transform:translate(-50%,-50%);animation:kikoRecoFull 1.2s 0.7s ease forwards;opacity:0;`;
+  layer.append(h1,h2,full);
   setTimeout(()=>layer.innerHTML='', 2200);
 }
 
@@ -8382,7 +8761,10 @@ function initObserver(){
       v.muted=true;
       // Filet de sécurité supplémentaire : si jamais une vidéo démarre par un autre
       // chemin (ex: tap manuel), on coupe immédiatement toutes les autres.
-      v.addEventListener('play',()=>enforceSingleVideoPlayback(v));
+      if(!v.dataset.playGuard){
+        v.dataset.playGuard='1';
+        v.addEventListener('play',()=>enforceSingleVideoPlayback(v));
+      }
     }
     _globalObs.observe(c);
   });
@@ -8398,6 +8780,8 @@ function initProgress(){
     // 🧠 Tracker watch-time/replay pour KikoAI (voir plus bas recordAiInteraction)
     const wt=_aiWatch[id]||(_aiWatch[id]={lastTime:0,loops:0});
 
+    if(v.dataset.progressInit)return; // déjà initialisée : on ne réattache rien
+    v.dataset.progressInit='1';
     let _raf=false,_completLogged=false;
     v.addEventListener('timeupdate',()=>{
       // Grosse baisse de currentTime = la vidéo a bouclé (loop) → signal replay positif
@@ -8495,7 +8879,7 @@ async function toggleFollow(uid,name,btn){
     following[uid]=true;
     await db.ref('following/'+currentUser.uid+'/'+uid).set(true);
     await db.ref('followers/'+uid+'/'+currentUser.uid).set(true);
-    btn.innerText='✓ Suivi';btn.classList.add('following');
+    btn.innerText='✅ Suivi ✅';btn.classList.add('following');
     showToast('✅ Abonné à @'+name);
     sendNotif(uid,{type:'follow',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});
   }
@@ -8528,7 +8912,7 @@ async function openFollowModal(type){
 }
 function renderFollowItem(u){
   const avH=u.avatar?`<img src="${u.avatar}" alt="">`:( u.name||'?')[0].toUpperCase();
-  return `<div class="fmod-item"><div class="fmod-av">${avH}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;">${esc(u.name||'')}</div><div style="font-size:11px;color:var(--muted);">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div><button class="acc-follow" onclick="needAuth(()=>openDMWith('${u.uid}','${esc(u.name||'')}','${u.avatar||''}'))">💬 DM</button></div>`;
+  return `<div class="fmod-item"><div class="fmod-av">${avH}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;display:flex;align-items:center;">${esc(u.name||'')}${verifiedBadge(u.verified)}</div><div style="font-size:11px;color:var(--muted);">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div><button class="acc-follow" onclick="needAuth(()=>openDMWith('${u.uid}','${esc(u.name||'')}','${u.avatar||''}',${u.verified?1:0}))">💬 DM</button></div>`;
 }
 
 // ═══════════════════════════════════════
@@ -8580,20 +8964,21 @@ async function sendComment(){
 // ═══════════════════════════════════════
 //  NOTIFICATIONS — push améliorées
 // ═══════════════════════════════════════
-function sendNotif(toUid,data){db.ref('notifications/'+toUid).push(data);}
+function sendNotif(toUid,data){if(data.fromUid&&data.fromVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromVerified=currentUser.verified||false;db.ref('notifications/'+toUid).push(data);}
 function startNotifListener(){
   if(!currentUser||notifListener)return;
   notifListener=db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(1).on('child_added',snap=>{
     const n=snap.val();if(!n||n.read)return;
     const dot=document.getElementById('activityDot'); if(dot) dot.style.display='block';
-    const icons={like:'❤️',comment:'💬',follow:'👤',dm:'💬'};
-    const msgs={like:`${n.fromName} a aimé ta vidéo`,comment:`${n.fromName} a commenté`,follow:`${n.fromName} s'est abonné(e)`,dm:`${n.fromName} : ${(n.text||'').slice(0,28)}`};
+    const icons={like:'❤️',comment:'💬',follow:'👤',dm:'💬',reconnaissance:'👑'};
+    const msgs={like:`${n.fromName} a aimé ta vidéo`,comment:`${n.fromName} a commenté`,follow:`${n.fromName} s'est abonné(e)`,dm:`${n.fromName} : ${(n.text||'').slice(0,28)}`,reconnaissance:`${n.fromName} a couronné ta vidéo 👑`};
     if(msgs[n.type]){
       showNotifToast(icons[n.type]||'🔔',msgs[n.type],n.type);
       // Son selon le type
       if(n.type==='dm') playMsgReceiveSound();
       else playNotifSound();
     }
+    updateNotifPinnedPreview();
   });
 }
 function showNotifToast(icon,msg,type){
@@ -8620,9 +9005,10 @@ function loadNotifs(){
     document.getElementById('notifList').innerHTML=notifs.length
       ?notifs.map(n=>{
         const avH=n.fromAvatar?`<img src="${n.fromAvatar}" alt="">`:( n.fromName||'?')[0].toUpperCase();
-        const icons={like:'❤️',comment:'💬',follow:'👥',dm:'💬'};
-        const texts={like:`<b>${esc(n.fromName)}</b> a aimé ta vidéo`,comment:`<b>${esc(n.fromName)}</b> a commenté : "<i>${esc((n.text||'').slice(0,40))}</i>"`,follow:`<b>${esc(n.fromName)}</b> s'est abonné(e) à toi 👥`,dm:`<b>${esc(n.fromName)}</b> t'a envoyé un message`};
-        const onclick=n.type==='dm'?`openDMWith('${n.fromUid||''}','${esc(n.fromName||'')}','')`:n.vidId?`goToVid('${n.vidId}')`:''
+        const icons={like:'❤️',comment:'💬',follow:'👥',dm:'💬',reconnaissance:'👑'};
+        const vb=verifiedBadge(n.fromVerified);
+        const texts={like:`<b>${esc(n.fromName)}</b>${vb} a aimé ta vidéo`,comment:`<b>${esc(n.fromName)}</b>${vb} a commenté : "<i>${esc((n.text||'').slice(0,40))}</i>"`,follow:`<b>${esc(n.fromName)}</b>${vb} s'est abonné(e) à toi 👥`,dm:`<b>${esc(n.fromName)}</b>${vb} t'a envoyé un message`,reconnaissance:`<b>${esc(n.fromName)}</b>${vb} a couronné ta vidéo 👑`};
+        const onclick=n.type==='dm'?`openDMWith('${n.fromUid||''}','${esc(n.fromName||'')}','',${n.fromVerified?1:0})`:n.vidId?`goToVid('${n.vidId}')`:''
         return `<div class="notif-item ${n.read?'':'unread'}" onclick="${onclick}">
           <div class="notif-av">${avH}</div>
           <div class="notif-text">${texts[n.type]||'Nouvelle notification'}</div>
@@ -8635,12 +9021,59 @@ function loadNotifs(){
       }).join('')
       :`<div style="padding:50px;text-align:center;color:var(--muted);"><div style="font-size:44px;margin-bottom:14px;">🔔</div><div style="font-family:'Syne',sans-serif;font-weight:600;font-size:15px;color:var(--text);margin-bottom:6px;">Aucune notification</div><div style="font-size:12px;">Publie des vidéos pour en recevoir !</div></div>`;
     notifs.forEach(n=>{if(!n.read)db.ref('notifications/'+currentUser.uid+'/'+n.id+'/read').set(true);});
+    updateNotifPinnedPreview();
   });
 }
 function confirmDeleteVideo(id){
   showConfirm('Supprimer cette vidéo ?','Elle sera retirée définitivement.',async()=>{
     await db.ref('videos/'+id).remove();allVids=allVids.filter(v=>v.id!==id);renderFeedByMode();showToast('🗑️ Vidéo supprimée');
   });
+}
+
+// ── Aperçu intelligent des notifications, épinglé en haut de l'onglet Chat ──
+// Regroupe par type (❤️ likes, 💬 commentaires, 👥 abonnés, 👑 couronnes) au lieu
+// de lister chaque notif individuellement — comme un résumé d'activité.
+function updateNotifPinnedPreview(){
+  const previewEl = document.getElementById('notifPinnedPreview');
+  const timeEl = document.getElementById('notifPinnedTime');
+  const badgeEl = document.getElementById('notifPinnedBadge');
+  if(!previewEl || !currentUser) return;
+  db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(50).once('value').then(snap=>{
+    const all = Object.values(snap.val()||{});
+    // Les DM ont déjà leur propre conversation dans la liste, on ne les recompte pas ici
+    const relevant = all.filter(n=>n.type && n.type!=='dm');
+    const unread = relevant.filter(n=>!n.read);
+
+    if(!unread.length){
+      previewEl.textContent = relevant.length ? 'Tout est à jour ✓' : 'Aucune nouvelle notification';
+      previewEl.classList.remove('unread');
+      badgeEl.style.display = 'none';
+      timeEl.textContent = relevant.length ? timeAgo(Math.max(...relevant.map(n=>n.at||0))) : '';
+      return;
+    }
+
+    const icons  = {like:'❤️', comment:'💬', follow:'👥', reconnaissance:'👑'};
+    const labels = {
+      like:          c=>c+' like'+(c>1?'s':''),
+      comment:       c=>c+' commentaire'+(c>1?'s':''),
+      follow:        c=>c+' nouvel abonné'+(c>1?'s':''),
+      reconnaissance:c=>c+' couronne'+(c>1?'s':'')
+    };
+    const counts = {};
+    unread.forEach(n=>{ counts[n.type] = (counts[n.type]||0)+1; });
+
+    const parts = Object.entries(counts)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,3)
+      .map(([type,c])=>(icons[type]||'🔔')+' '+(labels[type]?labels[type](c):c+' nouveau(x)'));
+
+    previewEl.textContent = parts.join(' · ');
+    previewEl.classList.add('unread');
+    const total = unread.length;
+    badgeEl.textContent = total>9 ? '9+' : String(total);
+    badgeEl.style.display = 'flex';
+    timeEl.textContent = timeAgo(Math.max(...unread.map(n=>n.at||0)));
+  }).catch(()=>{});
 }
 
 // ═══════════════════════════════════════
@@ -8736,7 +9169,7 @@ function renderMarket(prods){
       <div class="prod-body">
         <div class="prod-name">${esc(p.name)}</div>
         ${p.location?`<div class="prod-location">📍 ${esc(p.location)}</div>`:''}
-        <div class="prod-seller"><div class="prod-seller-av">${avH}</div><div class="prod-seller-name">@${esc(p.sellerName||'vendeur')}</div></div>
+        <div class="prod-seller"><div class="prod-seller-av">${avH}</div><div class="prod-seller-name">@${esc(p.sellerName||'vendeur')}${verifiedBadge(p.sellerVerified)}</div></div>
         ${p.createdAt?`<div class="prod-time">Il y a ${timeAgo(p.createdAt)}</div>`:''}
       </div>
     </div>`;
@@ -8758,7 +9191,7 @@ function openProduct(id){
   document.getElementById('pmodLocation').innerText=p.location?'📍 '+p.location:'';
   document.getElementById('pmodDesc').innerText=p.desc||'Aucune description';
   const avEl=document.getElementById('pmodSellerAv');avEl.innerHTML=p.sellerAvatar?`<img src="${p.sellerAvatar}" alt="">`:( p.sellerName||'V')[0].toUpperCase();
-  document.getElementById('pmodSellerName').innerText=p.sellerName||'Vendeur';
+  document.getElementById('pmodSellerName').innerHTML=esc(p.sellerName||'Vendeur')+verifiedBadge(p.sellerVerified);
   const waBtn=document.getElementById('pmodWaBtn');
   if(p.phone){const msg=encodeURIComponent(`Bonjour ! Je suis intéressé(e) par "${p.name}" à ${fmtPrice(p.price)} FCFA sur AES👑 Vidéos.`);waBtn.onclick=()=>window.open(`https://wa.me/${p.phone.replace(/[^0-9]/g,'')}?text=${msg}`);waBtn.style.display='flex';}
   else waBtn.style.display='none';
@@ -8831,7 +9264,7 @@ async function submitProduct(){
   try{
     let imageUrl='';
     if(prodPhotoFile){document.getElementById('prodProgLabel').innerText='Upload photo...';imageUrl=await ikUpload(prodPhotoFile,'products',p=>{document.getElementById('prodProgFill').style.width=p+'%';});}
-    await db.ref('products').push({name,price:Number(price),desc,cat,phone,imageUrl,location,sold:false,sellerName:currentUser.name,sellerAvatar:currentUser.avatar||'',sellerUid:currentUser.uid,createdAt:Date.now()});
+    await db.ref('products').push({name,price:Number(price),desc,cat,phone,imageUrl,location,sold:false,sellerName:currentUser.name,sellerAvatar:currentUser.avatar||'',sellerVerified:currentUser.verified||false,sellerUid:currentUser.uid,createdAt:Date.now()});
     showToast('🎉 Produit publié !');closeAddProduct();loadMarket();
   }catch(e){showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier le produit';document.getElementById('prodProg').classList.remove('show');}
 }
@@ -8875,7 +9308,7 @@ function showStory(s){
   document.getElementById('svav').innerHTML=s.authorAvatar?`<img src="${optImg(s.authorAvatar,80)}" alt="" decoding="async">`:(s.auteur||'A')[0].toUpperCase();
   document.getElementById('svname').innerText=s.auteur||'anonyme';
   const c=document.getElementById('svcontent');
-  const mediaH=s.mediaType==='video'?`<video src="${optVid(s.mediaUrl)}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`:`<img src="${optImg(s.mediaUrl,720)}" decoding="async" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`;
+  const mediaH=s.mediaType==='video'?`<video src="${optVid(s.mediaUrl)}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`:`<img src="${optImg(s.mediaUrl,720)}" alt="" decoding="async" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`;
   c.innerHTML=mediaH+(s.text?`<div class="sv-text-overlay">${esc(s.text)}</div>`:'');
   document.getElementById('svpbar').innerHTML=curStories.map((_,i)=>`<div class="svseg"><div class="svseg-fill" style="width:${i<curStoryIdx?'100%':'0%'}" ${i===curStoryIdx?'id="svfill"':''}></div></div>`).join('');
   const isOwn=currentUser&&s.authorUid===currentUser.uid;
@@ -8951,8 +9384,8 @@ function reactToStory(emoji,el){
   if(curStoryAuthorUid&&currentUser.uid!==curStoryAuthorUid){
     const key=dmKey(currentUser.uid,curStoryAuthorUid);
     db.ref('messages/'+key).push({from:currentUser.uid,to:curStoryAuthorUid,text:emoji+' (réaction au statut)',at:Date.now()});
-    db.ref('dms/'+key).update({lastMsg:emoji+' a réagi à ton statut',updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',['unread/'+curStoryAuthorUid]:true});
-    sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:emoji+' a réagi à ton statut',at:Date.now(),read:false});
+    db.ref('dms/'+key).update({lastMsg:emoji+' a réagi à ton statut',updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,['unread/'+curStoryAuthorUid]:true});
+    sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:emoji+' a réagi à ton statut',at:Date.now(),read:false});
   }
   showToast(emoji+' Réaction envoyée');
 }
@@ -8964,8 +9397,8 @@ function sendStoryReply(){
   if(curStoryAuthorUid&&currentUser.uid!==curStoryAuthorUid){
     const key=dmKey(currentUser.uid,curStoryAuthorUid);
     db.ref('messages/'+key).push({from:currentUser.uid,to:curStoryAuthorUid,text:txt,at:Date.now()});
-    db.ref('dms/'+key).update({lastMsg:txt,updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',['unread/'+curStoryAuthorUid]:true});
-    sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,at:Date.now(),read:false});
+    db.ref('dms/'+key).update({lastMsg:txt,updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,['unread/'+curStoryAuthorUid]:true});
+    sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:txt,at:Date.now(),read:false});
     playMsgSendSound();
     showToast('✅ Réponse envoyée à @'+curStoryAuthorName);
   }
@@ -9311,6 +9744,8 @@ function loadDMs(){
   }
   // Charger les stories des abonnés pour les afficher en haut
   loadChatStories();
+  // Résumé intelligent des notifications, épinglé en haut du chat
+  updateNotifPinnedPreview();
   // Charger les conversations
   db.ref('dms').orderByChild('updatedAt').limitToLast(30).once('value').then(snap=>{
     const all = Object.entries(snap.val()||{});
@@ -9343,13 +9778,13 @@ function renderDMList(){
     const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
     const preview = c.lastMsg || '...';
-    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}')">
+    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}',${c.otherVerified?1:0})">
       <div class="aeschat-conv-av-wrap">
         <div class="aeschat-conv-av">${avH}</div>
         <div class="aeschat-conv-online"></div>
       </div>
       <div class="aeschat-conv-body">
-        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}</div>
+        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}</div>
         <div class="aeschat-conv-preview ${hasUnread?'unread':''}">${hasUnread?'● ':''}${esc(preview)}</div>
       </div>
       <div class="aeschat-conv-meta">
@@ -9377,10 +9812,10 @@ function filterDMList(val){
     const otherUid = c.key.replace(currentUser.uid,'').replace('_','');
     const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
-    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}')">
+    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}',${c.otherVerified?1:0})">
       <div class="aeschat-conv-av-wrap"><div class="aeschat-conv-av">${avH}</div></div>
       <div class="aeschat-conv-body">
-        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}</div>
+        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}</div>
         <div class="aeschat-conv-preview ${hasUnread?'unread':''}">${esc(c.lastMsg||'...')}</div>
       </div>
       <div class="aeschat-conv-meta"><div class="aeschat-conv-time">${timeAgo(c.updatedAt||Date.now())}</div>${hasUnread?'<div class="aeschat-conv-badge">1</div>':''}</div>
@@ -9405,8 +9840,8 @@ function showNewChatOptions(){
       const div = document.createElement('div');
       div.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;';
       const av = u.avatar?`<img src="${u.avatar}" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;">`:`<div style="width:42px;height:42px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:#fff;">${(u.name||'?')[0]}</div>`;
-      div.innerHTML=`${av}<div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px;">${esc(u.name||uid)}</div><div style="font-size:11px;color:var(--muted);">@${uid.slice(0,8)}</div></div>`;
-      div.onclick=()=>{ov.remove();openChat(uid,u.name||uid,u.avatar||'');};
+      div.innerHTML=`${av}<div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;">${esc(u.name||uid)}${verifiedBadge(u.verified)}</div><div style="font-size:11px;color:var(--muted);">@${uid.slice(0,8)}</div></div>`;
+      div.onclick=()=>{ov.remove();openChat(uid,u.name||uid,u.avatar||'',u.verified?1:0);};
       sheet.appendChild(div);
     });
   });
@@ -9474,23 +9909,23 @@ function loadChatStories(){
 //  CHAT — OUVERTURE ET MESSAGES
 // ═══════════════════════════════════════
 function dmKey(a,b){return [a,b].sort().join('_');}
-function openDMWith(uid,name,avatar){if(!currentUser){needAuth(()=>openDMWith(uid,name,avatar));return;}if(!uid||uid===currentUser.uid)return;openChat(uid,name,avatar);}
+function openDMWith(uid,name,avatar,verified){if(!currentUser){needAuth(()=>openDMWith(uid,name,avatar,verified));return;}if(!uid||uid===currentUser.uid)return;openChat(uid,name,avatar,verified);}
 
 let _chatMsgListener = null;
 let _chatListenerKey = null; // clé active du listener pour éviter les conflits
 
-function openChat(uid,name,avatar){
+function openChat(uid,name,avatar,verified){
   if(!currentUser)return;
   // ── Détacher l'ancien listener proprement ──
   if(_chatMsgListener && _chatListenerKey){
     db.ref('messages/'+_chatListenerKey).off('value',_chatMsgListener);
     _chatMsgListener=null; _chatListenerKey=null;
   }
-  curChatUid=uid; curChatName=name;
+  curChatUid=uid; curChatName=name; curChatVerified=!!verified;
   _lastMsgCount=0;
   const hav=document.getElementById('chatHav');
   hav.innerHTML=avatar?`<img src="${avatar}" alt="">`:((name||'?')[0].toUpperCase());
-  document.getElementById('chatHname').innerText=name||uid;
+  document.getElementById('chatHname').innerHTML=esc(name||uid)+verifiedBadge(verified);
   document.getElementById('chatHstatus').innerText='...';
   document.getElementById('chatScreen').classList.add('active');
 
@@ -9515,7 +9950,7 @@ function openChat(uid,name,avatar){
       (m.from===currentUser.uid && m.to===uid) ||
       (m.from===uid && m.to===currentUser.uid)
     );
-    renderMessages(filtered, uid, name, avatar);
+    renderMessages(filtered, uid, name, avatar, verified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
   });
 }
@@ -9527,20 +9962,20 @@ function closeChatScreen(){
   }
   kikoUnwatchPresence(); // stopper le watcher de présence
   document.getElementById('chatScreen').classList.remove('active');
-  curChatUid=null; curChatName=null;
+  curChatUid=null; curChatName=null; curChatVerified=false;
 }
 
 function loadMessages(){
   if(!currentUser||!curChatUid)return;
   const key=dmKey(currentUser.uid,curChatUid);
   db.ref('messages/'+key).orderByChild('at').limitToLast(60).once('value').then(snap=>{
-    renderMessages(Object.values(snap.val()||{}), curChatUid, curChatName, '');
+    renderMessages(Object.values(snap.val()||{}), curChatUid, curChatName, '', curChatVerified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
   });
 }
 
 let _lastMsgCount = 0;
-function renderMessages(msgs, otherUid, otherName, otherAvatar){
+function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified){
   const mc = document.getElementById('chatMessages');
   if(!msgs.length){
     mc.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 20px;font-size:13px;"><div style="font-size:40px;margin-bottom:10px;">👋</div>Envoie le premier message !</div>';
@@ -9570,7 +10005,7 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar){
     const isMe = g.from===currentUser.uid;
     const avH = !isMe?(otherAvatar?`<img src="${otherAvatar}" alt="">`:(otherName||'?')[0].toUpperCase()):'';
     html += `<div class="msg-group ${isMe?'me':'them'}">`;
-    if(!isMe) html += `<div class="msg-group-header"><div class="msg-group-av">${avH}</div><div class="msg-group-name">${esc(otherName||'')}</div></div>`;
+    if(!isMe) html += `<div class="msg-group-header"><div class="msg-group-av">${avH}</div><div class="msg-group-name">${esc(otherName||'')}${verifiedBadge(otherVerified)}</div></div>`;
     g.msgs.forEach(m=>{
       html += `<div class="msg-bubble ${isMe?'me':'them'}">${esc(m.text)}</div>`;
     });
@@ -9636,10 +10071,10 @@ async function sendMessage(){
   await db.ref('messages/'+key).push({from:currentUser.uid,to:curChatUid,text:txt,at:Date.now()});
   await db.ref('dms/'+key).update({
     lastMsg:txt,updatedAt:Date.now(),
-    otherName:curChatName,otherAvatar:'',
+    otherName:curChatName,otherAvatar:'',otherVerified:currentUser.verified||false,
     ['unread/'+curChatUid]:true
   });
-  sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,at:Date.now(),read:false});
+  sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:txt,at:Date.now(),read:false});
 }
 
 function autoResizeChatInp(el){
@@ -9673,13 +10108,13 @@ async function renderAccounts(q){
   list.innerHTML=filtered.length?filtered.map(u=>{
     const avH=u.avatar?`<img src="${u.avatar}" alt="">`:( u.name||'?')[0].toUpperCase();
     const isFollowing=following[u.uid];const isMe=currentUser&&u.uid===currentUser.uid;
-    return `<div class="account-item"><div class="acc-av">${avH}</div><div style="flex:1"><div class="acc-name">${esc(u.name||'')}</div><div class="acc-handle">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div>${!isMe?`<button class="acc-follow ${isFollowing?'following':''}" onclick="needAuth(()=>toggleFollowBtn('${u.uid}','${esc(u.name||'')}',this))">${isFollowing?'✓ Suivi':'+ Suivre'}</button>`:''}</div>`;
+    return `<div class="account-item"><div class="acc-av">${avH}</div><div style="flex:1"><div class="acc-name">${esc(u.name||'')}${verifiedBadge(u.verified)}</div><div class="acc-handle">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div>${!isMe?`<button class="acc-follow ${isFollowing?'following':''}" onclick="needAuth(()=>toggleFollowBtn('${u.uid}','${esc(u.name||'')}',this))">${isFollowing?'✅ Suivi ✅':'+ Suivre'}</button>`:''}</div>`;
   }).join(''):'<div style="text-align:center;padding:32px 16px;"><div style="font-size:32px;margin-bottom:8px;">🔍</div><div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:14px;color:var(--text);">Aucun compte trouvé</div></div>';
 }
 async function toggleFollowBtn(uid,name,btn){
   if(!currentUser)return;
   if(following[uid]){delete following[uid];await db.ref('following/'+currentUser.uid+'/'+uid).remove();await db.ref('followers/'+uid+'/'+currentUser.uid).remove();btn.innerText='+ Suivre';btn.classList.remove('following');}
-  else{following[uid]=true;await db.ref('following/'+currentUser.uid+'/'+uid).set(true);await db.ref('followers/'+uid+'/'+currentUser.uid).set(true);btn.innerText='✓ Suivi';btn.classList.add('following');showToast('✅ Abonné à @'+name);sendNotif(uid,{type:'follow',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});}
+  else{following[uid]=true;await db.ref('following/'+currentUser.uid+'/'+uid).set(true);await db.ref('followers/'+uid+'/'+currentUser.uid).set(true);btn.innerText='✅ Suivi ✅';btn.classList.add('following');showToast('✅ Abonné à @'+name);sendNotif(uid,{type:'follow',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});}
   localStorage.setItem('aes_following',JSON.stringify(following));
 }
 function filterSearch(q){
@@ -10521,7 +10956,7 @@ setTimeout(()=>loadHomeStories(), 200);               // stories après le 1er r
 setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
 setTimeout(()=>loadHomeMarket(), 800);                // marketplace
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
-if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); }, 1000); }
+if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); }, 1000); }
 if(currentUser && !currentUser.country){ setTimeout(()=>kikoBackfillUserCountry(), 1800); }
 setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
 
@@ -10908,7 +11343,16 @@ async function startCamStream(){
     if(_camMode==='photo'){
       showToast('📷 Bascule sur l\'appareil photo du téléphone...');
       closeCamera();
-      document.getElementById('camNativeFallbackInput').click();
+      // Priorité au plugin caméra natif Capacitor (plus fiable en APK que
+      // l'input générique) ; si indisponible (web/navigateur) ou annulé,
+      // on retombe sur l'input file classique.
+      const nativeFile = await kikoNativeCameraPhoto();
+      if(nativeFile){
+        if(_camCalledFrom==='story' || _camCalledFrom==='status') handleCamFileForStory(nativeFile,'photo');
+        else { handleCamFileForPost(nativeFile,'photo'); showToast('💡 Astuce : appuie sur "✨ IA" sur la photo pour ajouter un filtre'); }
+      } else {
+        document.getElementById('camNativeFallbackInput').click();
+      }
     } else {
       showToast('🎥 Bascule sur la caméra vidéo du téléphone...');
       closeCamera();
@@ -11355,31 +11799,30 @@ function buildSFPost(p){
                   p.type==='opportunity'?'<span class="pfcard-badge" style="background:rgba(255,138,0,0.15);color:#FF7A30;border:1px solid rgba(255,138,0,0.3);">💡 Opportunité</span>':'';
 
   if(mainPhoto){
-    return `<article class="pfcard" id="hfp-${p.id}" onclick="_openPost('${p.id}')">
-      <div class="pfcard-img-wrap">
+    const isOwn = currentUser && p.authorUid===currentUser.uid;
+    const isFollowingAuthor = currentUser && p.authorUid && following[p.authorUid];
+    const followBtn = (!isOwn && p.authorUid)
+      ? `<button class="pfcard-follow-btn${isFollowingAuthor?' following':''}" id="pffollow-${p.id}" onclick="event.stopPropagation();needAuth(()=>toggleFollow('${p.authorUid}','${esc(p.auteur||'')}',this))">${isFollowingAuthor?'✅ Suivi ✅':'+ Suivre'}</button>`
+      : '';
+    const isSaved = savedPosts.includes(p.id);
+    return `<article class="pfcard" id="hfp-${p.id}">
+      <div class="pfcard-header" onclick="event.stopPropagation()">
+        <div class="pfcard-av">${avH}</div>
+        <div class="pfcard-info">
+          <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}</div>
+          <div class="pfcard-ago">${ago}</div>
+        </div>
+        ${followBtn}
+      </div>
+      <div class="pfcard-img-wrap pfcard-clean" onclick="_openPost('${p.id}')">
         <div class="pfcard-bg" style="background-image:url('${mainPhoto}')"></div>
         <img class="pfcard-img" src="${mainPhoto}" alt="" loading="lazy" decoding="async">
         ${typeBadge}
-        <div class="pfcard-overlay">
-          <div class="pfcard-author">
-            <div class="pfcard-av">${avH}</div>
-            <div class="pfcard-info">
-              <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}</div>
-              <div class="pfcard-ago">${ago}</div>
-            </div>
-          </div>
-          <div class="pfcard-stats">
-            ${viewCount>0?`<span class="pfcard-stat">👁 ${fmt(viewCount)}</span>`:''}
-            ${likeCount>0?`<span class="pfcard-stat">❤️ ${fmt(likeCount)}</span>`:''}
-            ${commentCount>0?`<span class="pfcard-stat">💬 ${fmt(commentCount)}</span>`:''}
-          </div>
-        </div>
-        ${p.photoUrls&&p.photoUrls.length>1?`<div class="pfcard-multi">⧉ ${p.photoUrls.length}</div>`:''}
+        ${p.photoUrls&&p.photoUrls.length>1?`<div class="pfcard-pagebadge">1/${p.photoUrls.length}</div>`:''}
       </div>
-      ${shortText?`<div class="pfcard-caption">${esc(shortText)}</div>`:''}
-      <div class="pfcard-actions">
+      <div class="pfcard-actionbar">
         <button class="pfact${isLiked||myReact?' pfact-on':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
-          <span>${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
+          <span class="pf-like-ico">${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
         </button>
         <button class="pfact" onclick="event.stopPropagation();openSFComments('${p.id}')">
           <span>💬</span><span class="pfact-n">${commentCount>0?fmt(commentCount):''}</span>
@@ -11387,8 +11830,10 @@ function buildSFPost(p){
         <button class="pfact" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
           <span>↗</span><span class="pfact-n">${shareCount>0?fmt(shareCount):''}</span>
         </button>
-        <span class="pfact-time">${ago}</span>
+        <button class="pfcard-save-btn${isSaved?' saved':''}" id="sfsave-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">${isSaved?'🔖':'📑'}</button>
       </div>
+      ${likeCount>0?`<div class="pfcard-likecount" id="pflikecount-${p.id}">${fmt(likeCount)} j'aime</div>`:''}
+      ${shortText?`<div class="pfcard-caption-line" onclick="_openPost('${p.id}')"><b>${esc(p.auteur||'anonyme')}</b>${esc(shortText)}</div>`:''}
     </article>`;
   } else {
     return `<article class="pfcard pfcard-txt-only" id="hfp-${p.id}" onclick="_openPost('${p.id}')">
@@ -11403,7 +11848,7 @@ function buildSFPost(p){
       <div class="pfcard-txt-body">${esc(rawText).slice(0,220)+(rawText.length>220?'\u2026':'')}</div>
       <div class="pfcard-actions">
         <button class="pfact${isLiked||myReact?' pfact-on':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
-          <span>${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
+          <span class="pf-like-ico">${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
         </button>
         <button class="pfact" onclick="event.stopPropagation();openSFComments('${p.id}')">
           <span>💬</span><span class="pfact-n">${commentCount>0?fmt(commentCount):''}</span>
@@ -11412,6 +11857,7 @@ function buildSFPost(p){
           <span>↗</span><span class="pfact-n">${shareCount>0?fmt(shareCount):''}</span>
         </button>
       </div>
+      <span class="pfact-time">${ago}</span>
     </article>`;
   }
 }
@@ -11437,12 +11883,28 @@ async function sfToggleLike(postId){
   const ref=db.ref('posts/'+postId+'/likes');
   const snap=await ref.once('value');
   const cur=snap.val()||0;
-  await ref.set(Math.max(0,cur+(isNowLiked?1:-1)));
+  const newCount=Math.max(0,cur+(isNowLiked?1:-1));
+  await ref.set(newCount);
   // Update UI
   const btn=document.getElementById('sflike-'+postId);
   const lc=document.getElementById('sflc-'+postId);
-  if(btn){btn.classList.toggle('liked',isNowLiked);btn.querySelector('.sfbtn-ico').textContent=isNowLiked?'❤️':'🤍';}
-  if(lc)lc.textContent=Math.max(0,cur+(isNowLiked?1:-1))>0?fmt(Math.max(0,cur+(isNowLiked?1:-1))):'';
+  const ico=btn?btn.querySelector('.pf-like-ico'):null;
+  if(btn) btn.classList.toggle('pfact-on',isNowLiked);
+  if(ico) ico.textContent=isNowLiked?'❤️':'🤍';
+  if(lc) lc.textContent=newCount>0?fmt(newCount):'';
+  const likecountLine=document.getElementById('pflikecount-'+postId);
+  if(likecountLine) likecountLine.textContent=newCount>0?fmt(newCount)+" j'aime":'';
+}
+
+// Sauvegarde d'un post (icône 🔖 façon Instagram, à droite de la barre d'actions)
+function sfToggleSave(postId){
+  if(!currentUser){needAuth(()=>sfToggleSave(postId));return;}
+  const isNowSaved=!savedPosts.includes(postId);
+  if(isNowSaved){savedPosts.push(postId);showToast('🔖 Publication enregistrée');}
+  else{savedPosts=savedPosts.filter(x=>x!==postId);showToast('Retiré des enregistrements');}
+  localStorage.setItem('aes_saved_posts',JSON.stringify(savedPosts));
+  const btn=document.getElementById('sfsave-'+postId);
+  if(btn){btn.classList.toggle('saved',isNowSaved);btn.textContent=isNowSaved?'🔖':'📑';}
 }
 
 // ─── Reactions ───
@@ -11773,8 +12235,8 @@ function initSFPullToRefresh(){
 }
 #buzzScreen .vcard::before{ height:45%; }
 #buzzScreen .vcard .vinfo{ bottom:164px; right:14px; }
-#buzzScreen .vcard .kiko-vid-actions{ bottom:96px; }
-#buzzScreen .vcard .vactions{ bottom:96px; }
+#buzzScreen .vcard .kiko-vid-actions{ bottom: calc(14px + env(safe-area-inset-bottom)); }
+#buzzScreen .vcard .vactions{ bottom: calc(14px + env(safe-area-inset-bottom)); }
 #buzzScreen .vcard .vprogress{ bottom:84px; }
 #buzzScreen .vcard .vtime-row{ bottom:88px; }
 #buzzScreen .vcard .vmute-btn{ top:calc(14px + env(safe-area-inset-top)); right:14px; }
@@ -12239,11 +12701,27 @@ if(currentUser) jbCheckReturnFromPaydunya();
   font-size:16px; cursor:pointer; border:none;
 }
 #jobAiMsgs{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
-.jaMsg{ max-width:85%; padding:11px 14px; border-radius:16px; font-size:14px; line-height:1.5; white-space:pre-wrap; }
-.jaMsg.user{ align-self:flex-end; background:var(--gold); color:#1a0a00; border-radius:16px 16px 4px 16px; }
-.jaMsg.bot{ align-self:flex-start; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:16px 16px 16px 4px; }
-.jaMsg img{ width:100%; border-radius: var(--r-xs); margin-top:8px; display:block; background:var(--surface3); }
-.jaMsg.loading{ color:var(--muted); font-style:italic; }
+.jaMsg{ max-width:88%; padding:11px 14px; border-radius:16px; font-size:14px; line-height:1.55; white-space:pre-wrap; }
+.jaMsg.user{ align-self:flex-end; background:var(--gold); color:#1a0a00; border-radius:16px 16px 4px 16px; white-space:pre-wrap; }
+.jaMsg.bot{ align-self:flex-start; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:16px 16px 16px 4px; white-space:normal; }
+.jaMsg.bot p{ margin:0 0 8px; }
+.jaMsg.bot p:last-child{ margin-bottom:0; }
+.jaMsg.bot ul, .jaMsg.bot ol{ margin:0 0 8px; padding-left:20px; }
+.jaMsg.bot ul:last-child, .jaMsg.bot ol:last-child{ margin-bottom:0; }
+.jaMsg.bot li{ margin-bottom:4px; }
+.jaMsg.bot strong{ color:var(--gold); font-weight:700; }
+.jaMsg img{ width:100%; border-radius: var(--r-xs); margin-top:10px; display:block; background:var(--surface3); }
+.jaMsg.loading{ color:var(--muted); }
+/* Indicateur de frappe façon ChatGPT */
+.jaTyping{ display:flex; gap:4px; align-items:center; padding:4px 0; }
+.jaTyping span{ width:6px; height:6px; border-radius:50%; background:var(--muted); opacity:0.5; animation: jaBounce 1.1s infinite ease-in-out; }
+.jaTyping span:nth-child(2){ animation-delay:0.15s; }
+.jaTyping span:nth-child(3){ animation-delay:0.3s; }
+@keyframes jaBounce{ 0%,60%,100%{ transform:translateY(0); opacity:0.5; } 30%{ transform:translateY(-4px); opacity:1; } }
+/* Bouton "illustrer" affiché sous une réponse */
+.jaIllustrateBtn{ margin-top:9px; display:inline-flex; align-items:center; gap:5px; background:var(--surface3); border:1px solid var(--border2); color:var(--gold); font-size:12px; font-weight:600; padding:6px 11px; border-radius:14px; cursor:pointer; }
+.jaIllustrateBtn:active{ transform:scale(0.95); }
+.jaIllustrateBtn.jaLoadingImg{ opacity:0.6; pointer-events:none; }
 #jobAiSuggestions{ display:flex; gap:8px; padding:0 16px 10px; overflow-x:auto; flex-wrap:nowrap; }
 .jaChip{ flex-shrink:0; background:var(--surface2); border:1px solid var(--border); color:var(--text2);
   font-size:12px; padding:7px 12px; border-radius:20px; cursor:pointer; white-space:nowrap; }
@@ -12254,6 +12732,7 @@ if(currentUser) jbCheckReturnFromPaydunya();
   display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; flex-shrink:0; color:#1a0a00; }
 #jobAiSend:disabled{ opacity:0.5; }
 </style>
+
 
 <div id="jobAiBtn" title="Apprendre un métier" style="display:none;">🧰</div>
 
@@ -12348,7 +12827,7 @@ if(currentUser) jbCheckReturnFromPaydunya();
   function openChat(){
     overlay.classList.add('active');
     if(msgsEl.children.length===0){
-      addMsg('bot', "Salut 👋 Je suis ton assistant métiers, spécialisé dans les métiers manuels et artisanaux africains : mécanique, plomberie, électricité, maçonnerie, menuiserie, soudure, couture, coiffure, agriculture, et bien d'autres. Pose-moi ta question, je t'explique étape par étape avec une image.\n\n⚠️ Conseils généraux — pour l'électricité, le gaz ou les travaux de structure, fais toujours vérifier par un professionnel expérimenté avant d'agir.");
+      addBotMsg("Salut 👋 Je suis ton assistant métiers, spécialisé dans les métiers manuels et artisanaux africains : mécanique, plomberie, électricité, maçonnerie, menuiserie, soudure, couture, coiffure, agriculture, et bien d'autres. Pose-moi ta question, je t'explique étape par étape, de façon claire et structurée.\n\n⚠️ Conseils généraux — pour l'électricité, le gaz ou les travaux de structure, fais toujours vérifier par un professionnel expérimenté avant d'agir.");
     }
   }
   window.openJobAiChat = openChat;
@@ -12361,13 +12840,104 @@ if(currentUser) jbCheckReturnFromPaydunya();
     sendMsg();
   }));
 
-  function addMsg(role, text){
+  // ── Prompt système : ton d'expert professionnel, structuré, façon ChatGPT ──
+  const JA_SYSTEM_PROMPT = "Tu es un formateur expert en métiers manuels et artisanaux d'Afrique de l'Ouest (zone AES : Burkina Faso, Mali, Niger, et région Sahel élargie). "
+    + "Tu connais en profondeur ces métiers et leurs réalités de terrain : mécanique auto et moto (dont motos chinoises courantes en Afrique), plomberie, électricité bâtiment et solaire (kits solaires domestiques), maçonnerie, menuiserie bois et métallique, soudure, ferronnerie, forge/forgeron traditionnel, couture et stylisme, coiffure et tresse, cordonnerie et travail du cuir, teinture (bogolan, wax), poterie, vannerie, tissage, agriculture et élevage (bovins, volaille, maraîchage), transformation agroalimentaire (beurre de karité, farine, jus locaux), réparation de téléphones et petit électronique, installation antennes/panneaux solaires, peinture bâtiment, carrelage, plomberie sanitaire, mécanique de forage/pompes à eau villageoises, apiculture, boulangerie/pâtisserie artisanale, restauration de rue (maquis), coiffure/barbier, blanchisserie, transport moto-taxi et entretien associé, artisanat du bijou (bronze, argent), tannerie. "
+    + "Réponds toujours comme un expert professionnel et pédagogue qui s'adresse à un client sérieux : ton clair, structuré et précis, sans familiarité excessive. Structure tes réponses avec des paragraphes courts et, quand c'est utile, des étapes numérotées (1. 2. 3.) ou des listes à puces (-). Mets en **gras** les mots-clés, outils ou pièces importants. Tiens compte du fait que l'apprenant a souvent peu d'outils et doit se débrouiller avec des matériaux locaux et accessibles au marché ; donne les noms d'outils/pièces tels qu'on les trouve couramment sur les marchés locaux ouest-africains. Si la question touche à un risque réel (électricité haute tension, gaz, structure porteuse d'un bâtiment), indique clairement les précautions de sécurité et recommande de faire vérifier par un professionnel expérimenté avant de continuer. Ne répète pas la question, va directement à la réponse.";
+
+  // Historique de conversation (multi-tours, façon ChatGPT)
+  let jaHistory = [{role:'system', content: JA_SYSTEM_PROMPT}];
+
+  function addUserMsg(text){
     const div = document.createElement('div');
-    div.className = 'jaMsg '+role;
+    div.className = 'jaMsg user';
     div.textContent = text;
     msgsEl.appendChild(div);
     msgsEl.scrollTop = msgsEl.scrollHeight;
     return div;
+  }
+
+  function addBotMsg(text){
+    const div = document.createElement('div');
+    div.className = 'jaMsg bot';
+    div.innerHTML = jaRenderMarkdown(text);
+    msgsEl.appendChild(div);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+    return div;
+  }
+
+  function addTypingIndicator(){
+    const div = document.createElement('div');
+    div.className = 'jaMsg bot loading';
+    div.innerHTML = '<div class="jaTyping"><span></span><span></span><span></span></div>';
+    msgsEl.appendChild(div);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+    return div;
+  }
+
+  // ── Rendu markdown léger (gras, italique, listes, paragraphes) — sans lib externe ──
+  function jaEscapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function jaInline(s){
+    s = jaEscapeHtml(s);
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^*])\*([^*]+)\*([^*]|$)/g, '$1<em>$2</em>$3');
+    return s;
+  }
+  function jaRenderMarkdown(text){
+    const lines = String(text||'').replace(/\r\n/g,'\n').split('\n');
+    let html='', listBuffer=[], listType=null;
+    function flushList(){
+      if(listBuffer.length){
+        const tag = listType==='ol' ? 'ol' : 'ul';
+        html += '<'+tag+'>' + listBuffer.map(li=>'<li>'+jaInline(li)+'</li>').join('') + '</'+tag+'>';
+        listBuffer=[]; listType=null;
+      }
+    }
+    lines.forEach(line=>{
+      const trimmed=line.trim();
+      if(/^\d+[.)]\s+/.test(trimmed)){
+        if(listType!=='ol') flushList();
+        listType='ol'; listBuffer.push(trimmed.replace(/^\d+[.)]\s+/,''));
+      } else if(/^[-•]\s+/.test(trimmed)){
+        if(listType!=='ul') flushList();
+        listType='ul'; listBuffer.push(trimmed.replace(/^[-•]\s+/,''));
+      } else if(trimmed===''){
+        flushList();
+      } else {
+        flushList();
+        html += '<p>'+jaInline(trimmed)+'</p>';
+      }
+    });
+    flushList();
+    return html || jaInline(String(text||''));
+  }
+
+  // Génère une image explicative uniquement à la demande (tap sur "Illustrer")
+  function jaAttachIllustrateButton(botDiv, question){
+    const btn = document.createElement('div');
+    btn.className = 'jaIllustrateBtn';
+    btn.textContent = '🖼️ Illustrer avec un schéma';
+    btn.onclick = async ()=>{
+      btn.classList.add('jaLoadingImg');
+      btn.textContent = '⏳ Génération du schéma...';
+      try{
+        const imgPrompt = 'clear educational diagram illustration, tutorial style, showing: ' + question + ', simple, labeled, instructional';
+        const imgUrl = 'https://gen.pollinations.ai/image/' + encodeURIComponent(imgPrompt) + '?width=640&height=400&nologo=true' + window.pollinationsAuthParam();
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.alt = '';
+        img.onload = ()=>{ msgsEl.scrollTop = msgsEl.scrollHeight; };
+        img.src = imgUrl;
+        botDiv.insertBefore(img, btn);
+        btn.remove();
+      }catch(e){
+        btn.classList.remove('jaLoadingImg');
+        btn.textContent = '⚠️ Schéma indisponible, réessaie';
+      }
+    };
+    botDiv.appendChild(btn);
   }
 
   async function sendMsg(){
@@ -12375,33 +12945,47 @@ if(currentUser) jbCheckReturnFromPaydunya();
     if(!q) return;
     input.value='';
     sendBtn.disabled = true;
-    addMsg('user', q);
-    const loadingDiv = addMsg('bot','⏳ Je réfléchis...');
-    loadingDiv.classList.add('loading');
+    addUserMsg(q);
+    const typingDiv = addTypingIndicator();
 
-    const systemPrompt = "Tu es un formateur expert en métiers manuels et artisanaux d'Afrique de l'Ouest (zone AES : Burkina Faso, Mali, Niger, et région Sahel élargie). "
-      + "Tu connais en profondeur ces métiers et leurs réalités de terrain : mécanique auto et moto (dont motos chinoises courantes en Afrique), plomberie, électricité bâtiment et solaire (kits solaires domestiques), maçonnerie, menuiserie bois et métallique, soudure, ferronnerie, forge/forgeron traditionnel, couture et stylisme, coiffure et tresse, cordonnerie et travail du cuir, teinture (bogolan, wax), poterie, vannerie, tissage, agriculture et élevage (bovins, volaille, maraîchage), transformation agroalimentaire (beurre de karité, farine, jus locaux), réparation de téléphones et petit électronique, installation antennes/panneaux solaires, peinture bâtiment, carrelage, plomberie sanitaire, mécanique de forage/pompes à eau villageoises, apiculture, boulangerie/pâtisserie artisanale, restauration de rue (maquis), coiffure/barbier, blanchisserie, transport moto-taxi et entretien associé, artisanat du bijou (bronze, argent), tannerie. "
-      + "Réponds toujours en français simple, avec des étapes numérotées courtes et concrètes, en tenant compte que l'apprenant a souvent peu d'outils et doit se débrouiller avec des matériaux locaux et accessibles au marché. Donne aussi, quand c'est utile, les noms d'outils ou pièces tels qu'on les trouve couramment sur les marchés locaux ouest-africains. Si la question touche à un risque réel (électricité haute tension, gaz, structure porteuse d'un bâtiment), donne les précautions de sécurité clairement et recommande de faire vérifier par un professionnel expérimenté avant de continuer. Question : ";
+    jaHistory.push({role:'user', content: q});
+    // Garde le system prompt + les 16 derniers messages (8 échanges) pour rester léger
+    if(jaHistory.length > 17){
+      jaHistory = [jaHistory[0], ...jaHistory.slice(-16)];
+    }
 
     try{
-      const url = 'https://gen.pollinations.ai/text/' + encodeURIComponent(systemPrompt + q) + '?model=openai' + window.pollinationsAuthParam();
-      const res = await fetch(url);
-      const text = await res.text();
-      loadingDiv.classList.remove('loading');
-      loadingDiv.textContent = text.trim();
+      const res = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          ...(window.POLLINATIONS_TOKEN ? {'Authorization':'Bearer '+window.POLLINATIONS_TOKEN} : {})
+        },
+        body: JSON.stringify({
+          model:'openai',
+          messages: jaHistory,
+          temperature: 0.55,
+          max_tokens: 800
+        })
+      });
+      if(!res.ok){
+        throw new Error('HTTP '+res.status);
+      }
+      const data = await res.json();
+      const reply = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content)
+        ? data.choices[0].message.content.trim()
+        : "Désolé, je n'ai pas pu générer de réponse claire. Peux-tu reformuler ta question ?";
 
-      // Image explicative générée à partir de la question
-      const imgPrompt = 'clear educational diagram illustration, tutorial style, showing: ' + q + ', simple, labeled, instructional';
-      const imgUrl = 'https://gen.pollinations.ai/image/' + encodeURIComponent(imgPrompt) + '?width=640&height=400&nologo=true' + window.pollinationsAuthParam();
-      const img = document.createElement('img');
-      img.src = imgUrl;
-      img.loading = 'lazy';
-      img.alt = '';
-      loadingDiv.appendChild(img);
+      jaHistory.push({role:'assistant', content: reply});
+
+      typingDiv.classList.remove('loading');
+      typingDiv.innerHTML = jaRenderMarkdown(reply);
+      jaAttachIllustrateButton(typingDiv, q);
       msgsEl.scrollTop = msgsEl.scrollHeight;
     }catch(err){
-      loadingDiv.classList.remove('loading');
-      loadingDiv.textContent = "⚠️ Connexion impossible. Vérifie ta connexion internet et réessaie.";
+      typingDiv.classList.remove('loading');
+      typingDiv.textContent = "⚠️ Connexion impossible. Vérifie ta connexion internet et réessaie.";
+      jaHistory.pop(); // retire la question ratée pour ne pas polluer l'historique
     }finally{
       sendBtn.disabled = false;
     }
