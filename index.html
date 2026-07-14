@@ -11601,7 +11601,7 @@ function optVid(url){
     const saver=isDataSaverActive();
     const cldQ=saver?'q_auto:low':'q_auto:eco';
     const w=saver?480:720;
-    return url.replace('/upload/',`/upload/f_auto,${cldQ},w_${w},c_limit,sp_auto/`);
+    return url.replace('/upload/',`/upload/f_auto,${cldQ},w_${w},c_limit/`);
   }
   return url;
 }
