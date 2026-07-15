@@ -1442,7 +1442,8 @@ textarea.inp { resize: none; }
 .mkt-cat-count{position:relative;font-size:9.5px;color:rgba(255,255,255,0.75);margin-top:2px;}
 .prod-time{font-size:9.5px;color:var(--muted);margin-top:2px;}
 
-/* Carte produit premium */
+/* Carte produit premium — style "Alibaba" : image propre sur fond clair,
+   prix bien visible en orange sous l'image, badge vendeur vérifié */
 .prod-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r-md); overflow: hidden; cursor: pointer;
@@ -1460,19 +1461,35 @@ textarea.inp { resize: none; }
   font-weight: 700; font-size: 13px; padding: 6px 16px; border-radius: var(--r-lg);
   transform: rotate(-12deg); box-shadow: 0 4px 16px rgba(224,59,59,0.4);
 }
-.prod-img { width: 100%; aspect-ratio: 3/4; background: var(--surface2); position: relative; overflow: hidden; }
-.prod-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s var(--ease); }
+.prod-img { width: 100%; aspect-ratio: 1/1; background: #fff; position: relative; overflow: hidden; border: 1px solid rgba(20,21,26,0.08); border-bottom: 1px solid rgba(20,21,26,0.06); box-sizing: border-box; }
+.prod-img img { width: 100%; height: 100%; object-fit: contain; object-position: center; padding: 10px; box-sizing: border-box; transition: transform 0.4s var(--ease); }
 .prod-card:active .prod-img img { transform: scale(1.04); }
-.prod-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 46px; background: linear-gradient(135deg, var(--surface2), var(--surface3)); }
+.prod-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 46px; background: #fff; }
 .prod-badge {
-  position: absolute; top: 8px; right: 8px;
+  position: absolute; bottom: 8px; right: 8px;
   background: rgba(255,255,255,0.95);
   color: var(--gold); font-size: 11px; font-weight: 700; border-radius: var(--r-xs);
   padding: 3px 8px; border: 1px solid var(--border2);
   box-shadow: var(--shadow-xs);
 }
-.prod-fav {
+.prod-verified {
+  position: absolute; bottom: 8px; left: 8px;
+  background: #1AAE5C; color: #fff; font-size: 10px; font-weight: 700;
+  border-radius: var(--r-xs); padding: 3px 7px; display: flex; align-items: center; gap: 3px;
+  box-shadow: var(--shadow-xs);
+}
+.prod-discount {
   position: absolute; top: 8px; left: 8px;
+  background: var(--red, #E03B3B); color: #fff; font-size: 11px; font-weight: 800;
+  border-radius: var(--r-xs); padding: 3px 8px;
+  box-shadow: 0 2px 8px rgba(224,59,59,0.35);
+}
+.prod-price-old {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  text-decoration: line-through; margin-left: 6px;
+}
+.prod-fav {
+  position: absolute; top: 8px; right: 8px;
   width: 32px; height: 32px; border-radius: 50%;
   background: rgba(255,255,255,0.9);
   display: flex; align-items: center; justify-content: center;
@@ -1481,26 +1498,20 @@ textarea.inp { resize: none; }
   transition: transform 0.15s;
 }
 .prod-fav:active { transform: scale(1.2); }
-.prod-gradient {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 55%;
-  background: linear-gradient(to top, rgba(7,26,61,0.55), transparent);
-  pointer-events: none;
+.prod-body { padding: 9px 10px 11px; }
+.prod-price {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16.5px;
+  color: #FF6A00; margin-bottom: 4px; line-height: 1;
 }
-.prod-price-overlay {
-  position: absolute; bottom: 8px; left: 10px;
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px;
-  color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.6);
-}
-.prod-price-overlay small { font-size: 10px; font-weight: 500; opacity: 0.8; margin-left: 1px; }
-.prod-body { padding: 10px 11px 12px; }
+.prod-price small { font-size: 10px; font-weight: 600; color: #FF6A00; opacity: 0.85; margin-left: 2px; }
 .prod-name {
-  font-family: 'Inter', sans-serif; font-weight: 600; font-size: 12.5px;
-  margin-bottom: 4px;
+  font-family: 'Inter', sans-serif; font-weight: 600; font-size: 12px;
+  margin-bottom: 5px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden; line-height: 1.4; color: var(--text);
+  overflow: hidden; line-height: 1.4; color: var(--text); min-height: 2.8em;
 }
 .prod-location { font-size: 10px; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
-.prod-seller { display: flex; align-items: center; gap: 5px; }
+.prod-seller { display: flex; align-items: center; gap: 5px; padding-top: 6px; border-top: 1px solid var(--border); }
 .prod-seller-av {
   width: 16px; height: 16px; border-radius: 50%;
   background: var(--gold); display: flex; align-items: center; justify-content: center;
@@ -1525,9 +1536,9 @@ textarea.inp { resize: none; }
   box-shadow: 0 -8px 40px rgba(7,26,61,0.12);
 }
 .pmod-sheet::-webkit-scrollbar { display: none; }
-.pmod-img { width: 100%; aspect-ratio: 1; background: var(--surface2); position: relative; overflow: hidden; }
-.pmod-img img { width: 100%; height: 100%; object-fit: cover; }
-.pmod-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px; background: linear-gradient(135deg, var(--surface2), var(--surface3)); }
+.pmod-img { width: 100%; aspect-ratio: 1; background: #fff; position: relative; overflow: hidden; }
+.pmod-img img { width: 100%; height: 100%; object-fit: contain; object-position: center; padding: 16px; box-sizing: border-box; }
+.pmod-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px; background: #fff; }
 .pmod-close {
   position: absolute; top: 14px; right: 14px;
   width: 38px; height: 38px; border-radius: 50%;
@@ -1536,19 +1547,13 @@ textarea.inp { resize: none; }
   font-size: 16px; cursor: pointer; color: var(--text);
   border: 1px solid var(--border); box-shadow: var(--shadow-sm);
 }
-.pmod-gradient {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 44%;
-  background: linear-gradient(to top, rgba(7,26,61,0.65), transparent);
-  pointer-events: none;
+.pmod-body { padding: 18px 20px 0; }
+.pmod-price {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 30px;
+  color: #FF6A00; margin-bottom: 10px; line-height: 1;
 }
-.pmod-price-hero {
-  position: absolute; bottom: 16px; left: 20px;
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 32px;
-  color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.5);
-}
-.pmod-price-hero small { font-size: 15px; font-weight: 500; opacity: 0.8; margin-left: 3px; }
-.pmod-body { padding: 20px 20px 0; }
-.pmod-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 8px; color: var(--text); }
+.pmod-price small { font-size: 14px; font-weight: 600; color: #FF6A00; opacity: 0.85; margin-left: 3px; }
+.pmod-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; margin-bottom: 8px; color: var(--text); }
 .pmod-location { font-size: 12px; color: var(--muted); margin-bottom: 14px; font-weight: 500; }
 .pmod-desc { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 18px; }
 .pmod-seller-row {
@@ -3358,7 +3363,7 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
 }
 .prod-img-ph{ background: linear-gradient(135deg, var(--surface2), var(--surface3)) !important; }
 .prod-card .prod-price, .prod-price{
-  color: var(--gold) !important; text-shadow: 0 0 12px var(--gold-glow);
+  color: #FF6A00 !important; text-shadow: none;
   font-weight: 800 !important;
 }
 
@@ -4544,53 +4549,6 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
         <button class="btn-ghost" onclick="closeModal()" style="margin-top:4px;">Annuler</button>
       </div>
 
-      <!-- ÉTAT 2 : Vidéo sélectionnée → tout sur le même écran -->
-      <div id="vStateReady" style="display:none;flex-direction:column;gap:10px;">
-
-        <!-- Aperçu vidéo -->
-        <div style="border-radius:var(--r-md);overflow:hidden;background:#000;position:relative;max-height:220px;display:flex;align-items:center;justify-content:center;">
-          <video id="videoQuickPreviewVid" muted playsinline controls style="width:100%;max-height:220px;object-fit:contain;display:block;"></video>
-          <!-- Bouton changer -->
-          <div onclick="kikoOpenFilePicker('videoInput')" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius: var(--r-lg);padding:5px 12px;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(6px);">
-            🔄 Changer
-          </div>
-          <div id="vpsDuration" style="display:none;position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:#fff;"></div>
-        </div>
-
-        <!-- Nom du fichier -->
-        <div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--r-sm);padding:9px 12px;">
-          <span style="font-size:18px;">🎥</span>
-          <span id="fchipName" style="font-size:12.5px;font-weight:600;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-          <span id="fchipSize" style="font-size:11px;color:var(--muted);flex-shrink:0;"></span>
-        </div>
-
-        <!-- Description -->
-        <textarea class="inp" id="vpsDescInput" rows="3" placeholder="Décris ta vidéo... #hashtags 🔥"></textarea>
-
-        <!-- Confidentialité -->
-        <div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;">
-          <span style="font-size:16px;">🌍</span>
-          <span style="font-size:13px;font-weight:500;flex:1;">Confidentialité</span>
-          <select id="vpsPrivacy" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;">
-            <option value="public">🌍 Public</option>
-            <option value="followers">👥 Abonnés</option>
-            <option value="private">🔒 Privé</option>
-          </select>
-        </div>
-
-        <div id="sharedMusicSection"></div>
-
-        <!-- Barre de progression (cachée par défaut) -->
-        <div id="mprog" class="mprog" style="display:none;">
-          <div class="mprog-bg"><div class="mprog-fill" id="mprogFill"></div></div>
-          <div class="mprog-label" id="mprogLabel">Envoi en cours...</div>
-        </div>
-
-        <!-- Boutons -->
-        <button class="btn-gold" id="publishBtn" onclick="uploadVideo()">🚀 Publier</button>
-        <button class="btn-ghost" onclick="closeModal()">Annuler</button>
-      </div>
-
     </div>
 
     <!-- PANEL PHOTO -->
@@ -4640,7 +4598,7 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
 <!-- ═══════════════════════════════════════
      🎬 ÉCRAN PUBLICATION VIDÉO — PROFESSIONNEL
 ═══════════════════════════════════════ -->
-<div id="videoPublishScreen" style="display:none;position:fixed;inset:0;z-index:520;background:var(--bg);flex-direction:column;">
+<div id="videoPublishScreen" style="display:none;position:fixed;inset:0;z-index:610;background:var(--bg);flex-direction:column;">
 
   <!-- Header -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;flex-shrink:0;">
@@ -4663,7 +4621,7 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
         <video id="vpsPreviewVid" muted playsinline controls
           style="width:100%;max-height:42vh;object-fit:contain;display:block;"></video>
         <!-- Badge changer vidéo -->
-        <div onclick="resetVideoPanel();closeVideoPublishScreen();"
+        <div onclick="kikoOpenFilePicker('videoInput')"
           style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.2);border-radius: var(--r-lg);padding:5px 12px;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(6px);">
           🔄 Changer
         </div>
@@ -4731,6 +4689,9 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
           </select>
         </div>
       </div>
+
+      <!-- Musique -->
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);" id="sharedMusicSectionVps"></div>
 
       <!-- Infos fichier -->
       <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
@@ -4877,6 +4838,7 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
   <div class="pmod-sheet">
     <div class="pmod-img" id="pmodImg"><div class="pmod-img-ph">📦</div><div class="pmod-close" onclick="closeProductModal()">✕</div></div>
     <div class="pmod-body">
+      <div class="pmod-price" id="pmodPrice"></div>
       <div class="pmod-name" id="pmodName"></div>
       <div class="pmod-location" id="pmodLocation"></div>
       <div class="pmod-desc" id="pmodDesc"></div>
@@ -4908,6 +4870,7 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
     </div>
     <input type="text" class="inp" id="prodName" placeholder="Nom du produit">
     <input type="number" class="inp" id="prodPrice" placeholder="Prix en FCFA">
+    <input type="number" class="inp" id="prodOldPrice" placeholder="Ancien prix (optionnel, pour afficher une réduction)">
     <textarea class="inp" id="prodDesc" rows="2" placeholder="Description..."></textarea>
     <select class="inp" id="prodCat">
       <option value="electronique">📱 Électronique</option>
@@ -5926,8 +5889,8 @@ function switchUploadTab(tab){
   });
   if(tab==='text')initTextBgPicker();
   const musicBlock=document.getElementById('musicPickerBlock');
-  if(tab==='video'||tab==='photo'){
-    const target=document.getElementById(tab==='video'?'sharedMusicSection':'sharedMusicSectionPhoto');
+  if(tab==='photo'){
+    const target=document.getElementById('sharedMusicSectionPhoto');
     if(target&&musicBlock.parentElement!==target)target.appendChild(musicBlock);
     musicBlock.style.display='block';
     initMusicLibrary();
@@ -8563,8 +8526,8 @@ function buildVCard(v,i){
       </div>
       <div class="kiko-vid-btn-sep"></div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>downloadVid('${jsStr(v.videoUrl)}','${v.id}','${jsStr(v.auteur||'')}'))" title="Télécharger" role="button" aria-label="Télécharger la vidéo">
-        <div class="kiko-vid-btn-ico">⬇️</div>
-        <div class="kiko-vid-btn-lbl">Save</div>
+        <div class="kiko-vid-btn-ico" id="dl-ico-${v.id}">⬇️</div>
+        <div class="kiko-vid-btn-lbl" id="dl-lbl-${v.id}">Save</div>
       </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();openShareSheet('${v.id}')" title="Partager" role="button" aria-label="Partager la vidéo">
         <div class="kiko-vid-btn-ico">↗️</div>
@@ -9804,16 +9767,19 @@ function renderMarket(prods){
     const avH=p.sellerAvatar?`<img src="${p.sellerAvatar}" alt="">`:( p.sellerName||'V')[0].toUpperCase();
     const imgH=p.imageUrl?`<img src="${optImg(p.imageUrl,400)}" alt="" loading="lazy" decoding="async">`:`<div class="prod-img-ph">${catEmoji(p.cat)}</div>`;
     const isFav=favorites.includes(p.id);
+    const hasDiscount=p.oldPrice&&Number(p.oldPrice)>Number(p.price);
+    const discountPct=hasDiscount?Math.round((1-Number(p.price)/Number(p.oldPrice))*100):0;
     return `<div class="prod-card" onclick="openProduct('${p.id}')">
       ${p.sold?`<div class="prod-sold-overlay"><div class="prod-sold-badge">VENDU</div></div>`:''}
       <div class="prod-img">
         ${imgH}
-        <div class="prod-gradient"></div>
-        <div class="prod-price-overlay">${fmtPrice(p.price)}<small>FCFA</small></div>
+        ${hasDiscount?`<div class="prod-discount">-${discountPct}%</div>`:''}
+        ${p.sellerVerified?`<div class="prod-verified">✓ Vérifié</div>`:''}
         <div class="prod-badge">${catEmoji(p.cat)}</div>
         <div class="prod-fav" onclick="event.stopPropagation();toggleFav('${p.id}')" id="fav-${p.id}">${isFav?'❤️':'🤍'}</div>
       </div>
       <div class="prod-body">
+        <div class="prod-price">${fmtPrice(p.price)}<small>FCFA</small>${hasDiscount?`<span class="prod-price-old">${fmtPrice(p.oldPrice)}</span>`:''}</div>
         <div class="prod-name">${esc(p.name)}</div>
         ${p.location?`<div class="prod-location">📍 ${esc(p.location)}</div>`:''}
         <div class="prod-seller"><div class="prod-seller-av">${avH}</div><div class="prod-seller-name">@${esc(p.sellerName||'vendeur')}${verifiedBadge(p.sellerVerified)}</div></div>
@@ -9833,7 +9799,10 @@ function toggleFav(id){
 function openProduct(id){
   const p=allProds.find(x=>x.id===id);if(!p)return;curProd=p;
   const imgEl=document.getElementById('pmodImg');
-  imgEl.innerHTML=(p.imageUrl?`<img src="${optImg(p.imageUrl,900)}" alt="">`:`<div class="pmod-img-ph">${catEmoji(p.cat)}</div>`)+`<div class="pmod-gradient"></div><div class="pmod-price-hero">${fmtPrice(p.price)}<small>FCFA</small></div><div class="pmod-close" onclick="closeProductModal()">✕</div>`;
+  imgEl.innerHTML=(p.imageUrl?`<img src="${optImg(p.imageUrl,900)}" alt="">`:`<div class="pmod-img-ph">${catEmoji(p.cat)}</div>`)+`<div class="pmod-close" onclick="closeProductModal()">✕</div>`;
+  const pHasDiscount=p.oldPrice&&Number(p.oldPrice)>Number(p.price);
+  const pDiscountPct=pHasDiscount?Math.round((1-Number(p.price)/Number(p.oldPrice))*100):0;
+  document.getElementById('pmodPrice').innerHTML=`${fmtPrice(p.price)}<small>FCFA</small>${pHasDiscount?` <span class="prod-price-old">${fmtPrice(p.oldPrice)}</span> <span style="color:var(--red,#E03B3B);font-weight:800;font-size:12px;">-${pDiscountPct}%</span>`:''}`;
   document.getElementById('pmodName').innerText=p.name||'';
   document.getElementById('pmodLocation').innerText=p.location?'📍 '+p.location:'';
   document.getElementById('pmodDesc').innerText=p.desc||'Aucune description';
@@ -9870,7 +9839,7 @@ function openAddProduct(){document.getElementById('addProductModal').classList.a
 function closeAddProduct(){
   document.getElementById('addProductModal').classList.remove('active');prodPhotoFile=null;
   document.getElementById('photoPick').innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div>`;
-  ['prodName','prodPrice','prodDesc','prodPhone','prodLocation'].forEach(id=>document.getElementById(id).value='');
+  ['prodName','prodPrice','prodOldPrice','prodDesc','prodPhone','prodLocation'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prodProg').classList.remove('show');
   document.getElementById('addProdBtn').disabled=false;document.getElementById('addProdBtn').innerText='🚀 Publier le produit';
 }
@@ -9903,15 +9872,17 @@ async function enhanceProductPhoto(){
 }
 async function submitProduct(){
   const name=document.getElementById('prodName').value.trim();const price=document.getElementById('prodPrice').value.trim();
+  const oldPriceRaw=document.getElementById('prodOldPrice').value.trim();
   const desc=document.getElementById('prodDesc').value.trim();const cat=document.getElementById('prodCat').value;
   const phone=document.getElementById('prodPhone').value.trim();const location=document.getElementById('prodLocation').value.trim();
   if(!name||!price){showToast('⚠️ Nom et prix requis');return;}
+  const oldPrice=(oldPriceRaw&&Number(oldPriceRaw)>Number(price))?Number(oldPriceRaw):null;
   const btn=document.getElementById('addProdBtn');btn.disabled=true;btn.innerText='⏳...';
   document.getElementById('prodProg').classList.add('show');
   try{
     let imageUrl='';
     if(prodPhotoFile){document.getElementById('prodProgLabel').innerText='Upload photo...';imageUrl=await ikUpload(prodPhotoFile,'products',p=>{document.getElementById('prodProgFill').style.width=p+'%';});}
-    await db.ref('products').push({name,price:Number(price),desc,cat,phone,imageUrl,location,sold:false,sellerName:currentUser.name,sellerAvatar:currentUser.avatar||'',sellerVerified:currentUser.verified||false,sellerUid:currentUser.uid,createdAt:Date.now()});
+    await db.ref('products').push({name,price:Number(price),oldPrice,desc,cat,phone,imageUrl,location,sold:false,sellerName:currentUser.name,sellerAvatar:currentUser.avatar||'',sellerVerified:currentUser.verified||false,sellerUid:currentUser.uid,createdAt:Date.now()});
     showToast('🎉 Produit publié !');closeAddProduct();loadMarket();
   }catch(e){showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier le produit';document.getElementById('prodProg').classList.remove('show');}
 }
@@ -10157,18 +10128,30 @@ function resetVideoPanel(){
   selFile = null;
   const vi = document.getElementById('videoInput');
   if(vi) vi.value = '';
-  const vid = document.getElementById('videoQuickPreviewVid');
+  const vid = document.getElementById('vpsPreviewVid');
   if(vid){ vid.src=''; vid.load(); }
-  document.getElementById('vStateEmpty').style.display = 'block';
-  document.getElementById('vStateReady').style.display = 'none';
   const dur = document.getElementById('vpsDuration');
   if(dur) dur.style.display='none';
-  const pb = document.getElementById('publishBtn');
-  if(pb){ pb.disabled=false; pb.textContent='🚀 Publier'; }
-  const mp = document.getElementById('mprog');
-  if(mp) mp.style.display='none';
-  const mf = document.getElementById('mprogFill');
-  if(mf) mf.style.width='0%';
+  const thumb = document.getElementById('vpsThumbnailPreview');
+  if(thumb) thumb.innerHTML='🖼️';
+  const desc = document.getElementById('vpsDescInput');
+  if(desc) desc.value='';
+  const charLabel = document.getElementById('vpsCharLabel');
+  if(charLabel) charLabel.textContent='0/500';
+  const pills = document.getElementById('vpsHashtagPills');
+  if(pills) pills.innerHTML='';
+  const locInput = document.getElementById('vpsLocationInput');
+  if(locInput) locInput.style.display='none';
+  const locText = document.getElementById('vpsLocationText');
+  if(locText) locText.value='';
+  const locLabel = document.getElementById('vpsLocationLabel');
+  if(locLabel) locLabel.textContent='Optionnel — Ajouter un lieu';
+  const priv = document.getElementById('vpsPrivacy');
+  if(priv) priv.value='public';
+  const pb = document.getElementById('vpsPublishBtn');
+  if(pb){ pb.disabled=false; pb.textContent='Publier'; }
+  const overlay = document.getElementById('vpsUploadOverlay');
+  if(overlay) overlay.style.display='none';
 }
 
 // Appelé dès qu'un fichier est choisi dans la galerie
@@ -10177,24 +10160,39 @@ function onFileSelected(inp){
   if(!f) return;
   selFile = f;
 
-  // Infos fichier
-  document.getElementById('fchipName').textContent = f.name;
-  document.getElementById('fchipSize').textContent = (f.size/1024/1024).toFixed(1)+' MB';
+  // Ferme juste le sheet de sélection (sans reset) et bascule sur l'écran pro
+  document.getElementById('uploadModal').classList.remove('active');
+  openVideoPublishScreen();
 
-  // Aperçu vidéo
-  const vid = document.getElementById('videoQuickPreviewVid');
-  if(vid){
-    vid.src = URL.createObjectURL(f);
-    vid.load();
-    vid.onloadedmetadata = ()=>{
-      const dur = document.getElementById('vpsDuration');
-      if(dur){ dur.style.display='block'; dur.textContent=fmtDur(vid.duration); }
-    };
-  }
+  document.getElementById('vpsFileName').textContent = f.name;
+  document.getElementById('vpsFileInfo').textContent = (f.size/1024/1024).toFixed(1)+' MB';
 
-  // Bascule vers l'état "prêt"
-  document.getElementById('vStateEmpty').style.display = 'none';
-  document.getElementById('vStateReady').style.display = 'flex';
+  const vid = document.getElementById('vpsPreviewVid');
+  vid.src = URL.createObjectURL(f);
+  vid.load();
+  vid.onloadedmetadata = ()=>{
+    const dur = document.getElementById('vpsDuration');
+    dur.style.display='block';
+    dur.textContent = fmtDur(vid.duration);
+    document.getElementById('vpsFileInfo').textContent = fmtDur(vid.duration)+' · '+(f.size/1024/1024).toFixed(1)+' MB';
+    vpsCaptureThumbnail(vid);
+  };
+
+  // Réinitialise les champs texte pour cette nouvelle vidéo
+  const descEl = document.getElementById('vpsDescInput');
+  descEl.value=''; vpsCharCount(descEl);
+  document.getElementById('vpsLocationText').value='';
+  document.getElementById('vpsLocationLabel').textContent='Optionnel — Ajouter un lieu';
+  document.getElementById('vpsLocationInput').style.display='none';
+  document.getElementById('vpsPrivacy').value='public';
+  vpsRenderQuickTags();
+
+  // Musique partagée — déplacée dans l'écran pro
+  const musicBlock=document.getElementById('musicPickerBlock');
+  const target=document.getElementById('sharedMusicSectionVps');
+  if(target && musicBlock.parentElement!==target) target.appendChild(musicBlock);
+  musicBlock.style.display='block';
+  initMusicLibrary();
 }
 
 function fmtDur(s){
@@ -10202,24 +10200,32 @@ function fmtDur(s){
   return m+':'+(sec<10?'0':'')+sec;
 }
 
-// ── Upload direct ──
 async function uploadVideo(){
   if(!selFile){ showToast('⚠️ Choisis une vidéo'); return; }
 
-  const desc    = (document.getElementById('vpsDescInput')?.value||'').trim();
-  const privacy = document.getElementById('vpsPrivacy')?.value||'public';
+  const desc     = (document.getElementById('vpsDescInput')?.value||'').trim();
+  const privacy  = document.getElementById('vpsPrivacy')?.value||'public';
+  const location = (document.getElementById('vpsLocationText')?.value||'').trim();
 
-  const btn = document.getElementById('publishBtn');
-  btn.disabled = true; btn.textContent = '⏳ Envoi...';
+  const btn = document.getElementById('vpsPublishBtn');
+  btn.disabled = true; btn.textContent = '⏳...';
 
-  const mprog = document.getElementById('mprog');
-  const fill  = document.getElementById('mprogFill');
-  const label = document.getElementById('mprogLabel');
-  mprog.style.display = 'block';
+  const overlay = document.getElementById('vpsUploadOverlay');
+  const pctEl   = document.getElementById('vpsUploadPct');
+  const bar     = document.getElementById('vpsUploadBar');
+  const circle  = document.getElementById('vpsProgressCircle');
+  const status  = document.getElementById('vpsUploadStatus');
+  const sub     = document.getElementById('vpsUploadSub');
+  const CIRC = 326.73;
+  overlay.style.display = 'flex';
+  sub.textContent = 'Optimisation de la vidéo';
 
-  const setP = (pct, txt)=>{
-    fill.style.width = pct+'%';
-    label.textContent = txt;
+  const setP = (p, label)=>{
+    p = Math.max(0, Math.min(100, p));
+    pctEl.textContent = Math.round(p)+'%';
+    bar.style.width = p+'%';
+    circle.style.strokeDashoffset = CIRC*(1-p/100);
+    if(label) status.textContent = label;
   };
   setP(2, 'Connexion...');
 
@@ -10263,7 +10269,7 @@ async function uploadVideo(){
       videoUrl, thumbnail, ...musicData,
       auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
       authorUid:currentUser.uid, country:currentUser.country||null,
-      desc, privacy, likes:0, views:0, createdAt:Date.now()
+      desc, privacy, location: location||null, likes:0, views:0, createdAt:Date.now()
     });
     KIKO_CACHE.clear('videos'); // invalide le cache pour forcer rechargement
 
@@ -10271,7 +10277,8 @@ async function uploadVideo(){
     showToast('🎉 Vidéo publiée avec succès !');
 
     setTimeout(()=>{
-      closeModal();
+      overlay.style.display = 'none';
+      closeVideoPublishScreen();
       prependNewVideoToFeed({
         videoUrl, thumbnail, ...musicData,
         auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
@@ -10281,28 +10288,82 @@ async function uploadVideo(){
     }, 800);
 
   } catch(e){
-    mprog.style.display = 'none';
-    btn.disabled = false; btn.textContent = '🚀 Publier';
+    overlay.style.display = 'none';
+    btn.disabled = false; btn.textContent = 'Publier';
     showToast('❌ '+e.message);
   }
 }
 
 // Stub pour compatibilité
 function setProg(pct,label){
-  const f=document.getElementById('mprogFill'); if(f) f.style.width=pct+'%';
-  const l=document.getElementById('mprogLabel'); if(l) l.textContent=label;
+  const f=document.getElementById('vpsUploadBar'); if(f) f.style.width=pct+'%';
+  const l=document.getElementById('vpsUploadStatus'); if(l) l.textContent=label;
 }
 
-// Stubs pour les fonctions de l'écran VPS (plus utilisées mais référencées ailleurs)
-function openVideoPublishScreen(){}
-function closeVideoPublishScreen(){}
+function openVideoPublishScreen(){
+  document.getElementById('videoPublishScreen').style.display='flex';
+}
+function closeVideoPublishScreen(){
+  document.getElementById('videoPublishScreen').style.display='none';
+  resetVideoPanel();
+}
 function vpsSetProgress(){}
-function vpsCancelUpload(){ if(_vpsXHR){_vpsXHR.abort();_vpsXHR=null;} showToast('⛔ Annulé'); }
+function vpsCancelUpload(){
+  if(_vpsXHR){_vpsXHR.abort();_vpsXHR=null;}
+  const overlay=document.getElementById('vpsUploadOverlay');
+  if(overlay) overlay.style.display='none';
+  const btn=document.getElementById('vpsPublishBtn');
+  if(btn){ btn.disabled=false; btn.textContent='Publier'; }
+  showToast('⛔ Envoi annulé');
+}
 function vpsPreload(){}
-function vpsCharCount(el){ const n=el.value.length; }
-function vpsRenderQuickTags(){}
-function vpsAddTag(tag){ const inp=document.getElementById('vpsDescInput'); if(inp) inp.value=(inp.value+' '+tag).trim()+' '; }
-function vpsToggleLocation(){}
+function vpsCharCount(el){
+  const n=el.value.length;
+  const label=document.getElementById('vpsCharLabel');
+  if(label) label.textContent=n+'/500';
+  const tags=(el.value.match(/#[\wÀ-ÿ]+/g)||[]).slice(0,6);
+  const pillsEl=document.getElementById('vpsHashtagPills');
+  if(pillsEl) pillsEl.innerHTML=tags.map(t=>`<span style="background:var(--gold3);color:var(--gold);font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:10px;">${t}</span>`).join('');
+}
+function vpsRenderQuickTags(){
+  const tags=['#kiko','#buzz','#burkinafaso','#viral','#business','#mode'];
+  const el=document.getElementById('vpsQuickTags');
+  if(!el) return;
+  el.innerHTML=tags.map(t=>`<span onclick="vpsAddTag('${t}')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:14px;cursor:pointer;">${t}</span>`).join('');
+}
+function vpsAddTag(tag){
+  const inp=document.getElementById('vpsDescInput');
+  if(!inp) return;
+  if(!inp.value.includes(tag)) inp.value=(inp.value+' '+tag).trim()+' ';
+  vpsCharCount(inp);
+}
+function vpsToggleLocation(){
+  const box=document.getElementById('vpsLocationInput');
+  if(!box) return;
+  const show = box.style.display==='none'||!box.style.display;
+  box.style.display = show?'block':'none';
+  if(show){ const t=document.getElementById('vpsLocationText'); if(t) t.focus(); }
+}
+function vpsCaptureThumbnail(vid){
+  try{
+    const seekTo=Math.min(0.3, (vid.duration||1)/2);
+    const onSeeked=()=>{
+      try{
+        const canvas=document.createElement('canvas');
+        const ratio = (vid.videoHeight && vid.videoWidth) ? (vid.videoHeight/vid.videoWidth) : 1.6;
+        canvas.width=160; canvas.height=Math.round(160*ratio);
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(vid,0,0,canvas.width,canvas.height);
+        const dataUrl=canvas.toDataURL('image/jpeg',0.7);
+        const box=document.getElementById('vpsThumbnailPreview');
+        if(box) box.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+      }catch(e){}
+      vid.removeEventListener('seeked',onSeeked);
+    };
+    vid.addEventListener('seeked',onSeeked);
+    vid.currentTime=seekTo;
+  }catch(e){}
+}
 
 
 
@@ -11072,22 +11133,62 @@ function kikoPickMime(){
   return '';
 }
 
+function trackDownload(id){
+  // Compteur de téléchargements par vidéo, affiché comme les vues/likes.
+  if(!id)return;
+  db.ref('videos/'+id+'/downloads').transaction(v=>(v||0)+1);
+}
+// ═══ Bouton téléchargement : affiche le % de progression pendant l'export/download ═══
+let _dlLastPct={};
+function setDlProgress(id,pct){
+  if(_dlLastPct[id]===pct)return; // évite les écritures DOM redondantes à chaque frame
+  _dlLastPct[id]=pct;
+  const lbl=document.getElementById('dl-lbl-'+id);
+  const ico=document.getElementById('dl-ico-'+id);
+  if(lbl)lbl.textContent=pct+'%';
+  if(ico)ico.textContent='⏳';
+}
+function resetDlProgress(id){
+  delete _dlLastPct[id];
+  const lbl=document.getElementById('dl-lbl-'+id);
+  const ico=document.getElementById('dl-ico-'+id);
+  if(lbl)lbl.textContent='Save';
+  if(ico)ico.textContent='⬇️';
+}
+async function fetchWithProgress(url,onProgress){
+  const res=await fetch(url);
+  const total=Number(res.headers.get('content-length'))||0;
+  if(!res.body||!total){ const blob=await res.blob(); onProgress(100); return blob; }
+  const reader=res.body.getReader();
+  let received=0;
+  const chunks=[];
+  while(true){
+    const {done,value}=await reader.read();
+    if(done)break;
+    chunks.push(value);
+    received+=value.length;
+    onProgress(Math.min(99,Math.round(received/total*100)));
+  }
+  onProgress(100);
+  return new Blob(chunks);
+}
 async function downloadVid(url,id,username){
+  setDlProgress(id,0);
   // Fallback si l'appareil ne supporte pas Canvas captureStream / MediaRecorder
   const supportsExport = !!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream);
   if(!supportsExport){
     showToast('⏳ Préparation...');
     try{
-      const res=await fetch(url);const blob=await res.blob();
+      const blob=await fetchWithProgress(url,p=>setDlProgress(id,p));
       const mimeType=blob.type&&blob.type.startsWith('video/')?blob.type:'video/mp4';
       const file=new File([blob],'Kiko_'+id+'.mp4',{type:mimeType});
       if(navigator.canShare && navigator.canShare({files:[file]})){
-        try{ await navigator.share({files:[file],title:'KIKO👑'}); showToast('✅ Vidéo prête à partager !'); return; }catch{}
+        try{ await navigator.share({files:[file],title:'KIKO👑'}); showToast('✅ Vidéo prête à partager !'); trackDownload(id); resetDlProgress(id); return; }catch{}
       }
       const blobUrl=URL.createObjectURL(blob);
       const a=document.createElement('a');a.href=blobUrl;a.download='Kiko_'+id+'.mp4';document.body.appendChild(a);a.click();document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);showToast('⬇️ Téléchargement démarré !');
-    }catch{const a=document.createElement('a');a.href=url;a.target='_blank';a.click();showToast('⬇️ Téléchargement démarré !');}
+      setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);showToast('⬇️ Téléchargement démarré !');trackDownload(id);resetDlProgress(id);
+    }catch{const a=document.createElement('a');a.href=url;a.target='_blank';a.click();showToast('⬇️ Téléchargement démarré !');trackDownload(id);resetDlProgress(id);}
     return;
   }
 
@@ -11157,6 +11258,7 @@ async function downloadVid(url,id,username){
       const elapsed=video.currentTime*1000;
       const cornerIdx=Math.floor(elapsed/KIKO_WM.rotateMs)%4;
       kikoDrawWatermark(ctx,w,h,KIKO_WM.corners[cornerIdx],username);
+      if(video.duration)setDlProgress(id,Math.min(99,Math.round(video.currentTime/video.duration*100)));
       rafId=requestAnimationFrame(drawFrame);
     }
     function finishRecording(){
@@ -11180,6 +11282,7 @@ async function downloadVid(url,id,username){
 
     await stopped;
     document.body.removeChild(video);
+    setDlProgress(id,100);
 
     const outMime=mime?mime.split(';')[0]:'video/webm'; // type RÉEL du fichier produit — jamais falsifié
     const outBlob=new Blob(chunks,{type:outMime});
@@ -11200,6 +11303,8 @@ async function downloadVid(url,id,username){
           text: isRealMp4 ? '🔥 Vidéo KIKO (filigranée)' : '🔥 Vidéo KIKO (filigranée)'
         });
         showToast('✅ Vidéo filigranée prête à partager !');
+        trackDownload(id);
+        resetDlProgress(id);
         _resumeFeedVideo();
         return;
       }catch(shareErr){
@@ -11220,15 +11325,18 @@ async function downloadVid(url,id,username){
     } else {
       showToast('⬇️ Vidéo filigranée téléchargée (.webm — ton appareil ne sait pas encoder en MP4 localement)');
     }
+    trackDownload(id);
+    resetDlProgress(id);
     _resumeFeedVideo();
   }catch(err){
     console.error('Kiko watermark export error:',err);
     showToast('⏳ Téléchargement simple...');
     try{
-      const res=await fetch(url);const blob=await res.blob();const blobUrl=URL.createObjectURL(blob);
+      const blob=await fetchWithProgress(url,p=>setDlProgress(id,p));const blobUrl=URL.createObjectURL(blob);
       const a=document.createElement('a');a.href=blobUrl;a.download='Kiko_'+id+'.mp4';document.body.appendChild(a);a.click();document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);showToast('⬇️ Téléchargement démarré !');
-    }catch{const a=document.createElement('a');a.href=url;a.target='_blank';a.click();}
+      setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);showToast('⬇️ Téléchargement démarré !');trackDownload(id);
+    }catch{const a=document.createElement('a');a.href=url;a.target='_blank';a.click();trackDownload(id);}
+    resetDlProgress(id);
     _resumeFeedVideo();
   }
 }
