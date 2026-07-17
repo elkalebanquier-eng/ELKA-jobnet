@@ -2512,6 +2512,99 @@ textarea.inp { resize: none; }
 .trend-stat { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 3px; font-weight: 500; }
 .trend-score-bar { width: 4px; height: 46px; border-radius: 2px; background: linear-gradient(to bottom, var(--gold2), var(--gold)); opacity: 0.7; flex-shrink: 0; }
 
+/* ─── HASHTAGS TENDANCE (bandeau au-dessus des vidéos tendance) ─── */
+.trend-tags-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 18px 14px; scrollbar-width: none; }
+.trend-tags-row::-webkit-scrollbar { display: none; }
+.trend-tag-chip {
+  flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;
+  padding: 9px 14px; cursor: pointer; min-width: 92px;
+}
+.trend-tag-chip:active { background: var(--surface3); }
+.trend-tag-chip .ttc-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12.5px; color: var(--gold); }
+.trend-tag-chip .ttc-count { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+.trend-tag-chip.news .ttc-name::after { content: ' 📰'; }
+.trend-tags-empty { padding: 6px 18px 16px; font-size: 12px; color: var(--muted); }
+
+/* ─── CARTE DES CRÉATEURS ─── */
+.creator-map {
+  position: relative; margin: 6px 16px 18px; border-radius: 20px;
+  aspect-ratio: 1.15; overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(245,200,66,0.10), transparent 55%),
+    radial-gradient(circle at 75% 70%, rgba(245,200,66,0.07), transparent 50%),
+    var(--navy);
+  border: 1px solid var(--border);
+}
+.creator-map::before {
+  content: ''; position: absolute; inset: 0; opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(245,200,66,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,200,66,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.cmap-country-label {
+  position: absolute; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 11px;
+  letter-spacing: 1.5px; color: rgba(245,200,66,0.28); text-transform: uppercase; pointer-events: none;
+}
+.cmap-pin {
+  position: absolute; transform: translate(-50%, -100%);
+  display: flex; flex-direction: column; align-items: center; cursor: pointer;
+}
+.cmap-pin-dot {
+  width: 34px; height: 34px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(245,200,66,0.35);
+  border: 2px solid rgba(11,16,32,0.6);
+}
+.cmap-pin-dot span { transform: rotate(45deg); font-size: 13px; font-weight: 800; color: var(--navy); }
+.cmap-pin-label { margin-top: 4px; font-size: 10.5px; font-weight: 700; color: var(--text); text-shadow: 0 1px 3px rgba(0,0,0,0.6); white-space: nowrap; }
+.cmap-pin-count { font-size: 9px; color: var(--gold); font-weight: 700; }
+.cmap-pin:active .cmap-pin-dot { transform: rotate(-45deg) scale(0.9); }
+.cmap-pin.empty .cmap-pin-dot { opacity: 0.35; box-shadow: none; }
+.cmap-pin.empty .cmap-pin-count { color: var(--muted); }
+
+.cmap-sheet-overlay { position: fixed; inset: 0; z-index: 720; background: rgba(7,26,61,0.7); display: none; align-items: flex-end; }
+.cmap-sheet-overlay.active { display: flex; }
+.cmap-sheet { width: 100%; max-height: 78vh; background: var(--surface); border-radius: 22px 22px 0 0; overflow-y: auto; padding-bottom: 20px; }
+.cmap-sheet-close { width: 40px; height: 4px; border-radius: 2px; background: var(--surface3); margin: 12px auto 6px; cursor: pointer; }
+.cmap-sheet-title { padding: 6px 18px 14px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.cmap-creator-row { display: flex; align-items: center; gap: 12px; padding: 10px 18px; cursor: pointer; }
+.cmap-creator-row:active { background: var(--surface2); }
+.cmap-creator-av { width: 44px; height: 44px; border-radius: 50%; background: var(--gold); color: var(--navy); display: flex; align-items: center; justify-content: center; font-weight: 800; overflow: hidden; flex-shrink: 0; }
+.cmap-creator-av img { width: 100%; height: 100%; object-fit: cover; }
+.cmap-creator-info { flex: 1; min-width: 0; }
+.cmap-creator-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--text); }
+.cmap-creator-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.cmap-empty-state { text-align: center; padding: 32px 20px; color: var(--muted); font-size: 13px; }
+
+/* ─── PAGE SON (recherche par musique) ─── */
+#soundScreen { display: none; position: fixed; inset: 0; z-index: 750; background: var(--bg); flex-direction: column; }
+#soundScreen.active { display: flex; }
+.sound-head { display: flex; align-items: center; gap: 12px; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; border-bottom: 1px solid var(--border); }
+.sound-back { width: 34px; height: 34px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.sound-hero { display: flex; align-items: center; gap: 14px; padding: 18px 16px; }
+.sound-hero-disc {
+  width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+  animation: soundSpin 6s linear infinite;
+}
+@keyframes soundSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.sound-hero-disc img { width: 100%; height: 100%; object-fit: cover; }
+.sound-hero-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--text); }
+.sound-hero-artist { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.sound-hero-count { font-size: 11.5px; color: var(--gold); font-weight: 700; margin-top: 5px; }
+.sound-use-btn {
+  margin: 0 16px 14px; padding: 12px; border-radius: var(--r-sm); text-align: center;
+  background: linear-gradient(135deg, var(--gold), var(--gold2)); color: var(--navy);
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13.5px; cursor: pointer;
+}
+.sound-use-btn:active { opacity: 0.85; }
+.sound-grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; }
+.sound-grid .eitem { aspect-ratio: 9/16; }
+
 /* ─── CAMÉRA ─── */
 #cameraScreen { display: none; position: fixed; inset: 0; z-index: 800; background: #000; flex-direction: column; overflow: hidden; }
 #cameraScreen.active { display: flex; }
@@ -3555,10 +3648,12 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
     <div class="s-tab" onclick="switchSearchTab('trending',this)">🔥 Tendances</div>
     <div class="s-tab" onclick="switchSearchTab('accounts',this)">👤 Comptes</div>
     <div class="s-tab" onclick="switchSearchTab('tags',this)">🏷️ Tags</div>
+    <div class="s-tab" onclick="switchSearchTab('map',this)">📍 Carte</div>
   </div>
   <div id="searchVideos"><div class="egrid" id="exploreGrid"></div></div>
   <div id="searchTrending" style="display:none;">
     <div class="trend-header">🔥 Tendances AES</div>
+    <div class="trend-tags-row" id="trendTagsRow"></div>
     <div class="trend-grid" id="trendGrid"></div>
   </div>
   <div id="searchAccounts" style="display:none;"><div class="accounts-list" id="accountsList"></div></div>
@@ -3576,6 +3671,36 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
       <div class="stag" onclick="searchByTag('#Mode')">#Mode</div>
     </div>
   </div>
+  <div id="searchMap" style="display:none;">
+    <div class="trend-header">📍 Créateurs du Sahel</div>
+    <div style="padding:0 18px 12px;font-size:12px;color:var(--muted);">Découvre les créateurs par ville — d'après le lieu ajouté sur leurs vidéos.</div>
+    <div class="creator-map" id="creatorMap"></div>
+  </div>
+</div>
+
+<div class="cmap-sheet-overlay" id="cmapSheetOverlay" onclick="if(event.target===this)closeCmapSheet()">
+  <div class="cmap-sheet">
+    <div class="cmap-sheet-close" onclick="closeCmapSheet()"></div>
+    <div class="cmap-sheet-title" id="cmapSheetTitle"></div>
+    <div id="cmapSheetList"></div>
+  </div>
+</div>
+
+<div id="soundScreen">
+  <div class="sound-head">
+    <div class="sound-back" onclick="closeSoundPage()">←</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;">🎵 Son</div>
+  </div>
+  <div class="sound-hero">
+    <div class="sound-hero-disc" id="soundHeroDisc">🎵</div>
+    <div>
+      <div class="sound-hero-name" id="soundHeroName"></div>
+      <div class="sound-hero-artist" id="soundHeroArtist"></div>
+      <div class="sound-hero-count" id="soundHeroCount"></div>
+    </div>
+  </div>
+  <div class="sound-use-btn" id="soundUseBtn" onclick="reuseCurrentSound()">🎤 Utiliser ce son</div>
+  <div class="sound-grid" id="soundGrid"></div>
 </div>
 
 <div id="marketScreen" class="screen">
@@ -4691,7 +4816,16 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
       </div>
 
       <!-- Musique -->
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);" id="sharedMusicSectionVps"></div>
+      <div style="padding:0 16px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 0;cursor:pointer;" onclick="vpsOpenMusicModal()">
+          <div style="width:36px;height:36px;border-radius: var(--r-xs);background:rgba(245,200,66,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🎵</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;">Musique</div>
+            <div id="vpsMusicLabel" style="font-size:11.5px;color:var(--muted);">Optionnel — Choisir un son</div>
+          </div>
+          <div style="font-size:18px;color:var(--muted);">›</div>
+        </div>
+      </div>
 
       <!-- Infos fichier -->
       <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
@@ -4776,6 +4910,19 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
       <span style="font-size:11px;color:var(--text2);">Autoriser les autres à utiliser ce son sur leurs propres publications</span>
     </label>
     <audio id="photoMusicPreview" style="display:none;"></audio>
+  </div>
+</div>
+
+<!-- ═══ MODAL CHOIX MUSIQUE (écran publier vidéo) ═══ -->
+<div id="vpsMusicModal" class="modal-overlay">
+  <div class="modal-sheet" style="max-height:80vh;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin-bottom:0;">🎵 Choisir une musique</div>
+      <div class="cclose" onclick="vpsCloseMusicModal()">✕</div>
+    </div>
+    <div id="vpsMusicModalTarget"></div>
+    <button class="btn-gold" style="margin-top:14px;" onclick="vpsCloseMusicModal()">✅ Terminé</button>
   </div>
 </div>
 
@@ -5727,6 +5874,10 @@ function _getModalChecks(){
     { id:'kikoPublishRadialOverlay', fn:()=>{ if(typeof kikoClosePublishRadial==='function') kikoClosePublishRadial(); else _close('kikoPublishRadialOverlay'); } },
     { id:'kikoRadialOverlay',  fn:()=>{ if(typeof kikoCloseRadial==='function') kikoCloseRadial(); else _close('kikoRadialOverlay'); } },
     // modals classiques
+    { id:'wltWithdrawModal',   fn:()=>{ if(typeof closeWltWithdrawModal==='function') closeWltWithdrawModal(); else _close('wltWithdrawModal'); } },
+    { id:'wltPayMethodModal',  fn:()=>{ if(typeof closeWltPayMethodModal==='function') closeWltPayMethodModal(); else _close('wltPayMethodModal'); } },
+    { id:'walletPanel',        fn:()=>{ if(typeof closeWallet==='function') closeWallet(); else _close('walletPanel'); } },
+    { id:'vpsMusicModal',      fn:()=>{ if(typeof vpsCloseMusicModal==='function') vpsCloseMusicModal(); else _close('vpsMusicModal'); } },
     { id:'uploadModal',        fn:()=>{ if(typeof closeModal==='function') closeModal(); else _close('uploadModal'); } },
     { id:'authModal',          fn:()=>{ if(typeof closeAuth==='function') closeAuth(); else _close('authModal'); } },
     { id:'logoutWarnModal',    fn:()=>document.getElementById('logoutWarnModal').classList.remove('active') },
@@ -6165,6 +6316,19 @@ async function loadCustomMusic(){
     }
   }catch(e){console.warn('musicLibrary load failed',e);}
 }
+// ═══ MODAL MUSIQUE — écran publier vidéo ═══
+function vpsOpenMusicModal(){
+  const musicBlock=document.getElementById('musicPickerBlock');
+  const target=document.getElementById('vpsMusicModalTarget');
+  if(target && musicBlock.parentElement!==target) target.appendChild(musicBlock);
+  musicBlock.style.display='block';
+  document.getElementById('vpsMusicModal').classList.add('active');
+  initMusicLibrary();
+}
+function vpsCloseMusicModal(){
+  document.getElementById('vpsMusicModal').classList.remove('active');
+}
+
 let selectedMusic=null;
 let libPreviewAudio=null;
 
@@ -6245,6 +6409,8 @@ function showMusicSelectedUI(emoji,name,artist,cover){
   document.getElementById('photoMusicSelIcon').innerHTML=cover?`<img src="${cover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:emoji;
   document.getElementById('photoMusicSelName').innerText=name;
   document.getElementById('photoMusicSelArtist').innerText=artist;
+  const vpsLbl=document.getElementById('vpsMusicLabel');
+  if(vpsLbl) vpsLbl.textContent=`${emoji||'🎵'} ${name}`;
 }
 
 // ═══ "Utiliser ce son" — style TikTok ═══
@@ -6269,6 +6435,8 @@ function clearPhotoMusic(){
   document.querySelectorAll('.music-lib-item').forEach(i=>i.classList.remove('active'));
   if(libPreviewAudio){libPreviewAudio.pause();libPreviewAudio=null;}
   const toggle=document.getElementById('musicAllowReuseToggle');if(toggle)toggle.checked=true;
+  const vpsLbl=document.getElementById('vpsMusicLabel');
+  if(vpsLbl) vpsLbl.textContent='Optionnel — Choisir un son';
 }
 
 // ═══════════════════════════════════════
@@ -6687,7 +6855,7 @@ function buildPhotoCard(p,i){
   const canReuseP=p.musicUrl&&p.musicAllowReuse!==false&&!p.musicFromGallery;
   const discContentP=p.musicCover?`<img src="${p.musicCover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.musicEmoji||'🎵');
   const musicHtml=p.musicUrl?`
-    <div class="pcard-music-row"${canReuseP?` id="pmusic-row-${p.id}" onclick="event.stopPropagation();useThisSound('${jsStr(p.musicName)}','${jsStr(p.musicArtist)}','${jsStr(p.musicEmoji||'🎵')}','${jsStr(p.musicUrl)}','${jsStr(p.musicCover||'')}','photo')"`:` id="pmusic-row-${p.id}" style="cursor:default;"`}>
+    <div class="pcard-music-row"${canReuseP?` id="pmusic-row-${p.id}" onclick="event.stopPropagation();openSoundPage('${jsStr(p.musicName)}','${jsStr(p.musicArtist)}','${jsStr(p.musicEmoji||'🎵')}','${jsStr(p.musicUrl)}','${jsStr(p.musicCover||'')}','photo')"`:` id="pmusic-row-${p.id}" style="cursor:default;"`}>
       <div class="pcard-music-disc" id="pmusic-disc-${p.id}">${discContentP}</div>
       <div class="pcard-music-text">🎵 ${esc(p.musicName||'Son original')} · ${esc(p.musicArtist||'')}</div>
     </div>
@@ -8497,7 +8665,7 @@ function buildVCard(v,i){
         const discContentV=v.musicCover?`<img src="${v.musicCover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(v.musicEmoji||'🎵');
         const label=hasMusic?`${esc(v.musicName||'Son')} · ${esc(v.musicArtist||'')}`:`Son original · ${esc(v.auteur||'anonyme')}`;
         return canReuseV
-          ?`<div class="vmusic" style="cursor:pointer;" onclick="event.stopPropagation();useThisSound('${jsStr(v.musicName)}','${jsStr(v.musicArtist)}','${jsStr(v.musicEmoji||'🎵')}','${jsStr(v.musicUrl)}','${jsStr(v.musicCover||'')}','video')"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`
+          ?`<div class="vmusic" style="cursor:pointer;" onclick="event.stopPropagation();openSoundPage('${jsStr(v.musicName)}','${jsStr(v.musicArtist)}','${jsStr(v.musicEmoji||'🎵')}','${jsStr(v.musicUrl)}','${jsStr(v.musicCover||'')}')"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`
           :`<div class="vmusic"><div class="vdisc">${discContentV}</div><span>${label}</span></div>`;
       })()}
       <div style="display:flex;gap:10px;margin-top:5px;">
@@ -8554,8 +8722,11 @@ function buildVCard(v,i){
 }
 
 // Stats temps réel — likes + vues depuis Firebase
+const _realtimeStatsWatched=new Set();
 function loadRealtimeStats(vids){
   vids.forEach(v=>{
+    if(_realtimeStatsWatched.has(v.id))return; // déjà écouté — évite les listeners en doublon
+    _realtimeStatsWatched.add(v.id);
     db.ref('videos/'+v.id).on('value',snap=>{
       const d=snap.val();if(!d)return;
       const lc=document.getElementById('lc-'+v.id);
@@ -10187,12 +10358,10 @@ function onFileSelected(inp){
   document.getElementById('vpsPrivacy').value='public';
   vpsRenderQuickTags();
 
-  // Musique partagée — déplacée dans l'écran pro
-  const musicBlock=document.getElementById('musicPickerBlock');
-  const target=document.getElementById('sharedMusicSectionVps');
-  if(target && musicBlock.parentElement!==target) target.appendChild(musicBlock);
-  musicBlock.style.display='block';
-  initMusicLibrary();
+  // Musique — réinitialisée pour cette nouvelle vidéo (choix via modal, pas inline)
+  selectedMusic=null;
+  const vpsMusicLbl=document.getElementById('vpsMusicLabel');
+  if(vpsMusicLbl) vpsMusicLbl.textContent='Optionnel — Choisir un son';
 }
 
 function fmtDur(s){
@@ -10205,7 +10374,10 @@ async function uploadVideo(){
 
   const desc     = (document.getElementById('vpsDescInput')?.value||'').trim();
   const privacy  = document.getElementById('vpsPrivacy')?.value||'public';
-  const location = (document.getElementById('vpsLocationText')?.value||'').trim();
+  // Si l'utilisateur n'a pas tapé de lieu manuellement, on retombe sur la ville
+  // détectée par géolocalisation (déjà stockée sur son profil) — ça garantit que
+  // la carte des créateurs a des données sans effort supplémentaire pour lui.
+  const location = (document.getElementById('vpsLocationText')?.value||'').trim() || currentUser.city || '';
 
   const btn = document.getElementById('vpsPublishBtn');
   btn.disabled = true; btn.textContent = '⏳...';
@@ -10844,7 +11016,9 @@ function switchSearchTab(tab,el){
   document.getElementById('searchTrending').style.display=tab==='trending'?'block':'none';
   document.getElementById('searchAccounts').style.display=tab==='accounts'?'block':'none';
   document.getElementById('searchTags').style.display=tab==='tags'?'block':'none';
+  document.getElementById('searchMap').style.display=tab==='map'?'block':'none';
   if(tab==='trending')renderTrending();
+  else if(tab==='map')renderCreatorMap();
   else filterSearch(document.getElementById('searchInput').value);
 }
 function renderExplore(){document.getElementById('exploreGrid').innerHTML=allVids.slice(0,12).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
@@ -10935,12 +11109,11 @@ function copyShareLink(){
   });
 }
 
+let _shareInFlight=false; // évite les double-taps pendant l'export du fichier filigrané
+
 function shareToWhatsApp(){
-  if(!curShareVid)return;
-  const msg=encodeURIComponent(`🔥 Regarde cette vidéo sur AES👑 Vidéos !\n"${curShareVid.desc||'Vidéo incroyable'}"\n${getShareLink(curShareVid.id)}`);
-  window.open('https://wa.me/?text='+msg,'_blank');
-  incrementShares(curShareVid.id);
-  closeShareSheet();
+  if(!curShareVid||_shareInFlight)return;
+  shareFileTo('whatsapp');
 }
 
 function shareToTelegram(){
@@ -10949,6 +11122,67 @@ function shareToTelegram(){
   const url=encodeURIComponent(getShareLink(curShareVid.id));
   window.open(`https://t.me/share/url?url=${url}&text=${msg}`,'_blank');
   incrementShares(curShareVid.id);
+  closeShareSheet();
+}
+
+// Partage la vidéo filigranée en fichier réel (pas juste un lien) vers WhatsApp
+// ou le sélecteur natif — c'est le canal d'acquisition le plus important dans
+// la région : quand un fichier vidéo arrive dans WhatsApp, il reste tel quel,
+// visible et rejouable, avec le filigrane Kiko dessus. Un simple lien texte se
+// perd dans la conversation et n'est pas toujours cliqué.
+async function shareFileTo(channel){
+  if(!curShareVid)return;
+  const v=curShareVid;
+  const link=getShareLink(v.id);
+  const caption=`🔥 Regarde cette vidéo sur KIKO !\n"${v.desc||'Vidéo incroyable'}"\n${link}`;
+
+  // Repli immédiat si l'appareil ne peut de toute façon pas partager de fichier :
+  // on ne fait pas attendre l'export pour rien, on part direct sur le lien.
+  const canFileShare=!!(navigator.canShare && window.MediaRecorder && HTMLCanvasElement.prototype.captureStream);
+  if(!canFileShare){
+    shareLinkFallback(channel,v.id,caption,link);
+    return;
+  }
+
+  _shareInFlight=true;
+  showToast('⏳ Préparation de la vidéo filigranée...');
+  const btnWa=document.querySelector('.share-btn[onclick="shareToWhatsApp()"] .share-btn-icon');
+  if(btnWa)btnWa.style.opacity='0.5';
+
+  try{
+    const {file}=await kikoExportWatermarkedFile(v.videoUrl,v.id,v.auteur,p=>{
+      if(p<100)showToast(`⏳ Filigrane en cours... ${p}%`);
+    });
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({ files:[file], title:'KIKO👑', text:caption });
+      showToast('✅ Vidéo filigranée envoyée !');
+      incrementShares(v.id);
+      trackDownload(v.id);
+      closeShareSheet();
+      _shareInFlight=false;
+      if(btnWa)btnWa.style.opacity='';
+      return;
+    }
+    // navigator.canShare a refusé ce fichier précis (type/taille) : repli lien.
+    shareLinkFallback(channel,v.id,caption,link);
+  }catch(err){
+    // L'utilisateur a annulé le partage natif : ne pas spammer de fallback.
+    if(err && err.name==='AbortError'){ closeShareSheet(); }
+    else { console.error('Kiko share file error:',err); shareLinkFallback(channel,v.id,caption,link); }
+  }
+  _shareInFlight=false;
+  if(btnWa)btnWa.style.opacity='';
+}
+
+// Repli texte+lien classique (comportement d'origine), utilisé quand l'appareil
+// ne sait pas exporter/partager de fichier vidéo.
+function shareLinkFallback(channel,vidId,caption,link){
+  if(channel==='whatsapp'){
+    window.open('https://wa.me/?text='+encodeURIComponent(caption),'_blank');
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(caption),'_blank');
+  }
+  incrementShares(vidId);
   closeShareSheet();
 }
 
@@ -10982,6 +11216,7 @@ function checkDeepLink(){
 //  TENDANCES — classement par score viral
 // ═══════════════════════════════════════
 function renderTrending(){
+  renderTrendingTags();
   const grid=document.getElementById('trendGrid');
   if(!allVids.length){grid.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);">Aucune vidéo disponible</div>';return;}
   const sorted=[...allVids].sort((a,b)=>viralScore(b)-viralScore(a)).slice(0,20);
@@ -11007,6 +11242,161 @@ function renderTrending(){
     </div>`;
   }).join('');
 }
+
+// normalise pour comparaison insensible aux accents/majuscules (villes, hashtags)
+function kikoNorm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+// ═══════════════════════════════════════
+//  TENDANCES RÉGIONALES — hashtags qui montent, croisés avec l'actu AES
+// ═══════════════════════════════════════
+// Pondère chaque hashtag par le score viral de la vidéo qui le porte + une
+// décroissance sur 7 jours (un tag qui a buzz il y a 3 semaines ne doit pas
+// dominer le classement face à un tag qui monte cette semaine).
+function computeTrendingHashtags(){
+  const now=Date.now();
+  const WEEK=7*24*3600*1000;
+  const scores={};
+  allVids.forEach(v=>{
+    const tags=(v.desc||'').match(/#\w+/g);
+    if(!tags||!tags.length)return;
+    const age=now-(v.createdAt||now);
+    const recency=Math.max(0.15,1-age/WEEK); // décroît vers 0.15 après une semaine, jamais à zéro
+    const weight=(1+viralScore(v))*recency;
+    tags.forEach(tRaw=>{
+      const key=tRaw.toLowerCase();
+      if(!scores[key])scores[key]={tag:tRaw,score:0,count:0};
+      scores[key].score+=weight;
+      scores[key].count++;
+    });
+  });
+  const list=Object.values(scores).sort((a,b)=>b.score-a.score).slice(0,15);
+  // Croise avec l'actu AES déjà chargée : un tag est "lié à l'actu" si le mot
+  // (sans le #) apparaît dans le titre d'un article que le système de news a
+  // déjà classé pertinent pour la zone AES.
+  if(allArticles && allArticles.length){
+    list.forEach(item=>{
+      const word=kikoNorm(item.tag.slice(1));
+      item.newsLinked=allArticles.some(a=>(a._aesScore||0)>0 && kikoNorm(a.title||'').includes(word));
+    });
+  }
+  return list;
+}
+
+function renderTrendingTags(){
+  const row=document.getElementById('trendTagsRow');
+  if(!row)return;
+  const tags=computeTrendingHashtags();
+  if(!tags.length){ row.innerHTML=''; row.insertAdjacentHTML('afterend','<div class="trend-tags-empty" id="trendTagsEmpty">Pas encore assez de vidéos avec hashtags pour dégager des tendances.</div>'); return; }
+  const existingEmpty=document.getElementById('trendTagsEmpty'); if(existingEmpty)existingEmpty.remove();
+  row.innerHTML=tags.map(t=>`
+    <div class="trend-tag-chip${t.newsLinked?' news':''}" onclick="searchByTag('${esc(t.tag)}')">
+      <span class="ttc-name">${esc(t.tag)}</span>
+      <span class="ttc-count">${t.count} vidéo${t.count>1?'s':''}</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+//  CARTE DES CRÉATEURS — par ville (Sahel)
+// ═══════════════════════════════════════
+// Positions stylisées (pas une carte géographique réelle) : suffisant pour une
+// identité visuelle "carte" sans dépendre d'un fond de carte externe (coût data,
+// et risque de ressembler à Google/Apple Maps — contraire à l'identité Kiko).
+const KIKO_CITIES=[
+  { key:'ouagadougou', label:'Ouagadougou', country:'Burkina Faso', top:'40%', left:'30%', match:['ouagadougou','ouaga'] },
+  { key:'bobo',        label:'Bobo-Dioulasso', country:'Burkina Faso', top:'58%', left:'16%', match:['bobo-dioulasso','bobo','bobodioulasso'] },
+  { key:'bamako',      label:'Bamako', country:'Mali', top:'32%', left:'8%', match:['bamako'] },
+  { key:'sikasso',     label:'Sikasso', country:'Mali', top:'50%', left:'12%', match:['sikasso'] },
+  { key:'niamey',      label:'Niamey', country:'Niger', top:'46%', left:'62%', match:['niamey'] },
+  { key:'zinder',      label:'Zinder', country:'Niger', top:'34%', left:'80%', match:['zinder'] }
+];
+
+function creatorsForCity(city){
+  const creators={};
+  allVids.forEach(v=>{
+    const loc=kikoNorm(v.location);
+    if(!loc)return;
+    if(!city.match.some(m=>loc.includes(m)))return;
+    const uid=v.authorUid||v.auteur;
+    if(!uid)return;
+    if(!creators[uid])creators[uid]={uid:v.authorUid,name:v.auteur||'anonyme',avatar:v.authorAvatar||'',count:0};
+    creators[uid].count++;
+  });
+  return Object.values(creators).sort((a,b)=>b.count-a.count);
+}
+
+function renderCreatorMap(){
+  const map=document.getElementById('creatorMap');
+  if(!map)return;
+  const countries=[...new Set(KIKO_CITIES.map(c=>c.country))];
+  const countryLabels=countries.map((c,i)=>`<div class="cmap-country-label" style="top:${8+i*11}%;left:6%;">${esc(c)}</div>`).join('');
+  const pins=KIKO_CITIES.map(city=>{
+    const creators=creatorsForCity(city);
+    const isEmpty=creators.length===0;
+    return `<div class="cmap-pin${isEmpty?' empty':''}" style="top:${city.top};left:${city.left};" onclick="openCmapSheet('${city.key}')">
+      <div class="cmap-pin-dot"><span>${creators.length||''}</span></div>
+      <div class="cmap-pin-label">${esc(city.label)}</div>
+      <div class="cmap-pin-count">${isEmpty?'Pas encore de créateur':(creators.length+' créateur'+(creators.length>1?'s':''))}</div>
+    </div>`;
+  }).join('');
+  map.innerHTML=countryLabels+pins;
+}
+
+function openCmapSheet(cityKey){
+  const city=KIKO_CITIES.find(c=>c.key===cityKey);
+  if(!city)return;
+  const creators=creatorsForCity(city);
+  document.getElementById('cmapSheetTitle').textContent=`📍 ${city.label} · ${city.country}`;
+  const list=document.getElementById('cmapSheetList');
+  list.innerHTML=creators.length?creators.map(c=>{
+    const avH=c.avatar?`<img src="${c.avatar}" alt="">`:(c.name||'?')[0].toUpperCase();
+    return `<div class="cmap-creator-row" onclick="closeCmapSheet();openDMWith('${c.uid||''}','${esc(c.name)}','${c.avatar||''}',0)">
+      <div class="cmap-creator-av">${avH}</div>
+      <div class="cmap-creator-info">
+        <div class="cmap-creator-name">@${esc(c.name)}</div>
+        <div class="cmap-creator-sub">${c.count} vidéo${c.count>1?'s':''} depuis ${esc(city.label)}</div>
+      </div>
+    </div>`;
+  }).join(''):`<div class="cmap-empty-state">Aucun créateur à ${esc(city.label)} pour l'instant.<br>Sois le premier en ajoutant un lieu à ta prochaine vidéo !</div>`;
+  document.getElementById('cmapSheetOverlay').classList.add('active');
+}
+function closeCmapSheet(){ document.getElementById('cmapSheetOverlay').classList.remove('active'); }
+
+// ═══════════════════════════════════════
+//  PAGE SON — recherche/parcours par musique
+// ═══════════════════════════════════════
+let curSound=null;
+
+function openSoundPage(name,artist,emoji,url,cover,targetTab){
+  if(!url){ showToast('🎵 Son original, non parcourable'); return; }
+  curSound={name,artist,emoji,url,cover,targetTab:targetTab||'video'};
+  document.getElementById('soundHeroName').textContent=name||'Son';
+  document.getElementById('soundHeroArtist').textContent=artist||'KIKO👑 Music';
+  const disc=document.getElementById('soundHeroDisc');
+  disc.innerHTML=cover?`<img src="${cover}" alt="">`:(emoji||'🎵');
+  renderSoundGrid();
+  document.getElementById('soundScreen').classList.add('active');
+}
+function closeSoundPage(){
+  document.getElementById('soundScreen').classList.remove('active');
+  curSound=null;
+}
+function renderSoundGrid(){
+  if(!curSound)return;
+  const vids=allVids.filter(v=>v.musicUrl===curSound.url);
+  document.getElementById('soundHeroCount').textContent=`🎬 ${vids.length} vidéo${vids.length>1?'s':''} avec ce son`;
+  const grid=document.getElementById('soundGrid');
+  grid.innerHTML=vids.length?vids.map(v=>`
+    <div class="eitem" onclick="closeSoundPage();goToVid('${v.id}')">
+      <video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video>
+      <div class="ecaption">@${esc(v.auteur||'anonyme')}</div>
+    </div>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:32px 16px;color:var(--muted);font-size:13px;">Aucune autre vidéo avec ce son pour l'instant.</div>`;
+}
+function reuseCurrentSound(){
+  if(!curSound)return;
+  useThisSound(curSound.name,curSound.artist,curSound.emoji,curSound.url,curSound.cover,curSound.targetTab);
+  closeSoundPage();
+}
+
 // ═══════════════════════════════════════
 //  KIKO👑 WATERMARK SYSTEM (Canvas + MediaRecorder)
 //  Filigrane premium intégré à l'export vidéo
@@ -11172,7 +11562,114 @@ async function fetchWithProgress(url,onProgress){
   onProgress(100);
   return new Blob(chunks);
 }
+// Exporte une vidéo distante en fichier filigrané Kiko (canvas + MediaRecorder).
+// Réutilisée par le bouton "Save" ET par le partage WhatsApp/natif, pour que
+// la vidéo envoyée soit TOUJOURS la version filigranée, jamais l'original nu.
+// onProgress(pct) est appelé pendant l'export ; jette une erreur si l'appareil
+// ne supporte pas l'export (appelant doit prévoir un repli).
+async function kikoExportWatermarkedFile(url,id,username,onProgress){
+  const supportsExport=!!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream);
+  if(!supportsExport) throw new Error('export-unsupported');
+
+  const video=document.createElement('video');
+  video.src=url;video.crossOrigin='anonymous';video.muted=false;video.playsInline=true;
+  // volume=0 rend l'export SILENCIEUX pour l'utilisateur (sinon le son de la vidéo
+  // se met à jouer tout seul pendant tout le téléchargement, sans bouton pour
+  // l'arrêter — c'est le bug remonté). muted reste à false volontairement car
+  // sur beaucoup d'appareils Android, un <video> muted ne fournit AUCUNE piste
+  // audio à captureStream() : le filigrane s'exporterait alors sans le son
+  // original. volume=0 coupe la sortie haut-parleur sans toucher au flux capturé.
+  video.volume=0;
+  video.style.position='fixed';video.style.left='-9999px';video.style.top='-9999px';
+  document.body.appendChild(video);
+
+  try{
+    await new Promise((res,rej)=>{
+      video.onloadedmetadata=res;video.onerror=rej;
+      setTimeout(rej,8000);
+    });
+
+    const srcW=video.videoWidth||720, srcH=video.videoHeight||1280;
+    const MAX_DIM=720;
+    const scaleDown=Math.min(1,MAX_DIM/Math.max(srcW,srcH));
+    const w=Math.round(srcW*scaleDown), h=Math.round(srcH*scaleDown);
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d');
+
+    let mediaStream;
+    try{ mediaStream=video.captureStream?video.captureStream():video.mozCaptureStream(); }
+    catch(e){ mediaStream=null; }
+
+    const mime=kikoPickMime();
+    const isMp4Mime=mime.startsWith('video/mp4');
+    const fps=isMp4Mime?30:24;
+
+    const canvasStream=canvas.captureStream(fps);
+    const finalStream=new MediaStream();
+    canvasStream.getVideoTracks().forEach(t=>finalStream.addTrack(t));
+    if(mediaStream){ mediaStream.getAudioTracks().forEach(t=>finalStream.addTrack(t)); }
+
+    const rawBitrate=Math.round(w*h*fps*0.09);
+    const videoBitsPerSecond=Math.min(4_000_000,Math.max(1_500_000,rawBitrate));
+    const recorder=new MediaRecorder(finalStream, mime?{mimeType:mime,videoBitsPerSecond}:{});
+    const chunks=[];
+    recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
+    const stopped=new Promise(res=>{ recorder.onstop=res; });
+
+    let rafId, watchdogId, finished=false;
+    function drawFrame(){
+      if(video.paused||video.ended){ return; }
+      ctx.drawImage(video,0,0,w,h);
+      const elapsed=video.currentTime*1000;
+      const cornerIdx=Math.floor(elapsed/KIKO_WM.rotateMs)%4;
+      kikoDrawWatermark(ctx,w,h,KIKO_WM.corners[cornerIdx],username);
+      if(video.duration && onProgress)onProgress(Math.min(99,Math.round(video.currentTime/video.duration*100)));
+      rafId=requestAnimationFrame(drawFrame);
+    }
+    function finishRecording(){
+      if(finished)return; finished=true;
+      clearTimeout(watchdogId);
+      cancelAnimationFrame(rafId);
+      setTimeout(()=>{ if(recorder.state!=='inactive') recorder.stop(); },150);
+    }
+
+    video.currentTime=0;
+    await video.play();
+    drawFrame();
+    recorder.start(250);
+
+    video.onended=finishRecording;
+    const safetyMs=(isFinite(video.duration)&&video.duration>0?video.duration*1000:60000)+5000;
+    watchdogId=setTimeout(finishRecording,safetyMs);
+
+    await stopped;
+    if(onProgress)onProgress(100);
+
+    const outMime=mime?mime.split(';')[0]:'video/webm';
+    const outBlob=new Blob(chunks,{type:outMime});
+    const isRealMp4=outMime==='video/mp4';
+    const ext=isRealMp4?'mp4':'webm';
+    const filename='Kiko_'+id+'.'+ext;
+    const file=new File([outBlob],filename,{type:outMime});
+    return {file,isRealMp4,filename};
+  } finally {
+    if(document.body.contains(video)) document.body.removeChild(video);
+  }
+}
+
+const _dlInFlight=new Set(); // évite qu'un double-tap lance deux exports (donc deux sons) en même temps
+
 async function downloadVid(url,id,username){
+  if(_dlInFlight.has(id)){ showToast('⏳ Téléchargement déjà en cours...'); return; }
+  _dlInFlight.add(id);
+  try{
+    await _downloadVidInner(url,id,username);
+  } finally {
+    _dlInFlight.delete(id); // toujours libéré, même en cas d'erreur ou d'annulation
+  }
+}
+
+async function _downloadVidInner(url,id,username){
   setDlProgress(id,0);
   // Fallback si l'appareil ne supporte pas Canvas captureStream / MediaRecorder
   const supportsExport = !!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream);
@@ -11204,92 +11701,7 @@ async function downloadVid(url,id,username){
     }
   };
   try{
-    const video=document.createElement('video');
-    video.src=url;video.crossOrigin='anonymous';video.muted=false;video.playsInline=true;
-    video.style.position='fixed';video.style.left='-9999px';video.style.top='-9999px';
-    document.body.appendChild(video);
-
-    await new Promise((res,rej)=>{
-      video.onloadedmetadata=res;video.onerror=rej;
-      setTimeout(rej,8000); // sécurité si le flux ne charge pas
-    });
-
-    // Résolution d'export plafonnée à 720p (côté le plus long) : suffisant pour
-    // le partage réseaux sociaux, et divise par ~2-4 le coût du drawImage/encodage
-    // par frame comparé à une source 1080p+.
-    const srcW=video.videoWidth||720, srcH=video.videoHeight||1280;
-    const MAX_DIM=720;
-    const scaleDown=Math.min(1,MAX_DIM/Math.max(srcW,srcH));
-    const w=Math.round(srcW*scaleDown), h=Math.round(srcH*scaleDown);
-    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-    const ctx=canvas.getContext('2d');
-
-    let mediaStream;
-    try{
-      mediaStream=video.captureStream?video.captureStream():video.mozCaptureStream();
-    }catch(e){mediaStream=null;}
-
-    const mime=kikoPickMime();
-    const isMp4Mime=mime.startsWith('video/mp4');
-    // WebM (fallback quand l'appareil ne sait pas encoder en MP4) est plus lourd
-    // à produire sur certains téléphones : on réduit le fps pour rester fluide.
-    const fps=isMp4Mime?30:24;
-
-    const canvasStream=canvas.captureStream(fps);
-    const finalStream=new MediaStream();
-    canvasStream.getVideoTracks().forEach(t=>finalStream.addTrack(t));
-    if(mediaStream){ mediaStream.getAudioTracks().forEach(t=>finalStream.addTrack(t)); }
-
-    // Bitrate adapté à la résolution réelle d'export plutôt qu'une valeur fixe :
-    // ~0.09 bit par pixel par frame (repère H.264 qualité correcte), borné
-    // entre 1.5 et 4 Mbps pour éviter les fichiers disproportionnés.
-    const rawBitrate=Math.round(w*h*fps*0.09);
-    const videoBitsPerSecond=Math.min(4_000_000,Math.max(1_500_000,rawBitrate));
-    const recorder=new MediaRecorder(finalStream, mime?{mimeType:mime,videoBitsPerSecond}:{});
-    const chunks=[];
-    recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
-
-    const stopped=new Promise(res=>{ recorder.onstop=res; });
-
-    let rafId, watchdogId, finished=false;
-    function drawFrame(){
-      if(video.paused||video.ended){ return; }
-      ctx.drawImage(video,0,0,w,h);
-      const elapsed=video.currentTime*1000;
-      const cornerIdx=Math.floor(elapsed/KIKO_WM.rotateMs)%4;
-      kikoDrawWatermark(ctx,w,h,KIKO_WM.corners[cornerIdx],username);
-      if(video.duration)setDlProgress(id,Math.min(99,Math.round(video.currentTime/video.duration*100)));
-      rafId=requestAnimationFrame(drawFrame);
-    }
-    function finishRecording(){
-      if(finished)return; finished=true;
-      clearTimeout(watchdogId);
-      cancelAnimationFrame(rafId);
-      setTimeout(()=>{ if(recorder.state!=='inactive') recorder.stop(); },150);
-    }
-
-    video.currentTime=0;
-    await video.play();
-    drawFrame();
-    recorder.start(250);
-
-    video.onended=finishRecording;
-    // Filet de sécurité : si "onended" ne se déclenche jamais (durée infinie,
-    // flux en boucle, bug de lecture), on force l'arrêt après durée+5s au lieu
-    // de laisser l'export tourner indéfiniment et bloquer l'appareil.
-    const safetyMs=(isFinite(video.duration)&&video.duration>0?video.duration*1000:60000)+5000;
-    watchdogId=setTimeout(finishRecording,safetyMs);
-
-    await stopped;
-    document.body.removeChild(video);
-    setDlProgress(id,100);
-
-    const outMime=mime?mime.split(';')[0]:'video/webm'; // type RÉEL du fichier produit — jamais falsifié
-    const outBlob=new Blob(chunks,{type:outMime});
-    const isRealMp4=outMime==='video/mp4';
-    const ext=isRealMp4?'mp4':'webm';
-    const filename='Kiko_'+id+'.'+ext;
-    const file=new File([outBlob],filename,{type:outMime});
+    const {file,isRealMp4,filename}=await kikoExportWatermarkedFile(url,id,username,p=>setDlProgress(id,p));
 
     // 1) Priorité : partage natif Android avec le VRAI fichier + bon type MIME.
     //    C'est ce qui permet à WhatsApp/Instagram/Messenger/Telegram/Bluetooth
@@ -11300,7 +11712,7 @@ async function downloadVid(url,id,username){
         await navigator.share({
           files:[file],
           title:'KIKO👑',
-          text: isRealMp4 ? '🔥 Vidéo KIKO (filigranée)' : '🔥 Vidéo KIKO (filigranée)'
+          text:'🔥 Vidéo KIKO (filigranée)'
         });
         showToast('✅ Vidéo filigranée prête à partager !');
         trackDownload(id);
@@ -11315,6 +11727,7 @@ async function downloadVid(url,id,username){
 
     // 2) Repli : téléchargement classique du fichier (navigateur desktop, ou
     //    appareil sans Web Share API niveau fichiers).
+    const outBlob=file;
     const blobUrl=URL.createObjectURL(outBlob);
     const a=document.createElement('a');
     a.href=blobUrl;a.download=filename;
