@@ -3566,6 +3566,9 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
   <!-- NAV sticky home -->
   <div id="topnav-home" style="position:sticky;top:0;z-index:150;background:var(--bg2);border-bottom:1px solid var(--border);padding:calc(14px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,0.3);">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text);">AES<span style="color:var(--gold);">👑</span></div>
+    <div id="dataSaverBadgeTop" onclick="event.stopPropagation();cycleDataSaverMode()" style="display:none;flex-shrink:0;align-items:center;gap:3px;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);border-radius:999px;padding:5px 9px;cursor:pointer;">
+      <span style="font-size:12px;">🐢</span>
+    </div>
     <div style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="showScreen('search')">
       <span style="color:var(--muted);font-size:14px;">🔍</span>
       <span style="font-size:13px;color:var(--muted);font-weight:500;">Rechercher sur AES...</span>
@@ -5481,11 +5484,17 @@ async function hmacSHA1(key,msg){
 //  Gain moyen : 60–80 % sur les photos de smartphone
 // ═══════════════════════════════════════════════════════════
 const IMG_COMPRESS = { maxPx: 1280, quality: 0.85, limitMB: 1.5 };
+// En mode économie de données, on compresse plus fort ET on abaisse le seuil
+// de déclenchement (0.5 Mo au lieu de 1.5) — l'upload (envoi de données) coûte
+// tout autant que le téléchargement sur une connexion 3G/2G facturée au volume.
+const IMG_COMPRESS_SAVER = { maxPx: 900, quality: 0.68, limitMB: 0.5 };
+function imgCompressSettings(){ return isDataSaverActive() ? IMG_COMPRESS_SAVER : IMG_COMPRESS; }
 
 async function compressImageFile(file){
   // Ne compresse que les images et seulement si au-dessus du seuil
+  const cfg = imgCompressSettings();
   if(!file.type.startsWith('image/')) return file;
-  if(file.size <= IMG_COMPRESS.limitMB * 1024 * 1024) return file;
+  if(file.size <= cfg.limitMB * 1024 * 1024) return file;
   return new Promise((resolve)=>{
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -5493,9 +5502,9 @@ async function compressImageFile(file){
       URL.revokeObjectURL(url);
       let {naturalWidth:w, naturalHeight:h} = img;
       // Redimensionne si nécessaire en conservant le ratio
-      if(w > IMG_COMPRESS.maxPx || h > IMG_COMPRESS.maxPx){
-        if(w >= h){ h = Math.round(h * IMG_COMPRESS.maxPx / w); w = IMG_COMPRESS.maxPx; }
-        else       { w = Math.round(w * IMG_COMPRESS.maxPx / h); h = IMG_COMPRESS.maxPx; }
+      if(w > cfg.maxPx || h > cfg.maxPx){
+        if(w >= h){ h = Math.round(h * cfg.maxPx / w); w = cfg.maxPx; }
+        else       { w = Math.round(w * cfg.maxPx / h); h = cfg.maxPx; }
       }
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
@@ -5506,7 +5515,7 @@ async function compressImageFile(file){
         const compressed = new File([blob], file.name, { type: mime, lastModified: Date.now() });
         // Ne garde la version compressée que si elle est vraiment plus petite
         resolve(compressed.size < file.size ? compressed : file);
-      }, mime, IMG_COMPRESS.quality);
+      }, mime, cfg.quality);
     };
     img.onerror = ()=>{ URL.revokeObjectURL(url); resolve(file); };
     img.src = url;
@@ -5989,9 +5998,27 @@ function cycleDataSaverMode(){
 
 function updateDataSaverUI(){
   const btn=document.getElementById('dataSaverStatusBtn');
-  if(!btn) return;
-  btn.innerText = _dataSaverPref==='auto' ? 'Auto' : (_dataSaverPref==='on' ? 'Activé' : 'Désactivé');
+  if(btn) btn.innerText = _dataSaverPref==='auto' ? 'Auto' : (_dataSaverPref==='on' ? 'Activé' : 'Désactivé');
+
+  // Badge dans l'en-tête du feed : visible dès que l'économie de données est
+  // RÉELLEMENT active (mode "Activé", ou mode "Auto" + connexion détectée lente),
+  // pas juste quand la préférence est sur 'on' — sinon un utilisateur en mode
+  // Auto sur WiFi ne saurait jamais si ça tourne activement ou pas.
+  const badge=document.getElementById('dataSaverBadgeTop');
+  if(badge){
+    const active=isDataSaverActive();
+    badge.style.display=active?'flex':'none';
+    badge.title=active?(_dataSaverPref==='auto'?'Économie de données (auto — connexion lente détectée)':'Économie de données activée'):'';
+  }
 }
+
+// Si le réseau change en cours de session (WiFi → 3G, ou saveData activé côté
+// téléphone), on rafraîchit tout de suite le badge — sans ça il resterait
+// figé sur l'état détecté au chargement de l'app.
+(function _kikoWatchConnectionChange(){
+  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if(c && c.addEventListener) c.addEventListener('change', updateDataSaverUI);
+})();
 
 // Suggestion unique si une connexion lente est détectée et que l'utilisateur
 // n'a jamais touché au réglage (reste en 'auto', donc déjà protégé — on
@@ -6753,7 +6780,7 @@ async function buildHomeFeedHtml(items){
   let breakCount=0;
   items.forEach((item,i)=>{
     if(item.type==='photo') html += buildPhotoCard(item,i);
-    else if(item.type==='text') html += buildTextCard(item,i);
+    else if(item.type==='text') html += item._localAi ? buildLocalAiTextCard(item) : buildTextCard(item,i);
     else if(item.type==='opportunity') html += buildOpportunityCard(item,i);
     if(videos && videos.length && (i+1)%HOME_VIDEO_BREAK_EVERY===0){
       html += buildHomeVideoBreakHtml(videos, breakCount);
@@ -6771,7 +6798,7 @@ async function loadHomeFeed(){
   const cached = KIKO_CACHE.get('posts');
   if(cached && cached.length){
     allPosts = cached;
-    const html = await buildHomeFeedHtml(cached);
+    const html = await buildHomeFeedHtml(mergeLocalAiTexts(cached));
     feed.innerHTML = html || '';
     initPhotoCardMusic(); initPhotoCardTouch();
     try{ updateHomeHero(cached.slice(0,3)); }catch(e){}
@@ -6807,7 +6834,7 @@ async function loadHomeFeed(){
     const firstId = ranked[0]?.id;
     const currentFirst = feed.querySelector('[id^="pcard-"],[id^="tcard-"]')?.id;
     if(!currentFirst || !currentFirst.includes(firstId)){
-      const html = await buildHomeFeedHtml(ranked);
+      const html = await buildHomeFeedHtml(mergeLocalAiTexts(ranked));
       feed.innerHTML = html || '';
       initPhotoCardMusic(); initPhotoCardTouch();
       try{ updateHomeHero(ranked.slice(0,3)); }catch(e){}
@@ -6832,12 +6859,148 @@ async function refreshHomeFeedSilent(){
     if(!ranked.length)return;
     const hs=document.getElementById('homeScreen');
     const savedScroll=hs?hs.scrollTop:0;
-    const html = await buildHomeFeedHtml(ranked);
+    const html = await buildHomeFeedHtml(mergeLocalAiTexts(ranked));
     feed.innerHTML=html;
     if(hs)hs.scrollTop=savedScroll;
     initPhotoCardMusic();initPhotoCardTouch();
     try{updateHomeHero(ranked.slice(0,3));}catch(e){}
   }catch(e){console.warn('refreshHomeFeedSilent',e);}
+}
+
+// ═══════════════════════════════════════
+//  TEXTE IA — textes générés par IA, publiés localement dans le Fil AES
+//  (pas de compte réel, pas d'écriture Firebase : chaque téléphone génère
+//  et affiche ses propres textes, comme un "créateur" IA intégré à l'app)
+// ═══════════════════════════════════════
+const KIKO_AI_TEXT_KEY='kiko_ai_texts_local';
+const KIKO_AI_TEXT_CAP=60;           // garde au plus ~20 cycles de 3 textes, assez pour en afficher beaucoup sans répétition
+const KIKO_AI_LIKES_KEY='kiko_ai_text_likes';
+const KIKO_AI_INTERVAL_MS=5*60*1000; // toutes les 5 minutes, app ouverte
+const KIKO_AI_LAST_RUN_KEY='kiko_ai_texts_last_run';
+let kikoAiTexts=[];
+let kikoAiGenerating=false;
+
+function kikoLoadAiTexts(){
+  try{ kikoAiTexts=JSON.parse(localStorage.getItem(KIKO_AI_TEXT_KEY))||[]; }catch(e){ kikoAiTexts=[]; }
+}
+function kikoSaveAiTexts(){
+  try{ localStorage.setItem(KIKO_AI_TEXT_KEY,JSON.stringify(kikoAiTexts)); }catch(e){}
+}
+kikoLoadAiTexts();
+
+function kikoAiLiked(id){
+  try{ return (JSON.parse(localStorage.getItem(KIKO_AI_LIKES_KEY))||[]).includes(id); }catch(e){ return false; }
+}
+function kikoToggleAiLike(id,btnEl){
+  let list=[];
+  try{ list=JSON.parse(localStorage.getItem(KIKO_AI_LIKES_KEY))||[]; }catch(e){}
+  const already=list.includes(id);
+  list = already ? list.filter(x=>x!==id) : [...list,id];
+  try{ localStorage.setItem(KIKO_AI_LIKES_KEY,JSON.stringify(list)); }catch(e){}
+  if(btnEl){
+    btnEl.classList.toggle('liked', !already);
+    const icon=btnEl.querySelector('.ai-like-icon');
+    if(icon) icon.textContent = !already ? '❤️' : '🤍';
+  }
+}
+// Partage texte simple (pas de lien vers un post réel, puisqu'il n'existe
+// que localement sur ce téléphone) — repli presse-papiers si pas de share natif.
+function kikoShareAiText(text){
+  const txt=`"${text}" — via KIKO👑`;
+  if(navigator.share) navigator.share({title:'KIKO👑',text:txt}).catch(()=>{});
+  else navigator.clipboard.writeText(txt).then(()=> showToast('🔗 Texte copié !'));
+}
+
+function kikoAiTextPrompt(){
+  let p=`Écris 3 statuts courts et percutants en français, pour un réseau social de la région du Sahel (Burkina Faso, Mali, Niger). `;
+  p+=`Mélange uniquement deux registres : la motivation (courage, ambition, persévérance, réussite) et l'humour léger et drôle (situations du quotidien, dérision, punchlines qui font sourire) — environ moitié-moitié. `;
+  p+=`Règles strictes : un texte par ligne, aucune numérotation, aucun guillemet, aucune astérisque, `;
+  p+=`phrases de 6 à 20 mots maximum, rien d'autre que les 3 textes.`;
+  return p;
+}
+function kikoParseAiTexts(raw){
+  return raw.split('\n')
+    .map(l=> l.replace(/^[\-\*\d\.\)\s"«»]+/,'').replace(/["«»]+$/,'').trim())
+    .filter(l=> l.length>8 && l.length<200);
+}
+
+async function kikoRunAiTextCycle(){
+  if(kikoAiGenerating) return;
+  if(document.hidden) return; // pas de génération/consommation data en arrière-plan
+  kikoAiGenerating=true;
+  const seed=Math.floor(Math.random()*1e9);
+  const url=`https://text.pollinations.ai/${encodeURIComponent(kikoAiTextPrompt())}?model=openai&seed=${seed}`;
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),20000);
+  try{
+    const res=await fetch(url,{signal:controller.signal});
+    clearTimeout(timeoutId);
+    if(!res.ok) throw new Error('http '+res.status);
+    const raw=await res.text();
+    const texts=kikoParseAiTexts(raw);
+    if(!texts.length) throw new Error('empty');
+    const now=Date.now();
+    texts.forEach((t,i)=>{ kikoAiTexts.push({ id:'kiko-ai-'+now+'-'+i, text:t, ts:now }); });
+    if(kikoAiTexts.length>KIKO_AI_TEXT_CAP){
+      kikoAiTexts=kikoAiTexts.slice(kikoAiTexts.length-KIKO_AI_TEXT_CAP);
+    }
+    kikoSaveAiTexts();
+    try{ localStorage.setItem(KIKO_AI_LAST_RUN_KEY,String(now)); }catch(e){}
+    // Rafraîchit discrètement le fil pour montrer les nouveaux textes (garde le
+    // scroll de l'utilisateur) — seulement si l'accueil est l'écran affiché.
+    if(document.getElementById('homeScreen')?.classList.contains('active')) refreshHomeFeedSilent();
+  }catch(err){
+    clearTimeout(timeoutId); // échec silencieux : on retentera au prochain cycle
+  }finally{
+    kikoAiGenerating=false;
+  }
+}
+setTimeout(kikoRunAiTextCycle,15000); // premier cycle peu après l'ouverture
+setInterval(kikoRunAiTextCycle,KIKO_AI_INTERVAL_MS);
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden) return;
+  const lastRun=Number(localStorage.getItem(KIKO_AI_LAST_RUN_KEY))||0;
+  if(Date.now()-lastRun>=KIKO_AI_INTERVAL_MS) kikoRunAiTextCycle();
+});
+
+// Insère les textes IA les plus récents à des positions fixes et espacées
+// du fil (jamais tous en haut d'un coup) — purement à l'affichage, jamais
+// écrit dans le cache Firebase (KIKO_CACHE reste 100% posts réels).
+const KIKO_AI_FEED_DISPLAY_COUNT=12; // beaucoup de textes visibles sur l'accueil
+const KIKO_AI_FEED_SPACING=3;        // un texte IA toutes les ~3 cartes réelles
+
+function mergeLocalAiTexts(ranked){
+  if(!kikoAiTexts.length) return ranked;
+  const picks=kikoAiTexts.slice(-KIKO_AI_FEED_DISPLAY_COUNT).reverse()
+    .map(t=>({ id:t.id, text:t.text, ts:t.ts, type:'text', _localAi:true }));
+  const merged=ranked.slice();
+  picks.forEach((pick,idx)=>{
+    const pos=Math.min(1+idx*KIKO_AI_FEED_SPACING, merged.length);
+    merged.splice(pos,0,pick);
+  });
+  return merged;
+}
+
+function buildLocalAiTextCard(item){
+  const isLiked=kikoAiLiked(item.id);
+  return `<div class="tcard" id="tc-${item.id}" style="background:linear-gradient(160deg,#151225,#1c1730 60%,#151225);border:1.5px solid rgba(245,200,66,0.25);">
+    <div class="post-type-badge" style="background:linear-gradient(135deg,#F5C842,#E8B31A);color:#151225;">✨ Texte IA</div>
+    <div class="tcard-content">
+      <div class="tcard-author-row">
+        <div class="tcard-av" style="background:linear-gradient(135deg,#F5C842,#E8B31A);color:#151225;display:flex;align-items:center;justify-content:center;">✨</div>
+        <div class="tcard-name" style="color:#F5C842;">Texte IA</div>
+        <div style="margin-left:auto;font-size:11px;color:rgba(245,200,66,0.65);">${timeAgo(item.ts)}</div>
+      </div>
+      <div class="tcard-quote" style="color:#EDE6F5;">${esc(item.text)}</div>
+      <div class="tcard-actions">
+        <div class="tcard-action ${isLiked?'liked':''}" onclick="kikoToggleAiLike('${item.id}',this)" style="color:${isLiked?'var(--red)':'#F5C842'};">
+          <span class="ai-like-icon">${isLiked?'❤️':'🤍'}</span>
+        </div>
+        <div class="tcard-action" onclick="kikoShareAiText('${jsStr(item.text)}')" style="color:#F5C842;">↗️</div>
+        <button class="kiko-trad-btn" data-text="${esc(item.text)}" onclick="kikoShowTranslation('${item.id}',this.dataset.text,this)" style="opacity:0.85;">🌐 Traduire</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 // ═══════════════════════════════════════
@@ -10338,6 +10501,15 @@ function onFileSelected(inp){
   document.getElementById('vpsFileName').textContent = f.name;
   document.getElementById('vpsFileInfo').textContent = (f.size/1024/1024).toFixed(1)+' MB';
 
+  // On ne peut pas recompresser une vidéo déjà enregistrée sans un traitement
+  // lourd (hors de portée d'un téléphone d'entrée de gamme) — donc en mode
+  // économie de données, on prévient juste du coût avant l'envoi plutôt que
+  // de laisser l'utilisateur découvrir la facture data après coup.
+  const sizeMB = f.size/1024/1024;
+  if(isDataSaverActive() && sizeMB > 15){
+    showToast(`🐢 Économie de données activée — cette vidéo pèse ${sizeMB.toFixed(0)} Mo à l'envoi`);
+  }
+
   const vid = document.getElementById('vpsPreviewVid');
   vid.src = URL.createObjectURL(f);
   vid.load();
@@ -11590,7 +11762,10 @@ async function kikoExportWatermarkedFile(url,id,username,onProgress){
     });
 
     const srcW=video.videoWidth||720, srcH=video.videoHeight||1280;
-    const MAX_DIM=720;
+    // Résolution d'export réduite en mode économie de données : fichier final
+    // plus léger, aussi bien pour le téléchargement que pour l'envoi WhatsApp.
+    const saverExport=isDataSaverActive();
+    const MAX_DIM=saverExport?480:720;
     const scaleDown=Math.min(1,MAX_DIM/Math.max(srcW,srcH));
     const w=Math.round(srcW*scaleDown), h=Math.round(srcH*scaleDown);
     const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
@@ -11602,7 +11777,7 @@ async function kikoExportWatermarkedFile(url,id,username,onProgress){
 
     const mime=kikoPickMime();
     const isMp4Mime=mime.startsWith('video/mp4');
-    const fps=isMp4Mime?30:24;
+    const fps=(isMp4Mime?30:24)-(saverExport?6:0); // fps réduit aussi, en plus de la résolution
 
     const canvasStream=canvas.captureStream(fps);
     const finalStream=new MediaStream();
@@ -11610,7 +11785,9 @@ async function kikoExportWatermarkedFile(url,id,username,onProgress){
     if(mediaStream){ mediaStream.getAudioTracks().forEach(t=>finalStream.addTrack(t)); }
 
     const rawBitrate=Math.round(w*h*fps*0.09);
-    const videoBitsPerSecond=Math.min(4_000_000,Math.max(1_500_000,rawBitrate));
+    const bitrateCeiling=saverExport?1_800_000:4_000_000;
+    const bitrateFloor=saverExport?700_000:1_500_000;
+    const videoBitsPerSecond=Math.min(bitrateCeiling,Math.max(bitrateFloor,rawBitrate));
     const recorder=new MediaRecorder(finalStream, mime?{mimeType:mime,videoBitsPerSecond}:{});
     const chunks=[];
     recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
@@ -12549,8 +12726,12 @@ async function startCamStream(){
     if(!ok){ showToast('📷 Caméra non activée'); closeCamera(); return; }
   }
   try{
+    // Résolution de capture réduite en mode économie de données : le fichier
+    // brut enregistré est directement plus léger, donc l'upload qui suit
+    // consomme moins de data — pas besoin de compresser après coup.
+    const saverCam = isDataSaverActive();
     _camStream = await navigator.mediaDevices.getUserMedia({
-      video:{ facingMode:_camFacing, width:{ideal:1280}, height:{ideal:720} },
+      video:{ facingMode:_camFacing, width:{ideal:saverCam?640:1280}, height:{ideal:saverCam?480:720} },
       audio:true
     });
     const vid = document.getElementById('camVideo');
@@ -12702,6 +12883,9 @@ function startVideoRec(){
     : MediaRecorder.isTypeSupported('video/webm')
     ? {mimeType:'video/webm'}
     : {};
+  // Bitrate plafonné plus bas en mode économie de données : fichier final plus
+  // léger à envoyer, sans changer la résolution déjà réduite à la capture.
+  opts.videoBitsPerSecond = isDataSaverActive() ? 1_200_000 : 2_500_000;
   _camMediaRecorder = new MediaRecorder(_camStream, opts);
   _camMediaRecorder.ondataavailable = e=>{ if(e.data.size>0)_camChunks.push(e.data); };
   _camMediaRecorder.onstop = ()=>{
