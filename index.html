@@ -790,7 +790,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 .vadv-panel.show { opacity: 1; pointer-events: auto; }
 .vmute-btn {
   position: absolute; top: 72px; right: 14px; z-index: 20;
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: rgba(7,26,61,0.55);
   border: 1.5px solid rgba(255,255,255,0.18);
   display: flex; align-items: center; justify-content: center;
@@ -1066,7 +1066,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 .vmore-btn {
   position: absolute; top: calc(14px + env(safe-area-inset-top));
   right: 14px; z-index: 12;
-  width: 34px; height: 34px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: rgba(0,0,0,0.38);
   border: 1px solid rgba(255,255,255,0.15);
   display: flex; align-items: center; justify-content: center;
@@ -1215,6 +1215,19 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   50% { opacity: 0.7; transform: scale(1.2); }
 }
 
+/* ─── BADGE "NOUVEAU" — petit point doré discret à côté d'une fonctionnalité récente ─── */
+.new-dot {
+  display: none;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--gold); margin-left: 5px; vertical-align: middle;
+  box-shadow: 0 0 0 0 var(--gold-glow);
+  animation: newDotPulse 1.8s ease-in-out infinite;
+}
+@keyframes newDotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,48,0.5); }
+  50% { box-shadow: 0 0 0 5px rgba(255,122,48,0); }
+}
+
 /* ─── INPUTS ─── */
 .inp {
   width: 100%; background: var(--surface2);
@@ -1319,7 +1332,7 @@ textarea.inp { resize: none; }
   padding: 2px 9px; 
 }
 .cclose {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 38px; height: 38px; border-radius: 50%;
   background: var(--surface2); display: flex; align-items: center; justify-content: center;
   font-size: 14px; cursor: pointer; color: var(--muted);
   border: 1px solid var(--border);
@@ -1490,7 +1503,7 @@ textarea.inp { resize: none; }
 }
 .prod-fav {
   position: absolute; top: 8px; right: 8px;
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   background: rgba(255,255,255,0.9);
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; cursor: pointer; z-index: 3;
@@ -1774,7 +1787,7 @@ textarea.inp { resize: none; }
   font-size: 11px; color: rgba(255,255,255,0.6);
 }
 .svclose {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 38px; height: 38px; border-radius: 50%;
   background: rgba(255,255,255,0.12);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; color: #fff; cursor: pointer;
@@ -2030,7 +2043,7 @@ textarea.inp { resize: none; }
 }
 .aeschat-header-actions { display: flex; gap: 8px; }
 .aeschat-icon-btn {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: var(--surface2); border: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
   font-size: 17px; cursor: pointer;
@@ -2129,7 +2142,7 @@ textarea.inp { resize: none; }
 .chat-hstatus { font-size: 11px; color: var(--green); font-weight: 600; }
 .chat-hactions { display: flex; gap: 8px; }
 .chat-hbtn {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: var(--surface2); border: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; cursor: pointer;
@@ -2583,7 +2596,7 @@ textarea.inp { resize: none; }
 #soundScreen { display: none; position: fixed; inset: 0; z-index: 750; background: var(--bg); flex-direction: column; }
 #soundScreen.active { display: flex; }
 .sound-head { display: flex; align-items: center; gap: 12px; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; border-bottom: 1px solid var(--border); }
-.sound-back { width: 34px; height: 34px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.sound-back { width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
 .sound-hero { display: flex; align-items: center; gap: 14px; padding: 18px 16px; }
 .sound-hero-disc {
   width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
@@ -3064,7 +3077,7 @@ textarea.inp { resize: none; }
 .sfcmt-inp:focus { border-color: var(--gold); }
 .sfcmt-inp::placeholder { color: var(--muted); }
 .sfcmt-send {
-  width: 34px; height: 34px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: linear-gradient(135deg, var(--gold2), var(--gold));
   border: none; color: #fff; font-size: 14px; cursor: pointer;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -3651,7 +3664,7 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
     <div class="s-tab" onclick="switchSearchTab('trending',this)">🔥 Tendances</div>
     <div class="s-tab" onclick="switchSearchTab('accounts',this)">👤 Comptes</div>
     <div class="s-tab" onclick="switchSearchTab('tags',this)">🏷️ Tags</div>
-    <div class="s-tab" onclick="switchSearchTab('map',this)">📍 Carte</div>
+    <div class="s-tab" id="sTabMap" onclick="switchSearchTab('map',this)">📍 Carte<span class="new-dot" id="newDotMap"></span></div>
   </div>
   <div id="searchVideos"><div class="egrid" id="exploreGrid"></div></div>
   <div id="searchTrending" style="display:none;">
@@ -4046,9 +4059,9 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
     <!-- DONNÉES & STOCKAGE -->
     <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">Données & stockage</div>
 
-    <div class="sett-row" style="cursor:default;">
+    <div class="sett-row" style="cursor:default;" id="settRowDataSaver">
       <div class="sett-icon" style="background:rgba(255,122,48,0.15);">📶</div>
-      <div class="sett-label" id="settLabelDataSaver">Économie de données</div>
+      <div class="sett-label" id="settLabelDataSaver">Économie de données<span class="new-dot" id="newDotDataSaver"></span></div>
       <div id="dataSaverStatusBtn" onclick="cycleDataSaverMode()" style="font-size:12px;font-weight:700;color:var(--gold);padding:6px 12px;background:var(--surface2);border-radius: var(--r-sm);cursor:pointer;">Auto</div>
     </div>
 
@@ -5717,11 +5730,34 @@ async function kikoActivateGeoFilter(btnEl){
 //  ONBOARDING — 3 étapes pour les nouveaux utilisateurs
 //  S'affiche une seule fois au premier lancement après inscription
 // ═══════════════════════════════════════════════════════════
+// Petite vibration cohérente sur les actions "premium" (like, favori, follow) —
+// silencieuse si l'appareil ne supporte pas l'API Vibration.
+function kikoHaptic(ms){ try{ navigator.vibrate?.(ms||8); }catch(e){} }
+
+// ═══════════════════════════════════════
+//  BADGES "NOUVEAU" — signale les fonctionnalités récentes tant qu'elles
+//  n'ont pas été ouvertes au moins une fois par l'utilisateur.
+// ═══════════════════════════════════════
+const KIKO_NEW_FEATURES = ['map','dataSaver'];
+function kikoInitNewBadges(){
+  KIKO_NEW_FEATURES.forEach(key=>{
+    const el = document.getElementById('newDot'+key.charAt(0).toUpperCase()+key.slice(1));
+    if(el) el.style.display = localStorage.getItem('kiko_seen_'+key) ? 'none' : 'inline-block';
+  });
+}
+function kikoMarkFeatureSeen(key){
+  localStorage.setItem('kiko_seen_'+key,'1');
+  const el = document.getElementById('newDot'+key.charAt(0).toUpperCase()+key.slice(1));
+  if(el) el.style.display='none';
+}
+
 function kikoShowOnboarding(){
   if(localStorage.getItem('kiko_onboarded')) return;
   const steps = [
     { icon:'🎬', title:'Bienvenue sur KIKO !', desc:'La plateforme créée pour le Sahel. Partage tes vidéos, photos et idées avec toute l\'Afrique de l\'Ouest.' },
     { icon:'🔥', title:'Découvre le Buzz', desc:'Le fil Buzz regroupe les vidéos les plus virales. Swipe vers le haut pour en voir plus, double-tape pour liker.' },
+    { icon:'📍', title:'Trouve des créateurs près de toi', desc:'Onglet Carte dans la recherche : découvre les créateurs par ville — Ouaga, Bamako, Niamey et plus. Tape sur un son pour voir toutes les vidéos qui l\'utilisent.' },
+    { icon:'🐢', title:'Économise ta data', desc:'KIKO réduit automatiquement la qualité vidéo sur connexion lente. Réglable à tout moment dans Paramètres → Économie de données.' },
     { icon:'🛍️', title:'Vends & Achète', desc:'Le Marché KIKO te permet de vendre tes produits directement. Ajoute une photo, un prix — et c\'est parti !' },
   ];
   let step = 0;
@@ -6892,6 +6928,7 @@ function kikoAiLiked(id){
   try{ return (JSON.parse(localStorage.getItem(KIKO_AI_LIKES_KEY))||[]).includes(id); }catch(e){ return false; }
 }
 function kikoToggleAiLike(id,btnEl){
+  kikoHaptic(8);
   let list=[];
   try{ list=JSON.parse(localStorage.getItem(KIKO_AI_LIKES_KEY))||[]; }catch(e){}
   const already=list.includes(id);
@@ -7259,6 +7296,7 @@ async function togglePostInteresting(postId){
 // ═══════════════════════════════════════
 async function togglePostLike(postId,type){
   if(!currentUser)return;
+  kikoHaptic(8);
   const ref=db.ref('posts/'+postId+'/likes');
   const snap=await ref.once('value');
   const cur=snap.val()||0;
@@ -7628,6 +7666,7 @@ function openSettings(){
   const st=document.getElementById('settSoundToggle'); if(st) st.checked=sound;
   const tt=document.getElementById('settThemeToggle'); if(tt) tt.checked=(localStorage.getItem('aes_theme')==='light');
   updateDataSaverUI();
+  kikoMarkFeatureSeen('dataSaver');
 }
 function closeSettings(){
   const panel=document.getElementById('settingsPanel');
@@ -9397,6 +9436,7 @@ function kikoPlayReconnaissanceAnim(cardIdx){
 // ═══════════════════════════════════════
 let _favorites=JSON.parse(localStorage.getItem('kiko_favorites')||'[]');
 function kikoToggleFavorite(vidId,btnEl){
+  kikoHaptic(8);
   const isFav=_favorites.includes(vidId);
   const icoEl=document.getElementById('fav-ico-'+vidId);
   if(isFav){
@@ -9717,6 +9757,7 @@ function trackView(vidId,authorUid){
 // ═══════════════════════════════════════
 function toggleLike(id){
   if(!currentUser)return;
+  kikoHaptic(8);
   const isLiked=liked.includes(id);
   const circle=document.getElementById('lk-'+id);
   if(isLiked){
@@ -9814,6 +9855,7 @@ async function toggleFollowBadgeVid(vidId,uid,name){
 async function toggleFollow(uid,name,btn){
   if(!currentUser){needAuth(()=>{});return;}
   if(!uid)return;
+  kikoHaptic(8);
   if(following[uid]){
     delete following[uid];
     await db.ref('following/'+currentUser.uid+'/'+uid).remove();
@@ -9943,7 +9985,7 @@ function showNotifToast(icon,msg,type){
   setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(-50%) translateY(-20px)';setTimeout(()=>el.remove(),400);},4000);
 }
 function loadNotifs(){
-  if(!currentUser){document.getElementById('notifList').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);">Connecte-toi pour voir tes notifications</div>';return;}
+  if(!currentUser){document.getElementById('notifList').innerHTML='<div style="padding:50px 24px;text-align:center;color:var(--muted);"><div style="font-size:44px;margin-bottom:14px;">🔔</div><div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:15px;color:var(--text);margin-bottom:10px;">Connecte-toi pour voir tes notifications</div><button onclick="openAuth()" style="background:var(--gold);color:#14151A;border:none;padding:11px 24px;border-radius:20px;font-family:\'Syne\',sans-serif;font-weight:700;font-size:13px;cursor:pointer;">Se connecter</button></div>';return;}
   db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(50).once('value').then(snap=>{
     const notifs=Object.entries(snap.val()||{}).map(([id,n])=>({id,...n})).reverse();
     document.getElementById('notifList').innerHTML=notifs.length
@@ -10819,7 +10861,7 @@ let _dmTab = 'all';
 
 function loadDMs(){
   if(!currentUser){
-    document.getElementById('dmList').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted);"><div style="font-size:44px;margin-bottom:12px;">💬</div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">AES Chat</div><div style="font-size:13px;">Connecte-toi pour accéder à tes messages</div></div>';
+    document.getElementById('dmList').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted);"><div style="font-size:44px;margin-bottom:12px;">💬</div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:10px;">AES Chat</div><div style="font-size:13px;margin-bottom:16px;">Connecte-toi pour accéder à tes messages</div><button onclick="openAuth()" style="background:var(--gold);color:#14151A;border:none;padding:11px 24px;border-radius:20px;font-family:Syne,sans-serif;font-weight:700;font-size:13px;cursor:pointer;">Se connecter</button></div>';
     return;
   }
   // Charger les stories des abonnés pour les afficher en haut
@@ -11190,7 +11232,7 @@ function switchSearchTab(tab,el){
   document.getElementById('searchTags').style.display=tab==='tags'?'block':'none';
   document.getElementById('searchMap').style.display=tab==='map'?'block':'none';
   if(tab==='trending')renderTrending();
-  else if(tab==='map')renderCreatorMap();
+  else if(tab==='map'){ renderCreatorMap(); kikoMarkFeatureSeen('map'); }
   else filterSearch(document.getElementById('searchInput').value);
 }
 function renderExplore(){document.getElementById('exploreGrid').innerHTML=allVids.slice(0,12).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
@@ -11207,6 +11249,7 @@ async function renderAccounts(q){
 }
 async function toggleFollowBtn(uid,name,btn){
   if(!currentUser)return;
+  kikoHaptic(8);
   if(following[uid]){delete following[uid];await db.ref('following/'+currentUser.uid+'/'+uid).remove();await db.ref('followers/'+uid+'/'+currentUser.uid).remove();btn.innerText='+ Suivre';btn.classList.remove('following');}
   else{following[uid]=true;await db.ref('following/'+currentUser.uid+'/'+uid).set(true);await db.ref('followers/'+uid+'/'+currentUser.uid).set(true);btn.innerText='✅ Suivi ✅';btn.classList.add('following');showToast('✅ Abonné à @'+name);sendNotif(uid,{type:'follow',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});}
   localStorage.setItem('aes_following',JSON.stringify(following));
@@ -12344,6 +12387,8 @@ setTimeout(()=>loadHomeStories(), 200);               // stories après le 1er r
 setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
 setTimeout(()=>loadHomeMarket(), 800);                // marketplace
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
+setTimeout(()=>kikoShowOnboarding(), 1200);           // tour de bienvenue — pour TOUT nouvel utilisateur, même sans compte
+kikoInitNewBadges();
 if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
 if(currentUser && !currentUser.country){ setTimeout(()=>kikoBackfillUserCountry(), 1800); }
 setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
