@@ -130,14 +130,56 @@ button, input, textarea { font-family: inherit; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
+/* ─── ACCESSIBILITÉ : taille de texte ajustable ─── */
+:root { --font-scale: 1; }
+body { font-size: calc(1em * var(--font-scale)); }
+
+/* ─── ACCESSIBILITÉ : contraste renforcé ─── */
+:root[data-contrast="high"] {
+  --text: #ffffff;
+  --text2: #f0f0f0;
+  --border: rgba(255,255,255,0.35);
+  --border2: rgba(255,255,255,0.45);
+}
+:root[data-contrast="high"][data-theme="light"] {
+  --text: #000000;
+  --text2: #111111;
+  --border: rgba(0,0,0,0.35);
+}
+.fontscale-btn.active { border-color: var(--gold2) !important; color: var(--gold2) !important; }
+img[loading="lazy"] {
+  background: var(--surface2);
+  filter: blur(10px);
+  opacity: 0.55;
+  transition: filter 0.45s var(--ease-out), opacity 0.45s var(--ease-out);
+}
+img[loading="lazy"].kiko-img-loaded {
+  filter: blur(0);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  img[loading="lazy"] { filter: none; opacity: 1; transition: none; }
+}
+
 /* ─── SCREENS ─── */
 .screen {
   position: fixed; inset: 0;
   display: none; flex-direction: column;
   background: var(--bg); overflow: hidden;
+  opacity: 0;
 }
 #homeScreen { background: transparent; }
-.screen.active { display: flex; }
+.screen.active {
+  display: flex;
+  animation: screenFadeIn 0.22s var(--ease-out) forwards;
+}
+@keyframes screenFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen.active { animation: none; opacity: 1; }
+}
 
 /* ─── TOP NAV ─── */
 #topnav {
@@ -2363,6 +2405,12 @@ textarea.inp { resize: none; }
 .sk-prod-line.w70 { width: 70%; }
 .sk-prod-line.w40 { width: 40%; }
 .sk-news { display: flex; flex-direction: column; gap: 1px; }
+.sk-jb-list { display: flex; flex-direction: column; gap: 10px; padding: 12px 16px; }
+.sk-jb-card { background: var(--surface); border-radius: var(--r-md); padding: 14px; display: flex; flex-direction: column; gap: 9px; }
+.sk-jb-line { height: 11px; }
+.sk-jb-line.w60 { width: 60%; }
+.sk-jb-line.w90 { width: 90%; }
+.sk-jb-line.w35 { width: 35%; }
 .sk-art-big { background: var(--surface); padding: 14px; }
 .sk-art-img { width: 100%; aspect-ratio: 16/9; border-radius: var(--r-sm); margin-bottom: 10px; }
 .sk-art-line { height: 11px; margin-bottom: 7px; }
@@ -3552,7 +3600,29 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
 </style>
 </head>
 <body>
-<script>(function(){try{if(localStorage.getItem('aes_theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script>(function(){
+  try{
+    const saved=localStorage.getItem('aes_theme');
+    if(saved==='light') document.documentElement.setAttribute('data-theme','light');
+    else if(saved==='dark') document.documentElement.removeAttribute('data-theme');
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches){
+      // Aucun choix manuel encore fait : on suit la préférence système
+      document.documentElement.setAttribute('data-theme','light');
+    }
+  }catch(e){}
+})();
+// Effet blur-up global : dès qu'une image lazy termine de charger, on retire le flou.
+// 'load' ne remonte pas (bubble), donc on écoute en phase de capture sur le document —
+// ça fonctionne pour toutes les images injectées dynamiquement, sans toucher chaque template.
+document.addEventListener('load', function(e){
+  if(e.target && e.target.tagName==='IMG' && e.target.getAttribute('loading')==='lazy'){
+    e.target.classList.add('kiko-img-loaded');
+  }
+  if(e.target && e.target.tagName==='IMG' && e.target.complete && e.target.naturalWidth>0 && !e.target.classList.contains('kiko-img-loaded') && e.target.getAttribute('loading')==='lazy'){
+    e.target.classList.add('kiko-img-loaded');
+  }
+}, true);
+</script>
 
 
 <!-- topnav global supprimé — chaque écran gère son propre header -->
@@ -3654,7 +3724,14 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
 </div>
 
 <div id="searchScreen" class="screen">
-  <div class="sfull"><span style="color:var(--muted)">🔍</span><input type="text" id="searchInput" placeholder="Rechercher vidéos, comptes..." oninput="debounceSearch(this.value)"></div>
+  <div class="sfull"><span style="color:var(--muted)">🔍</span><input type="text" id="searchInput" placeholder="Rechercher vidéos, comptes..." oninput="debounceSearch(this.value)" onfocus="renderSearchHistory()" onblur="setTimeout(()=>{const r=document.getElementById('searchHistoryRow');if(r)r.style.display='none';},180)"></div>
+  <div id="searchHistoryRow" style="display:none;padding:0 16px 10px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:11px;color:var(--muted);font-weight:600;">Recherches récentes</span>
+      <span style="font-size:11px;color:var(--gold2);font-weight:600;cursor:pointer;" onclick="clearSearchHistory()">Effacer</span>
+    </div>
+    <div id="searchHistoryChips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+  </div>
   <div style="padding:0 16px 10px;display:flex;gap:8px;align-items:center;">
     <button id="geoFilterBtn" onclick="kikoActivateGeoFilter(this)" style="flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;">📍 Près de moi</button>
     <div style="flex:1;font-size:11px;color:var(--muted);" id="geoFilterHint"></div>
@@ -3942,7 +4019,7 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
     </div>
     <button class="btn-gold" onclick="jbProcessPayment()" id="jbPayBtn">💳 Payer 2500 FCFA maintenant</button>
     <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px;">
-      🧪 Mode test PayDunya — aucun argent réel ne sera débité
+      ⚡ Confirmation automatique — ton annonce passe en Premium juste après le paiement
     </div>
   </div>
 </div>
@@ -4031,6 +4108,28 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
       <div class="sett-label" id="settLabelTheme">Mode clair</div>
       <label class="sett-toggle">
         <input type="checkbox" id="settThemeToggle" onchange="setThemeMode(this.checked?'light':'dark')">
+        <span class="sett-toggle-track"></span>
+      </label>
+    </div>
+
+    <!-- ACCESSIBILITÉ -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 4px 2px;">Accessibilité</div>
+
+    <div class="sett-row" style="cursor:default;flex-wrap:wrap;">
+      <div class="sett-icon" style="background:rgba(120,120,255,0.15);">🔤</div>
+      <div class="sett-label">Taille du texte</div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="setFontScale('sm')" id="fontScaleBtnSm" class="fontscale-btn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;">A</button>
+        <button onclick="setFontScale('md')" id="fontScaleBtnMd" class="fontscale-btn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer;">A</button>
+        <button onclick="setFontScale('lg')" id="fontScaleBtnLg" class="fontscale-btn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:15px;cursor:pointer;">A</button>
+      </div>
+    </div>
+
+    <div class="sett-row" style="cursor:default;">
+      <div class="sett-icon" style="background:rgba(120,120,255,0.15);">◐</div>
+      <div class="sett-label">Contraste renforcé</div>
+      <label class="sett-toggle">
+        <input type="checkbox" id="settContrastToggle" onchange="setHighContrast(this.checked)">
         <span class="sett-toggle-track"></span>
       </label>
     </div>
@@ -5825,6 +5924,18 @@ let allVids=[],allProds=[];
 let curVidId=null,storyTmr=null,authMode='login',pendingAction=null,feedMode='forYou';
 let curProd=null,prodPhotoFile=null;
 let priceMin=null,priceMax=null,currentCat='tous';
+// Restaure les derniers filtres marketplace utilisés (persistance entre sessions)
+try{
+  const savedMktFilters = JSON.parse(localStorage.getItem('kiko_market_filters')||'null');
+  if(savedMktFilters){
+    currentCat = savedMktFilters.cat || 'tous';
+    priceMin = (typeof savedMktFilters.min==='number') ? savedMktFilters.min : null;
+    priceMax = (typeof savedMktFilters.max==='number') ? savedMktFilters.max : null;
+  }
+}catch(e){}
+function _saveMarketFilters(){
+  try{ localStorage.setItem('kiko_market_filters', JSON.stringify({cat:currentCat,min:priceMin,max:priceMax})); }catch(e){}
+}
 let curChatUid=null,curChatName=null,curChatVerified=false;
 let curStories=[],curStoryIdx=0,curGroupIdx=0,allStoryGroups=[];
 let searchTabCurrent='videos';
@@ -7645,13 +7756,48 @@ function applyUserUI(){
 // ═══════════════════════════════════════
 //  PARAMÈTRES
 // ═══════════════════════════════════════
+function setFontScale(size){
+  const scales={sm:0.92,md:1,lg:1.15};
+  const s=scales[size]?size:'md';
+  document.documentElement.style.setProperty('--font-scale', scales[s]);
+  try{ localStorage.setItem('kiko_font_scale', s); }catch(e){}
+  document.querySelectorAll('.fontscale-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('fontScaleBtn'+s.charAt(0).toUpperCase()+s.slice(1));
+  if(btn) btn.classList.add('active');
+}
+function setHighContrast(on){
+  if(on) document.documentElement.setAttribute('data-contrast','high');
+  else document.documentElement.removeAttribute('data-contrast');
+  try{ localStorage.setItem('kiko_high_contrast', on?'1':'0'); }catch(e){}
+}
+// Restauration des préférences d'accessibilité au chargement
+(function(){
+  try{
+    const savedScale=localStorage.getItem('kiko_font_scale');
+    if(savedScale) setFontScale(savedScale); else setFontScale('md');
+    if(localStorage.getItem('kiko_high_contrast')==='1'){
+      document.documentElement.setAttribute('data-contrast','high');
+    }
+  }catch(e){}
+})();
 function setThemeMode(mode){
   const m=mode==='light'?'light':'dark';
   if(m==='light')document.documentElement.setAttribute('data-theme','light');
   else document.documentElement.removeAttribute('data-theme');
-  localStorage.setItem('aes_theme',m);
+  localStorage.setItem('aes_theme',m); // choix manuel explicite : ne suivra plus le système
   const tt=document.getElementById('settThemeToggle'); if(tt)tt.checked=(m==='light');
 }
+// Si l'utilisateur n'a jamais choisi de thème manuellement, on continue de suivre
+// les changements de préférence système en direct (ex: bascule auto la nuit).
+try{
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e=>{
+      if(localStorage.getItem('aes_theme')) return; // choix manuel prioritaire
+      if(e.matches) document.documentElement.setAttribute('data-theme','light');
+      else document.documentElement.removeAttribute('data-theme');
+    });
+  }
+}catch(e){}
 function openSettings(){
   const panel=document.getElementById('settingsPanel');
   if(!panel) return;
@@ -7665,6 +7811,8 @@ function openSettings(){
   const nt=document.getElementById('settNotifToggle'); if(nt) nt.checked=notif;
   const st=document.getElementById('settSoundToggle'); if(st) st.checked=sound;
   const tt=document.getElementById('settThemeToggle'); if(tt) tt.checked=(localStorage.getItem('aes_theme')==='light');
+  const ct=document.getElementById('settContrastToggle'); if(ct) ct.checked=(localStorage.getItem('kiko_high_contrast')==='1');
+  setFontScale(localStorage.getItem('kiko_font_scale')||'md');
   updateDataSaverUI();
   kikoMarkFeatureSeen('dataSaver');
 }
@@ -8907,6 +9055,10 @@ function buildVCard(v,i){
         <div class="kiko-vid-btn-ico" id="fav-ico-${v.id}">⭐</div>
         <div class="kiko-vid-btn-lbl">Favori</div>
       </div>
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();kikoTogglePiP('${v.id}')" title="Picture-in-Picture" role="button" aria-label="Regarder en mode flottant (Picture-in-Picture)">
+        <div class="kiko-vid-btn-ico">🗔</div>
+        <div class="kiko-vid-btn-lbl">Flottant</div>
+      </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();kikoOpenReportModal('${v.id}')" title="Signaler" role="button" aria-label="Signaler cette vidéo">
         <div class="kiko-vid-btn-ico">🚩</div>
         <div class="kiko-vid-btn-lbl">Signaler</div>
@@ -9332,6 +9484,26 @@ const REPORT_REASONS = [
   'Discours haineux',
   'Autre raison'
 ];
+async function kikoTogglePiP(vidId){
+  try{
+    const vid = document.getElementById('vid-'+vidId);
+    if(!vid){ return; }
+    if(document.pictureInPictureElement){
+      await document.exitPictureInPicture();
+      return;
+    }
+    if(document.pictureInPictureEnabled && vid.requestPictureInPicture){
+      await vid.requestPictureInPicture();
+    } else if(vid.webkitSupportsPresentationMode && typeof vid.webkitSetPresentationMode==='function'){
+      // Fallback Safari iOS
+      vid.webkitSetPresentationMode(vid.webkitPresentationMode==='picture-in-picture'?'inline':'picture-in-picture');
+    } else {
+      showToast('🗔 Mode flottant non disponible sur ce navigateur');
+    }
+  }catch(e){
+    showToast('🗔 Mode flottant indisponible pour cette vidéo');
+  }
+}
 function kikoOpenReportModal(vidId){
   needAuth(()=>{
     const existing=document.getElementById('kikoReportModal');
@@ -10011,8 +10183,23 @@ function loadNotifs(){
   });
 }
 function confirmDeleteVideo(id){
-  showConfirm('Supprimer cette vidéo ?','Elle sera retirée définitivement.',async()=>{
-    await db.ref('videos/'+id).remove();allVids=allVids.filter(v=>v.id!==id);renderFeedByMode();showToast('🗑️ Vidéo supprimée');
+  showConfirm('Supprimer cette vidéo ?','Elle sera retirée définitivement.',()=>{
+    const idx = allVids.findIndex(v=>v.id===id);
+    const removedVideo = idx>-1 ? allVids[idx] : null;
+    // Retrait optimiste immédiat de l'écran
+    allVids = allVids.filter(v=>v.id!==id);
+    renderFeedByMode();
+    showUndoToast('🗑️ Vidéo supprimée',
+      ()=>{ // ANNULER : on la remet telle quelle, rien n'a touché la base
+        if(removedVideo){
+          if(idx>-1) allVids.splice(idx,0,removedVideo); else allVids.unshift(removedVideo);
+          renderFeedByMode();
+        }
+      },
+      async ()=>{ // délai écoulé sans annulation : suppression réelle en base
+        try{ await db.ref('videos/'+id).remove(); }catch(e){}
+      }
+    );
   });
 }
 
@@ -10065,7 +10252,17 @@ function updateNotifPinnedPreview(){
 // ═══════════════════════════════════════
 //  MARKETPLACE — amélioré
 // ═══════════════════════════════════════
+function _syncMarketFilterUI(){
+  try{
+    const chip=document.querySelector(`#marketCats [data-cat="${currentCat}"]`);
+    if(chip){ document.querySelectorAll('#marketCats .mcat').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); }
+    const pMin=document.getElementById('priceMin'), pMax=document.getElementById('priceMax');
+    if(pMin) pMin.value = (priceMin!==null) ? priceMin : '';
+    if(pMax) pMax.value = (priceMax!==null) ? priceMax : '';
+  }catch(e){}
+}
 function loadMarket(){
+  _syncMarketFilterUI();
   const cached=localStorage.getItem('aes_market_cache');
   if(cached){try{const c=JSON.parse(cached);if(c.length){allProds=c;applyMarketFilters();renderMarketPopularCats();}}catch(e){}}
   const grid2=document.getElementById('marketGrid');
@@ -10113,7 +10310,7 @@ function mktGoToCat(cat){
   const chip=document.querySelector(`#marketCats [data-cat="${cat}"]`) || document.querySelector('#marketCats [data-cat="tous"]');
   filterMarket(cat, chip);
 }
-function filterMarket(cat,el){currentCat=cat;document.querySelectorAll('#marketCats .mcat').forEach(c=>c.classList.remove('active'));if(el)el.classList.add('active');applyMarketFilters();}
+function filterMarket(cat,el){currentCat=cat;document.querySelectorAll('#marketCats .mcat').forEach(c=>c.classList.remove('active'));if(el)el.classList.add('active');applyMarketFilters();_saveMarketFilters();}
 function applyMarketFilters(){
   let filtered;
   if(currentCat==='tous') filtered=[...allProds];
@@ -10129,12 +10326,12 @@ function openPriceModal(){document.getElementById('priceModal').classList.add('a
 function applyPriceFilter(){
   priceMin=document.getElementById('priceMin').value?Number(document.getElementById('priceMin').value):null;
   priceMax=document.getElementById('priceMax').value?Number(document.getElementById('priceMax').value):null;
-  document.getElementById('priceModal').classList.remove('active');applyMarketFilters();showToast('💰 Filtre prix appliqué');
+  document.getElementById('priceModal').classList.remove('active');applyMarketFilters();_saveMarketFilters();showToast('💰 Filtre prix appliqué');
 }
 function clearPriceFilter(){
   priceMin=null;priceMax=null;
   document.getElementById('priceMin').value='';document.getElementById('priceMax').value='';
-  document.getElementById('priceModal').classList.remove('active');applyMarketFilters();
+  document.getElementById('priceModal').classList.remove('active');applyMarketFilters();_saveMarketFilters();
 }
 function renderMarket(prods){
   const grid=document.getElementById('marketGrid');
@@ -11109,6 +11306,20 @@ function loadMessages(){
 }
 
 let _lastMsgCount = 0;
+function kikoOpenMediaViewer(url, type){
+  let ov=document.getElementById('kikoMediaViewer');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='kikoMediaViewer';
+    ov.style.cssText='position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;';
+    ov.onclick=()=>{ ov.style.display='none'; ov.innerHTML=''; };
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = type==='video'
+    ? `<video src="${url}" controls autoplay style="max-width:94vw;max-height:88vh;border-radius:8px;"></video>`
+    : `<img src="${url}" style="max-width:94vw;max-height:88vh;border-radius:8px;object-fit:contain;">`;
+  ov.style.display='flex';
+}
 function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified){
   const mc = document.getElementById('chatMessages');
   if(!msgs.length){
@@ -11141,7 +11352,16 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified){
     html += `<div class="msg-group ${isMe?'me':'them'}">`;
     if(!isMe) html += `<div class="msg-group-header"><div class="msg-group-av">${avH}</div><div class="msg-group-name">${esc(otherName||'')}${verifiedBadge(otherVerified)}</div></div>`;
     g.msgs.forEach(m=>{
-      html += `<div class="msg-bubble ${isMe?'me':'them'}">${esc(m.text)}</div>`;
+      let bubbleContent;
+      if(m.imageUrl){
+        bubbleContent = `<img src="${m.imageUrl}" loading="lazy" onclick="kikoOpenMediaViewer('${m.imageUrl}','image')" style="max-width:220px;border-radius:12px;display:block;cursor:pointer;">`;
+      } else if(m.videoUrl){
+        bubbleContent = `<video src="${m.videoUrl}" style="max-width:220px;border-radius:12px;display:block;" controls preload="metadata"></video>`;
+      } else {
+        bubbleContent = esc(m.text||'');
+      }
+      const mediaPad = (m.imageUrl||m.videoUrl) ? 'padding:4px;' : '';
+      html += `<div class="msg-bubble ${isMe?'me':'them'}" style="${mediaPad}">${bubbleContent}</div>`;
     });
     html += `<div class="msg-time-stamp">${timeAgo(g.lastAt)}</div>`;
     html += '</div>';
@@ -11156,6 +11376,20 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified){
 let _presenceInterval=null;
 let _presenceWatchRef=null;
 let _presenceWatchCb=null;
+
+// ── Avertissement avant de quitter si un formulaire de création est rempli ──
+window.addEventListener('beforeunload', function(e){
+  const fieldsToCheck = ['jbTitle','jbDesc','vpsDescInput','prodDesc'];
+  const hasUnsaved = fieldsToCheck.some(id=>{
+    const el = document.getElementById(id);
+    return el && el.value && el.value.trim().length > 0;
+  });
+  if(hasUnsaved){
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+});
 
 function kikoStartPresence(){
   if(!currentUser) return;
@@ -11215,7 +11449,11 @@ function autoResizeChatInp(el){
   el.style.height='auto';
   el.style.height=Math.min(el.scrollHeight,100)+'px';
 }
-function chatSendPhoto(){showToast('📷 Fonctionnalité bientôt disponible !');}
+function chatSendPhoto(){
+  if(!currentUser){ needAuth(()=>chatSendPhoto()); return; }
+  if(!curChatUid){ return; }
+  openCamera('photo','chat');
+}
 function callUser(){showToast('📞 Appel bientôt disponible !');}
 function videoCallUser(){showToast('🎥 Appel vidéo bientôt disponible !');}
 
@@ -11253,6 +11491,38 @@ async function toggleFollowBtn(uid,name,btn){
   if(following[uid]){delete following[uid];await db.ref('following/'+currentUser.uid+'/'+uid).remove();await db.ref('followers/'+uid+'/'+currentUser.uid).remove();btn.innerText='+ Suivre';btn.classList.remove('following');}
   else{following[uid]=true;await db.ref('following/'+currentUser.uid+'/'+uid).set(true);await db.ref('followers/'+uid+'/'+currentUser.uid).set(true);btn.innerText='✅ Suivi ✅';btn.classList.add('following');showToast('✅ Abonné à @'+name);sendNotif(uid,{type:'follow',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',at:Date.now(),read:false});}
   localStorage.setItem('aes_following',JSON.stringify(following));
+}
+// ── Historique de recherche (localStorage, 8 dernières recherches) ──
+const SEARCH_HISTORY_KEY='kiko_search_history';
+function getSearchHistory(){ try{ return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY)||'[]'); }catch(e){ return []; } }
+function addSearchHistory(q){
+  q=(q||'').trim(); if(q.length<2) return;
+  let hist=getSearchHistory().filter(h=>h.toLowerCase()!==q.toLowerCase());
+  hist.unshift(q);
+  hist=hist.slice(0,8);
+  try{ localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
+}
+function clearSearchHistory(){
+  try{ localStorage.removeItem(SEARCH_HISTORY_KEY); }catch(e){}
+  renderSearchHistory();
+}
+function renderSearchHistory(){
+  const row=document.getElementById('searchHistoryRow');
+  const chipsEl=document.getElementById('searchHistoryChips');
+  if(!row||!chipsEl) return;
+  const input=document.getElementById('searchInput');
+  if(input && input.value.trim()){ row.style.display='none'; return; }
+  const hist=getSearchHistory();
+  if(!hist.length){ row.style.display='none'; return; }
+  chipsEl.innerHTML=hist.map(q=>`<div onclick="useSearchHistory('${esc(q).replace(/'/g,"\\'")}')" style="padding:6px 13px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;">🕓 ${esc(q)}</div>`).join('');
+  row.style.display='block';
+}
+function useSearchHistory(q){
+  const input=document.getElementById('searchInput');
+  if(input) input.value=q;
+  document.getElementById('searchHistoryRow').style.display='none';
+  filterSearch(q);
+  addSearchHistory(q);
 }
 function filterSearch(q){
   if(searchTabCurrent==='videos'){if(!q){renderExplore();return;}document.getElementById('exploreGrid').innerHTML=allVids.filter(v=>(v.auteur||'').toLowerCase().includes(q.toLowerCase())||(v.desc||'').toLowerCase().includes(q.toLowerCase())).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
@@ -12062,6 +12332,53 @@ function renderNewsSourceChips(){
 // ═══════════════════════════════════════
 //  ADMIN ACTUALITÉS (?admin=news)
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+//  ADMIN BOOSTS PAYDUNYA (?admin=boosts)
+// ═══════════════════════════════════════
+function checkBoostsAdminAccess(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('admin')==='boosts'){
+    document.getElementById('boostsAdminOverlay').style.display='block';
+    loadBoostsAdminList();
+  }
+}
+function closeBoostsAdmin(){
+  document.getElementById('boostsAdminOverlay').style.display='none';
+  history.replaceState({},'',location.pathname);
+}
+function loadBoostsAdminList(){
+  db.ref('jobBoostRequests').orderByChild('createdAt').limitToLast(100).on('value', snap=>{
+    const items=[]; snap.forEach(c=>items.push({id:c.key,...c.val()}));
+    items.reverse();
+    const list=document.getElementById('boostsAdminList');
+    const pending=items.filter(i=>i.status==='en_attente');
+    document.getElementById('boostsAdminCount').innerText=pending.length;
+    if(!items.length){ list.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:13px;padding:20px;text-align:center;">Aucune demande pour l\'instant.</div>'; return; }
+    list.innerHTML=items.map(i=>`
+      <div style="background:#1a1a1d;border-radius:12px;padding:14px;margin-bottom:10px;${i.status==='en_attente'?'border:1px solid rgba(201,168,76,0.4);':''}">
+        <div style="font-size:13px;color:#fff;font-weight:700;">${esc(i.userName||'Utilisateur')}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);margin:3px 0;">${esc(i.postTitle||i.postId||'')}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px;">${i.amount||2500} FCFA · ${new Date(i.createdAt).toLocaleString('fr-FR')} · statut: ${i.status}</div>
+        ${i.status==='en_attente'?`
+          <div style="display:flex;gap:8px;">
+            <button onclick="boostsAdminValidate('${i.id}','${i.postId}')" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#14151A;font-weight:700;padding:9px;border-radius:8px;font-size:12px;cursor:pointer;">✅ Valider (Premium)</button>
+            <button onclick="boostsAdminReject('${i.id}')" style="flex:1;background:rgba(255,80,80,0.15);border:1px solid rgba(255,80,80,0.3);color:#ff5050;font-weight:700;padding:9px;border-radius:8px;font-size:12px;cursor:pointer;">✕ Refuser</button>
+          </div>`:''}
+      </div>
+    `).join('');
+  });
+}
+async function boostsAdminValidate(reqId, postId){
+  try{
+    await db.ref('jobPosts/'+postId).update({premium:true});
+    await db.ref('jobBoostRequests/'+reqId).update({status:'validé'});
+  }catch(e){ alert('Erreur : '+e.message); }
+}
+async function boostsAdminReject(reqId){
+  try{ await db.ref('jobBoostRequests/'+reqId).update({status:'refusé'}); }
+  catch(e){ alert('Erreur : '+e.message); }
+}
+
 function checkNewsAdminAccess(){
   const params=new URLSearchParams(location.search);
   if(params.get('admin')==='news'){
@@ -12311,7 +12628,11 @@ function applyLang(){
 //  UTILS
 // ═══════════════════════════════════════
 let _searchTimer=null;
-function debounceSearch(val){clearTimeout(_searchTimer);_searchTimer=setTimeout(()=>filterSearch(val),280);}
+function debounceSearch(val){
+  const row=document.getElementById('searchHistoryRow'); if(row) row.style.display='none';
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(()=>{ filterSearch(val); if(val && val.trim().length>=2) addSearchHistory(val); }, 280);
+}
 // ═══════════════════════════════════════
 //  OPTIMISATION VITESSE — URLs médias compressées
 // ═══════════════════════════════════════
@@ -12357,6 +12678,37 @@ function verifiedBadge(isVerified){
 function jsStr(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
 function showToast(msg){const t=document.getElementById('toast');t.innerText=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
+// Toast avec action "Annuler" — utilisé pour les suppressions réversibles.
+// onUndo() est appelé si l'utilisateur annule ; onCommit() est appelé après le délai si non annulé.
+function showUndoToast(msg, onUndo, onCommit, delayMs){
+  delayMs = delayMs || 4500;
+  const old = document.getElementById('undoToast'); if(old) old.remove();
+  let cancelled = false;
+  const el = document.createElement('div');
+  el.id = 'undoToast';
+  el.style.cssText = `position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(20px);
+    background:rgba(14,14,18,0.97);border:1px solid var(--border2);color:var(--text);
+    padding:11px 12px 11px 18px;border-radius:30px;font-size:13px;font-weight:500;z-index:9999;
+    opacity:0;transition:opacity 0.25s,transform 0.25s;display:flex;align-items:center;gap:14px;
+    box-shadow:0 6px 26px rgba(0,0,0,0.5);white-space:nowrap;`;
+  el.innerHTML = `<span>${esc(msg)}</span><button style="background:none;border:none;color:var(--gold2);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;padding:4px 6px;">ANNULER</button>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform='translateX(-50%) translateY(0)'; });
+  const timer = setTimeout(()=>{
+    if(cancelled) return;
+    el.style.opacity='0'; el.style.transform='translateX(-50%) translateY(20px)';
+    setTimeout(()=>el.remove(), 300);
+    if(onCommit) onCommit();
+  }, delayMs);
+  el.querySelector('button').onclick = ()=>{
+    cancelled = true;
+    clearTimeout(timer);
+    el.style.opacity='0'; el.style.transform='translateX(-50%) translateY(20px)';
+    setTimeout(()=>el.remove(), 300);
+    if(onUndo) onUndo();
+  };
+}
+
 // ═══════════════════════════════════════
 //  ADMIN MUSIQUE (?admin=music)
 // ═══════════════════════════════════════
@@ -12391,7 +12743,7 @@ setTimeout(()=>kikoShowOnboarding(), 1200);           // tour de bienvenue — p
 kikoInitNewBadges();
 if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
 if(currentUser && !currentUser.country){ setTimeout(()=>kikoBackfillUserCountry(), 1800); }
-setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
+setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); checkBoostsAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
 
 // ═══════════════════════════════════════
 //  MODULE CAMÉRA + FILTRES PREMIUM
@@ -13016,6 +13368,9 @@ function camUseResult(){
   if(_camCalledFrom==='story' || _camCalledFrom==='status'){
     // Injecter dans le flux story existant
     handleCamFileForStory(file, type);
+  } else if(_camCalledFrom==='chat'){
+    // Envoi direct dans la conversation en cours (style WhatsApp)
+    handleCamFileForChat(file, type);
   } else {
     // Injecter dans le modal upload vidéo
     handleCamFileForPost(file, type);
@@ -13052,6 +13407,47 @@ function handleCamFileForStory(file, type){
   openStoryTextModal({files:[file]});
 }
 
+async function handleCamFileForChat(file, type){
+  if(!currentUser||!curChatUid){ return; }
+  const key=dmKey(currentUser.uid,curChatUid);
+  const localUrl=URL.createObjectURL(file);
+  // Bulle optimiste "en cours d'envoi" pendant l'upload
+  const mc=document.getElementById('chatMessages');
+  const tempId='sending-'+Date.now();
+  if(mc){
+    mc.insertAdjacentHTML('beforeend', `<div class="msg-group me" id="${tempId}"><div class="msg-bubble me" style="padding:4px;opacity:0.7;">
+      ${type==='video'
+        ? `<video src="${localUrl}" style="max-width:200px;border-radius:12px;display:block;" muted></video>`
+        : `<img src="${localUrl}" style="max-width:200px;border-radius:12px;display:block;">`}
+      <div style="font-size:10px;text-align:center;padding:4px;color:rgba(255,255,255,0.6);">Envoi en cours...</div>
+    </div></div>`);
+    mc.scrollTop=mc.scrollHeight;
+  }
+  try{
+    let url;
+    if(type==='video'){
+      url = await clUpload(file, ()=>{});
+    } else {
+      url = await ikUpload(file, 'chat-images', ()=>{});
+    }
+    playMsgSendSound();
+    const payload = type==='video'
+      ? {from:currentUser.uid,to:curChatUid,videoUrl:url,at:Date.now()}
+      : {from:currentUser.uid,to:curChatUid,imageUrl:url,at:Date.now()};
+    await db.ref('messages/'+key).push(payload);
+    await db.ref('dms/'+key).update({
+      lastMsg: type==='video' ? '🎥 Vidéo' : '📷 Photo',
+      updatedAt:Date.now(),
+      otherName:curChatName,otherAvatar:'',otherVerified:currentUser.verified||false,
+      ['unread/'+curChatUid]:true
+    });
+    sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text: type==='video'?'🎥 Vidéo':'📷 Photo',at:Date.now(),read:false});
+  }catch(e){
+    showToast('❌ Envoi impossible : '+e.message);
+    const el=document.getElementById(tempId); if(el) el.remove();
+  }
+}
+
 function camFromGallery(){
   kikoOpenFilePicker('camGalleryInput');
 }
@@ -13064,6 +13460,7 @@ function camGallerySelected(input){
   const url = URL.createObjectURL(file);
   closeCamera();
   if(_camCalledFrom==='post'){ handleCamFileForPost(file, type); }
+  else if(_camCalledFrom==='chat'){ handleCamFileForChat(file, type); }
   else { handleCamFileForStory(file, type); }
 }
 
@@ -13518,6 +13915,19 @@ function initSFPullToRefresh(){
 }
 
 </script>
+  <!-- PANNEAU ADMIN BOOSTS PAYDUNYA (?admin=boosts) -->
+  <div id="boostsAdminOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#0d0d0f;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff;">💳 Validation des paiements Boost</div>
+      <div onclick="closeBoostsAdmin()" style="font-size:22px;color:rgba(255,255,255,0.6);cursor:pointer;">✕</div>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px;line-height:1.5;">
+      Vérifie chaque paiement dans ton dashboard PayDunya (montant, heure, nom), puis valide ou refuse ici.<br>
+      <b><span id="boostsAdminCount">0</span></b> demande(s) en attente.
+    </div>
+    <div id="boostsAdminList"></div>
+  </div>
+
   <!-- PANNEAU ADMIN MUSIQUE (?admin=music) -->
   <div id="musicAdminOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#0d0d0f;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
@@ -13779,6 +14189,10 @@ function jbCloseModal(id){ document.getElementById(id).classList.remove('active'
 function jbStartFeed(){
   if(jbFeedStarted) return;
   jbFeedStarted=true;
+  const feedEl=document.getElementById('jbFeed');
+  if(feedEl && !feedEl.querySelector('.jb-card')){
+    feedEl.innerHTML='<div class="sk-jb-list">'+Array(5).fill('<div class="sk-jb-card"><div class="sk-jb-line w35 sk"></div><div class="sk-jb-line w90 sk"></div><div class="sk-jb-line w60 sk"></div></div>').join('')+'</div>';
+  }
   db.ref('jobPosts').orderByChild('createdAt').limitToLast(200).on('value', snap=>{
     const data=snap.val()||{};
     const uid=currentUser?.uid;
@@ -14021,37 +14435,31 @@ function jbOpenBoost(postId){
   jbOpenModal('jbBoostModal');
 }
 
-// ⚠️ Clés de TEST PayDunya — à déplacer derrière un backend (Firebase Cloud Function)
-// avant de passer en mode "live", sinon n'importe qui peut les lire via "Voir le code source".
-const PAYDUNYA_CONFIG = {
-  masterKey: 'mghdhnoj-kWGi-aG4J-7Y2B-LXtWIPCDQ738',
-  privateKey: 'test_private_AmngoODCdyXVgVwk7qANr2EAQSx',
-  token: 'lv6GimXMp5hlo89BH75X',
-  mode: 'test' // 'test' ou 'live'
-};
-function jbPaydunyaBaseUrl(){
-  return PAYDUNYA_CONFIG.mode==='live'
-    ? 'https://app.paydunya.com/api/v1'
-    : 'https://app.paydunya.com/sandbox-api/v1';
-}
+// ═══════════════════════════════════════════════════════════════
+//  PAIEMENT BOOST — via Cloudflare Worker (proxy sécurisé PayDunya)
+// ═══════════════════════════════════════════════════════════════
+// Aucune clé secrète ici : elles vivent uniquement dans le Worker Cloudflare.
+// ⚠️ Remplace cette URL par celle que Cloudflare t'a donnée après "wrangler deploy"
+// (ex: https://kiko-paydunya.tonpseudo.workers.dev)
+const WORKER_BASE_URL = 'https://kiko-paydunya.TON-PSEUDO.workers.dev'; // ⚠️ à remplacer
 
 async function jbProcessPayment(){
   if(!currentUser||!jbBoostTargetId){ showToast('⚠️ Sélectionne une annonce à booster'); return; }
+  if(WORKER_BASE_URL.includes('TON-PSEUDO')){
+    showToast('⚠️ Worker PayDunya non configuré (voir WORKER_BASE_URL dans le code)');
+    return;
+  }
   const post=jbAllPosts.find(p=>p.id===jbBoostTargetId);
   const btn=document.getElementById('jbPayBtn');
   btn.disabled=true; btn.innerText='⏳ Création du paiement...';
   try{
-    const res=await fetch(jbPaydunyaBaseUrl()+'/checkout-invoice/create',{
+    const res=await fetch(WORKER_BASE_URL+'/create-invoice',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'PAYDUNYA-MASTER-KEY':PAYDUNYA_CONFIG.masterKey,
-        'PAYDUNYA-PRIVATE-KEY':PAYDUNYA_CONFIG.privateKey,
-        'PAYDUNYA-TOKEN':PAYDUNYA_CONFIG.token
-      },
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        invoice:{ total_amount:2500, description:'Boost annonce KIKO Job : '+(post?.title||'') },
-        store:{ name:'KIKO Job', return_url: location.origin+location.pathname }
+        amount:2500,
+        description:'Boost annonce KIKO Job : '+(post?.title||''),
+        returnUrl: location.origin+location.pathname
       })
     });
     const data=await res.json();
@@ -14062,28 +14470,23 @@ async function jbProcessPayment(){
       showToast('🔄 Redirection vers la page de paiement...');
       window.location.href=data.response_text; // URL de checkout PayDunya
     } else {
-      showToast('❌ '+(data.response_text||data.description||'Erreur PayDunya'));
+      showToast('❌ '+(data.response_text||data.description||data.error||'Erreur PayDunya'));
       btn.disabled=false; btn.innerText='💳 Payer 2500 FCFA maintenant';
     }
   }catch(e){
-    showToast('❌ Connexion à PayDunya impossible (CORS ou réseau) : '+e.message);
+    showToast('❌ Connexion au serveur de paiement impossible : '+e.message);
     btn.disabled=false; btn.innerText='💳 Payer 2500 FCFA maintenant';
   }
 }
 
-// Au retour de PayDunya, ?token=... est ajouté automatiquement à l'URL → on confirme le paiement
+// Au retour de PayDunya, ?token=... est ajouté automatiquement à l'URL → on confirme
+// le paiement via le Worker (qui seul détient les clés nécessaires pour vérifier).
 async function jbCheckReturnFromPaydunya(){
   const params=new URLSearchParams(location.search);
   const token=params.get('token');
-  if(!token) return;
+  if(!token || WORKER_BASE_URL.includes('TON-PSEUDO')) return;
   try{
-    const res=await fetch(jbPaydunyaBaseUrl()+'/checkout-invoice/confirm/'+token,{
-      headers:{
-        'PAYDUNYA-MASTER-KEY':PAYDUNYA_CONFIG.masterKey,
-        'PAYDUNYA-PRIVATE-KEY':PAYDUNYA_CONFIG.privateKey,
-        'PAYDUNYA-TOKEN':PAYDUNYA_CONFIG.token
-      }
-    });
+    const res=await fetch(WORKER_BASE_URL+'/confirm-payment?token='+encodeURIComponent(token));
     const data=await res.json();
     const reqSnap=await db.ref('jobBoostRequests/'+token).once('value');
     const reqData=reqSnap.val();
