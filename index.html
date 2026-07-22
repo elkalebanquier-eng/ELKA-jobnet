@@ -6805,6 +6805,29 @@ window.addEventListener('online', _kikoUpdateOfflineBanner);
 window.addEventListener('offline', _kikoUpdateOfflineBanner);
 
 
+// L'écran Buzz est-il actuellement affiché à l'utilisateur ? (sert à ne pas
+// déclencher une lecture audio/vidéo alors que l'écran est encore caché
+// pendant un préchargement en arrière-plan)
+function _isBuzzScreenVisible(){
+  const el=document.getElementById('buzzScreen');
+  return !!(el && el.classList.contains('active'));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PRÉCHARGEMENT SILENCIEUX DU FEED BUZZ — avant même que
+//  l'utilisateur ait cliqué sur l'onglet 🔥 Buzz. On récupère les
+//  données Firebase, on construit les cartes vidéo (cachées, l'écran
+//  Buzz n'étant pas actif) et on force le téléchargement réel de la
+//  1ère vidéo (preload="auto") pour qu'elle soit prête à jouer
+//  INSTANTANÉMENT au clic. Ignoré si économie de données/connexion lente.
+// ═══════════════════════════════════════════════════════════
+function prefetchBuzzFeed(){
+  if(window._buzzLoaded) return; // déjà chargé (ou en cours) — pas de double appel
+  if(isDataSaverActive()) return; // on respecte l'économie de données : rien de lourd en fond
+  window._buzzLoaded = true;
+  loadFeed();
+}
+
 async function loadFeedMixed(){
   const feed = document.getElementById('feed');
 
@@ -6814,7 +6837,7 @@ async function loadFeedMixed(){
     allVids = cached;
     feed.innerHTML = buildFeedHtml(cached);
     const firstVid = feed.querySelector('video');
-    if(firstVid){ firstVid.muted = true; firstVid.play().catch(()=>{}); }
+    if(firstVid){ firstVid.muted = true; if(_isBuzzScreenVisible()) firstVid.play().catch(()=>{}); }
     initObserver(); initProgress(); initRadialLongPress();
     setTimeout(()=>cached.forEach(v=>_tagVCard(v.id,v)), 50);
   } else {
@@ -6832,7 +6855,7 @@ async function loadFeedMixed(){
 
   // ── 2. Firebase en arrière-plan ──
   try{
-    const vidSnap = await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
+    const vidSnap = await db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value');
     const vids = vidSnap.val() ? Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})) : [];
     const viewerCountry = currentUser?.country || null;
     let ranked = vids
@@ -6853,7 +6876,7 @@ async function loadFeedMixed(){
     if(firstId !== currentFirst){
       feed.innerHTML = buildFeedHtml(ranked);
       const firstVid = feed.querySelector('video');
-      if(firstVid){ firstVid.muted = true; firstVid.play().catch(()=>{}); }
+      if(firstVid){ firstVid.muted = true; if(_isBuzzScreenVisible()) firstVid.play().catch(()=>{}); }
       initObserver(); initProgress(); initRadialLongPress();
       setTimeout(()=>vids.forEach(v=>_tagVCard(v.id,v)), 50);
     }
@@ -8194,7 +8217,7 @@ function loadHomeStories(){
     });
     Object.values(groups).slice(0,10).forEach(g=>{
       const init=(g.name||'A')[0].toUpperCase();
-      const avH=g.avatar?`<img src="${g.avatar}" alt="">`:`<span>${init}</span>`;
+      const avH=g.avatar?`<img src="${optImg(g.avatar,60)}" alt="" loading="lazy" decoding="async">`:`<span>${init}</span>`;
       const item=document.createElement('div');
       item.className='hstory-item';
       item.innerHTML=`<div class="hstory-ring"><div class="hstory-av">${avH}</div></div><div class="hstory-name">${esc(g.name||'')}</div>`;
@@ -8221,12 +8244,12 @@ function updateHomeHero(items){
     titleEl.innerText=item.desc?item.desc.substring(0,60):'Vidéo à la une';
     subEl.innerText='Par @'+(item.auteur||'anonyme');
     labelEl.innerText='🎬 À LA UNE';
-    if(item.thumbnail){imgEl.innerHTML=`<img src="${item.thumbnail}" alt="" style="width:100%;height:100%;object-fit:cover;">`;}
+    if(item.thumbnail){imgEl.innerHTML=`<img src="${optImg(item.thumbnail,600)}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`;}
     btnEl.innerText='▶ Regarder';
     btnEl.onclick=()=>{const el=document.getElementById('vc-'+item.id);if(el)el.scrollIntoView({behavior:'smooth'});};
   } else if(item.type==='photo'){
     const url=(item.photoUrls||[])[0];
-    if(url)imgEl.innerHTML=`<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    if(url)imgEl.innerHTML=`<img src="${optImg(url,600)}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`;
     titleEl.innerText=item.desc?item.desc.substring(0,60):'Post photo';
     subEl.innerText='Par @'+(item.auteur||'anonyme');
     labelEl.innerText='📸 À LA UNE';
@@ -8267,7 +8290,7 @@ function renderFeedByMode(){
 // ═══════════════════════════════════════
 async function refreshFeedSilent(){
   try{
-    const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(30).once('value');
+    const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value');
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
     const viewerCountry=currentUser?.country||null;
     let ranked=vids
@@ -8968,7 +8991,7 @@ function buildVCard(v,i){
   const avH=v.authorAvatar?`<img src="${optImg(v.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:init;
   const isFollowing=v.authorUid&&following[v.authorUid];
   const isOwn=currentUser&&v.authorUid===currentUser.uid;
-  const preload=(i===0&&!isDataSaverActive())?'metadata':'none';
+  const preload=(i===0&&!isDataSaverActive())?'auto':'none';
   const isTrending=viralScore(v)>=TREND_THRESHOLD;
   const vidSrcAttr=(i===0&&!isDataSaverActive())?`src="${optVid(v.videoUrl)}"`:`data-src="${optVid(v.videoUrl)}"`;
   return `<div class="vcard" id="vc-${v.id}" ondblclick="doubleTapLike('${v.id}',${i})">
@@ -12741,6 +12764,7 @@ _kikoMaybeSuggestDataSaver();
 loadHomeFeed();                                        // 1er paint : posts visibles immédiatement
 setTimeout(()=>loadHomeStories(), 200);               // stories après le 1er rendu
 setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
+setTimeout(()=>prefetchBuzzFeed(), 900);              // précharge le feed 🔥 Buzz (données + 1ère vidéo) AVANT le clic
 setTimeout(()=>loadHomeMarket(), 800);                // marketplace
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
 setTimeout(()=>kikoShowOnboarding(), 1200);           // tour de bienvenue — pour TOUT nouvel utilisateur, même sans compte
@@ -14197,7 +14221,7 @@ function jbStartFeed(){
   if(feedEl && !feedEl.querySelector('.jb-card')){
     feedEl.innerHTML='<div class="sk-jb-list">'+Array(5).fill('<div class="sk-jb-card"><div class="sk-jb-line w35 sk"></div><div class="sk-jb-line w90 sk"></div><div class="sk-jb-line w60 sk"></div></div>').join('')+'</div>';
   }
-  db.ref('jobPosts').orderByChild('createdAt').limitToLast(200).on('value', snap=>{
+  db.ref('jobPosts').orderByChild('createdAt').limitToLast(60).on('value', snap=>{
     const data=snap.val()||{};
     const uid=currentUser?.uid;
     jbAllPosts=Object.keys(data).map(key=>{
