@@ -322,6 +322,106 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   font-size: 12px; font-weight: 700; color: var(--gold); cursor: pointer;
 }
 
+/* ═══════════════════════════════════════════════
+   🌍 EXPLORER L'AFRIQUE — carte teaser sur l'accueil
+   (aperçu statique ; le vrai tracé de carte vit dans #carteScreen)
+   ═══════════════════════════════════════════════ */
+.afk-explore-card {
+  margin: 0 16px; border-radius: var(--r-lg); overflow: hidden;
+  position: relative; aspect-ratio: 16/10;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(255,122,48,0.55) 0%, transparent 45%),
+    radial-gradient(circle at 68% 62%, rgba(255,122,48,0.35) 0%, transparent 40%),
+    linear-gradient(160deg, #1B1D24 0%, #121317 70%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+}
+.afk-explore-card::before {
+  content: '🌍'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 68px; opacity: 0.16; filter: grayscale(1) brightness(1.4);
+}
+.afk-explore-badge {
+  position: absolute; top: 12px; left: 12px; right: 12px;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--glass-dark); backdrop-filter: var(--blur);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: 9px 10px;
+}
+.afk-explore-flag { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.afk-explore-country { font-family:'Syne',sans-serif; font-weight:800; font-size:13.5px; color:var(--text); }
+.afk-explore-city { font-size:11px; color:var(--text2); margin-top:1px; }
+.afk-explore-stats {
+  position: absolute; bottom: 12px; left: 12px; right: 44px;
+  font-size: 11.5px; color: var(--text2); line-height: 1.5;
+}
+.afk-explore-stats b { color: var(--text); font-weight:700; }
+.afk-explore-arrow {
+  position: absolute; bottom: 12px; right: 12px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--gold); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; box-shadow: var(--shadow-gold);
+}
+
+/* ─── CHIPS DE CATÉGORIES (accueil) ─── */
+.afk-chips {
+  display: flex; gap: 8px; padding: 14px 16px 4px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.afk-chips::-webkit-scrollbar { display: none; }
+.afk-chip {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 8px 14px 8px 10px;
+  font-size: 12.5px; font-weight: 600; color: var(--text);
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.afk-chip.active, .afk-chip:active { border-color: var(--border2); background: var(--gold3); color: var(--gold2); }
+.afk-chip-ico {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0;
+}
+
+/* ─── TENDANCES LOCALES — cards horizontales ─── */
+.afk-trend-row { display: flex; gap: 10px; padding: 0 16px 4px; overflow-x: auto; scrollbar-width: none; }
+.afk-trend-row::-webkit-scrollbar { display: none; }
+.afk-trend-card {
+  flex-shrink: 0; width: 128px; border-radius: var(--r-md); overflow: hidden;
+  position: relative; aspect-ratio: 3/4;
+  background: linear-gradient(160deg, var(--surface2), var(--surface)); cursor: pointer;
+  border: 1px solid var(--border);
+}
+.afk-trend-card img { width:100%; height:100%; object-fit:cover; display:block; }
+.afk-trend-grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.1) 55%, transparent 100%);
+}
+.afk-trend-body { position: absolute; left: 10px; right: 10px; bottom: 9px; }
+.afk-trend-title { font-family:'Syne',sans-serif; font-weight:700; font-size:12.5px; color:#fff; line-height:1.25; margin-bottom:3px; }
+.afk-trend-meta { font-size:10.5px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:3px; }
+
+/* ─── SÉLECTION KIKO — créateurs mis en avant ─── */
+.afk-pick-row { display: flex; gap: 10px; padding: 0 16px 4px; overflow-x: auto; scrollbar-width: none; }
+.afk-pick-row::-webkit-scrollbar { display: none; }
+.afk-pick-card {
+  flex-shrink: 0; width: 148px; border-radius: var(--r-md); overflow: hidden;
+  position: relative; aspect-ratio: 3/4; cursor: pointer;
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.afk-pick-card img { width:100%; height:100%; object-fit:cover; display:block; }
+.afk-pick-grad { position:absolute; inset:0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.05) 60%, transparent 100%); }
+.afk-pick-body { position:absolute; left:10px; right:10px; bottom:10px; }
+.afk-pick-name { display:flex; align-items:center; gap:4px; font-family:'Syne',sans-serif; font-weight:800; font-size:13.5px; color:#fff; }
+.afk-pick-tag { font-size:10.5px; color:rgba(255,255,255,0.68); margin-top:2px; }
+.afk-pick-play {
+  position:absolute; top:9px; right:9px; width:26px; height:26px; border-radius:50%;
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px;
+}
+
 /* ─── STORIES ROW (visible sur home) ─── */
 .home-stories {
   display: flex; gap: 12px; padding: 10px 16px 4px;
@@ -513,7 +613,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .pcard-slide img {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; display: block; z-index: 1;
+  display: block; z-index: 1;
   -webkit-user-drag: none; user-select: none; -webkit-user-select: none;
 }
 .pcard-gradient {
@@ -625,11 +725,66 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 .pcard-pillrow .pcard-pill.liked .pcard-pill-label { color: var(--red,#E0555A); }
 .pcard-pillrow .pcard-pill.on .pcard-pill-label { color: var(--gold); }
 
+/* Icônes flottantes sur la photo (bookmark + menu), façon carte pro */
+.pcard-media-icons {
+  position: absolute; top: 10px; right: 10px; z-index: 4;
+  display: flex; gap: 8px;
+}
+.pcard-media-ico {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(5,8,18,0.55); backdrop-filter: blur(4px);
+  color: #fff; font-size: 15px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.pcard-media-ico.on { color: var(--gold); }
+
+/* Rangée d'actions fine et pro — icône + chiffre, sans fond (façon carte "Zina Show") */
+.pcard-iconrow {
+  display: flex; align-items: center; gap: 18px;
+  padding: 10px 13px 2px;
+}
+.pcard-icobtn {
+  display: flex; align-items: center; gap: 5px; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+}
+.pcard-icobtn-ico { font-size: 17px; line-height: 1; }
+.pcard-icobtn.liked { color: var(--red,#E0555A); }
+.pcard-icobtn.on .pcard-icobtn-ico { filter: none; }
+.pcard-icobtn-dl { margin-left: auto; }
+
 /* Ligne "X j'aime" */
 .pcard-likecount {
   padding: 8px 13px 0; font-size: 13px; font-weight: 700; color: var(--text);
   font-family: 'Syne', sans-serif;
 }
+/* Rangée de stats numériques (❤️ 💬 ↗️) façon carte "Zina Show" */
+.pcard-statsrow {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 13px 0; font-size: 12px; font-weight: 600; color: var(--muted);
+}
+/* Corps de la légende (description) sous le titre en gras */
+.pcard-caption-body {
+  padding: 2px 13px 0; font-size: 13px; color: var(--text2); line-height: 1.5;
+  word-break: break-word;
+}
+/* Hashtags en bleu, façon "Zina Show" */
+.pcard-hashtags-blue {
+  padding: 2px 13px 4px; font-size: 13px; color: #5B8DEF; font-weight: 600; line-height: 1.5;
+  word-break: break-word;
+}
+/* Ligne "Ajouter à une collection" */
+.pcard-collection-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 8px 13px; padding: 10px 13px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-lg);
+  font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer;
+}
+.pcard-collection-row.on { color: var(--gold); border-color: var(--gold); }
+.pcard-collection-plus {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--surface3);
+  display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+}
+.pcard-collection-row.on .pcard-collection-plus { background: var(--gold); color: #1a0a00; }
 /* Légende façon Instagram — auteur en gras + texte, même ligne */
 .pcard-caption-line {
   padding: 4px 13px 10px; font-size: 13px; color: var(--text); line-height: 1.5;
@@ -1710,6 +1865,44 @@ textarea.inp { resize: none; }
 .pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; }
 .pgitem { aspect-ratio: 9/16; background: var(--surface2); position: relative; overflow: hidden; cursor: pointer; }
 .pgitem video { width: 100%; height: 100%; object-fit: cover; }
+
+/* ═══ Bandeau motif derrière l'avatar profil (identité Sahel) ═══ */
+.phero-pattern {
+  position: absolute; top: 0; left: 0; right: 0; height: 150px; z-index: -1;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,122,48,0.16) 0%, transparent 45%),
+    radial-gradient(circle at 80% 10%, rgba(255,122,48,0.10) 0%, transparent 40%),
+    var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.phero { position: relative; }
+.pverif-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--gold3); border: 1px solid var(--border2); color: var(--gold2);
+  font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 999px;
+  margin: 6px 0 4px;
+}
+.ploc { font-size: 12px; color: var(--text2); margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.pactions { display: flex; gap: 8px; margin-bottom: 18px; padding: 0 4px; }
+.pact-btn {
+  flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--r-md); padding: 11px 6px; font-size: 12px; font-weight: 600;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
+}
+.pact-btn span:first-child { font-size: 16px; }
+.ptabs {
+  display: flex; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  margin-bottom: 2px; position: sticky; top: 0; background: var(--bg); z-index: 20;
+}
+.ptab {
+  flex: 1; text-align: center; padding: 12px 4px; font-size: 12.5px; font-weight: 600;
+  color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.ptab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.pgitem-price {
+  position: absolute; bottom: 6px; left: 6px; font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 11px; color: var(--gold2); text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
 .pgoverlay {
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(7,26,61,0.7), transparent);
@@ -2462,6 +2655,25 @@ textarea.inp { resize: none; }
   pointer-events: none; z-index: 1;
 }
 .pcard-dots { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 10; }
+.pcard-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.4); box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  transition: all 0.25s var(--ease, ease); flex-shrink: 0;
+}
+.pcard-dot.on { width: 16px; background: #fff; }
+.pcard-heart-burst {
+  position: absolute; top: 50%; left: 50%; z-index: 12;
+  transform: translate(-50%,-50%) scale(0); opacity: 0;
+  font-size: 76px; pointer-events: none;
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.4));
+}
+.pcard-heart-burst.show { animation: pcardHeartBurst 0.7s ease-out; }
+@keyframes pcardHeartBurst {
+  0% { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+  25% { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  40% { transform: translate(-50%,-50%) scale(0.95); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+}
 
 /* ─── SKELETON PHOTO ─── */
 .skel-pcard { position: absolute; inset: 0; z-index: 5; background: #050A14; display: flex; align-items: flex-end; padding-bottom: 100px; }
@@ -2984,6 +3196,77 @@ textarea.inp { resize: none; }
   font-size: 13px; color: var(--text2); line-height: 1.5;
   word-break: break-word;
 }
+
+/* Hashtags sous la légende (façon carte "Zina Show") */
+.pfcard-hashtags {
+  padding: 0 13px 6px;
+  font-size: 13px; color: var(--gold); font-weight: 600; line-height: 1.5;
+  word-break: break-word;
+}
+
+/* Mini barre "Écris un commentaire" en bas de carte — ouvre les commentaires au tap */
+.pfcard-comment-row {
+  display: flex; align-items: center; gap: 9px;
+  padding: 4px 13px 13px; cursor: pointer;
+}
+.pfcard-comment-row .sfcmt-inp-av { width: 28px; height: 28px; font-size: 11px; }
+.pfcard-comment-row .sfcmt-inp {
+  flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--r-lg); padding: 8px 13px; color: var(--muted);
+  font-size: 13px; pointer-events: none;
+}
+.pfcard-comment-row .sfcmt-send { width: 32px; height: 32px; font-size: 12px; }
+
+/* ─── PHOTO FULLSCREEN VIEWER (style TikTok) ─── */
+#pfsViewer {
+  position: fixed; inset: 0; z-index: 950; background: #000;
+  display: none; flex-direction: column;
+}
+#pfsViewer.active { display: flex; }
+.pfs-scroll {
+  flex: 1; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none;
+}
+.pfs-scroll::-webkit-scrollbar { display: none; }
+.pfs-close {
+  position: absolute; top: max(14px, env(safe-area-inset-top, 14px)); left: 14px; z-index: 20;
+  width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.pfs-slide {
+  position: relative; width: 100%; height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always;
+  display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;
+}
+.pfs-slide-bg {
+  position: absolute; inset: 0; background-size: cover; background-position: center;
+  filter: blur(26px) brightness(0.5); z-index: 0;
+}
+.pfs-slide img {
+  position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain;
+  -webkit-user-drag: none; user-select: none; -webkit-user-select: none;
+}
+.pfs-gradient {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 52%; z-index: 2; pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 55%, transparent 100%);
+}
+.pfs-body {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 4;
+  padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+}
+.pfs-body .pcard-header,
+.pfs-body .pcard-caption-line,
+.pfs-body .pcard-caption-body,
+.pfs-body .pcard-hashtags-blue,
+.pfs-body .pcard-pillrow,
+.pfs-body .pcard-collection-row,
+.pfs-body .pfcard-comment-row { background: transparent; }
+.pfs-body .pcard-header-name,
+.pfs-body .pcard-caption-line b { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+.pfs-body .pcard-header-time,
+.pfs-body .pcard-caption-body { color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.pfs-body .pcard-pill-label { color: rgba(255,255,255,0.85); }
+.pfs-body .pcard-collection-row { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+.pfs-body .pfcard-comment-row .sfcmt-inp { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
 
 /* ACTIONS */
 .pfcard-actions {
@@ -3673,49 +3956,91 @@ document.addEventListener('load', function(e){
     </div>
   </div>
 
-  <!-- HERO BANNER (dynamique) -->
-  <div class="home-hero" id="homeHero" style="display:none;">
-    <div class="home-hero-img" id="homeHeroImg" style="width:100%;height:100%;background:linear-gradient(135deg,var(--navy),var(--navy2));display:flex;align-items:center;justify-content:center;font-size:60px;">🌍</div>
-    <div class="home-hero-grad"></div>
-    <div class="home-hero-label" id="homeHeroLabel">À LA UNE</div>
-    <div class="home-hero-body">
-      <div class="home-hero-title" id="homeHeroTitle">L'Afrique innove pour son avenir</div>
-      <div class="home-hero-sub" id="homeHeroSub">Découvrez les créateurs qui transforment le Sahel</div>
-      <button class="home-hero-btn" id="homeHeroBtn" onclick="">▶ Découvrir</button>
+  <!-- 🌍 EXPLORER L'AFRIQUE — carte teaser -->
+  <div class="section-header" style="padding-top:14px;">
+    <div class="section-title">Explorer l'Afrique</div>
+    <div class="section-more" onclick="showScreen('carte')">Voir la carte ›</div>
+  </div>
+  <div class="afk-explore-card" id="homeExploreCard" onclick="showScreen('carte')">
+    <div class="afk-explore-badge">
+      <div class="afk-explore-flag" id="homeExploreFlag">🇧🇫</div>
+      <div>
+        <div class="afk-explore-country" id="homeExploreCountry">Burkina Faso</div>
+        <div class="afk-explore-city" id="homeExploreCity">Ouagadougou</div>
+      </div>
     </div>
+    <div class="afk-explore-stats" id="homeExploreStats"><b>312</b> créateurs · <b>1.2K</b> contenus</div>
+    <div class="afk-explore-arrow">→</div>
   </div>
 
-  <!-- Barre de publication -->
-  <div class="home-create-bar" onclick="needAuth(openModal)" style="cursor:pointer;">
-    <div class="home-create-av" id="homeCreateAv">?</div>
-    <div class="home-create-inp">Partage quelque chose... 🌍</div>
+  <!-- CHIPS DE CATÉGORIES -->
+  <div class="afk-chips" id="homeCategoryChips">
+    <div class="afk-chip" data-cat="musique" onclick="kikoFilterCategory(this,'musique')"><span class="afk-chip-ico">🎵</span>Musique</div>
+    <div class="afk-chip" data-cat="humour" onclick="kikoFilterCategory(this,'humour')"><span class="afk-chip-ico">😂</span>Humour</div>
+    <div class="afk-chip" data-cat="business" onclick="kikoFilterCategory(this,'business')"><span class="afk-chip-ico">💼</span>Business</div>
+    <div class="afk-chip" data-cat="sport" onclick="kikoFilterCategory(this,'sport')"><span class="afk-chip-ico">⚽</span>Sport</div>
+    <div class="afk-chip" data-cat="opportunites" onclick="showScreen('job')"><span class="afk-chip-ico">🎯</span>Opportunités</div>
   </div>
 
-  <!-- 🔥 BUZZ preview (léger — miniatures seulement, vidéos jamais chargées ici) -->
-  <div class="buzz-head">
-    <div class="buzz-head-title">🔥 Buzz</div>
-    <div class="buzz-head-link" onclick="showScreen('buzz')">Voir tout ›</div>
+  <!-- TENDANCES LOCALES (miniatures Buzz — vidéos chargées uniquement dans l'écran Buzz) -->
+  <div class="section-header">
+    <div class="section-title">Tendances locales</div>
+    <div class="section-more" onclick="showScreen('buzz')">Voir tout ›</div>
   </div>
-  <div class="buzz-preview-row" id="buzzPreviewRow">
+  <div class="afk-trend-row" id="buzzPreviewRow">
     <div class="buzz-ph" style="width:100%;"><div class="spinner"></div></div>
   </div>
 
-  <!-- 📸✍️ FIL PHOTOS & TEXTES — accueil (les vidéos, elles, vivent uniquement dans 🔥 Buzz) -->
-  <div class="buzz-head" style="margin-top:14px;padding-top:16px;border-top:1px solid var(--border);">
-    <div class="buzz-head-title">📸 Fil AES</div>
+  <!-- SÉLECTION KIKO — créateurs mis en avant -->
+  <div class="section-header">
+    <div class="section-title">Sélection KIKO</div>
+    <div class="section-more" onclick="showScreen('search')">Voir tout ›</div>
+  </div>
+  <div class="afk-pick-row" id="homePickRow">
+    <div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:120px;"><div class="spinner"></div></div>
+  </div>
+
+  <!-- 📸✍️ FIL PHOTOS & TEXTES -->
+  <div class="section-header" style="border-top:1px solid var(--border);padding-top:18px;margin-top:6px;">
+    <div class="section-title">Fil KIKO</div>
   </div>
   <div id="homeFeed"><div class="feedph" style="height:40vh;"><div class="spinner"></div><span>Chargement...</span></div></div>
 
-  <!-- 🛍️ MARCHÉ preview (accueil) — volontairement tout en bas, sous le Fil AES -->
-  <div class="buzz-head" style="margin-top:10px;">
-    <div class="buzz-head-title">🛍️ Marché</div>
-    <div class="buzz-head-link" onclick="showScreen('market')">Voir tout ›</div>
+  <!-- 🛍️ MARCHÉ preview -->
+  <div class="section-header">
+    <div class="section-title">Marché</div>
+    <div class="section-more" onclick="showScreen('market')">Voir tout ›</div>
   </div>
-  <div id="homeMarketRow" class="home-market-row" style="display:flex;overflow-x:auto;padding:0 14px 20px;scrollbar-width:none;">
+  <div id="homeMarketRow" class="home-market-row" style="display:flex;overflow-x:auto;padding:0 14px 24px;scrollbar-width:none;">
     <div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:70px;"><div class="spinner"></div></div>
   </div>
   <style>#homeMarketRow::-webkit-scrollbar{display:none;} .home-market-row{gap:10px;} .home-market-row>*{margin-right:10px !important; flex-shrink:0;} .home-market-row>*:last-child{margin-right:0 !important;}</style>
 
+</div>
+
+<!-- ═══ CARTE D'AFRIQUE ═══ -->
+<div id="carteScreen" class="screen">
+  <div class="buzz-screen-head">
+    <div class="buzz-back" onclick="showScreen('home')">←</div>
+    <div class="buzz-screen-title">Carte d'Afrique</div>
+    <div style="margin-left:auto;font-size:18px;cursor:pointer;" onclick="showScreen('search')">🔍</div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:24px;">
+    <div class="afk-explore-card" style="margin:14px 16px;aspect-ratio:4/5;">
+      <div class="afk-explore-arrow" style="display:none;"></div>
+    </div>
+    <div style="padding:4px 20px 14px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:var(--text);margin-bottom:6px;">Choisis ton pays</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5;">Découvre les créateurs, les tendances et les événements près de chez toi.</div>
+    </div>
+    <div id="carteCountryRow" style="display:flex;gap:8px;padding:0 16px 20px;overflow-x:auto;scrollbar-width:none;">
+      <div class="afk-chip active" onclick="kikoFilterCountry(this,'BF')">🇧🇫 Burkina Faso</div>
+      <div class="afk-chip" onclick="kikoFilterCountry(this,'ML')">🇲🇱 Mali</div>
+      <div class="afk-chip" onclick="kikoFilterCountry(this,'CI')">🇨🇮 Côte d'Ivoire</div>
+      <div class="afk-chip" onclick="kikoFilterCountry(this,'SN')">🇸🇳 Sénégal</div>
+      <div class="afk-chip" onclick="kikoFilterCountry(this,'BJ')">🇧🇯 Bénin</div>
+    </div>
+  </div>
 </div>
 
 <div id="buzzScreen" class="screen">
@@ -3900,6 +4225,7 @@ document.addEventListener('load', function(e){
     </div>
   </div>
   <div class="phero">
+    <div class="phero-pattern"></div>
     <div class="pav-wrap" onclick="needAuth(()=>kikoOpenFilePicker('avatarInput'))">
       <div class="pav" id="profileAvEl">?</div>
       <div class="pav-edit">✏️</div>
@@ -3908,28 +4234,27 @@ document.addEventListener('load', function(e){
     <div class="pname" id="profileNameEl">Invité</div>
     <div class="phandle" id="profileHandleEl">@inconnu</div>
     <div class="pbio" id="profileBioEl">Crée un compte pour profiter de toutes les fonctionnalités 🌍</div>
-    <button class="pedit-btn" id="editProfileBtn" style="display:none" onclick="openEditProfile()">✏️ Modifier le profil</button>
+    <div class="pverif-pill" id="profileVerifiedPill" style="display:none;">✓ Créateur vérifié</div>
+    <div class="ploc" id="profileLocEl" style="display:none;">📍 <span id="profileLocText"></span></div>
     <div class="pstats">
       <div class="pstat" onclick="openFollowModal('videos')"><div class="pstat-n" id="pVids">0</div><div class="pstat-l">Vidéos</div></div>
       <div class="pstat" onclick="openFollowModal('followers')"><div class="pstat-n" id="pFollowers">0</div><div class="pstat-l">Abonnés</div></div>
       <div class="pstat" onclick="openFollowModal('following')"><div class="pstat-n" id="pFollowingCount">0</div><div class="pstat-l">Abonnements</div></div>
     </div>
-    <div style="border:1px dashed rgba(201,168,76,0.2);border-radius: var(--r-sm);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:rgba(201,168,76,0.02);margin-bottom:14px;position:relative;" onclick="needAuth(()=>kikoOpenFilePicker('statusInput'))">
-      <input type="file" id="statusInput" accept="image/*,video/*" style="display:none;position:absolute;" onchange="openStoryTextModal(this)">
-      <div style="width:46px;height:46px;border-radius:11px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📸</div>
-      <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;">Ajouter un statut</div><div style="font-size:12px;color:var(--muted);">Photo ou vidéo · visible 24h</div></div>
-    </div>
-    <button class="btn-ghost" id="logoutBtn" style="display:none;max-width:180px;margin:0 auto;" onclick="doLogout()">🚪 Déconnexion</button>
-    <div style="margin-top:16px;">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center;" id="langLabel">🌍 Langue</div>
-      <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;">
-        <button class="lang-btn active" onclick="setLang('fr')" data-lang="fr">🇫🇷 Français</button>
-        <button class="lang-btn" onclick="setLang('bm')" data-lang="bm">🌍 Bambara</button>
-        <button class="lang-btn" onclick="setLang('mos')" data-lang="mos">🌍 Mooré</button>
-        <button class="lang-btn" onclick="setLang('dyu')" data-lang="dyu">🌍 Dioula</button>
-        <button class="lang-btn" onclick="setLang('ha')" data-lang="ha">🌍 Haoussa</button>
+    <div class="pactions">
+      <div class="pact-btn" onclick="needAuth(()=>kikoOpenFilePicker('statusInput'))">
+        <input type="file" id="statusInput" accept="image/*,video/*" style="display:none;" onchange="openStoryTextModal(this)">
+        <span>📸</span><span>Statut</span>
       </div>
+      <div class="pact-btn" onclick="needAuth(openMyBoutique)"><span>🛍️</span><span>Boutique</span></div>
+      <button class="pact-btn" id="editProfileBtn" style="display:none;border:none;" onclick="openEditProfile()"><span>✏️</span><span>Modifier</span></button>
     </div>
+    <button class="btn-ghost" id="logoutBtn" style="display:none;max-width:180px;margin:0 auto 6px;" onclick="doLogout()">🚪 Déconnexion</button>
+  </div>
+  <div class="ptabs" id="profileTabs">
+    <div class="ptab active" data-ptab="pub" onclick="switchProfileTab('pub',this)">Publications</div>
+    <div class="ptab" data-ptab="statuts" onclick="switchProfileTab('statuts',this)">Statuts</div>
+    <div class="ptab" data-ptab="boutique" onclick="switchProfileTab('boutique',this)">Boutique</div>
   </div>
   <div class="pgrid" id="profileGrid"></div>
   <div class="jb-fab" onclick="kikoToggleRadial(this)">+</div>
@@ -4624,10 +4949,15 @@ document.addEventListener('load', function(e){
     <span>Accueil</span>
   </div>
 
-  <!-- 🔥 Buzz — accès direct à la page vidéos plein écran -->
-  <div class="nbtn" id="nb-buzz" onclick="showScreen('buzz')">
-    <div class="ni" style="font-size:20px;">🔥</div>
-    <span>Buzz</span>
+  <!-- 🗺️ Carte — explorer l'Afrique par pays (Buzz reste accessible via l'accueil → Tendances locales) -->
+  <div class="nbtn" id="nb-carte" onclick="showScreen('carte')">
+    <div class="ni">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 3L3 5.5V21L9 18.5L15 21L21 18.5V3L15 5.5L9 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+        <path d="M9 3V18.5M15 5.5V21" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span>Carte</span>
   </div>
 
   <!-- Marché — neon vert/rose comme image -->
@@ -5246,6 +5576,12 @@ document.addEventListener('load', function(e){
   </div>
 </div>
 
+<!-- PHOTO FULLSCREEN VIEWER — style TikTok, swipe vertical entre les photos -->
+<div id="pfsViewer">
+  <div class="pfs-close" onclick="closePhotoFullscreen()">←</div>
+  <div class="pfs-scroll" id="pfsScroll" onscroll="onPfsScroll()"></div>
+</div>
+
 <!-- IG POST VIEWER — écran de visualisation de post plein écran, style story premium -->
 <div id="igPostViewer">
   <div class="igpv-progress" id="igpvProgress"></div>
@@ -5751,6 +6087,16 @@ const PHONE_PREFIXES = {
   lr:'+231', sl:'+232', cv:'+238', gw:'+245'
 };
 
+// Nom + drapeau par code pays ISO2 — utilisé sur le profil (localisation) et l'accueil (Explorer l'Afrique)
+const COUNTRY_INFO = {
+  bf:{name:'Burkina Faso',flag:'🇧🇫'}, ml:{name:'Mali',flag:'🇲🇱'}, ne:{name:'Niger',flag:'🇳🇪'},
+  sn:{name:'Sénégal',flag:'🇸🇳'}, ci:{name:"Côte d'Ivoire",flag:'🇨🇮'}, tg:{name:'Togo',flag:'🇹🇬'},
+  bj:{name:'Bénin',flag:'🇧🇯'}, gn:{name:'Guinée',flag:'🇬🇳'}, gh:{name:'Ghana',flag:'🇬🇭'},
+  ng:{name:'Nigeria',flag:'🇳🇬'}, mr:{name:'Mauritanie',flag:'🇲🇷'}, td:{name:'Tchad',flag:'🇹🇩'},
+  gm:{name:'Gambie',flag:'🇬🇲'}, lr:{name:'Liberia',flag:'🇱🇷'}, sl:{name:'Sierra Leone',flag:'🇸🇱'},
+  cv:{name:'Cap-Vert',flag:'🇨🇻'}, gw:{name:'Guinée-Bissau',flag:'🇬🇼'}
+};
+
 async function kikoGetUserCity(){
   if(_userGeoCity) return _userGeoCity;
   if(!navigator.geolocation) return null;
@@ -5812,6 +6158,8 @@ async function kikoBackfillUserCountry(){
   currentUser.city=_userGeoCity||currentUser.city||'';
   localStorage.setItem('aes_user',JSON.stringify(currentUser));
   try{ await db.ref('users/'+currentUser.uid).update({country:_userGeoCountry, city:currentUser.city}); }catch(e){}
+  if(typeof initExploreCard==='function') initExploreCard();
+  if(typeof applyUserUI==='function') applyUserUI();
 }
 
 // Injecte le filtre "Près de moi" dans la barre de recherche produits
@@ -6026,6 +6374,7 @@ function _getModalChecks(){
     { id:'dmConvScreen',       fn:()=>{ if(typeof closeDMConv==='function') closeDMConv(); else _close('dmConvScreen'); } },
     { id:'storyViewer',        fn:()=>_close('storyViewer') },
     { id:'igPostViewer',       fn:()=>closeInstaPost() },
+    { id:'pfsViewer',          fn:()=>closePhotoFullscreen() },
     { id:'musicAdminOverlay',  fn:()=>{ if(typeof closeMusicAdmin==='function') closeMusicAdmin(); else _close('musicAdminOverlay'); } },
     { id:'newsAdminOverlay',   fn:()=>{ if(typeof closeNewsAdmin==='function') closeNewsAdmin(); else _close('newsAdminOverlay'); } },
     // panels glissants
@@ -7188,7 +7537,7 @@ function buildPhotoCard(p,i){
   const ago=timeAgo(p.createdAt);
   const photos=p.photoUrls||[];
   const hasManyPhotos=photos.length>1;
-  const slides=photos.map(url=>`<div class="pcard-slide"><div class="pcard-slide-bg" style="background-image:url('${optImg(url,60)}')"></div><div class="pcard-slide-overlay"></div><img src="${optImg(url,900)}" alt="" loading="lazy" decoding="async" draggable="false" ondragstart="return false"></div>`).join('');
+  const slides=photos.map(url=>`<div class="pcard-slide"><div class="pcard-slide-bg" style="background-image:url('${optImg(url,60)}')"></div><div class="pcard-slide-overlay"></div><img src="${optImg(url,1080)}" alt="" loading="lazy" decoding="async" draggable="false" ondragstart="return false"></div>`).join('');
   const dots=hasManyPhotos?`<div class="pcard-dots">${photos.map((_,idx)=>`<div class="pcard-dot${idx===0?' on':''}" id="dot-${p.id}-${idx}"></div>`).join('')}</div>`:'';
   const canReuseP=p.musicUrl&&p.musicAllowReuse!==false&&!p.musicFromGallery;
   const discContentP=p.musicCover?`<img src="${p.musicCover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.musicEmoji||'🎵');
@@ -7207,7 +7556,30 @@ function buildPhotoCard(p,i){
   const isSaved=savedPosts.includes(p.id);
   const isInteresting=interestingPosts.includes(p.id);
   const rawDesc=p.desc||'';
+  const commentCountPc=p.commentCount||0;
+  const shareCountPc=p.shares||0;
+  const tagsPc=(rawDesc.match(/#\w+/g)||[]);
+  const descNoTagsPc=rawDesc.replace(/#\w+/g,'').trim();
+  // Sépare un "titre" en gras (1ère phrase/ligne) du reste de la description, façon carte éditoriale
+  const splitMatch=descNoTagsPc.match(/^(.{1,80}?[.!?\n])\s*([\s\S]*)$/);
+  const titlePc=splitMatch?splitMatch[1].trim():descNoTagsPc;
+  const bodyPc=splitMatch?splitMatch[2].trim():'';
+  const myAvHPc=currentUser&&currentUser.photoURL?`<img src="${optImg(currentUser.photoURL,60)}" alt="">`:'💬';
   return `<div class="pcard pcard-clean" id="pc-${p.id}">
+    <div class="pcard-media" onclick="openPhotoFullscreen('${p.id}',event)" ondblclick="pcardDoubleTapLike('${p.id}',event)">
+      <div class="pcard-carousel${hasManyPhotos?'':' single'}" id="car-${p.id}" onscroll="onCarouselScroll(this,'${p.id}',${photos.length})">
+        ${slides}
+      </div>
+      ${dots}
+      <div class="pcard-heart-burst" id="pcheart-${p.id}">❤️</div>
+      ${p.musicUrl?`<div class="pcard-play-overlay" id="pcard-play-overlay-${p.id}" onclick="event.stopPropagation();togglePhotoCardMusic('${p.id}',event)">▶️</div>`:''}
+      <div class="pcard-media-icons">
+        <div class="pcard-media-ico${isSaved?' on':''}" id="pctopsave-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">${isSaved?'📌':'🔖'}</div>
+        <div class="pcard-media-ico" onclick="event.stopPropagation();downloadPostPhoto('${p.id}')">⬇️</div>
+        <div class="pcard-media-ico" onclick="event.stopPropagation();sfPostMenu('${p.id}')">⋯</div>
+      </div>
+    </div>
+    ${musicHtml}
     <div class="pcard-header" onclick="event.stopPropagation();openInstaPost('${p.id}')">
       <div class="pcard-avwrap">
         <div class="pcard-av">${avH}</div>
@@ -7218,22 +7590,18 @@ function buildPhotoCard(p,i){
         <div class="pcard-header-time">${ago}</div>
       </div>
     </div>
-    <div class="pcard-media" onclick="togglePhotoCardMusic('${p.id}',event)">
-      <div class="pcard-carousel${hasManyPhotos?'':' single'}" id="car-${p.id}" onscroll="onCarouselScroll(this,'${p.id}',${photos.length})">
-        ${slides}
-      </div>
-      ${dots}
-      ${p.musicUrl?`<div class="pcard-play-overlay" id="pcard-play-overlay-${p.id}">▶️</div>`:''}
-    </div>
-    ${musicHtml}
+    ${titlePc?`<div class="pcard-caption-line"><b>${esc(titlePc)}</b></div>`:''}
+    ${bodyPc?`<div class="pcard-caption-body">${esc(bodyPc)}</div>`:''}
+    ${tagsPc.length?`<div class="pcard-hashtags-blue">${tagsPc.map(t=>esc(t)).join(' ')}</div>`:''}
+    ${rawDesc?`<div style="padding:0 13px 10px;">${`<button class="kiko-trad-btn" id="ktb-${p.id}" data-text="${esc(rawDesc)}" onclick="event.stopPropagation();kikoShowTranslation('${p.id}',this.dataset.text,this)">🌐 Traduire</button>`}</div>`:''}
     <div class="pcard-pillrow">
       <div class="pcard-action pcard-pill${isLiked?' liked':''}" id="plk-${p.id}" onclick="event.stopPropagation();needAuth(()=>togglePostLike('${p.id}','photo'))">
         <div class="pcard-action-icon pcard-pill-ico">${isLiked?'❤️':'🤍'}</div>
-        <span class="pcard-pill-label">Favoris</span>
+        <span class="pcard-pill-label">Favoris${(p.likes||0)>0?' · '+fmt(p.likes||0):''}</span>
       </div>
       <div class="pcard-action pcard-pill" onclick="event.stopPropagation();openPostComments('${p.id}')">
         <div class="pcard-action-icon pcard-pill-ico">💬</div>
-        <span class="pcard-pill-label">Commentaires</span>
+        <span class="pcard-pill-label">Commentaires${commentCountPc>0?' · '+fmt(commentCountPc):''}</span>
       </div>
       <div class="pcard-action pcard-pill${isInteresting?' on':''}" id="pint-${p.id}" onclick="event.stopPropagation();togglePostInteresting('${p.id}')">
         <div class="pcard-action-icon pcard-pill-ico">${isInteresting?'🌟':'⭐'}</div>
@@ -7245,15 +7613,164 @@ function buildPhotoCard(p,i){
       </div>
       <div class="pcard-action pcard-pill" onclick="event.stopPropagation();sharePost('${p.id}','${esc(p.auteur||'')}')">
         <div class="pcard-action-icon pcard-pill-ico">↗️</div>
-        <span class="pcard-pill-label">Partager</span>
+        <span class="pcard-pill-label">Partager${shareCountPc>0?' · '+fmt(shareCountPc):''}</span>
       </div>
     </div>
-    ${(p.likes||0)>0?`<div class="pcard-likecount" id="pclikecount-${p.id}">${fmt(p.likes||0)} j'aime</div>`:''}
-    ${rawDesc?`<div class="pcard-caption-line"><b>@${esc(p.auteur||'anonyme')}</b>${esc(rawDesc)}</div>`:''}
-    ${rawDesc?`<div style="padding:0 13px 10px;">${`<button class="kiko-trad-btn" id="ktb-${p.id}" data-text="${esc(rawDesc)}" onclick="event.stopPropagation();kikoShowTranslation('${p.id}',this.dataset.text,this)">🌐 Traduire</button>`}</div>`:''}
+    <div class="pcard-collection-row${isSaved?' on':''}" id="pccollect-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
+      <span>Ajouter à une collection</span>
+      <span class="pcard-collection-plus">${isSaved?'✓':'+'}</span>
+    </div>
+    <div class="pfcard-comment-row" onclick="event.stopPropagation();openPostComments('${p.id}')">
+      <div class="sfcmt-inp-av">${myAvHPc}</div>
+      <div class="sfcmt-inp">Écris un commentaire...</div>
+      <button class="sfcmt-send">➤</button>
+    </div>
   </div>`;
 }
 
+// Double-tap sur une photo = j'aime, avec animation de cœur (parité avec le feed vidéo)
+function pcardDoubleTapLike(postId,event){
+  if(event)event.stopPropagation();
+  if(event&&event.target.closest('.pcard-media-icons,.pcard-play-overlay'))return;
+  if(!currentUser){needAuth(()=>pcardDoubleTapLike(postId));return;}
+  if(!liked.includes(postId))togglePostLike(postId,'photo');
+  const heart=document.getElementById('pcheart-'+postId);
+  if(heart){heart.classList.remove('show');void heart.offsetWidth;heart.classList.add('show');setTimeout(()=>heart.classList.remove('show'),700);}
+}
+// ═══════════════════════════════════════
+//  PHOTO FULLSCREEN VIEWER (style TikTok — swipe vertical entre les photos)
+// ═══════════════════════════════════════
+let pfsPosts=[];
+let _pfsCurId=null;
+function openPhotoFullscreen(postId,event){
+  if(event&&event.target.closest('.pcard-action,.pcard-media-icons,.pcard-play-overlay,.pcard-music-row'))return;
+  pfsPosts=(allPosts||[]).filter(x=>x.type==='photo'&&x.photoUrls&&x.photoUrls[0]);
+  if(!pfsPosts.length){pfsPosts=[allPosts.find(x=>x.id===postId)].filter(Boolean);}
+  const scroll=document.getElementById('pfsScroll');
+  if(!scroll)return;
+  scroll.innerHTML=pfsPosts.map(p=>buildPfsSlide(p)).join('');
+  document.getElementById('pfsViewer').classList.add('active');
+  const target=document.getElementById('pfs-'+postId);
+  if(target)target.scrollIntoView({block:'start'});
+  _pfsPlayMusicFor(postId);
+}
+function closePhotoFullscreen(){
+  document.getElementById('pfsViewer').classList.remove('active');
+  const scroll=document.getElementById('pfsScroll');
+  if(scroll){
+    scroll.querySelectorAll('audio').forEach(a=>{try{a.pause();}catch(e){}});
+    scroll.innerHTML='';
+  }
+  _pfsCurId=null;
+}
+function onPfsScroll(){
+  clearTimeout(window._pfsScrollT);
+  window._pfsScrollT=setTimeout(()=>{
+    const scroll=document.getElementById('pfsScroll');
+    if(!scroll)return;
+    const slides=scroll.querySelectorAll('.pfs-slide');
+    let best=null,bestDist=Infinity;
+    slides.forEach(s=>{
+      const d=Math.abs(s.getBoundingClientRect().top);
+      if(d<bestDist){bestDist=d;best=s;}
+    });
+    if(best){
+      const pid=best.dataset.pid;
+      if(pid&&pid!==_pfsCurId)_pfsPlayMusicFor(pid);
+    }
+  },120);
+}
+function _pfsPlayMusicFor(postId){
+  const scroll=document.getElementById('pfsScroll');
+  if(scroll)scroll.querySelectorAll('audio').forEach(a=>{try{a.pause();}catch(e){}});
+  _pfsCurId=postId;
+  const audio=document.getElementById('pfsmusic-'+postId);
+  if(audio){audio.currentTime=0;audio.play().catch(()=>{});}
+}
+// Construit une "slide" plein écran pour un post photo — même contenu/actions
+// que la carte du fil, mais superposé sur la photo en plein écran (façon TikTok)
+function buildPfsSlide(p){
+  const init=(p.auteur||'A')[0].toUpperCase();
+  const avH=p.authorAvatar?`<img src="${optImg(p.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:init;
+  const isLiked=liked.includes(p.id);
+  const ago=timeAgo(p.createdAt);
+  const mainPhoto=(p.photoUrls&&p.photoUrls[0])||'';
+  const verified=verifiedBadge(p.verified);
+  const isOwn=currentUser&&p.authorUid===currentUser.uid;
+  const isFollowingAuthor=currentUser&&p.authorUid&&following[p.authorUid];
+  const followBadge=(!isOwn&&p.authorUid)
+    ?`<div class="pcard-plus${isFollowingAuthor?' active':''}" onclick="event.stopPropagation();needAuth(()=>toggleFollowBadgePc('${p.id}','${p.authorUid}','${esc(p.auteur||'')}'))">${isFollowingAuthor?'✓':'+'}</div>`
+    :'';
+  const isSaved=savedPosts.includes(p.id);
+  const isInteresting=interestingPosts.includes(p.id);
+  const rawDesc=p.desc||'';
+  const commentCountPc=p.commentCount||0;
+  const shareCountPc=p.shares||0;
+  const tagsPc=(rawDesc.match(/#\w+/g)||[]);
+  const descNoTagsPc=rawDesc.replace(/#\w+/g,'').trim();
+  const splitMatch=descNoTagsPc.match(/^(.{1,80}?[.!?\n])\s*([\s\S]*)$/);
+  const titlePc=splitMatch?splitMatch[1].trim():descNoTagsPc;
+  const bodyPc=splitMatch?splitMatch[2].trim():'';
+  const myAvHPc=currentUser&&currentUser.photoURL?`<img src="${optImg(currentUser.photoURL,60)}" alt="">`:'💬';
+  const musicHtml=p.musicUrl?`<audio id="pfsmusic-${p.id}" src="${p.musicUrl}" loop preload="none"></audio>`:'';
+  return `<div class="pfs-slide" id="pfs-${p.id}" data-pid="${p.id}" ondblclick="pcardDoubleTapLike('${p.id}',event);pfsBurst('${p.id}')">
+    <div class="pfs-slide-bg" style="background-image:url('${optImg(mainPhoto,60)}')"></div>
+    <img src="${optImg(mainPhoto,1080)}" alt="" draggable="false" ondragstart="return false">
+    ${musicHtml}
+    <div class="pcard-heart-burst" id="pfsheart-${p.id}">❤️</div>
+    <div class="pfs-gradient"></div>
+    <div class="pfs-body">
+      <div class="pcard-header" onclick="event.stopPropagation();closePhotoFullscreen();openInstaPost('${p.id}')">
+        <div class="pcard-avwrap">
+          <div class="pcard-av">${avH}</div>
+          ${followBadge}
+        </div>
+        <div class="pcard-header-info">
+          <div class="pcard-header-name">@${esc(p.auteur||'anonyme')} ${verified}</div>
+          <div class="pcard-header-time">${ago}</div>
+        </div>
+      </div>
+      ${titlePc?`<div class="pcard-caption-line"><b>${esc(titlePc)}</b></div>`:''}
+      ${bodyPc?`<div class="pcard-caption-body">${esc(bodyPc)}</div>`:''}
+      ${tagsPc.length?`<div class="pcard-hashtags-blue">${tagsPc.map(t=>esc(t)).join(' ')}</div>`:''}
+      <div class="pcard-pillrow">
+        <div class="pcard-action pcard-pill${isLiked?' liked':''}" id="pfslk-${p.id}" onclick="event.stopPropagation();needAuth(()=>togglePostLike('${p.id}','photo'))">
+          <div class="pcard-action-icon pcard-pill-ico">${isLiked?'❤️':'🤍'}</div>
+          <span class="pcard-pill-label">Favoris${(p.likes||0)>0?' · '+fmt(p.likes||0):''}</span>
+        </div>
+        <div class="pcard-action pcard-pill" onclick="event.stopPropagation();openPostComments('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">💬</div>
+          <span class="pcard-pill-label">Commentaires${commentCountPc>0?' · '+fmt(commentCountPc):''}</span>
+        </div>
+        <div class="pcard-action pcard-pill${isInteresting?' on':''}" id="pfsint-${p.id}" onclick="event.stopPropagation();togglePostInteresting('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${isInteresting?'🌟':'⭐'}</div>
+          <span class="pcard-pill-label">Intéressant</span>
+        </div>
+        <div class="pcard-action pcard-pill${isSaved?' on':''}" id="pfssave-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${isSaved?'📌':'🔖'}</div>
+          <span class="pcard-pill-label">Enregistrer</span>
+        </div>
+        <div class="pcard-action pcard-pill" onclick="event.stopPropagation();sharePost('${p.id}','${esc(p.auteur||'')}')">
+          <div class="pcard-action-icon pcard-pill-ico">↗️</div>
+          <span class="pcard-pill-label">Partager${shareCountPc>0?' · '+fmt(shareCountPc):''}</span>
+        </div>
+      </div>
+      <div class="pcard-collection-row${isSaved?' on':''}" id="pfscollect-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
+        <span>Ajouter à une collection</span>
+        <span class="pcard-collection-plus">${isSaved?'✓':'+'}</span>
+      </div>
+      <div class="pfcard-comment-row" onclick="event.stopPropagation();openPostComments('${p.id}')">
+        <div class="sfcmt-inp-av">${myAvHPc}</div>
+        <div class="sfcmt-inp">Écris un commentaire...</div>
+        <button class="sfcmt-send">➤</button>
+      </div>
+    </div>
+  </div>`;
+}
+function pfsBurst(postId){
+  const heart=document.getElementById('pfsheart-'+postId);
+  if(heart){heart.classList.remove('show');void heart.offsetWidth;heart.classList.add('show');setTimeout(()=>heart.classList.remove('show'),700);}
+}
 function onCarouselScroll(el,postId,total){
   const idx=Math.round(el.scrollLeft/el.clientWidth);
   for(let i=0;i<total;i++){
@@ -7423,15 +7940,71 @@ async function togglePostInteresting(postId){
   const btn=document.getElementById('pint-'+postId);
   if(btn){
     btn.classList.toggle('on',isNowOn);
-    const ico=btn.querySelector('.pcard-pill-ico');
+    const ico=btn.querySelector('.pcard-pill-ico,.pcard-icobtn-ico');
     if(ico)ico.textContent=isNowOn?'🌟':'⭐';
     btn.style.transform='scale(1.08)';setTimeout(()=>btn.style.transform='',200);
+  }
+  const pfsBtn=document.getElementById('pfsint-'+postId);
+  if(pfsBtn){
+    pfsBtn.classList.toggle('on',isNowOn);
+    const ico2=pfsBtn.querySelector('.pcard-pill-ico');
+    if(ico2)ico2.textContent=isNowOn?'🌟':'⭐';
   }
 }
 
 // ═══════════════════════════════════════
 //  TOGGLE LIKE POUR POSTS
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+//  TÉLÉCHARGER LA PHOTO D'UN POST
+// ═══════════════════════════════════════
+async function downloadPostPhoto(postId){
+  const post=(allPosts||[]).find(x=>x.id===postId);
+  const url=post&&post.photoUrls&&post.photoUrls[0];
+  if(!url){showToast('⏳ Image indisponible');return;}
+  showToast('⏳ Téléchargement...');
+  try{
+    const blob=await kikoWatermarkImage(optImg(url,1200),post.auteur);
+    const file=new File([blob],'Kiko_'+postId+'.jpg',{type:'image/jpeg'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:'KIKO👑'}); return; }catch{}
+    }
+    const blobUrl=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=blobUrl;a.download='Kiko_'+postId+'.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);
+    showToast('⬇️ Téléchargement démarré !');
+  }catch(err){
+    console.error('Erreur filigrane photo:',err);
+    // Repli : téléchargement de l'image d'origine si le filigrane échoue (ex: CORS)
+    try{
+      const res=await fetch(optImg(url,1200));
+      const blob=await res.blob();
+      const blobUrl=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=blobUrl;a.download='Kiko_'+postId+'.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);
+    }catch{
+      const a=document.createElement('a');a.href=url;a.target='_blank';a.click();
+    }
+    showToast('⬇️ Téléchargement démarré !');
+  }
+}
+
+// Dessine l'image + le filigrane pilule doré Kiko sur un canvas et renvoie un Blob JPEG
+async function kikoWatermarkImage(imgUrl,username){
+  const img=await new Promise((resolve,reject)=>{
+    const im=new Image();im.crossOrigin='anonymous';
+    im.onload=()=>resolve(im);im.onerror=reject;im.src=imgUrl;
+  });
+  const canvas=document.createElement('canvas');
+  canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  kikoDrawWatermark(ctx,canvas.width,canvas.height,'br',username);
+  return new Promise((resolve,reject)=>{
+    canvas.toBlob(b=>b?resolve(b):reject(new Error('toBlob failed')),'image/jpeg',0.92);
+  });
+}
+
 async function togglePostLike(postId,type){
   if(!currentUser)return;
   kikoHaptic(8);
@@ -7445,13 +8018,24 @@ async function togglePostLike(postId,type){
   localStorage.setItem('aes_liked',JSON.stringify(liked));
   const prefix=type==='photo'?'p':(type==='opp'?'o':'t');
   const lkEl=document.getElementById(prefix+'lk-'+postId);
-  const iconEl=lkEl?lkEl.querySelector('.pcard-action-icon'):null;
+  const iconEl=lkEl?lkEl.querySelector('.pcard-icobtn-ico,.pcard-action-icon'):null;
+  const labelEl=lkEl?lkEl.querySelector('.pcard-pill-label'):null;
   const lcEl=document.getElementById(prefix+'lc-'+postId);
   if(lkEl)lkEl.classList.toggle('liked',isNowLiked);
   if(iconEl)iconEl.textContent=isNowLiked?'❤️':'🤍';
-  if(lcEl)lcEl.textContent=fmt(newCount);
+  if(labelEl)labelEl.textContent='Favoris'+(newCount>0?' · '+fmt(newCount):'');
+  if(lcEl)lcEl.textContent=newCount>0?fmt(newCount):'';
   const likecountLine=document.getElementById(prefix+'clikecount-'+postId);
-  if(likecountLine)likecountLine.textContent=newCount>0?fmt(newCount)+" j'aime":'';
+  if(likecountLine)likecountLine.textContent=newCount>0?'❤️ '+fmt(newCount):'';
+  // Sync avec le viewer plein écran (pfsViewer) si un post identique y est affiché
+  const pfsLk=document.getElementById('pfslk-'+postId);
+  if(pfsLk){
+    pfsLk.classList.toggle('liked',isNowLiked);
+    const pfsIco=pfsLk.querySelector('.pcard-pill-ico');
+    const pfsLabel=pfsLk.querySelector('.pcard-pill-label');
+    if(pfsIco)pfsIco.textContent=isNowLiked?'❤️':'🤍';
+    if(pfsLabel)pfsLabel.textContent='Favoris'+(newCount>0?' · '+fmt(newCount):'');
+  }
 }
 
 // ═══════════════════════════════════════
@@ -7763,6 +8347,13 @@ function applyUserUI(){
     document.getElementById('profileNameEl').innerHTML=esc(currentUser.name)+verifiedBadge(currentUser.verified);
     document.getElementById('profileHandleEl').innerText='@'+currentUser.name.toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,'');
     document.getElementById('profileBioEl').innerText=currentUser.bio||'Créateur de contenu africain 🌍';
+    const vp=document.getElementById('profileVerifiedPill'); if(vp) vp.style.display=currentUser.verified?'inline-flex':'none';
+    const locEl=document.getElementById('profileLocEl'), locTxt=document.getElementById('profileLocText');
+    const ci=currentUser.country&&COUNTRY_INFO[currentUser.country];
+    if(locEl&&locTxt){
+      if(ci){ locTxt.innerText=(currentUser.city?currentUser.city+', ':'')+ci.name; locEl.style.display='flex'; }
+      else locEl.style.display='none';
+    }
     // Avatars nav
     setMiniAvatar('loginTopBtnInitial','loginTopBtnImg',currentUser.name,currentUser.avatar);
     setMiniAvatar('homeAvatarInitial','homeAvatarImg',currentUser.name,currentUser.avatar);
@@ -7771,6 +8362,8 @@ function applyUserUI(){
     document.getElementById('profileNameEl').innerText='Invité';
     document.getElementById('profileHandleEl').innerText='@inconnu';
     document.getElementById('profileBioEl').innerText='Crée un compte pour profiter de toutes les fonctionnalités 🌍';
+    const vp=document.getElementById('profileVerifiedPill'); if(vp) vp.style.display='none';
+    const locEl=document.getElementById('profileLocEl'); if(locEl) locEl.style.display='none';
     // Reset avatars nav
     setMiniAvatar('loginTopBtnInitial','loginTopBtnImg','?',null);
     setMiniAvatar('homeAvatarInitial','homeAvatarImg','?',null);
@@ -8080,11 +8673,11 @@ function _doShowScreen(n){
   const screenMap = {
     home:'homeScreen', search:'searchScreen', market:'marketScreen',
     notif:'notifScreen', dm:'dmScreen', profile:'profileScreen',
-    buzz:'buzzScreen', job:'jobScreen'
+    buzz:'buzzScreen', job:'jobScreen', carte:'carteScreen'
   };
   const navMap = {
     home:'nb-home', market:'nb-market', notif:'nb-notif',
-    dm:'nb-dm', buzz:'nb-buzz', job:'nb-job', profile:'nb-profile'
+    dm:'nb-dm', job:'nb-job', profile:'nb-profile', carte:'nb-carte'
   };
   const sid = screenMap[n];
   if(sid){ const el=document.getElementById(sid); if(el) el.classList.add('active'); }
@@ -8172,6 +8765,64 @@ function loadHomeMarket(){
     renderHomeMarket(prods);
   }).catch(()=>{row.innerHTML='';});
 }
+// ═══════════════════════════════════════
+//  SÉLECTION KIKO — créateurs mis en avant (accueil)
+// ═══════════════════════════════════════
+function loadHomeSelection(){
+  const row=document.getElementById('homePickRow');
+  if(!row)return;
+  if(window._homeSelectionCache){renderHomeSelection(window._homeSelectionCache);return;}
+  // orderByChild('createdAt') : même champ indexé que le reste de l'app (évite un scan
+  // non-indexé côté Firebase sur followersCount, qui serait lent). Tri par abonnés
+  // fait ensuite côté client sur un petit lot seulement.
+  db.ref('users').orderByChild('createdAt').limitToLast(25).once('value').then(snap=>{
+    const raw=snap.val()||{};
+    const users=Object.entries(raw).map(([uid,u])=>({uid,...u}))
+      .filter(u=>!u.banned)
+      .sort((a,b)=>(b.followersCount||0)-(a.followersCount||0))
+      .slice(0,8);
+    window._homeSelectionCache=users;
+    renderHomeSelection(users);
+  }).catch(()=>{row.innerHTML='';});
+}
+function renderHomeSelection(users){
+  const row=document.getElementById('homePickRow');
+  if(!row)return;
+    if(!users.length){row.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:120px;color:var(--muted);font-size:12px;">Aucun créateur pour l\'instant</div>';return;}
+    row.innerHTML=users.map(u=>{
+      const avH=u.photoURL
+        ?`<img src="${optImg(u.photoURL,220)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none';">`
+        :'';
+      const initial=(u.displayName||u.username||'?').trim().charAt(0).toUpperCase();
+      const tag=u.followersCount>3000?'Créateur du mois':(u.bio?esc(u.bio).slice(0,26):'Créateur KIKO');
+      return `<div class="afk-pick-card" onclick="showScreen('profile');viewUserProfile&&viewUserProfile('${u.uid}')">
+        ${avH}
+        <div style="${u.photoURL?'':'display:flex;'}align-items:center;justify-content:center;width:100%;height:100%;font-family:'Syne',sans-serif;font-weight:800;font-size:34px;color:var(--text2);position:absolute;inset:0;background:var(--surface2);">${u.photoURL?'':initial}</div>
+        <div class="afk-pick-grad"></div>
+        <div class="afk-pick-play">▶</div>
+        <div class="afk-pick-body">
+          <div class="afk-pick-name">${esc(u.displayName||u.username||'Anonyme')}${u.verified?' <span style="color:var(--gold2);">✓</span>':''}</div>
+          <div class="afk-pick-tag">${tag}</div>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// ═══════════════════════════════════════
+//  CHIPS — catégories & pays (accueil / carte)
+// ═══════════════════════════════════════
+function kikoFilterCategory(el,cat){
+  document.querySelectorAll('#homeCategoryChips .afk-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  // Filtre la rangée Tendances locales sur la catégorie choisie
+  if(typeof loadBuzzHomePreview==='function') loadBuzzHomePreview(cat);
+}
+function kikoFilterCountry(el,code){
+  document.querySelectorAll('#carteCountryRow .afk-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  if(typeof loadBuzzHomePreview==='function') loadBuzzHomePreview(null,code);
+}
+
 function renderHomeMarket(prods){
   const row=document.getElementById('homeMarketRow');
   if(!row)return;
@@ -11911,34 +12562,30 @@ function reuseCurrentSound(){
 
 // ═══════════════════════════════════════
 //  KIKO👑 WATERMARK SYSTEM (Canvas + MediaRecorder)
-//  Filigrane premium intégré à l'export vidéo
+//  Filigrane premium intégré à l'export vidéo ET photo
 // ═══════════════════════════════════════
 const KIKO_WM = {
-  orange:'#FF8A00', orange2:'#FFB347', dark:'rgba(10,10,12,0.62)', border:'rgba(255,138,0,0.55)',
+  gold:'#F5C842', gold2:'#FFDF7E', goldDark:'#B8860B', dark:'rgba(10,8,6,0.94)', border:'#F5C842',
   corners:['br','bl','tr','tl'], rotateMs:5000
 };
 
-// Dessine le logo "K" vectoriel (cercle orange + K blanc + accent) — ratio carré
+// Dessine le badge logo "K" vectoriel (cercle doré + K doré + accent lecture) — ratio carré
 function kikoDrawLogo(ctx,cx,cy,r){
   ctx.save();
-  // anneau orange
-  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.lineWidth=r*0.11;ctx.strokeStyle=KIKO_WM.orange;ctx.stroke();
-  // fond légèrement assombri à l'intérieur
-  ctx.beginPath();ctx.arc(cx,cy,r-r*0.11,0,Math.PI*2);ctx.fillStyle='rgba(15,12,10,0.55)';ctx.fill();
-  // lettre K stylisée (barre verticale + deux diagonales)
-  const bw=r*0.22, top=cy-r*0.62, bot=cy+r*0.62, x0=cx-r*0.38;
-  ctx.fillStyle=KIKO_WM.orange;
-  // barre verticale arrondie
+  // fond noir
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#0d0a06';ctx.fill();
+  // anneau doré
+  ctx.lineWidth=r*0.09;ctx.strokeStyle=KIKO_WM.gold;ctx.stroke();
+  // lettre K stylisée (barre verticale + deux diagonales symétriques)
+  const bw=r*0.19, top=cy-r*0.48, bot=cy+r*0.48, x0=cx-r*0.4;
+  ctx.fillStyle=KIKO_WM.gold;
   kikoRoundRect(ctx,x0,top,bw,bot-top,bw/2);ctx.fill();
   // diagonale haute (vers le coin sup. droit)
-  ctx.save();ctx.translate(x0+bw*0.5,cy);ctx.rotate(-0.62);
-  kikoRoundRect(ctx,-bw*0.5,-r*0.62,bw,r*0.78,bw/2);ctx.fill();ctx.restore();
+  ctx.save();ctx.translate(x0+bw*0.5,cy);ctx.rotate(-0.7);
+  kikoRoundRect(ctx,-bw*0.5,-r*0.5,bw,r*0.56,bw/2);ctx.fill();ctx.restore();
   // diagonale basse (vers le coin inf. droit)
-  ctx.save();ctx.translate(x0+bw*0.5,cy);ctx.rotate(0.62);
-  kikoRoundRect(ctx,-bw*0.5,-r*0.16,bw,r*0.78,bw/2);ctx.fill();ctx.restore();
-  // petit point accent (comme sur le logo)
-  ctx.beginPath();ctx.arc(cx+r*0.42,cy-r*0.46,r*0.13,0,Math.PI*2);ctx.fillStyle=KIKO_WM.orange2;ctx.fill();
+  ctx.save();ctx.translate(x0+bw*0.5,cy);ctx.rotate(0.7);
+  kikoRoundRect(ctx,-bw*0.5,-r*0.06,bw,r*0.56,bw/2);ctx.fill();ctx.restore();
   ctx.restore();
 }
 function kikoRoundRect(ctx,x,y,w,h,rad){
@@ -11947,73 +12594,73 @@ function kikoRoundRect(ctx,x,y,w,h,rad){
   ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
 
-// Dessine la carte de filigrane complète à la position "corner" donnée
+// Dessine le filigrane "pilule dorée" (badge K + KIKO + @user + points) à la position "corner" donnée
 function kikoDrawWatermark(ctx,canvasW,canvasH,corner,username){
   const scale=Math.max(0.55,Math.min(canvasW,canvasH)/1080); // adapte selon résolution & orientation
   const margin=24*scale;
-  const cardW=300*scale, cardH=118*scale, stripH=34*scale;
-  const totalH=cardH+stripH;
+  const barH=76*scale, logoR=barH*0.6;
+  const gapAfterLogo=logoR*0.78, sepGap=16*scale, rightPad=20*scale, leftTextGap=14*scale;
+  const maxTextW=260*scale; // largeur max réservée au texte, le pseudo est tronqué au-delà
+
+  ctx.font=`800 ${20*scale}px Arial, sans-serif`;
+  const kikoW=ctx.measureText('KIKO').width;
+  ctx.font=`700 ${14*scale}px Arial, sans-serif`;
+  let userLabel='@'+(username||'NomUtilisateur');
+  let userW=ctx.measureText(userLabel).width;
+  while(userW>maxTextW&&userLabel.length>2){
+    userLabel=userLabel.slice(0,-2)+'…';
+    userW=ctx.measureText(userLabel).width;
+  }
+  const textW=Math.min(maxTextW,Math.max(kikoW,userW));
+  const pillW=gapAfterLogo+leftTextGap+textW+rightPad+sepGap;
+  const totalW=logoR+pillW; // largeur totale (badge qui déborde à gauche de la pilule + pilule)
+
   let x,y;
-  if(corner==='br'){x=canvasW-cardW-margin;y=canvasH-totalH-margin;}
-  else if(corner==='bl'){x=margin;y=canvasH-totalH-margin;}
-  else if(corner==='tr'){x=canvasW-cardW-margin;y=margin;}
+  if(corner==='br'){x=canvasW-totalW-margin;y=canvasH-barH-margin;}
+  else if(corner==='bl'){x=margin;y=canvasH-barH-margin;}
+  else if(corner==='tr'){x=canvasW-totalW-margin;y=margin;}
   else{x=margin;y=margin;}
 
+  const cx=x+logoR, cy=y+barH/2;
+
   ctx.save();
-  ctx.shadowColor='rgba(0,0,0,0.45)';ctx.shadowBlur=14*scale;ctx.shadowOffsetY=4*scale;
+  ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=16*scale;ctx.shadowOffsetY=4*scale;
 
-  // carte verre (glassmorphism) — alpha 0.35
-  ctx.globalAlpha=0.35;
-  kikoRoundRect(ctx,x,y,cardW,cardH,16*scale);
-  ctx.fillStyle='rgba(12,10,9,1)';ctx.fill();
-  ctx.globalAlpha=1;
-  ctx.lineWidth=1.4*scale;ctx.strokeStyle=KIKO_WM.border;
-  kikoRoundRect(ctx,x,y,cardW,cardH,16*scale);ctx.stroke();
+  // pilule (fond noir, contour doré) — pleinement arrondie des deux côtés
+  kikoRoundRect(ctx,cx,y,pillW,barH,barH/2);
+  ctx.fillStyle=KIKO_WM.dark;ctx.fill();
+  ctx.lineWidth=1.6*scale;ctx.strokeStyle=KIKO_WM.border;ctx.stroke();
   ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-
-  // logo
-  const logoR=30*scale, logoCx=x+22*scale+logoR, logoCy=y+cardH/2;
-  kikoDrawLogo(ctx,logoCx,logoCy,logoR);
-
-  // séparateur vertical
-  const sepX=logoCx+logoR+14*scale;
-  ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1*scale;
-  ctx.beginPath();ctx.moveTo(sepX,y+16*scale);ctx.lineTo(sepX,y+cardH-16*scale);ctx.stroke();
-
-  // textes
-  const tx=sepX+12*scale;
-  ctx.textBaseline='alphabetic';
-  ctx.fillStyle='#ffffff';
-  ctx.font=`800 ${22*scale}px Arial, sans-serif`;
-  ctx.fillText('KIKO',tx,y+34*scale);
-
-  ctx.fillStyle=KIKO_WM.orange;
-  ctx.font=`700 ${15*scale}px Arial, sans-serif`;
-  ctx.fillText('@'+(username||'NomUtilisateur'),tx,y+58*scale);
-
-  ctx.fillStyle='rgba(255,255,255,0.85)';
-  ctx.font=`600 ${11*scale}px Arial, sans-serif`;
-  ctx.save();ctx.letterSpacing=`${1.2*scale}px`;
-  ctx.fillText('CRÉER • VENDRE • RÉUSSIR',tx,y+80*scale);
   ctx.restore();
 
-  // bandeau bas orange "Créé avec Kiko"
-  ctx.globalAlpha=0.92;
-  ctx.beginPath();
-  ctx.moveTo(x,y+cardH);
-  ctx.lineTo(x+cardW,y+cardH);
-  ctx.lineTo(x+cardW,y+cardH+stripH-12*scale);
-  ctx.arcTo(x+cardW,y+totalH,x+cardW-12*scale,y+totalH,12*scale);
-  ctx.lineTo(x+12*scale,y+totalH);
-  ctx.arcTo(x,y+totalH,x,y+totalH-12*scale,12*scale);
-  ctx.closePath();
-  ctx.fillStyle=KIKO_WM.orange;ctx.fill();
-  ctx.globalAlpha=1;
+  // badge logo circulaire, superposé sur le bord gauche de la pilule
+  kikoDrawLogo(ctx,cx,cy,logoR);
 
-  ctx.fillStyle='#1a1208';
-  ctx.font=`700 ${13*scale}px Arial, sans-serif`;
-  ctx.fillText('🌐  Créé avec Kiko',x+16*scale,y+cardH+stripH-11*scale);
+  // séparateur vertical fin
+  const sepX=cx+gapAfterLogo;
+  ctx.strokeStyle='rgba(245,200,66,0.4)';ctx.lineWidth=1*scale;
+  ctx.beginPath();ctx.moveTo(sepX,y+16*scale);ctx.lineTo(sepX,y+barH-16*scale);ctx.stroke();
 
+  // zone de texte : clip strict sur la pilule pour garantir qu'aucun débordement n'est possible
+  ctx.save();
+  kikoRoundRect(ctx,cx,y,pillW,barH,barH/2);ctx.clip();
+
+  const tx=sepX+leftTextGap;
+  ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#ffffff';
+  ctx.font=`800 ${20*scale}px Arial, sans-serif`;
+  ctx.fillText('KIKO',tx,y+barH*0.4);
+
+  ctx.fillStyle='rgba(255,255,255,0.92)';
+  ctx.font=`700 ${14*scale}px Arial, sans-serif`;
+  ctx.fillText(userLabel,tx,y+barH*0.66);
+
+  // trois petits points dorés décoratifs sous le pseudo
+  const dotY=y+barH*0.84, dotR=2.6*scale;
+  for(let i=0;i<3;i++){
+    ctx.beginPath();ctx.arc(tx+i*(dotR*3.2),dotY,dotR,0,Math.PI*2);
+    ctx.fillStyle=KIKO_WM.gold;ctx.fill();
+  }
   ctx.restore();
 }
 
@@ -12605,23 +13252,23 @@ function startNewsAutoRefresh(){
 //  LANGUES
 // ═══════════════════════════════════════
 const LANGS={
-  fr:{nav_home:'Accueil',nav_search:'Explorer',nav_chat:'Chat',nav_market:'Marché',nav_infos:'Infos',nav_profile:'Profil',nav_job:'Opportunités',feed_following:'Abonnements',feed_foryou:'Pour toi',profile_edit:'✏️ Modifier',profile_videos:'Vidéos',profile_followers:'Abonnés',profile_following:'Abonnements',profile_logout:'🚪 Déconnexion',market_title:'🛍️ Marché',market_sell:'+ Vendre',dm_title:'💬 Messages',notif_title:'🔔 Notifications',
+  fr:{nav_home:'Accueil',nav_search:'Explorer',nav_chat:'Chat',nav_market:'Marché',nav_infos:'Infos',nav_profile:'Profil',nav_job:'Opportunités',nav_carte:'Carte',feed_following:'Abonnements',feed_foryou:'Pour toi',profile_edit:'✏️ Modifier',profile_videos:'Vidéos',profile_followers:'Abonnés',profile_following:'Abonnements',profile_logout:'🚪 Déconnexion',market_title:'🛍️ Marché',market_sell:'+ Vendre',dm_title:'💬 Messages',notif_title:'🔔 Notifications',
     sett_data_saver:'Économie de données',sett_clear_cache:'Vider le cache local',sett_notif:'Notifications push',sett_sound:'Sons messages',
     toast_saver_auto:'📶 Économie de données : Automatique',toast_saver_on:'🐢 Économie de données activée',toast_saver_off:'🚀 Qualité maximale (plus de data)',
     toast_offline:'📡 Pas de connexion — tu vois du contenu déjà chargé',toast_online:'✅ Connexion rétablie',toast_cache_cleared:'🗑️ Cache vidé !'},
-  bm:{nav_home:'So',nav_search:'Ɲini',nav_chat:'Bataw',nav_market:'Jamarkaba',nav_infos:'Kibaru',nav_profile:'N yɛrɛ',nav_job:'Baara',feed_following:'N ka mɔgɔw',feed_foryou:'I kama',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Jamarkaba',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kibaro',
+  bm:{nav_home:'So',nav_search:'Ɲini',nav_chat:'Bataw',nav_market:'Jamarkaba',nav_infos:'Kibaru',nav_profile:'N yɛrɛ',nav_job:'Baara',nav_carte:'Karti',feed_following:'N ka mɔgɔw',feed_foryou:'I kama',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Jamarkaba',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kibaro',
     sett_data_saver:'Fɛn dɔgɔya (data)',sett_clear_cache:'Kunnafoni jɔlen ka bɔ',sett_notif:'Kibaru cikanw',sett_sound:'Bataw mankan',
     toast_saver_auto:'📶 Data dɔgɔya : Automatique',toast_saver_on:'🐢 Data dɔgɔya sinsinnen don',toast_saver_off:'🚀 Kalidon bɛrɛba (data caman)',
     toast_offline:'📡 Ɛntɛrinɛti tɛ — i bɛ kunnafoni sɔrɔlen dɔw lɛye',toast_online:'✅ Ɛntɛrinɛti sɛgɛnen kɔ',toast_cache_cleared:'🗑️ Kunnafoniw bɔra !'},
-  mos:{nav_home:'Yiri',nav_search:'Baosg',nav_chat:'Sẽkr',nav_market:'Roogã',nav_infos:'Koe',nav_profile:'Maam',nav_job:'Tʋʋmd',feed_following:'M raoamb',feed_foryou:'Fo yell',profile_edit:'✏️ Toeeg',profile_videos:'Videosi',profile_followers:'Neba',profile_following:'Tũusda',profile_logout:'🚪 Yit',market_title:'🛍️ Roogã',market_sell:'+ Koos',dm_title:'💬 Sẽkr',notif_title:'🔔 Koe',
+  mos:{nav_home:'Yiri',nav_search:'Baosg',nav_chat:'Sẽkr',nav_market:'Roogã',nav_infos:'Koe',nav_profile:'Maam',nav_job:'Tʋʋmd',nav_carte:'Karti',feed_following:'M raoamb',feed_foryou:'Fo yell',profile_edit:'✏️ Toeeg',profile_videos:'Videosi',profile_followers:'Neba',profile_following:'Tũusda',profile_logout:'🚪 Yit',market_title:'🛍️ Roogã',market_sell:'+ Koos',dm_title:'💬 Sẽkr',notif_title:'🔔 Koe',
     sett_data_saver:'Data gãneg',sett_clear_cache:'Kunnafoni yiigi',sett_notif:'Kibay wilgre',sett_sound:'Sẽkr mankã',
     toast_saver_auto:'📶 Data gãneg : Automatique',toast_saver_on:'🐢 Data gãneg tʋme',toast_saver_off:'🚀 Sõmblem sẽn yɩɩd (data wʋsg)',
     toast_offline:'📡 Ɛntɛrnete kaẽ — f neta bũmb sẽn sɩngã',toast_online:'✅ Ɛntɛrnete lebga',toast_cache_cleared:'🗑️ Kunnafoni yiigame !'},
-  dyu:{nav_home:'So',nav_search:'Ɲinini',nav_chat:'Bataw',nav_market:'Ɲɛgɛnkɛ',nav_infos:'Kuma',nav_profile:'N kɔrɔ',nav_job:'Baara',feed_following:'N tɔw',feed_foryou:'I bolo',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Ɲɛgɛnkɛ',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kuma',
+  dyu:{nav_home:'So',nav_search:'Ɲinini',nav_chat:'Bataw',nav_market:'Ɲɛgɛnkɛ',nav_infos:'Kuma',nav_profile:'N kɔrɔ',nav_job:'Baara',nav_carte:'Karti',feed_following:'N tɔw',feed_foryou:'I bolo',profile_edit:'✏️ Yɛlɛma',profile_videos:'Videow',profile_followers:'Tugubagaw',profile_following:'Tugura',profile_logout:'🚪 Bɔ',market_title:'🛍️ Ɲɛgɛnkɛ',market_sell:'+ Feere',dm_title:'💬 Bataw',notif_title:'🔔 Kuma',
     sett_data_saver:'Data dɔgɔyali',sett_clear_cache:'Kunnafoni bɔli',sett_notif:'Kuma cikanw',sett_sound:'Bataw mankan',
     toast_saver_auto:'📶 Data dɔgɔyali : Automatique',toast_saver_on:'🐢 Data dɔgɔyali sinsinnen don',toast_saver_off:'🚀 Kalidon bɛrɛba (data caman)',
     toast_offline:'📡 Ɛntɛrinɛti tɛ — i bɛ kunnafoni sɔrɔlen dɔw lɛye',toast_online:'✅ Ɛntɛrinɛti sɛgɛnen kɔ',toast_cache_cleared:'🗑️ Kunnafoniw bɔra !'},
-  ha:{nav_home:'Gida',nav_search:'Nema',nav_chat:'Saƙonni',nav_market:'Kasuwa',nav_infos:'Labarai',nav_profile:'Ni',nav_job:'Aiki',feed_following:'Abokaina',feed_foryou:'Saboda kai',profile_edit:'✏️ Gyara',profile_videos:'Bidiyo',profile_followers:'Mabiya',profile_following:'Nake bi',profile_logout:'🚪 Fita',market_title:'🛍️ Kasuwa',market_sell:'+ Siyar',dm_title:'💬 Saƙonni',notif_title:'🔔 Sanarwa',
+  ha:{nav_home:'Gida',nav_search:'Nema',nav_chat:'Saƙonni',nav_market:'Kasuwa',nav_infos:'Labarai',nav_profile:'Ni',nav_job:'Aiki',nav_carte:'Taswira',feed_following:'Abokaina',feed_foryou:'Saboda kai',profile_edit:'✏️ Gyara',profile_videos:'Bidiyo',profile_followers:'Mabiya',profile_following:'Nake bi',profile_logout:'🚪 Fita',market_title:'🛍️ Kasuwa',market_sell:'+ Siyar',dm_title:'💬 Saƙonni',notif_title:'🔔 Sanarwa',
     sett_data_saver:'Ajiye bayanai (data)',sett_clear_cache:'Share ma\u0027aji na wucin gadi',sett_notif:'Sanarwar tura',sett_sound:'Sautin saƙonni',
     toast_saver_auto:'📶 Ajiye bayanai : Kai tsaye',toast_saver_on:'🐢 An kunna ajiye bayanai',toast_saver_off:'🚀 Inganci mafi girma (data mai yawa)',
     toast_offline:'📡 Babu intanet — kana ganin abin da aka riga aka loda',toast_online:'✅ An dawo da hanyar sadarwa',toast_cache_cleared:'🗑️ An share ma\u0027aji!'}
@@ -12634,7 +13281,7 @@ function setLang(lang){
   showToast({fr:'🇫🇷 Français',bm:'🌍 Bambara',mos:'🌍 Mooré',dyu:'🌍 Dioula',ha:'🌍 Haoussa'}[lang]||lang);
 }
 function applyLang(){
-  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-job':'nav_job','nb-profile':'nav_profile'};
+  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-job':'nav_job','nb-profile':'nav_profile','nb-carte':'nav_carte'};
   Object.entries(map).forEach(([id,k])=>{
     const btn=document.getElementById(id);
     const span=btn?btn.querySelector('span'):null;
@@ -12670,14 +13317,14 @@ function optImg(url,w){
   w=w||720;
   const saver=isDataSaverActive();
   if(saver) w=Math.min(w,360); // résolution réduite en mode économie de données
-  const cldQ=saver?'q_auto:low':'q_auto:eco';
+  const cldQ=saver?'q_auto:low':'q_auto:good';
   if(url.includes('res.cloudinary.com')&&url.includes('/upload/')){
     return url.replace('/upload/',`/upload/f_auto,${cldQ},w_${w},c_limit,dpr_auto/`);
   }
   if(url.includes('ik.imagekit.io')){
     const sep=url.includes('?')?'&':'?';
-    const ikQ=saver?40:70;
-    return url+sep+`tr=f-auto,q-${ikQ},w-${w}`;
+    const ikQ=saver?40:82;
+    return url+sep+`tr=f-auto,q-${ikQ},w-${w},dpr-auto`;
   }
   return url;
 }
@@ -12699,6 +13346,55 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 // ═══ BADGE VÉRIFIÉ — cercle orange + check blanc (style Facebook, couleur perso) ═══
 // N'affiche rien si isVerified est falsy. Utilisé partout : profil, commentaires, vidéos, posts.
 const VERIF_CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 13L9.5 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// ═══════════════════════════════════════
+//  BOUTIQUE PERSO — onglet profil & bouton raccourci
+// ═══════════════════════════════════════
+function openMyBoutique(){
+  showScreen('market');
+  const mine=(allProds||[]).filter(p=>currentUser&&p.sellerUid===currentUser.uid);
+  renderMarket(mine);
+}
+
+// ═══════════════════════════════════════
+//  ONGLETS PROFIL — Publications / Statuts / Boutique
+// ═══════════════════════════════════════
+function switchProfileTab(tab,el){
+  document.querySelectorAll('#profileTabs .ptab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const grid=document.getElementById('profileGrid');
+  if(!grid)return;
+  if(tab==='pub'){ renderProfile(); return; }
+  if(!currentUser){ grid.innerHTML='<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Connecte-toi pour voir ce contenu</div>'; return; }
+  grid.innerHTML='<div style="padding:28px;grid-column:span 3;text-align:center;"><div class="spinner"></div></div>';
+  if(tab==='statuts'){
+    db.ref('stories').orderByChild('authorUid').equalTo(currentUser.uid).once('value').then(snap=>{
+      const raw=snap.val()||{};
+      const items=Object.entries(raw).map(([id,s])=>({id,...s})).reverse();
+      grid.innerHTML=items.length
+        ?items.map(s=>`<div class="pgitem">${s.mediaType==='video'?`<video src="${optVid(s.mediaUrl)}" preload="none" muted></video>`:`<img src="${optImg(s.mediaUrl,300)}" alt="" loading="lazy">`}</div>`).join('')
+        :'<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Aucun statut publié</div>';
+    }).catch(()=>{grid.innerHTML='';});
+  } else if(tab==='boutique'){
+    const mine=(allProds||[]).filter(p=>p.sellerUid===currentUser.uid);
+    grid.innerHTML=mine.length
+      ?mine.map(p=>`<div class="pgitem" onclick="openProduct('${p.id}')">${p.imageUrl?`<img src="${optImg(p.imageUrl,300)}" alt="" loading="lazy">`:''}<div class="pgitem-price">${fmtPrice(p.price)} F</div></div>`).join('')
+      :'<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Aucun produit en vente</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+//  CARTE EXPLORER L'AFRIQUE — accueil (pays réel de l'utilisateur si connu)
+// ═══════════════════════════════════════
+function initExploreCard(){
+  const code=(currentUser&&currentUser.country)||'bf';
+  const ci=COUNTRY_INFO[code]||COUNTRY_INFO.bf;
+  const flagEl=document.getElementById('homeExploreFlag'), cEl=document.getElementById('homeExploreCountry'), cityEl=document.getElementById('homeExploreCity');
+  if(flagEl)flagEl.innerText=ci.flag;
+  if(cEl)cEl.innerText=ci.name;
+  if(cityEl)cityEl.innerText=(currentUser&&currentUser.city)||'';
+  // NB : les compteurs créateurs/contenus sont statiques pour l'instant —
+  // brancher sur une vraie agrégation (ex: Cloud Function ou compteur dédié) plus tard.
+}
 function verifiedBadge(isVerified){
   return isVerified?`<span class="verif-badge" title="Compte vérifié">${VERIF_CHECK_SVG}</span>`:'';
 }
@@ -12762,10 +13458,12 @@ _kikoMaybeSuggestDataSaver();
 
 // ── Chargement échelonné : critique d'abord, tout le reste après ──
 loadHomeFeed();                                        // 1er paint : posts visibles immédiatement
+initExploreCard();                                     // carte Explorer l'Afrique (pays réel si connu)
 setTimeout(()=>loadHomeStories(), 200);               // stories après le 1er rendu
 setTimeout(()=>loadBuzzHomePreview(), 500);           // aperçu buzz
 setTimeout(()=>prefetchBuzzFeed(), 900);              // précharge le feed 🔥 Buzz (données + 1ère vidéo) AVANT le clic
 setTimeout(()=>loadHomeMarket(), 800);                // marketplace
+setTimeout(()=>loadHomeSelection(), 950);             // sélection KIKO (créateurs)
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
 setTimeout(()=>kikoShowOnboarding(), 1200);           // tour de bienvenue — pour TOUT nouvel utilisateur, même sans compte
 kikoInitNewBadges();
@@ -13683,6 +14381,10 @@ function buildSFPost(p){
       ? `<button class="pfcard-follow-btn${isFollowingAuthor?' following':''}" id="pffollow-${p.id}" onclick="event.stopPropagation();needAuth(()=>toggleFollow('${p.authorUid}','${esc(p.auteur||'')}',this))">${isFollowingAuthor?'✅ Suivi ✅':'+ Suivre'}</button>`
       : '';
     const isSaved = savedPosts.includes(p.id);
+    const isInteresting = interestingPosts.includes(p.id);
+    const tagsP = (shortText.match(/#\w+/g)||[]);
+    const descNoTags = esc(shortText.replace(/#\w+/g,'').trim());
+    const myAvH = currentUser&&currentUser.photoURL?`<img src="${optImg(currentUser.photoURL,60)}" alt="">`:'💬';
     return `<article class="pfcard" id="hfp-${p.id}">
       <div class="pfcard-header" onclick="event.stopPropagation()">
         <div class="pfcard-av">${avH}</div>
@@ -13698,24 +14400,46 @@ function buildSFPost(p){
         ${typeBadge}
         ${p.photoUrls&&p.photoUrls.length>1?`<div class="pfcard-pagebadge">1/${p.photoUrls.length}</div>`:''}
       </div>
-      <div class="pfcard-actionbar">
-        <button class="pfact${isLiked||myReact?' pfact-on':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
-          <span class="pf-like-ico">${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
-        </button>
-        <button class="pfact" onclick="event.stopPropagation();openSFComments('${p.id}')">
-          <span>💬</span><span class="pfact-n">${commentCount>0?fmt(commentCount):''}</span>
-        </button>
-        <button class="pfact" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
-          <span>↗</span><span class="pfact-n">${shareCount>0?fmt(shareCount):''}</span>
-        </button>
-        <button class="pfcard-save-btn${isSaved?' saved':''}" id="sfsave-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">${isSaved?'🔖':'📑'}</button>
+      <div class="pcard-pillrow">
+        <div class="pcard-action pcard-pill${isLiked||myReact?' liked':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${likeIco}</div>
+          <span class="pcard-pill-label">Favoris</span>
+        </div>
+        <div class="pcard-action pcard-pill" onclick="event.stopPropagation();openSFComments('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">💬</div>
+          <span class="pcard-pill-label">Commentaires</span>
+        </div>
+        <div class="pcard-action pcard-pill${isInteresting?' on':''}" id="pint-${p.id}" onclick="event.stopPropagation();togglePostInteresting('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${isInteresting?'🌟':'⭐'}</div>
+          <span class="pcard-pill-label">Intéressant</span>
+        </div>
+        <div class="pcard-action pcard-pill${isSaved?' on':''}" id="sfsave-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${isSaved?'📌':'🔖'}</div>
+          <span class="pcard-pill-label">Enregistrer</span>
+        </div>
+        <div class="pcard-action pcard-pill" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
+          <div class="pcard-action-icon pcard-pill-ico">↗️</div>
+          <span class="pcard-pill-label">Partager</span>
+        </div>
       </div>
       ${likeCount>0?`<div class="pfcard-likecount" id="pflikecount-${p.id}">${fmt(likeCount)} j'aime</div>`:''}
-      ${shortText?`<div class="pfcard-caption-line" onclick="_openPost('${p.id}')"><b>${esc(p.auteur||'anonyme')}</b>${esc(shortText)}</div>`:''}
+      ${descNoTags?`<div class="pfcard-caption-line" onclick="_openPost('${p.id}')"><b>${esc(p.auteur||'anonyme')}</b>${descNoTags}</div>`:''}
+      ${tagsP.length?`<div class="pfcard-hashtags" onclick="_openPost('${p.id}')">${tagsP.map(t=>esc(t)).join(' ')}</div>`:''}
+      <div class="pfcard-comment-row" onclick="event.stopPropagation();openSFComments('${p.id}')">
+        <div class="sfcmt-inp-av">${myAvH}</div>
+        <div class="sfcmt-inp">Écris un commentaire...</div>
+        <button class="sfcmt-send">➤</button>
+      </div>
     </article>`;
   } else {
-    return `<article class="pfcard pfcard-txt-only" id="hfp-${p.id}" onclick="_openPost('${p.id}')">
-      <div class="pfcard-txt-head">
+    const isSaved = savedPosts.includes(p.id);
+    const isInteresting = interestingPosts.includes(p.id);
+    const bodyText = rawText.slice(0,220)+(rawText.length>220?'\u2026':'');
+    const tagsT = (bodyText.match(/#\w+/g)||[]);
+    const bodyNoTags = esc(bodyText.replace(/#\w+/g,'').trim());
+    const myAvHt = currentUser&&currentUser.photoURL?`<img src="${optImg(currentUser.photoURL,60)}" alt="">`:'💬';
+    return `<article class="pfcard pfcard-txt-only" id="hfp-${p.id}">
+      <div class="pfcard-txt-head" onclick="_openPost('${p.id}')">
         <div class="pfcard-av">${avH}</div>
         <div class="pfcard-info">
           <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}</div>
@@ -13723,19 +14447,35 @@ function buildSFPost(p){
         </div>
         ${typeBadge}
       </div>
-      <div class="pfcard-txt-body">${esc(rawText).slice(0,220)+(rawText.length>220?'\u2026':'')}</div>
-      <div class="pfcard-actions">
-        <button class="pfact${isLiked||myReact?' pfact-on':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
-          <span class="pf-like-ico">${likeIco}</span><span class="pfact-n" id="sflc-${p.id}">${likeCount>0?fmt(likeCount):''}</span>
-        </button>
-        <button class="pfact" onclick="event.stopPropagation();openSFComments('${p.id}')">
-          <span>💬</span><span class="pfact-n">${commentCount>0?fmt(commentCount):''}</span>
-        </button>
-        <button class="pfact" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
-          <span>↗</span><span class="pfact-n">${shareCount>0?fmt(shareCount):''}</span>
-        </button>
+      <div class="pfcard-txt-body" onclick="_openPost('${p.id}')">${bodyNoTags}</div>
+      ${tagsT.length?`<div class="pfcard-hashtags" onclick="_openPost('${p.id}')">${tagsT.map(t=>esc(t)).join(' ')}</div>`:''}
+      <div class="pcard-pillrow">
+        <div class="pcard-action pcard-pill${isLiked||myReact?' liked':''}" id="sflike-${p.id}" onclick="event.stopPropagation();sfToggleLike('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${likeIco}</div>
+          <span class="pcard-pill-label">Favoris</span>
+        </div>
+        <div class="pcard-action pcard-pill" onclick="event.stopPropagation();openSFComments('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">💬</div>
+          <span class="pcard-pill-label">Commentaires</span>
+        </div>
+        <div class="pcard-action pcard-pill${isInteresting?' on':''}" id="pint-${p.id}" onclick="event.stopPropagation();togglePostInteresting('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${isInteresting?'🌟':'⭐'}</div>
+          <span class="pcard-pill-label">Intéressant</span>
+        </div>
+        <div class="pcard-action pcard-pill${isSaved?' on':''}" id="sfsave-${p.id}" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
+          <div class="pcard-action-icon pcard-pill-ico">${isSaved?'📌':'🔖'}</div>
+          <span class="pcard-pill-label">Enregistrer</span>
+        </div>
+        <div class="pcard-action pcard-pill" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
+          <div class="pcard-action-icon pcard-pill-ico">↗️</div>
+          <span class="pcard-pill-label">Partager</span>
+        </div>
       </div>
-      <span class="pfact-time">${ago}</span>
+      <div class="pfcard-comment-row" onclick="event.stopPropagation();openSFComments('${p.id}')">
+        <div class="sfcmt-inp-av">${myAvHt}</div>
+        <div class="sfcmt-inp">Écris un commentaire...</div>
+        <button class="sfcmt-send">➤</button>
+      </div>
     </article>`;
   }
 }
@@ -13765,11 +14505,9 @@ async function sfToggleLike(postId){
   await ref.set(newCount);
   // Update UI
   const btn=document.getElementById('sflike-'+postId);
-  const lc=document.getElementById('sflc-'+postId);
-  const ico=btn?btn.querySelector('.pf-like-ico'):null;
-  if(btn) btn.classList.toggle('pfact-on',isNowLiked);
+  const ico=btn?btn.querySelector('.pcard-pill-ico'):null;
+  if(btn) btn.classList.toggle('liked',isNowLiked);
   if(ico) ico.textContent=isNowLiked?'❤️':'🤍';
-  if(lc) lc.textContent=newCount>0?fmt(newCount):'';
   const likecountLine=document.getElementById('pflikecount-'+postId);
   if(likecountLine) likecountLine.textContent=newCount>0?fmt(newCount)+" j'aime":'';
 }
@@ -13782,7 +14520,40 @@ function sfToggleSave(postId){
   else{savedPosts=savedPosts.filter(x=>x!==postId);showToast('Retiré des enregistrements');}
   localStorage.setItem('aes_saved_posts',JSON.stringify(savedPosts));
   const btn=document.getElementById('sfsave-'+postId);
-  if(btn){btn.classList.toggle('saved',isNowSaved);btn.textContent=isNowSaved?'🔖':'📑';}
+  if(btn){
+    btn.classList.toggle('on',isNowSaved);
+    const ico=btn.querySelector('.pcard-pill-ico');
+    if(ico)ico.textContent=isNowSaved?'📌':'🔖';
+  }
+  const pcBtn=document.getElementById('pctopsave-'+postId);
+  if(pcBtn){
+    pcBtn.classList.toggle('on',isNowSaved);
+    pcBtn.textContent=isNowSaved?'📌':'🔖';
+  }
+  const pcPillBtn=document.getElementById('pcsave-'+postId);
+  if(pcPillBtn){
+    pcPillBtn.classList.toggle('on',isNowSaved);
+    const ico2=pcPillBtn.querySelector('.pcard-pill-ico');
+    if(ico2)ico2.textContent=isNowSaved?'📌':'🔖';
+  }
+  const pfsBtn=document.getElementById('pfssave-'+postId);
+  if(pfsBtn){
+    pfsBtn.classList.toggle('on',isNowSaved);
+    const ico3=pfsBtn.querySelector('.pcard-pill-ico');
+    if(ico3)ico3.textContent=isNowSaved?'📌':'🔖';
+  }
+  const collectRow=document.getElementById('pccollect-'+postId);
+  if(collectRow){
+    collectRow.classList.toggle('on',isNowSaved);
+    const plus=collectRow.querySelector('.pcard-collection-plus');
+    if(plus)plus.textContent=isNowSaved?'✓':'+';
+  }
+  const pfsCollectRow=document.getElementById('pfscollect-'+postId);
+  if(pfsCollectRow){
+    pfsCollectRow.classList.toggle('on',isNowSaved);
+    const plus2=pfsCollectRow.querySelector('.pcard-collection-plus');
+    if(plus2)plus2.textContent=isNowSaved?'✓':'+';
+  }
 }
 
 // ─── Reactions ───
@@ -13912,7 +14683,7 @@ function openSFGallery(postId,startIdx){
 
 // ─── Post menu (delete own) ───
 function sfPostMenu(postId){
-  const post=sfPosts.find(p=>p.id===postId);
+  const post=sfPosts.find(p=>p.id===postId)||(allPosts||[]).find(p=>p.id===postId);
   if(!post)return;
   if(currentUser&&post.authorUid===currentUser.uid){
     showConfirm('Supprimer ce post ?','Cette action est irréversible.',async()=>{
