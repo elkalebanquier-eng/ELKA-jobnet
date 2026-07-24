@@ -230,24 +230,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 /* .login-btn-top supprimé — remplacé par avatar photo */
 
 /* ─── STORIES ─── */
-#storiesWrap { display: none !important; }
-
-.stories-row { display: flex; gap: 12px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
-.stories-row::-webkit-scrollbar { display: none; }
-.sitem { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; cursor: pointer; }
-.sring {
-  width: 56px; height: 56px; border-radius: 50%; padding: 2.5px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2), var(--gold));
-}
-.savatar {
-  width: 100%; height: 100%; border-radius: 50%;
-  background: var(--surface2); border: 2.5px solid var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; color: var(--gold);
-  overflow: hidden;
-}
-.savatar img { width: 100%; height: 100%; object-fit: cover; }
-.sname { font-size: 10px; color: var(--text2); max-width: 56px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+#storiesWrap { display: block; padding-top: 4px; }
 
 /* ─── SOCIAL FEED (écran principal scrollable) ─── */
 #homeScreen {
@@ -452,20 +435,13 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .hstory-item:active { opacity: 0.85; transform: scale(0.96); transition: transform .12s; }
 
-/* ── Anneau dégradé animé ── */
+/* ── Anneau style WhatsApp (segments verts = non vu, gris = vu) ── */
 .hstory-ring {
-  width: 68px; height: 68px;
+  width: 64px; height: 64px;
   border-radius: 50%; padding: 2.5px;
-  background: linear-gradient(135deg, #FF7A30, #FFB347, #FF5C72, #FF7A30);
-  background-size: 300% 300%;
-  animation: kikoStoryRingAnim 3s ease infinite;
-  box-shadow: 0 2px 12px rgba(255,122,48,0.35);
+  background: #25D366;
+  transition: background .25s ease;
   position: relative;
-}
-@keyframes kikoStoryRingAnim {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 /* ── Bulle avatar avec preview photo ── */
@@ -486,7 +462,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 .hstory-ring .hstory-new-badge {
   position: absolute; bottom: 1px; left: 50%;
   transform: translateX(-50%);
-  background: var(--gold); color: #1a0a00;
+  background: #25D366; color: #fff;
   font-size: 8px; font-weight: 800;
   padding: 1px 5px; border-radius: 6px;
   font-family: 'Syne', sans-serif;
@@ -504,11 +480,10 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   text-overflow: ellipsis; font-weight: 600;
 }
 
-/* ── Bulle "Ajouter" ── */
+/* ── Bulle "Ajouter" (style WhatsApp : + vert sur avatar) ── */
 .hstory-add .hstory-ring {
   background: var(--surface2);
-  border: 2px dashed rgba(255,122,48,0.5);
-  box-shadow: none; animation: none;
+  box-shadow: none;
 }
 .hstory-add .hstory-av {
   font-size: 26px; color: var(--gold);
@@ -516,10 +491,10 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .hstory-add .hstory-name { color: var(--gold2); font-weight: 700; }
 
-/* ── Story vue (anneau grisé) ── */
+/* ── Story entièrement vue (anneau grisé, comme WhatsApp) ── */
 .hstory-ring.seen {
-  background: rgba(255,255,255,0.15);
-  box-shadow: none; animation: none;
+  background: #8696A0;
+  box-shadow: none;
 }
 
 /* ─── VIDEO CARD (dans feed scrollable) ─── */
@@ -2026,13 +2001,16 @@ textarea.inp { resize: none; }
   font-size: 11px; color: rgba(255,255,255,0.6);
 }
 .svclose {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: rgba(255,255,255,0.12);
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(20,20,24,0.45);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; color: #fff; cursor: pointer;
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  transition: transform .15s ease, background .15s ease;
 }
+.svclose:active { transform: scale(0.88); background: rgba(20,20,24,0.65); }
 
 /* Contenu media — plein écran */
 .svcontent {
@@ -2063,25 +2041,26 @@ textarea.inp { resize: none; }
 .sv-footer {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
   padding: 12px 16px calc(20px + env(safe-area-inset-bottom));
-  display: flex; flex-direction: column; gap: 10px;
-  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
-  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  display: flex; flex-direction: column; gap: 12px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.35) 55%, transparent 100%);
 }
 
-/* Réactions */
+/* Réactions — pilule verre dépoli, chaque emoji dans sa propre bulle au tap */
 .sv-reactions-row {
-  display: flex; gap: 6px; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 30px; padding: 6px 12px;
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; gap: 4px; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 30px; padding: 7px 10px;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.22);
   width: fit-content; margin: 0 auto;
 }
 .sv-react-btn {
-  font-size: 22px; cursor: pointer; padding: 4px 6px;
-  border-radius: 50%; transition: transform 0.15s;
+  font-size: 21px; cursor: pointer; padding: 6px;
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; transition: transform 0.15s ease, background 0.15s ease;
 }
-.sv-react-btn:active { transform: scale(1.5); }
+.sv-react-btn:active { transform: scale(1.4); background: rgba(255,255,255,0.16); }
 @keyframes svReactFly {
   0%   { transform: translateY(0) scale(1); opacity: 1; }
   100% { transform: translateY(-70px) scale(1.8); opacity: 0; }
@@ -2090,42 +2069,58 @@ textarea.inp { resize: none; }
 
 /* Barre input réponse */
 .sv-input-row {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
 }
 .sv-like-btn {
-  font-size: 24px; cursor: pointer; flex-shrink: 0;
-  transition: transform .15s;
+  font-size: 20px; cursor: pointer; flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.16);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  transition: transform .15s ease, background .15s ease;
 }
-.sv-like-btn:active { transform: scale(1.35); }
+.sv-like-btn.liked { background: rgba(255,122,48,0.22); border-color: rgba(255,122,48,0.4); }
+.sv-like-btn:active { transform: scale(0.85); }
 .sv-reply-inp {
   flex: 1; background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 24px; padding: 10px 16px;
-  color: #fff; font-size: 13px;
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  outline: none;
+  border-radius: 24px; padding: 12px 18px;
+  color: #fff; font-size: 13.5px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
+  outline: none; transition: border-color .15s ease, background .15s ease;
 }
-.sv-reply-inp::placeholder { color: rgba(255,255,255,0.45); }
-.sv-reply-inp:focus { border-color: rgba(255,122,48,0.6); }
+.sv-reply-inp::placeholder { color: rgba(255,255,255,0.5); }
+.sv-reply-inp:focus { border-color: rgba(255,122,48,0.65); background: rgba(255,255,255,0.14); }
 .sv-send-reply-btn {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--gold); border: none; color: #fff;
-  font-size: 15px; cursor: pointer; flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #FF7A30, #FFB347);
+  border: none; color: #fff;
+  font-size: 16px; cursor: pointer; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(255,122,48,0.4);
+  box-shadow: 0 4px 14px rgba(255,122,48,0.45);
+  transition: transform .15s ease;
 }
+.sv-send-reply-btn:active { transform: scale(0.86); }
 .sv-del {
   position: absolute; top: calc(56px + env(safe-area-inset-top));
   right: 14px; z-index: 11;
-  background: rgba(255,60,60,0.15);
-  border: 1px solid rgba(255,60,60,0.3);
-  color: #ff5c5c; border-radius: 20px;
-  padding: 5px 12px; font-size: 12px; font-weight: 700;
-  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,60,60,0.16);
+  border: 1px solid rgba(255,90,90,0.35);
+  color: #ff6b6b; border-radius: 22px;
+  padding: 8px 14px; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 14px rgba(255,60,60,0.18);
+  transition: transform .15s ease, background .15s ease;
 }
+.sv-del:active { transform: scale(0.92); background: rgba(255,60,60,0.28); }
 .sv-likers-count {
-  text-align: center; font-size: 11px;
-  color: rgba(255,255,255,0.55); min-height: 14px;
+  text-align: center; font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,0.7); min-height: 14px;
+  letter-spacing: 0.2px;
 }
 
 /* ═══════════════════════════════════════
@@ -2531,6 +2526,108 @@ textarea.inp { resize: none; }
 }
 .story-text-actions { display: flex; gap: 12px; }
 .story-text-btn { padding: 13px 28px; border-radius: 24px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; border: none; }
+
+/* ─── STATUS CHOICE SHEET (photo/vidéo vs texte, style WhatsApp) ─── */
+#statusChoiceModal {
+  display: none; position: fixed; inset: 0; z-index: 660;
+  background: rgba(5,10,20,0.55); align-items: flex-end; justify-content: center;
+}
+#statusChoiceModal.active { display: flex; }
+.sc-sheet {
+  width: 100%; max-width: 480px; background: var(--surface);
+  border-radius: 20px 20px 0 0; padding: 10px 16px calc(18px + env(safe-area-inset-bottom));
+  animation: scSheetUp .22s ease;
+}
+@keyframes scSheetUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+.sc-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 6px auto 14px; }
+.sc-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 6px; cursor: pointer; border-radius: 12px;
+}
+.sc-row:active { background: var(--surface2); }
+.sc-row-ico {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+.sc-row-txt { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--text); }
+
+/* ─── TEXT STATUS COMPOSER (fond coloré plein écran, style WhatsApp) ─── */
+#textStatusModal {
+  display: none; position: fixed; inset: 0; z-index: 670;
+  flex-direction: column; transition: background .2s ease;
+}
+#textStatusModal.active { display: flex; }
+.ts-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 10px;
+}
+.ts-topbar-btn {
+  width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; cursor: pointer;
+}
+.ts-body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px 26px; }
+.ts-textarea {
+  width: 100%; max-height: 60vh; background: transparent; border: none; outline: none; resize: none;
+  color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 26px; text-align: center;
+  line-height: 1.35;
+}
+.ts-textarea::placeholder { color: rgba(255,255,255,0.6); }
+.ts-colors { display: flex; gap: 10px; padding: 14px 16px calc(18px + env(safe-area-inset-bottom)); overflow-x: auto; scrollbar-width: none; align-items: center; }
+.ts-colors::-webkit-scrollbar { display: none; }
+.ts-color-dot {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.35);
+}
+.ts-color-dot.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.4); }
+.ts-send-btn {
+  width: 48px; height: 48px; border-radius: 50%; background: #fff; color: #111;
+  display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer;
+  border: none; margin-left: auto; flex-shrink: 0;
+}
+
+/* ─── VIEWERS SHEET ("Vu par", clone fidèle WhatsApp) ─── */
+#storyViewersSheet {
+  display: none; position: fixed; inset: 0; z-index: 680;
+  background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center;
+}
+#storyViewersSheet.active { display: flex; }
+.svw-sheet {
+  width: 100%; max-width: 480px; max-height: 78vh; background: #1C1C1E;
+  border-radius: 18px 18px 0 0; padding: 14px 0 calc(10px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column;
+  animation: scSheetUp .22s ease;
+}
+.svw-drag { width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.25); margin: 0 auto 14px; flex-shrink: 0; }
+.svw-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+}
+.svw-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16.5px; color: #fff; }
+.svw-topbar-icons { display: flex; align-items: center; gap: 20px; }
+.svw-topbar-ic {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.85); cursor: pointer; font-size: 18px;
+}
+.svw-topbar-ic:active { opacity: 0.6; }
+.svw-list { overflow-y: auto; padding: 4px 10px 6px; }
+.svw-row { display: flex; align-items: center; gap: 13px; padding: 11px 8px; border-radius: 12px; }
+.svw-row:active { background: rgba(255,255,255,0.05); }
+.svw-av {
+  width: 50px; height: 50px; border-radius: 50%; background: var(--surface2);
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+  font-family:'Syne',sans-serif; font-weight:700; font-size: 18px; color: var(--gold); flex-shrink: 0;
+}
+.svw-av img { width: 100%; height: 100%; object-fit: cover; }
+.svw-info { flex: 1; min-width: 0; }
+.svw-name { font-size: 16px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.svw-time { font-size: 13.5px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.svw-reply-btn {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.6); font-size: 17px; cursor: pointer;
+}
+.svw-reply-btn:active { background: rgba(255,255,255,0.08); }
+.svw-empty { text-align: center; padding: 30px 10px; color: rgba(255,255,255,0.5); font-size: 13.5px; }
 
 /* ─── CONFIRM MODAL ─── */
 #confirmModal {
@@ -3925,11 +4022,6 @@ document.addEventListener('load', function(e){
   </div>
 </div>
 
-<!-- STORIES -->
-<div id="storiesWrap">
-  <div class="stories-row" id="storiesRow"></div>
-</div>
-
 <!-- SCREENS -->
 <div id="homeScreen" class="screen active">
 
@@ -3954,6 +4046,11 @@ document.addEventListener('load', function(e){
       <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;position:absolute;" id="homeAvatarInitial">?</span>
       <img id="homeAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
     </div>
+  </div>
+
+  <!-- STORIES -->
+  <div id="storiesWrap">
+    <div class="stories-row" id="storiesRow"></div>
   </div>
 
   <!-- 🌍 EXPLORER L'AFRIQUE — carte teaser -->
@@ -5576,8 +5673,55 @@ document.addEventListener('load', function(e){
   </div>
 </div>
 
+<!-- STATUS CHOICE SHEET — Photo/Vidéo ou Texte, style WhatsApp -->
+<div id="statusChoiceModal" onclick="if(event.target===this)closeStatusChoice()">
+  <div class="sc-sheet">
+    <div class="sc-handle"></div>
+    <div class="sc-row" onclick="closeStatusChoice();openTextStatusComposer();">
+      <div class="sc-row-ico" style="background:#25D366;color:#fff;">✏️</div>
+      <div class="sc-row-txt">Statut texte</div>
+    </div>
+    <div class="sc-row" onclick="closeStatusChoice();kikoOpenFilePicker('statusInput');">
+      <div class="sc-row-ico" style="background:var(--surface2);color:var(--gold);">📷</div>
+      <div class="sc-row-txt">Photo ou vidéo</div>
+    </div>
+  </div>
+</div>
+
+<!-- TEXT STATUS COMPOSER — fond coloré plein écran, style WhatsApp -->
+<div id="textStatusModal">
+  <div class="ts-topbar">
+    <div class="ts-topbar-btn" onclick="closeTextStatusComposer()">✕</div>
+  </div>
+  <div class="ts-body">
+    <textarea class="ts-textarea" id="tsTextarea" placeholder="Tape ton statut..." maxlength="180" rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"></textarea>
+  </div>
+  <div class="ts-colors" id="tsColors"></div>
+</div>
+
+<!-- STORY VIEWERS SHEET — "Vu par", style WhatsApp -->
+<div id="storyViewersSheet" onclick="if(event.target===this)closeStoryViewers()">
+  <div class="svw-sheet">
+    <div class="svw-drag"></div>
+    <div class="svw-topbar">
+      <div class="svw-title" id="svwTitle">Vu par</div>
+      <div class="svw-topbar-icons">
+        <div class="svw-topbar-ic" onclick="svwShareTo('Facebook')" title="Partager sur Facebook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.5c0-.9.25-1.5 1.55-1.5H16.5V4.35C16.24 4.3 15.32 4.2 14.25 4.2c-2.23 0-3.75 1.36-3.75 3.86V10.5H8v3h2.5V21h3z" fill="currentColor"/></svg>
+        </div>
+        <div class="svw-topbar-ic" onclick="svwShareTo('Instagram')" title="Partager sur Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="3.5" width="17" height="17" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>
+        </div>
+        <div class="svw-topbar-ic" onclick="svwOpenMenu()" title="Options">⋮</div>
+      </div>
+    </div>
+    <div class="svw-list" id="svwList"></div>
+  </div>
+</div>
+
 <!-- PHOTO FULLSCREEN VIEWER — style TikTok, swipe vertical entre les photos -->
 <div id="pfsViewer">
+
   <div class="pfs-close" onclick="closePhotoFullscreen()">←</div>
   <div class="pfs-scroll" id="pfsScroll" onscroll="onPfsScroll()"></div>
 </div>
@@ -6372,7 +6516,10 @@ function _getModalChecks(){
     { id:'settingsPanel',      fn:()=>closeSettings() },
     { id:'articleScreen',      fn:()=>{ if(typeof closeArticle==='function') closeArticle(true); else _close('articleScreen'); } },
     { id:'dmConvScreen',       fn:()=>{ if(typeof closeDMConv==='function') closeDMConv(); else _close('dmConvScreen'); } },
+    { id:'storyViewersSheet',  fn:()=>closeStoryViewers() },
     { id:'storyViewer',        fn:()=>_close('storyViewer') },
+    { id:'textStatusModal',    fn:()=>closeTextStatusComposer() },
+    { id:'statusChoiceModal',  fn:()=>closeStatusChoice() },
     { id:'igPostViewer',       fn:()=>closeInstaPost() },
     { id:'pfsViewer',          fn:()=>closePhotoFullscreen() },
     { id:'musicAdminOverlay',  fn:()=>{ if(typeof closeMusicAdmin==='function') closeMusicAdmin(); else _close('musicAdminOverlay'); } },
@@ -8688,9 +8835,6 @@ function _doShowScreen(n){
   // Favori/Signaler) descend prendre exactement sa place en bas de l'écran.
   const bn=document.getElementById('bottomnav');
   if(bn) bn.style.display = (n==='buzz') ? 'none' : '';
-
-  // Stories toujours cachées
-  const sw=document.getElementById('storiesWrap'); if(sw) sw.style.display='none';
 
   // Mettre à jour l'avatar home si connecté
   if(currentUser){
@@ -11144,16 +11288,53 @@ async function submitProduct(){
 function loadStories(){
   db.ref('stories').orderByChild('createdAt').limitToLast(40).once('value').then(snap=>{
     const now=Date.now();
-    const list=Object.entries(snap.val()||{}).map(([id,s])=>({id,...s})).filter(s=>now-s.createdAt<86400000);
+    const all=Object.entries(snap.val()||{}).map(([id,s])=>({id,...s}));
+    const list=all.filter(s=>now-s.createdAt<86400000);
+    const expired=all.filter(s=>now-s.createdAt>=86400000);
+    if(expired.length)kikoPurgeExpiredStories(expired);
     renderStories(list);
   });
 }
+// Supprime définitivement de Firebase les statuts dont les 24h sont écoulées.
+// (Le fichier média reste sur Cloudinary/ImageKit, mais la référence — donc
+// l'affichage dans l'app — disparaît bien, comme sur WhatsApp.)
+function kikoPurgeExpiredStories(expired){
+  expired.forEach(s=>{
+    db.ref('stories/'+s.id).remove().catch(()=>{});
+  });
+}
+function kikoSeenStoryIds(){
+  try{return JSON.parse(localStorage.getItem('kiko_seen_stories')||'[]');}catch(e){return [];}
+}
+function kikoMarkStorySeen(id){
+  try{
+    const seen=kikoSeenStoryIds();
+    if(!seen.includes(id)){
+      seen.push(id);
+      // Garde une taille raisonnable
+      while(seen.length>300)seen.shift();
+      localStorage.setItem('kiko_seen_stories',JSON.stringify(seen));
+    }
+  }catch(e){}
+}
+function kikoRingGradient(seenFlags){
+  const GREEN='#25D366',GREY='#8696A0';
+  if(seenFlags.length<=1)return seenFlags[0]?GREY:GREEN;
+  const gap=6,seg=360/seenFlags.length;
+  const stops=[];
+  seenFlags.forEach((seen,i)=>{
+    const a0=i*seg,a1=a0+seg;
+    stops.push(`${seen?GREY:GREEN} ${a0+gap/2}deg ${a1-gap/2}deg`);
+    stops.push(`transparent ${a1-gap/2}deg ${a1+gap/2}deg`);
+  });
+  return `conic-gradient(${stops.join(',')})`;
+}
 function renderStories(list){
   const row=document.getElementById('storiesRow');row.innerHTML='';
-  const addEl=document.createElement('div');addEl.className='sitem';
-  const myAvH=currentUser?(currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:currentUser.name[0].toUpperCase()):'👤';
-  addEl.innerHTML=`<div class="sring" style="background:var(--surface2);position:relative;"><div class="savatar">${myAvH}</div><div style="position:absolute;bottom:-1px;right:-1px;width:19px;height:19px;border-radius:50%;background:var(--gold);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);">+</div></div><span class="sname">Mon statut</span>`;
-  addEl.onclick=()=>needAuth(()=>kikoOpenFilePicker('statusInput'));
+  const addEl=document.createElement('div');addEl.className='hstory-item hstory-add';
+  const myAvH=currentUser?(currentUser.avatar?`<img src="${optImg(currentUser.avatar,80)}" alt="" loading="lazy" decoding="async">`:`<span>${currentUser.name[0].toUpperCase()}</span>`):'<span>👤</span>';
+  addEl.innerHTML=`<div class="hstory-ring"><div class="hstory-av">${myAvH}<div style="position:absolute;bottom:0;right:0;width:20px;height:20px;border-radius:50%;background:#25D366;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);">+</div></div></div><div class="hstory-name">Mon statut</div>`;
+  addEl.onclick=()=>needAuth(()=>openStatusChoice());
   row.appendChild(addEl);
   const byAuthor={};
   list.forEach(s=>{const key=s.authorUid||s.auteur;if(!byAuthor[key])byAuthor[key]=[];byAuthor[key].push(s);});
@@ -11162,44 +11343,151 @@ function renderStories(list){
   const groups=Object.values(byAuthor);
   const sorted=[...groups.filter(g=>g[0].authorUid===myUid),...groups.filter(g=>g[0].authorUid!==myUid&&following[g[0].authorUid]),...groups.filter(g=>g[0].authorUid!==myUid&&!following[g[0].authorUid])].slice(0,12);
   allStoryGroups=sorted;
+  const seenIds=kikoSeenStoryIds();
   sorted.forEach((stories,gIdx)=>{
     const s=stories[stories.length-1];
-    const avH=s.authorAvatar?`<img src="${optImg(s.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:(s.auteur||'A')[0].toUpperCase();
+    const avH=s.authorAvatar?`<img src="${optImg(s.authorAvatar,80)}" alt="" loading="lazy" decoding="async">`:`<span>${(s.auteur||'A')[0].toUpperCase()}</span>`;
     const isMe=s.authorUid===myUid;
-    const el=document.createElement('div');el.className='sitem';
-    el.innerHTML=`<div class="sring"><div class="savatar">${avH}</div></div><span class="sname">${isMe?'Moi':esc(s.auteur||'').slice(0,8)}</span>`;
+    const seenFlags=isMe?stories.map(()=>true):stories.map(st=>seenIds.includes(st.id));
+    const ringBg=isMe?'#8696A0':kikoRingGradient(seenFlags);
+    const el=document.createElement('div');el.className='hstory-item';
+    el.innerHTML=`<div class="hstory-ring" style="background:${ringBg}"><div class="hstory-av">${avH}</div></div><div class="hstory-name">${isMe?'Moi':esc(s.auteur||'').slice(0,10)}</div>`;
     el.onclick=()=>openStoryGroup(gIdx,0);row.appendChild(el);
   });
 }
+// ═══ WhatsApp-style : choix Texte / Photo-vidéo, statut texte coloré, liste des vues ═══
+function openStatusChoice(){document.getElementById('statusChoiceModal').classList.add('active');}
+function closeStatusChoice(){document.getElementById('statusChoiceModal').classList.remove('active');}
+const TS_COLORS=['#25D366','#128C7E','#075E54','#34495E','#8E44AD','#C0392B','#D35400','#2C3E50'];
+let tsCurColor=TS_COLORS[0];
+function openTextStatusComposer(){
+  tsCurColor=TS_COLORS[0];
+  const modal=document.getElementById('textStatusModal');
+  modal.style.background=tsCurColor;
+  const ta=document.getElementById('tsTextarea');ta.value='';ta.style.height='auto';
+  const dots=document.getElementById('tsColors');
+  dots.innerHTML=TS_COLORS.map(c=>`<div class="ts-color-dot${c===tsCurColor?' active':''}" data-c="${c}" style="background:${c}" onclick="tsSetColor('${c}')"></div>`).join('')+`<button class="ts-send-btn" onclick="sendTextStatus()">➤</button>`;
+  modal.classList.add('active');
+  setTimeout(()=>ta.focus(),200);
+}
+function closeTextStatusComposer(){document.getElementById('textStatusModal').classList.remove('active');}
+function tsSetColor(c){
+  tsCurColor=c;
+  document.getElementById('textStatusModal').style.background=c;
+  document.querySelectorAll('.ts-color-dot').forEach(d=>d.classList.toggle('active',d.getAttribute('data-c')===c));
+}
+async function sendTextStatus(){
+  if(!currentUser){needAuth(()=>{});return;}
+  const text=document.getElementById('tsTextarea').value.trim();
+  if(!text){showToast('⚠️ Écris quelque chose');return;}
+  closeTextStatusComposer();showToast('⏳ Publication...');
+  try{
+    await db.ref('stories').push({mediaType:'text',text,bgColor:tsCurColor,auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,createdAt:Date.now()});
+    showToast('✅ Statut publié !');loadStories();
+  }catch(e){showToast('❌ '+e.message);}
+}
+function recordStoryView(s){
+  if(!currentUser||!s.id||s.authorUid===currentUser.uid)return;
+  db.ref('stories/'+s.id+'/viewedBy/'+currentUser.uid).set({name:currentUser.name,avatar:currentUser.avatar||'',at:Date.now()}).catch(()=>{});
+}
+function openStoryViewers(){
+  if(!curStoryId)return;
+  pauseStory();
+  const sheet=document.getElementById('storyViewersSheet');
+  const list=document.getElementById('svwList');
+  list.innerHTML='<div class="svw-empty">Chargement...</div>';
+  sheet.classList.add('active');
+  db.ref('stories/'+curStoryId+'/viewedBy').once('value').then(snap=>{
+    const v=snap.val();
+    const arr=v?Object.entries(v).map(([uid,d])=>({uid,...d})).sort((a,b)=>b.at-a.at):[];
+    document.getElementById('svwTitle').innerText=`Vu par ${arr.length} personne${arr.length>1?'s':''}`;
+    if(!arr.length){list.innerHTML='<div class="svw-empty">Personne n\'a encore vu ce statut</div>';return;}
+    list.innerHTML=arr.map(v=>{
+      const avH=v.avatar?`<img src="${optImg(v.avatar,80)}" alt="">`:`<span>${(v.name||'A')[0].toUpperCase()}</span>`;
+      return `<div class="svw-row">
+        <div class="svw-av">${avH}</div>
+        <div class="svw-info"><div class="svw-name">${esc(v.name||'anonyme')}</div><div class="svw-time">${timeAgo(v.at)}</div></div>
+        <div class="svw-reply-btn" onclick="svwReplyTo('${v.uid}','${esc(v.name||'').replace(/'/g,"\\'")}','${v.avatar||''}')" title="Répondre">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M21 12c0 4.42-4.03 8-9 8-1.06 0-2.08-.16-3.02-.46L3 21l1.5-4.5C3.55 15.13 3 13.62 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+      </div>`;
+    }).join('');
+  }).catch(()=>{list.innerHTML='<div class="svw-empty">Erreur de chargement</div>';});
+}
+function svwReplyTo(uid,name,avatar){
+  if(!uid)return;
+  closeStoryViewers();closeStory();
+  openDMWith(uid,name,avatar,false);
+}
+function svwShareTo(platform){showToast(`📤 Partage ${platform} bientôt disponible`);}
+function svwOpenMenu(){
+  if(!curStoryId)return;
+  const isOwn=currentUser&&curStoryAuthorUid===currentUser.uid;
+  if(isOwn){
+    showConfirm('Supprimer ce statut ?','Il sera supprimé immédiatement.',()=>{closeStoryViewers();deleteStory(curStoryId);});
+  }else{
+    closeStoryViewers();
+  }
+}
+function closeStoryViewers(){document.getElementById('storyViewersSheet').classList.remove('active');resumeStory();}
 function openStoryGroup(gIdx,sIdx){curGroupIdx=gIdx;curStories=allStoryGroups[gIdx]||[];curStoryIdx=sIdx;if(curStories.length)showStory(curStories[sIdx]);}
 function showStory(s){
+  if(s.id)kikoMarkStorySeen(s.id);
+  recordStoryView(s);
   const sv=document.getElementById('storyViewer');sv.classList.add('active');
   document.getElementById('svav').innerHTML=s.authorAvatar?`<img src="${optImg(s.authorAvatar,80)}" alt="" decoding="async">`:(s.auteur||'A')[0].toUpperCase();
   document.getElementById('svname').innerText=s.auteur||'anonyme';
   const c=document.getElementById('svcontent');
-  const mediaH=s.mediaType==='video'?`<video src="${optVid(s.mediaUrl)}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`:`<img src="${optImg(s.mediaUrl,720)}" alt="" decoding="async" style="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;background:#000;">`;
-  c.innerHTML=mediaH+(s.text?`<div class="sv-text-overlay">${esc(s.text)}</div>`:'');
+  let mediaH;
+  if(s.mediaType==='text'){
+    mediaH=`<div style="width:100%;height:100%;position:absolute;inset:0;background:${s.bgColor||'#25D366'};display:flex;align-items:center;justify-content:center;padding:30px;"><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:#fff;text-align:center;line-height:1.35;word-break:break-word;">${esc(s.text||'')}</div></div>`;
+  } else {
+    mediaH=s.mediaType==='video'?`<video id="svVideoEl" src="${optVid(s.mediaUrl)}" autoplay playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`:`<img src="${optImg(s.mediaUrl,720)}" alt="" decoding="async" style="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;background:#000;">`;
+  }
+  c.innerHTML=mediaH+(s.mediaType!=='text'&&s.text?`<div class="sv-text-overlay">${esc(s.text)}</div>`:'');
+  // Son de la vidéo : lecture avec son directe (le tap qui ouvre le statut compte comme
+  // geste utilisateur) — repli silencieux automatique si jamais le navigateur bloque, sans bouton.
+  const vidElForSound=document.getElementById('svVideoEl');
+  if(vidElForSound){
+    vidElForSound.muted=false;
+    const playP=vidElForSound.play();
+    if(playP&&playP.catch)playP.catch(()=>{vidElForSound.muted=true;vidElForSound.play().catch(()=>{});});
+  }
   document.getElementById('svpbar').innerHTML=curStories.map((_,i)=>`<div class="svseg"><div class="svseg-fill" style="width:${i<curStoryIdx?'100%':'0%'}" ${i===curStoryIdx?'id="svfill"':''}></div></div>`).join('');
   const isOwn=currentUser&&s.authorUid===currentUser.uid;
   const delBtn=document.getElementById('svDelBtn');delBtn.style.display=isOwn?'block':'none';
   if(isOwn)delBtn.onclick=()=>deleteStory(s.id);
-  // Masquer la barre de réponse pour ses propres statuts (mais garder les réactions visibles)
+  // Comme WhatsApp : on ne réagit/répond pas à son propre statut
   document.getElementById('svReplyInp').style.display=isOwn?'none':'';
   document.querySelector('.sv-send-reply-btn').style.display=isOwn?'none':'';
   document.getElementById('svLikeBtn').style.display=isOwn?'none':'';
+  const favBtnEl=document.getElementById('svFavBtn');if(favBtnEl)favBtnEl.style.display=isOwn?'none':'';
+  const reactRow=document.getElementById('svReactionsRow');if(reactRow)reactRow.style.display=isOwn?'none':'';
   // État du like
   curStoryId=s.id;curStoryAuthorUid=s.authorUid;curStoryAuthorName=s.auteur||'anonyme';
   const likeBtn=document.getElementById('svLikeBtn');
   const liked=currentUser&&s.likedBy&&s.likedBy[currentUser.uid];
   likeBtn.innerHTML=liked?'❤️':'🤍';
   likeBtn.classList.toggle('liked',!!liked);
+  // Compteur de vues (style WhatsApp), visible seulement sur son propre statut, tap pour voir la liste
   const likersCount=document.getElementById('svLikersCount');
-  const nbLikes=s.likedBy?Object.keys(s.likedBy).length:0;
-  if(isOwn&&nbLikes>0){likersCount.classList.add('show');likersCount.innerText=`❤️ ${nbLikes} ${nbLikes>1?'réactions':'réaction'}`;}
-  else{likersCount.classList.remove('show');}
+  if(isOwn){
+    likersCount.classList.add('show');
+    likersCount.style.cursor='pointer';
+    likersCount.innerText='👁 ... vues';
+    likersCount.onclick=openStoryViewers;
+    db.ref('stories/'+s.id+'/viewedBy').once('value').then(vs=>{
+      if(!document.getElementById('svLikersCount').classList.contains('show')||curStoryId!==s.id)return;
+      const nbViews=vs.val()?Object.keys(vs.val()).length:0;
+      likersCount.innerText=`👁 ${nbViews} vue${nbViews>1?'s':''}`;
+    }).catch(()=>{});
+  }else{
+    likersCount.classList.remove('show');
+    likersCount.onclick=null;
+  }
   // État du favori
   const favBtn=document.getElementById('svFavBtn');
-  if(favBtn){
+  if(favBtn&&!isOwn){
     favBtn.innerHTML='⭐';favBtn.classList.remove('liked');
     if(currentUser){
       db.ref('users/'+currentUser.uid+'/favoris/stories/'+s.id).once('value').then(fs=>{
@@ -11208,25 +11496,46 @@ function showStory(s){
     }
   }
   clearTimeout(storyTmr);
-  const dur=s.mediaType==='video'?6200:5000;
-  setTimeout(()=>{const f=document.getElementById('svfill');if(f){f.style.transition=`width ${dur}ms linear`;f.style.width='100%';}},50);
-  storyTmr=setTimeout(nextStory,dur+100);
+  if(s.mediaType==='video'){
+    // Durée basée sur la vraie longueur de la vidéo (3–30s), pas un chiffre fixe qui coupait les clips plus longs
+    let vTimerStarted=false;
+    const startVideoTimer=(rawDur)=>{
+      if(vTimerStarted)return;vTimerStarted=true;
+      const dur=Math.min(Math.max((rawDur&&isFinite(rawDur)?rawDur*1000:6200),3000),30000);
+      curStoryDur=dur;
+      setTimeout(()=>{const f=document.getElementById('svfill');if(f){f.style.transition=`width ${dur}ms linear`;f.style.width='100%';}},50);
+      storyTmr=setTimeout(nextStory,dur+100);
+    };
+    const vidEl=c.querySelector('video');
+    if(vidEl){
+      vidEl.addEventListener('loadedmetadata',()=>startVideoTimer(vidEl.duration),{once:true});
+      vidEl.addEventListener('error',()=>startVideoTimer(null),{once:true});
+    }
+    setTimeout(()=>startVideoTimer(vidEl&&vidEl.duration),2500); // repli si connexion lente
+  } else {
+    const dur=5000;
+    curStoryDur=dur;
+    setTimeout(()=>{const f=document.getElementById('svfill');if(f){f.style.transition=`width ${dur}ms linear`;f.style.width='100%';}},50);
+    storyTmr=setTimeout(nextStory,dur+100);
+  }
 }
-let curStoryId=null,curStoryAuthorUid=null,curStoryAuthorName=null,storyPaused=false;
+let curStoryId=null,curStoryAuthorUid=null,curStoryAuthorName=null,storyPaused=false,curStoryDur=5000;
 function pauseStory(){
   storyPaused=true;clearTimeout(storyTmr);
   const f=document.getElementById('svfill');
   if(f){const cs=getComputedStyle(f);f.style.transition='none';f.style.width=cs.width;}
+  const vidEl=document.getElementById('svVideoEl');if(vidEl)vidEl.pause();
 }
 function resumeStory(){
   if(!storyPaused)return;storyPaused=false;
   const f=document.getElementById('svfill');
   if(!f)return;
   const curWidth=parseFloat(f.style.width)||0;
-  const totalDur=5000;
+  const totalDur=curStoryDur||5000;
   const remaining=totalDur*(1-curWidth/100);
   setTimeout(()=>{f.style.transition=`width ${remaining}ms linear`;f.style.width='100%';},30);
   storyTmr=setTimeout(nextStory,remaining+100);
+  const vidEl=document.getElementById('svVideoEl');if(vidEl)vidEl.play().catch(()=>{});
 }
 async function toggleStoryLike(){
   if(!currentUser){needAuth(()=>{});return;}
@@ -11303,7 +11612,21 @@ function sendStoryReply(){
 }
 function prevStory(){clearTimeout(storyTmr);curStoryIdx>0?showStory(curStories[--curStoryIdx]):curGroupIdx>0?(curGroupIdx--,curStories=allStoryGroups[curGroupIdx],curStoryIdx=curStories.length-1,showStory(curStories[curStoryIdx])):closeStory();}
 function nextStory(){clearTimeout(storyTmr);curStoryIdx<curStories.length-1?showStory(curStories[++curStoryIdx]):curGroupIdx<allStoryGroups.length-1?(curGroupIdx++,curStories=allStoryGroups[curGroupIdx],curStoryIdx=0,showStory(curStories[0])):closeStory();}
-function closeStory(){clearTimeout(storyTmr);document.getElementById('storyViewer').classList.remove('active');}
+function closeStory(){
+  clearTimeout(storyTmr);document.getElementById('storyViewer').classList.remove('active');
+  const row=document.getElementById('storiesRow');
+  if(row){
+    const seenIds=kikoSeenStoryIds();
+    const myUid=currentUser?.uid;
+    const items=row.querySelectorAll('.hstory-item:not(.hstory-add)');
+    allStoryGroups.forEach((stories,i)=>{
+      const isMe=stories[0]&&stories[0].authorUid===myUid;
+      const allSeen=!isMe&&stories.every(st=>seenIds.includes(st.id));
+      const ring=items[i]&&items[i].querySelector('.hstory-ring');
+      if(ring)ring.classList.toggle('seen',allSeen);
+    });
+  }
+}
 function initStoryTap(){
   const sv=document.getElementById('storyViewer');
   let tx=0,ty=0,holdTimer=null,isHolding=false,holdStartTime=0;
@@ -11349,10 +11672,15 @@ function openStoryTextModal(input){const f=input.files[0];if(!f)return;pendingSt
 async function uploadStatusFinal(text){
   document.getElementById('storyTextModal').classList.remove('active');
   if(!pendingStatusFile||!currentUser)return;
-  const file=pendingStatusFile;pendingStatusFile=null;showToast('⏳ Upload statut...');
+  const file=pendingStatusFile;pendingStatusFile=null;
+  const isVideo=file.type.startsWith('video/');
+  if(isVideo&&file.size>80*1024*1024){showToast('⚠️ Vidéo trop lourde (max 80 Mo)');return;}
+  showToast(isVideo?'⏳ Upload vidéo... 0%':'⏳ Upload statut...');
   try{
-    const url=await ikUpload(file,'stories',null);
-    await db.ref('stories').push({mediaUrl:url,mediaType:file.type.startsWith('video/')?'video':'image',text:text||'',auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,createdAt:Date.now()});
+    const url=isVideo
+      ? await clUpload(file,p=>showToast(`⏳ Upload vidéo... ${p}%`))
+      : await ikUpload(file,'stories',null);
+    await db.ref('stories').push({mediaUrl:url,mediaType:isVideo?'video':'image',text:text||'',auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,createdAt:Date.now()});
     showToast('✅ Statut publié !');loadStories();
   }catch(e){showToast('❌ '+e.message);}
 }
