@@ -90,6 +90,31 @@
   /* Motion */
   --ease:     cubic-bezier(.22,.88,.32,1);
   --ease-out: cubic-bezier(.16,1,.3,1);
+
+  /* ═══ WHATSAPP — palette dédiée Chat & Statuts ═══ */
+  --wa-green:       #25D366;
+  --wa-teal:        #008069;
+  --wa-teal-dk:     #005c4b;
+  --wa-header:      #202c33;
+  --wa-header-ic:   #aebac1;
+  --wa-panel:       #111b21;
+  --wa-panel2:      #1f2c34;
+  --wa-list-hover:  #202c33;
+  --wa-text:        #e9edef;
+  --wa-text2:       #8696a0;
+  --wa-border:      rgba(255,255,255,0.06);
+  --wa-bubble-me:   #005c4b;
+  --wa-bubble-them: #202c33;
+  --wa-bubble-text-me:   #e9edef;
+  --wa-bubble-text-them: #e9edef;
+  --wa-chat-bg:     #0b141a;
+  --wa-check:       #8696a0;
+  --wa-check-read:  #53bdeb;
+  --wa-fab:         #00a884;
+  --wa-input-bar:   #202c33;
+  --wa-input-field: #2a3942;
+  --wa-ring-unseen: linear-gradient(135deg,#25D366,#128C7E);
+  --wa-ring-seen:   #8696a0;
 }
 
 /* ═══ THÈME CLAIR — activé via data-theme="light" sur <html> ═══ */
@@ -112,6 +137,23 @@
   --border2:   rgba(20,21,26,0.22);
   --glass:     rgba(255,255,255,0.72);
   --glass-dark:rgba(255,255,255,0.85);
+
+  /* ═══ WHATSAPP — surcharge thème clair ═══ */
+  --wa-header:      #008069;
+  --wa-header-ic:   #ffffff;
+  --wa-panel:       #ffffff;
+  --wa-panel2:      #f0f2f5;
+  --wa-list-hover:  #f5f6f6;
+  --wa-text:        #111b21;
+  --wa-text2:       #667781;
+  --wa-border:      rgba(0,0,0,0.08);
+  --wa-bubble-me:   #d9fdd3;
+  --wa-bubble-them: #ffffff;
+  --wa-bubble-text-me:   #111b21;
+  --wa-bubble-text-them: #111b21;
+  --wa-chat-bg:     #efeae2;
+  --wa-input-bar:   #f0f2f5;
+  --wa-input-field: #ffffff;
 }
 
 /* ─── RESET ─── */
@@ -2264,200 +2306,226 @@ textarea.inp { resize: none; }
 }
 .igpv-send:active { transform: scale(1.2) rotate(15deg); }
 
-/* ─── CHAT DM ─── */
+/* ─── CHAT DM — reskin fidèle WhatsApp ─── */
 .aeschat-header {
-  padding: 18px 18px 14px;
-  padding-top: calc(18px + env(safe-area-inset-top));
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+  background: var(--wa-header);
+  border-bottom: none;
   display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
 }
 .aeschat-logo {
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--text);
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: #fff;
 }
-.aeschat-header-actions { display: flex; gap: 8px; }
+.aeschat-header-actions { display: flex; align-items: center; gap: 20px; }
 .aeschat-icon-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--surface2); border: 1px solid var(--border);
+  width: auto; height: auto; border-radius: 0;
+  background: none; border: none;
   display: flex; align-items: center; justify-content: center;
-  font-size: 17px; cursor: pointer;
+  font-size: 19px; cursor: pointer; color: var(--wa-header-ic);
 }
-.aeschat-stories-wrap { padding: 14px 0 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.aeschat-stories-row { display: flex; gap: 12px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+.aeschat-stories-wrap { padding: 12px 0 12px; border-bottom: 8px solid var(--wa-panel2); flex-shrink: 0; background: var(--wa-panel); }
+.aeschat-stories-label { padding: 0 16px 10px; font-size: 13.5px; font-weight: 700; color: var(--wa-text); }
+.aeschat-stories-row { display: flex; gap: 16px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
 .aeschat-stories-row::-webkit-scrollbar { display: none; }
 .aeschat-story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; flex-shrink: 0; }
 .aeschat-story-ring {
-  width: 52px; height: 52px; border-radius: 50%; padding: 2.5px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  width: 54px; height: 54px; border-radius: 50%; padding: 2.5px;
+  background: var(--wa-ring-seen);
 }
 .aeschat-story-ring.has-status {
-  background: linear-gradient(135deg, #22c55e, #16a34a); /* vert : statut actif posté */
+  background: var(--wa-ring-unseen); /* vert : statut non vu */
 }
 .aeschat-story-av {
-  width: 100%; height: 100%; border-radius: 50%; background: var(--surface2);
-  border: 2.5px solid var(--bg); display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--gold); overflow: hidden;
+  width: 100%; height: 100%; border-radius: 50%; background: var(--wa-panel2);
+  border: 2.5px solid var(--wa-panel); display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--wa-text2); overflow: hidden;
 }
 .aeschat-story-av img { width: 100%; height: 100%; object-fit: cover; }
-.aeschat-story-name { font-size: 10px; color: var(--text2); max-width: 52px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-.aeschat-search-wrap { padding: 12px 16px; flex-shrink: 0; }
+.aeschat-story-name { font-size: 11px; color: var(--wa-text2); max-width: 58px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.aeschat-search-wrap { padding: 8px 12px; flex-shrink: 0; background: var(--wa-panel); }
 .aeschat-search-bar {
   display: flex; align-items: center; gap: 10px;
-  background: var(--surface2); border: 1.5px solid var(--border);
-  border-radius: var(--r-sm); padding: 10px 14px;
+  background: var(--wa-input-field); border: none;
+  border-radius: 24px; padding: 9px 14px;
 }
-.aeschat-search-icon { font-size: 15px; }
+.aeschat-search-icon { font-size: 15px; color: var(--wa-text2); }
 .aeschat-search-inp {
   flex: 1; background: none; border: none; outline: none;
-  color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px;
+  color: var(--wa-text); font-family: 'Inter', sans-serif; font-size: 14.5px;
 }
-.aeschat-search-inp::placeholder { color: var(--muted); }
-.aeschat-tabs { display: flex; padding: 0 16px 10px; gap: 0; flex-shrink: 0; }
+.aeschat-search-inp::placeholder { color: var(--wa-text2); }
+.aeschat-tabs { display: flex; padding: 6px 12px 8px; gap: 8px; flex-shrink: 0; background: var(--wa-panel); }
 .aeschat-tab {
-  flex: 1; text-align: center; padding: 9px; font-size: 13px; font-weight: 700;
-  color: var(--muted); cursor: pointer; border-bottom: 2.5px solid transparent;
+  flex: 0 0 auto; text-align: center; padding: 7px 16px; font-size: 13.5px; font-weight: 600;
+  color: var(--wa-text2); cursor: pointer; border-radius: 18px;
+  background: var(--wa-input-field);
   transition: all 0.2s;
 }
-.aeschat-tab.active { color: var(--text); border-bottom-color: var(--gold); }
-.aeschat-convlist { flex: 1; overflow-y: auto; }
+.aeschat-tab.active { color: #fff; background: var(--wa-teal); font-weight: 700; }
+:root[data-theme="light"] .aeschat-tab.active { color: var(--wa-teal); background: rgba(0,128,105,0.12); }
+.aeschat-convlist { flex: 1; overflow-y: auto; background: var(--wa-panel); }
 .aeschat-convlist::-webkit-scrollbar { display: none; }
 .aeschat-conv-item {
-  display: flex; align-items: center; gap: 13px; padding: 13px 18px;
-  border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s;
+  display: flex; align-items: center; gap: 14px; padding: 11px 16px;
+  border-bottom: none; cursor: pointer; transition: background 0.15s; background: var(--wa-panel);
 }
-.aeschat-conv-item:active { background: var(--surface2); }
+.aeschat-conv-item:active { background: var(--wa-list-hover); }
+.aeschat-conv-av-wrap { position: relative; flex-shrink: 0; }
 .aeschat-conv-av {
-  width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+  width: 49px; height: 49px; border-radius: 50%; flex-shrink: 0;
   background: linear-gradient(135deg, var(--gold), var(--navy2));
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; color: #fff;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; color: #fff;
   overflow: hidden; position: relative;
 }
 .aeschat-conv-av img { width: 100%; height: 100%; object-fit: cover; }
-.aeschat-online-dot {
+.aeschat-online-dot, .aeschat-conv-online {
   position: absolute; bottom: 1px; right: 1px;
-  width: 13px; height: 13px; border-radius: 50%;
-  background: var(--green); border: 2.5px solid var(--bg);
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--wa-green); border: 2.5px solid var(--wa-panel);
 }
 .aeschat-conv-body { flex: 1; min-width: 0; }
-.aeschat-conv-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14.5px; color: var(--text); margin-bottom: 2px; }
-.aeschat-conv-preview { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.aeschat-conv-preview.unread { color: var(--text); font-weight: 600; }
-.aeschat-conv-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
-.aeschat-conv-time { font-size: 11px; color: var(--muted); }
+.aeschat-conv-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15.5px; color: var(--wa-text); margin-bottom: 2px; display: flex; align-items: center; }
+.aeschat-conv-preview { font-size: 13.5px; color: var(--wa-text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aeschat-conv-preview.unread { color: var(--wa-text); font-weight: 500; }
+.aeschat-conv-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.aeschat-conv-time { font-size: 11.5px; color: var(--wa-text2); }
+.aeschat-conv-time.unread-time { color: var(--wa-green); font-weight: 700; }
 .aeschat-conv-badge {
-  min-width: 20px; height: 20px; border-radius: var(--r-xs);
-  background: var(--gold); color: #fff; font-size: 10px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center; padding: 0 5px;
-  box-shadow: var(--shadow-gold);
+  min-width: 20px; height: 20px; border-radius: 10px;
+  background: var(--wa-green); color: #06231a; font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; padding: 0 6px;
+}
+.aeschat-fab {
+  position: absolute; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom));
+  width: 56px; height: 56px; border-radius: 50%; background: var(--wa-fab);
+  display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 5;
 }
 
-/* Chat screen */
-#chatScreen { display: none; position: fixed; inset: 0; z-index: 300; background: var(--bg); flex-direction: column; }
+/* Chat screen — reskin fidèle WhatsApp */
+#chatScreen { display: none; position: fixed; inset: 0; z-index: 300; background: var(--wa-chat-bg); flex-direction: column; }
 #chatScreen.active { display: flex; }
 .chat-header {
-  padding: 14px 16px; padding-top: calc(14px + env(safe-area-inset-top));
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-  box-shadow: var(--shadow-xs);
+  padding: 10px 10px; padding-top: calc(10px + env(safe-area-inset-top));
+  background: var(--wa-header);
+  border-bottom: none;
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
 }
-.chat-back { font-size: 28px; cursor: pointer; color: var(--gold); line-height: 1; padding: 0 4px; }
+.chat-back { font-size: 26px; cursor: pointer; color: var(--wa-header-ic); line-height: 1; padding: 0 2px; }
 .chat-hav {
-  width: 40px; height: 40px; border-radius: 50%;
+  width: 38px; height: 38px; border-radius: 50%;
   background: linear-gradient(135deg, var(--gold), var(--navy2));
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: #fff;
-  overflow: hidden; flex-shrink: 0;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #fff;
+  overflow: hidden; flex-shrink: 0; cursor: pointer;
 }
 .chat-hav img { width: 100%; height: 100%; object-fit: cover; }
-.chat-hinfo { flex: 1; min-width: 0; }
-.chat-hname { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); }
-.chat-hstatus { font-size: 11px; color: var(--green); font-weight: 600; }
-.chat-hactions { display: flex; gap: 8px; }
+.chat-hinfo { flex: 1; min-width: 0; cursor: pointer; }
+.chat-hname { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16px; color: #fff; }
+.chat-hstatus { font-size: 12.5px; color: rgba(255,255,255,0.75); font-weight: 400; }
+.chat-hactions { display: flex; align-items: center; gap: 20px; padding-right: 4px; }
 .chat-hbtn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--surface2); border: 1px solid var(--border);
+  width: auto; height: auto; border-radius: 0;
+  background: none; border: none;
   display: flex; align-items: center; justify-content: center;
-  font-size: 15px; cursor: pointer;
+  font-size: 19px; cursor: pointer; color: var(--wa-header-ic);
 }
 .chat-messages {
-  flex: 1; overflow-y: auto; padding: 16px 14px 10px;
-  display: flex; flex-direction: column; gap: 4px;
-  background: var(--bg2);
+  flex: 1; overflow-y: auto; padding: 10px 6% 10px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--wa-chat-bg);
+  background-image:
+    radial-gradient(circle at 12% 18%, var(--wa-border) 0, transparent 2.2px),
+    radial-gradient(circle at 68% 42%, var(--wa-border) 0, transparent 2.2px),
+    radial-gradient(circle at 32% 68%, var(--wa-border) 0, transparent 2.2px),
+    radial-gradient(circle at 88% 82%, var(--wa-border) 0, transparent 2.2px);
+  background-size: 140px 140px;
 }
 .chat-messages::-webkit-scrollbar { display: none; }
-.msg-group { display: flex; flex-direction: column; gap: 3px; margin-bottom: 12px; }
+.msg-group { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; max-width: 100%; }
 .msg-group.me { align-items: flex-end; }
 .msg-group.them { align-items: flex-start; }
-.msg-group-header { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+.msg-group-header { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
 .msg-group-av {
-  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
   background: linear-gradient(135deg, var(--gold), var(--navy2));
   display: flex; align-items: center; justify-content: center;
   font-size: 11px; font-weight: 700; color: #fff; overflow: hidden;
 }
 .msg-group-av img { width: 100%; height: 100%; object-fit: cover; }
-.msg-group-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; color: var(--muted); }
+.msg-group-name { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; color: var(--wa-text2); }
 .msg-bubble {
-  max-width: 72%; padding: 10px 14px;
-  font-size: 14px; line-height: 1.5; word-break: break-word; position: relative;
+  max-width: 78%; padding: 6px 8px 8px 9px;
+  font-size: 14.5px; line-height: 1.35; word-break: break-word; position: relative;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.15);
 }
 .msg-bubble.me {
-  background: linear-gradient(135deg, var(--gold2), var(--gold));
-  color: #fff; border-radius: var(--r-md) 18px 4px 18px; font-weight: 500;
-  box-shadow: 0 2px 8px rgba(212,165,74,0.3);
+  background: var(--wa-bubble-me);
+  color: var(--wa-bubble-text-me); border-radius: 8px 8px 0 8px; font-weight: 400;
 }
 .msg-bubble.them {
-  background: var(--surface); color: var(--text);
-  border-radius: var(--r-md) 18px 18px 4px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-xs);
+  background: var(--wa-bubble-them); color: var(--wa-bubble-text-them);
+  border-radius: 8px 8px 8px 0;
+  border: none;
 }
-.msg-bubble.me + .msg-bubble.me { border-radius: var(--r-md) 4px 4px 18px; }
-.msg-bubble.them + .msg-bubble.them { border-radius: 4px 18px 18px 4px; }
-.msg-time-stamp { font-size: 9.5px; color: var(--muted); text-align: center; padding: 4px 0; margin: 2px 0; }
+.msg-group.me .msg-bubble.me:not(:first-child) { border-radius: 8px; }
+.msg-group.them .msg-bubble.them:not(:first-child) { border-radius: 8px; }
+.msg-bubble-text { white-space: pre-wrap; }
+.msg-meta {
+  display: inline-flex; align-items: center; gap: 3px; float: right;
+  margin: 3px -2px -3px 8px; font-size: 11px; color: rgba(233,237,239,0.6);
+}
+.msg-bubble.them .msg-meta { color: var(--wa-text2); }
+.msg-ticks { display: inline-flex; font-size: 14px; line-height: 1; color: var(--wa-check); }
+.msg-ticks.read { color: var(--wa-check-read); }
+.msg-time-stamp {
+  align-self: center; font-size: 11.5px; color: var(--wa-text2);
+  text-align: center; padding: 4px 10px; margin: 8px 0; background: rgba(0,0,0,0.18);
+  border-radius: 8px;
+}
 .msg-reactions { display: flex; gap: 4px; padding: 0 4px; }
 .msg-react-opt { font-size: 18px; cursor: pointer; padding: 2px 3px; border-radius: 50%; transition: transform 0.15s; }
 .msg-react-opt:active { transform: scale(1.3); }
 .chat-inp-row {
-  padding: 10px 14px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  padding: 8px 8px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
   display: flex; gap: 8px; align-items: flex-end;
-  border-top: 1px solid var(--border);
-  background: var(--bg); flex-shrink: 0;
+  border-top: none;
+  background: var(--wa-input-bar); flex-shrink: 0;
 }
-.chat-inp-extra { display: flex; gap: 6px; }
+.chat-inp-extra { display: flex; gap: 6px; align-items: center; padding-bottom: 6px; }
 .chat-inp-icon {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--surface2); border: 1px solid var(--border);
+  width: 26px; height: 26px; border-radius: 0;
+  background: none; border: none;
   display: flex; align-items: center; justify-content: center;
-  font-size: 17px; cursor: pointer; flex-shrink: 0;
+  font-size: 21px; cursor: pointer; flex-shrink: 0; color: var(--wa-header-ic);
 }
 .chat-inp {
-  flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
-  border-radius: 24px; padding: 10px 16px; color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
-  min-height: 40px; max-height: 100px; resize: none; line-height: 1.4;
-  transition: border-color 0.2s;
+  flex: 1; background: var(--wa-input-field); border: none;
+  border-radius: 22px; padding: 9px 16px; color: var(--wa-text);
+  font-family: 'Inter', sans-serif; font-size: 14.5px; outline: none;
+  min-height: 42px; max-height: 100px; resize: none; line-height: 1.4;
+  transition: none;
 }
-.chat-inp:focus { border-color: var(--gold); }
+.chat-inp:focus { border-color: transparent; }
 .chat-send {
   width: 42px; height: 42px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--gold2), var(--gold));
+  background: var(--wa-fab);
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; cursor: pointer; color: #fff; border: none; flex-shrink: 0;
-  box-shadow: var(--shadow-gold); transition: transform 0.15s, opacity 0.2s;
+  box-shadow: none; transition: transform 0.15s, opacity 0.2s;
 }
 .chat-send:active { transform: scale(0.9); }
-.typing-indicator { display: none; align-items: center; gap: 8px; padding: 8px 14px; }
+.typing-indicator { display: none; align-items: center; gap: 8px; padding: 4px 6% 8px; }
 .typing-indicator.show { display: flex; }
 .typing-dots {
-  display: flex; gap: 4px; background: var(--surface); padding: 8px 12px;
-  border-radius: var(--r-md); border: 1px solid var(--border); box-shadow: var(--shadow-xs);
+  display: flex; gap: 4px; background: var(--wa-bubble-them); padding: 9px 14px;
+  border-radius: 8px 8px 8px 0; border: none; box-shadow: 0 1px 1px rgba(0,0,0,0.15);
 }
 .typing-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: var(--muted);
+  width: 7px; height: 7px; border-radius: 50%; background: var(--wa-text2);
   animation: typingBounce 1.2s infinite;
 }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -4253,16 +4321,19 @@ document.addEventListener('load', function(e){
 </div>
 
 <div id="dmScreen" class="screen">
-  <!-- Header AES Chat -->
+  <!-- Header KIKO Chat, style WhatsApp -->
   <div class="aeschat-header">
-    <div class="aeschat-logo">AES Chat 💬</div>
+    <div class="aeschat-logo">Discussions</div>
     <div class="aeschat-header-actions">
-      <div class="aeschat-icon-btn" onclick="showNewChatOptions()">✏️</div>
+      <div class="aeschat-icon-btn" onclick="showNewChatOptions()">📷</div>
+      <div class="aeschat-icon-btn" onclick="document.getElementById('dmSearchInp').focus()">🔍</div>
+      <div class="aeschat-icon-btn" onclick="showNewChatOptions()">⋮</div>
     </div>
   </div>
 
-  <!-- Stories des abonnés -->
+  <!-- Statuts des abonnés (style WhatsApp : bague verte = non vu, grise = vu) -->
   <div class="aeschat-stories-wrap" id="aeschatStoriesWrap">
+    <div class="aeschat-stories-label">Statuts</div>
     <div class="aeschat-stories-row" id="aeschatStoriesRow">
       <!-- Rempli dynamiquement -->
     </div>
@@ -4272,14 +4343,14 @@ document.addEventListener('load', function(e){
   <div class="aeschat-search-wrap">
     <div class="aeschat-search-bar">
       <span class="aeschat-search-icon">🔍</span>
-      <input class="aeschat-search-inp" id="dmSearchInp" type="text" placeholder="Rechercher dans les messages..." oninput="filterDMList(this.value)">
+      <input class="aeschat-search-inp" id="dmSearchInp" type="text" placeholder="Rechercher une discussion" oninput="filterDMList(this.value)">
     </div>
   </div>
 
   <!-- Onglets -->
   <div class="aeschat-tabs">
-    <div class="aeschat-tab active" id="dmt-all" onclick="switchDMTab('all')">Tous</div>
-    <div class="aeschat-tab" id="dmt-unread" onclick="switchDMTab('unread')">Non lus</div>
+    <div class="aeschat-tab active" id="dmt-all" onclick="switchDMTab('all')">Toutes</div>
+    <div class="aeschat-tab" id="dmt-unread" onclick="switchDMTab('unread')">Non lues</div>
   </div>
 
   <!-- Assistant IA — épinglé en haut du chat -->
@@ -4311,6 +4382,9 @@ document.addEventListener('load', function(e){
 
   <!-- Liste conversations -->
   <div class="aeschat-convlist" id="dmList"></div>
+
+  <!-- Bouton flottant nouvelle discussion, style WhatsApp -->
+  <div class="aeschat-fab" onclick="showNewChatOptions()">💬</div>
 </div>
 
 <div id="profileScreen" class="screen">
@@ -5787,8 +5861,9 @@ document.addEventListener('load', function(e){
       <div class="chat-hstatus" id="chatHstatus">En ligne</div>
     </div>
     <div class="chat-hactions">
-      <div class="chat-hbtn" onclick="callUser()">📞</div>
       <div class="chat-hbtn" onclick="videoCallUser()">🎥</div>
+      <div class="chat-hbtn" onclick="callUser()">📞</div>
+      <div class="chat-hbtn" onclick="showToast('⋮ Options à venir')">⋮</div>
     </div>
   </div>
   <div class="chat-messages" id="chatMessages"></div>
@@ -5800,8 +5875,10 @@ document.addEventListener('load', function(e){
     </div>
   </div>
   <div class="chat-inp-row">
+    <div class="chat-inp-icon" onclick="showToast('😊 Emojis à venir')">😊</div>
+    <textarea class="chat-inp" id="chatInp" placeholder="Message" rows="1" oninput="autoResizeChatInp(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+    <div class="chat-inp-icon" onclick="chatSendPhoto()">📎</div>
     <div class="chat-inp-icon" onclick="chatSendPhoto()">📷</div>
-    <textarea class="chat-inp" id="chatInp" placeholder="Écris un message..." rows="1" oninput="autoResizeChatInp(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
     <div class="chat-send" onclick="sendMessage()">➤</div>
   </div>
 </div>
@@ -11613,7 +11690,15 @@ function sendStoryReply(){
 function prevStory(){clearTimeout(storyTmr);curStoryIdx>0?showStory(curStories[--curStoryIdx]):curGroupIdx>0?(curGroupIdx--,curStories=allStoryGroups[curGroupIdx],curStoryIdx=curStories.length-1,showStory(curStories[curStoryIdx])):closeStory();}
 function nextStory(){clearTimeout(storyTmr);curStoryIdx<curStories.length-1?showStory(curStories[++curStoryIdx]):curGroupIdx<allStoryGroups.length-1?(curGroupIdx++,curStories=allStoryGroups[curGroupIdx],curStoryIdx=0,showStory(curStories[0])):closeStory();}
 function closeStory(){
-  clearTimeout(storyTmr);document.getElementById('storyViewer').classList.remove('active');
+  clearTimeout(storyTmr);
+  document.getElementById('storyViewer').classList.remove('active');
+  // ── Fix bug : la vidéo/musique du statut continuait de jouer après fermeture ──
+  const vidEl=document.getElementById('svVideoEl');
+  if(vidEl){
+    try{ vidEl.pause(); vidEl.muted=true; vidEl.src=''; vidEl.removeAttribute('src'); vidEl.load(); }catch(e){}
+  }
+  const c=document.getElementById('svcontent');
+  if(c) c.innerHTML='';
   const row=document.getElementById('storiesRow');
   if(row){
     const seenIds=kikoSeenStoryIds();
@@ -12110,10 +12195,10 @@ function renderDMList(){
       </div>
       <div class="aeschat-conv-body">
         <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}</div>
-        <div class="aeschat-conv-preview ${hasUnread?'unread':''}">${hasUnread?'● ':''}${esc(preview)}</div>
+        <div class="aeschat-conv-preview ${hasUnread?'unread':''}">${esc(preview)}</div>
       </div>
       <div class="aeschat-conv-meta">
-        <div class="aeschat-conv-time">${timeAgo(c.updatedAt||Date.now())}</div>
+        <div class="aeschat-conv-time ${hasUnread?'unread-time':''}">${timeAgo(c.updatedAt||Date.now())}</div>
         ${hasUnread?`<div class="aeschat-conv-badge">1</div>`:''}
       </div>
     </div>`;
@@ -12143,7 +12228,7 @@ function filterDMList(val){
         <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}</div>
         <div class="aeschat-conv-preview ${hasUnread?'unread':''}">${esc(c.lastMsg||'...')}</div>
       </div>
-      <div class="aeschat-conv-meta"><div class="aeschat-conv-time">${timeAgo(c.updatedAt||Date.now())}</div>${hasUnread?'<div class="aeschat-conv-badge">1</div>':''}</div>
+      <div class="aeschat-conv-meta"><div class="aeschat-conv-time ${hasUnread?'unread-time':''}">${timeAgo(c.updatedAt||Date.now())}</div>${hasUnread?'<div class="aeschat-conv-badge">1</div>':''}</div>
     </div>`;
   }).join('');
 }
@@ -12190,7 +12275,7 @@ function loadChatStories(){
   meEl.innerHTML = `
     <div class="aeschat-story-ring" id="aeschatMyRing" style="position:relative;">
       <div class="aeschat-story-av">${myAv}</div>
-      <div id="aeschatMyBadge" style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--bg);">+</div>
+      <div id="aeschatMyBadge" style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:var(--wa-fab);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--wa-panel);">+</div>
     </div>
     <span class="aeschat-story-name">Mon statut</span>`;
   let myActiveStories=[];
@@ -12217,7 +12302,7 @@ function loadChatStories(){
       const ring=document.getElementById('aeschatMyRing');
       const badge=document.getElementById('aeschatMyBadge');
       if(ring)ring.classList.add('has-status');
-      if(badge){badge.style.background='#22c55e';badge.innerText='✓';}
+      if(badge){badge.style.background='var(--wa-fab)';badge.innerText='✓';}
     }
 
     const list = all.filter(s=>s.authorUid!==currentUser?.uid);
@@ -12233,9 +12318,11 @@ function loadChatStories(){
     sorted.forEach((stories, gIdx)=>{
       const s = stories[stories.length-1];
       const avH = s.authorAvatar ? `<img src="${optImg(s.authorAvatar,80)}" alt="" loading="lazy" decoding="async">` : (s.auteur||'A')[0].toUpperCase();
+      // Bague verte tant qu'au moins un statut du groupe n'a pas été vu par moi, grise sinon (comme WhatsApp)
+      const allSeen = currentUser && stories.every(st=>st.viewedBy && st.viewedBy[currentUser.uid]);
       const el = document.createElement('div');
       el.className = 'aeschat-story-item';
-      el.innerHTML = `<div class="aeschat-story-ring"><div class="aeschat-story-av">${avH}</div></div><span class="aeschat-story-name">${esc(s.auteur||'Anonyme')}</span>`;
+      el.innerHTML = `<div class="aeschat-story-ring${allSeen?'':' has-status'}"><div class="aeschat-story-av">${avH}</div></div><span class="aeschat-story-name">${esc(s.auteur||'Anonyme')}</span>`;
       el.onclick = ()=>openStoryGroup(gIdx, 0);
       row.appendChild(el);
     });
@@ -12352,28 +12439,51 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified){
   });
 
   let html = '';
+  let lastDay = null;
   groups.forEach((g,gi)=>{
     const isMe = g.from===currentUser.uid;
     const avH = !isMe?(otherAvatar?`<img src="${optImg(otherAvatar,80)}" alt="" loading="lazy" decoding="async">`:(otherName||'?')[0].toUpperCase()):'';
+    // Séparateur de jour, style WhatsApp ("Aujourd'hui", "Hier", ou date)
+    const dayKey = new Date(g.lastAt).toDateString();
+    if(dayKey !== lastDay){
+      html += `<div class="msg-time-stamp">${waDayLabel(g.lastAt)}</div>`;
+      lastDay = dayKey;
+    }
     html += `<div class="msg-group ${isMe?'me':'them'}">`;
     if(!isMe) html += `<div class="msg-group-header"><div class="msg-group-av">${avH}</div><div class="msg-group-name">${esc(otherName||'')}${verifiedBadge(otherVerified)}</div></div>`;
     g.msgs.forEach(m=>{
       let bubbleContent;
       if(m.imageUrl){
-        bubbleContent = `<img src="${m.imageUrl}" loading="lazy" onclick="kikoOpenMediaViewer('${m.imageUrl}','image')" style="max-width:220px;border-radius:12px;display:block;cursor:pointer;">`;
+        bubbleContent = `<img src="${m.imageUrl}" loading="lazy" onclick="kikoOpenMediaViewer('${m.imageUrl}','image')" style="max-width:220px;border-radius:8px;display:block;cursor:pointer;">`;
       } else if(m.videoUrl){
-        bubbleContent = `<video src="${m.videoUrl}" style="max-width:220px;border-radius:12px;display:block;" controls preload="metadata"></video>`;
+        bubbleContent = `<video src="${m.videoUrl}" style="max-width:220px;border-radius:8px;display:block;" controls preload="metadata"></video>`;
       } else {
-        bubbleContent = esc(m.text||'');
+        bubbleContent = `<span class="msg-bubble-text">${esc(m.text||'')}</span>`;
       }
-      const mediaPad = (m.imageUrl||m.videoUrl) ? 'padding:4px;' : '';
-      html += `<div class="msg-bubble ${isMe?'me':'them'}" style="${mediaPad}">${bubbleContent}</div>`;
+      const mediaPad = (m.imageUrl||m.videoUrl) ? 'padding:3px;' : '';
+      const ticks = isMe ? `<span class="msg-ticks">✓✓</span>` : '';
+      html += `<div class="msg-bubble ${isMe?'me':'them'}" style="${mediaPad}">${bubbleContent}<span class="msg-meta">${waTime(m.at)}${ticks}</span></div>`;
     });
-    html += `<div class="msg-time-stamp">${timeAgo(g.lastAt)}</div>`;
     html += '</div>';
   });
   mc.innerHTML = html;
   mc.scrollTop = mc.scrollHeight;
+}
+
+// Heure au format HH:MM, style WhatsApp
+function waTime(ts){
+  const d = new Date(ts||Date.now());
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+// Libellé du séparateur de jour ("Aujourd'hui" / "Hier" / date), style WhatsApp
+function waDayLabel(ts){
+  const d = new Date(ts), now = new Date();
+  const oneDay = 86400000;
+  const dKey = d.toDateString(), nKey = now.toDateString();
+  const yKey = new Date(now-oneDay).toDateString();
+  if(dKey===nKey) return "Aujourd'hui";
+  if(dKey===yKey) return "Hier";
+  return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year: d.getFullYear()!==now.getFullYear()?'numeric':undefined});
 }
 
 // ═══════════════════════════════════════
