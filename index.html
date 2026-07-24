@@ -4406,6 +4406,7 @@ document.addEventListener('load', function(e){
     <div class="phandle" id="profileHandleEl">@inconnu</div>
     <div class="pbio" id="profileBioEl">Crée un compte pour profiter de toutes les fonctionnalités 🌍</div>
     <div class="pverif-pill" id="profileVerifiedPill" style="display:none;">✓ Créateur vérifié</div>
+    <div class="pverif-pill" id="profileBusinessPill" style="display:none;background:rgba(91,141,239,0.14);border-color:rgba(91,141,239,0.4);color:var(--blue,#5B8DEF);">🏪 Vendeur vérifié</div>
     <div class="ploc" id="profileLocEl" style="display:none;">📍 <span id="profileLocText"></span></div>
     <div class="pstats">
       <div class="pstat" onclick="openFollowModal('videos')"><div class="pstat-n" id="pVids">0</div><div class="pstat-l">Vidéos</div></div>
@@ -6495,7 +6496,7 @@ let interestingPosts=JSON.parse(localStorage.getItem('aes_interesting')||'[]');
 let following=JSON.parse(localStorage.getItem('aes_following')||'{}');
 let allVids=[],allProds=[];
 let curVidId=null,storyTmr=null,authMode='login',pendingAction=null,feedMode='forYou';
-let curProd=null,prodPhotoFile=null;
+let curProd=null,prodPhotoFile=null,_pendingSourceVideoId=null;
 let priceMin=null,priceMax=null,currentCat='tous';
 // Restaure les derniers filtres marketplace utilisés (persistance entre sessions)
 try{
@@ -6592,9 +6593,9 @@ function _getModalChecks(){
     // overlays plein écran (priorité haute)
     { id:'settingsPanel',      fn:()=>closeSettings() },
     { id:'articleScreen',      fn:()=>{ if(typeof closeArticle==='function') closeArticle(true); else _close('articleScreen'); } },
-    { id:'dmConvScreen',       fn:()=>{ if(typeof closeDMConv==='function') closeDMConv(); else _close('dmConvScreen'); } },
+    { id:'chatScreen',         fn:()=>{ if(typeof closeChatScreen==='function') closeChatScreen(); else _close('chatScreen'); } },
     { id:'storyViewersSheet',  fn:()=>closeStoryViewers() },
-    { id:'storyViewer',        fn:()=>_close('storyViewer') },
+    { id:'storyViewer',        fn:()=>{ if(typeof closeStory==='function') closeStory(); else _close('storyViewer'); } },
     { id:'textStatusModal',    fn:()=>closeTextStatusComposer() },
     { id:'statusChoiceModal',  fn:()=>closeStatusChoice() },
     { id:'igPostViewer',       fn:()=>closeInstaPost() },
@@ -8572,6 +8573,7 @@ function applyUserUI(){
     document.getElementById('profileHandleEl').innerText='@'+currentUser.name.toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,'');
     document.getElementById('profileBioEl').innerText=currentUser.bio||'Créateur de contenu africain 🌍';
     const vp=document.getElementById('profileVerifiedPill'); if(vp) vp.style.display=currentUser.verified?'inline-flex':'none';
+    const bp=document.getElementById('profileBusinessPill'); if(bp) bp.style.display=currentUser.businessVerified?'inline-flex':'none';
     const locEl=document.getElementById('profileLocEl'), locTxt=document.getElementById('profileLocText');
     const ci=currentUser.country&&COUNTRY_INFO[currentUser.country];
     if(locEl&&locTxt){
@@ -8587,6 +8589,7 @@ function applyUserUI(){
     document.getElementById('profileHandleEl').innerText='@inconnu';
     document.getElementById('profileBioEl').innerText='Crée un compte pour profiter de toutes les fonctionnalités 🌍';
     const vp=document.getElementById('profileVerifiedPill'); if(vp) vp.style.display='none';
+    const bp=document.getElementById('profileBusinessPill'); if(bp) bp.style.display='none';
     const locEl=document.getElementById('profileLocEl'); if(locEl) locEl.style.display='none';
     // Reset avatars nav
     setMiniAvatar('loginTopBtnInitial','loginTopBtnImg','?',null);
@@ -8892,6 +8895,12 @@ async function saveProfile(){
 
 // Affichage pur — ne modifie pas le NAV stack (utilisé par handleAndroidBack)
 function _doShowScreen(n){
+  // Si une conversation est ouverte et qu'on change d'écran principal, la fermer
+  // proprement d'abord (sinon elle restait affichée par-dessus, écouteurs Firebase
+  // toujours actifs en arrière-plan).
+  const cs=document.getElementById('chatScreen');
+  if(cs && cs.classList.contains('active') && typeof closeChatScreen==='function') closeChatScreen();
+
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   const screenMap = {
@@ -9009,7 +9018,21 @@ function loadHomeSelection(){
 function renderHomeSelection(users){
   const row=document.getElementById('homePickRow');
   if(!row)return;
-    if(!users.length){row.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-width:100%;height:120px;color:var(--muted);font-size:12px;">Aucun créateur pour l\'instant</div>';return;}
+    if(!users.length){
+      row.innerHTML = [
+        {icon:'🔥',title:'Découvre le Buzz',tag:'Vidéos tendance du moment',action:"showScreen('buzz')",grad:'135deg,#FF7A30,#FF9D5C'},
+        {icon:'🧰',title:'Trouve un métier',tag:'Mécanique, plomberie, électricité...',action:"showScreen('job')",grad:'135deg,#2563eb,#3b82f6'},
+        {icon:'🛍️',title:'Explore le Marché',tag:'Annonces près de chez toi',action:"showScreen('market')",grad:'135deg,#16a34a,#22c55e'}
+      ].map(c=>`<div class="afk-pick-card" onclick="${c.action}" style="background:linear-gradient(${c.grad});display:flex;align-items:center;justify-content:center;">
+        <div class="afk-pick-grad"></div>
+        <div style="position:absolute;top:16px;left:0;right:0;text-align:center;font-size:34px;">${c.icon}</div>
+        <div class="afk-pick-body">
+          <div class="afk-pick-name">${c.title}</div>
+          <div class="afk-pick-tag">${c.tag}</div>
+        </div>
+      </div>`).join('');
+      return;
+    }
     row.innerHTML=users.map(u=>{
       const avH=u.photoURL
         ?`<img src="${optImg(u.photoURL,220)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none';">`
@@ -9335,9 +9358,12 @@ async function _renderVerifyAdminList(q){
       return `<div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;">
         <div style="width:36px;height:36px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text2);flex-shrink:0;">${avH}</div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;">${esc(u.name||'anonyme')}${verifiedBadge(u.verified)}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;">${esc(u.name||'anonyme')}${verifiedBadge(u.verified)}${businessBadge(u.businessVerified)}</div>
         </div>
-        <button onclick="_toggleUserVerified('${u.uid}',${!u.verified},this)" style="background:${u.verified?'rgba(255,122,0,0.15)':'var(--gold)'};color:${u.verified?'#ff7a00':'#14151A'};border:${u.verified?'1px solid #ff7a00':'none'};padding:8px 14px;border-radius:20px;font-weight:700;font-size:12px;white-space:nowrap;">${u.verified?'Retirer':'Vérifier'}</button>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="_toggleUserVerified('${u.uid}',${!u.verified},this)" style="background:${u.verified?'rgba(255,122,0,0.15)':'var(--gold)'};color:${u.verified?'#ff7a00':'#14151A'};border:${u.verified?'1px solid #ff7a00':'none'};padding:6px 12px;border-radius:20px;font-weight:700;font-size:11px;white-space:nowrap;">${u.verified?'Retirer ✓':'Vérifier ✓'}</button>
+          <button onclick="_toggleUserBusinessVerified('${u.uid}',${!u.businessVerified},this)" style="background:${u.businessVerified?'rgba(91,141,239,0.15)':'var(--blue,#5B8DEF)'};color:${u.businessVerified?'#5B8DEF':'#fff'};border:${u.businessVerified?'1px solid #5B8DEF':'none'};padding:6px 12px;border-radius:20px;font-weight:700;font-size:11px;white-space:nowrap;">${u.businessVerified?'Retirer 🏪':'Business 🏪'}</button>
+        </div>
       </div>`;
     }).join(''):'<div style="text-align:center;padding:32px 20px;"><div style="font-size:32px;margin-bottom:8px;">🔍</div><div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:14px;color:var(--text);">Aucun utilisateur trouvé</div></div>';
   }catch(e){
@@ -9361,6 +9387,26 @@ async function _toggleUserVerified(uid,newVal,btn){
     Object.keys(prodSnap.val()||{}).forEach(id=>updates['products/'+id+'/sellerVerified']=newVal);
     if(Object.keys(updates).length)await db.ref().update(updates);
     showToast(newVal?'✅ Badge activé':'Badge retiré');
+    _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
+  }catch(e){
+    showToast('⚠️ Erreur — réessaie');
+    if(btn){btn.disabled=false;}
+  }
+}
+// ═══════════════════════════════════════
+//  ADMIN — activer/désactiver le badge "vérifié business" (vendeurs Market)
+//  Distinct du badge créateur : n'affecte que users/{uid}/businessVerified
+//  et les annonces products/{id}/sellerBusinessVerified de ce vendeur.
+// ═══════════════════════════════════════
+async function _toggleUserBusinessVerified(uid,newVal,btn){
+  if(btn){btn.disabled=true;btn.innerText='...';}
+  try{
+    await db.ref('users/'+uid+'/businessVerified').set(newVal);
+    const prodSnap=await db.ref('products').orderByChild('sellerUid').equalTo(uid).once('value');
+    const updates={};
+    Object.keys(prodSnap.val()||{}).forEach(id=>updates['products/'+id+'/sellerBusinessVerified']=newVal);
+    if(Object.keys(updates).length)await db.ref().update(updates);
+    showToast(newVal?'✅ Badge business activé':'Badge business retiré');
     _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
   }catch(e){
     showToast('⚠️ Erreur — réessaie');
@@ -10336,12 +10382,20 @@ function kikoOpenMoreSheet(vidId, authorName, authorUid, isOwn){
 
   if(isOwn){
     items.push('sep');
+    items.push({ icon:'🛍️', label:'Publier sur Market', sub:'Transforme cette vidéo en annonce', __marketVid:true });
     items.push({ icon:'🗑️', label:'Supprimer', sub:'Action irréversible', danger:true, action:()=>{ kikoCloseMoreSheet(); setTimeout(()=>confirmDeleteVideo(vidId), 200); } });
   }
 
   let html = `<div class="kiko-sheet-handle"></div><div class="kiko-sheet-title">Options</div>`;
   items.forEach(it=>{
     if(it === 'sep'){ html += '<div class="kiko-sheet-sep"></div>'; return; }
+    if(it.__marketVid){
+      html += `<div class="kiko-sheet-item" onclick="kikoCloseMoreSheet();setTimeout(()=>kikoPublishVideoToMarket('${jsStr(vidId)}'),200)">
+        <div class="kiko-sheet-item-icon">${it.icon}</div>
+        <div><div class="kiko-sheet-item-label">${it.label}</div><div class="kiko-sheet-item-sub">${it.sub||''}</div></div>
+      </div>`;
+      return;
+    }
     html += `<div class="kiko-sheet-item${it.danger?' danger':''}" onclick="(${it.action.toString()})()">
       <div class="kiko-sheet-item-icon">${it.icon}</div>
       <div><div class="kiko-sheet-item-label">${it.label}</div><div class="kiko-sheet-item-sub">${it.sub||''}</div></div>
@@ -11254,7 +11308,7 @@ function renderMarket(prods){
         <div class="prod-price">${fmtPrice(p.price)}<small>FCFA</small>${hasDiscount?`<span class="prod-price-old">${fmtPrice(p.oldPrice)}</span>`:''}</div>
         <div class="prod-name">${esc(p.name)}</div>
         ${p.location?`<div class="prod-location">📍 ${esc(p.location)}</div>`:''}
-        <div class="prod-seller"><div class="prod-seller-av">${avH}</div><div class="prod-seller-name">@${esc(p.sellerName||'vendeur')}${verifiedBadge(p.sellerVerified)}</div></div>
+        <div class="prod-seller"><div class="prod-seller-av">${avH}</div><div class="prod-seller-name">@${esc(p.sellerName||'vendeur')}${verifiedBadge(p.sellerVerified)}${businessBadge(p.sellerBusinessVerified)}</div></div>
         ${p.createdAt?`<div class="prod-time">Il y a ${timeAgo(p.createdAt)}</div>`:''}
       </div>
     </div>`;
@@ -11279,7 +11333,7 @@ function openProduct(id){
   document.getElementById('pmodLocation').innerText=p.location?'📍 '+p.location:'';
   document.getElementById('pmodDesc').innerText=p.desc||'Aucune description';
   const avEl=document.getElementById('pmodSellerAv');avEl.innerHTML=p.sellerAvatar?`<img src="${p.sellerAvatar}" alt="">`:( p.sellerName||'V')[0].toUpperCase();
-  document.getElementById('pmodSellerName').innerHTML=esc(p.sellerName||'Vendeur')+verifiedBadge(p.sellerVerified);
+  document.getElementById('pmodSellerName').innerHTML=esc(p.sellerName||'Vendeur')+verifiedBadge(p.sellerVerified)+businessBadge(p.sellerBusinessVerified);
   const waBtn=document.getElementById('pmodWaBtn');
   if(p.phone){const msg=encodeURIComponent(`Bonjour ! Je suis intéressé(e) par "${p.name}" à ${fmtPrice(p.price)} FCFA sur AES👑 Vidéos.`);waBtn.onclick=()=>window.open(`https://wa.me/${p.phone.replace(/[^0-9]/g,'')}?text=${msg}`);waBtn.style.display='flex';}
   else waBtn.style.display='none';
@@ -11308,8 +11362,33 @@ function shareProduct(){
   else navigator.clipboard.writeText(txt).then(()=>showToast('🔗 Lien copié !'));
 }
 function openAddProduct(){document.getElementById('addProductModal').classList.add('active');}
+// ═══ Publier sur Market depuis une vidéo — le créateur transforme sa vidéo en annonce ═══
+// Pré-remplit le formulaire produit avec la légende + la miniature de la vidéo,
+// le vendeur complète juste prix/catégorie avant de publier.
+async function kikoPublishVideoToMarket(vidId){
+  const v=(typeof allVids!=='undefined'?allVids:[]).find(x=>x.id===vidId);
+  if(!v){ showToast('❌ Vidéo introuvable'); return; }
+  openAddProduct();
+  _pendingSourceVideoId=vidId;
+  const nameEl=document.getElementById('prodName'), descEl=document.getElementById('prodDesc');
+  if(nameEl) nameEl.value=(v.desc||'').slice(0,60)||'Produit de ma vidéo';
+  if(descEl) descEl.value=v.desc||'';
+  if(v.thumbnail){
+    const pick=document.getElementById('photoPick');
+    if(pick) pick.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;position:absolute;inset:0;">⏳ Récupération de la photo...</div>`;
+    try{
+      const file=await peUrlToFile(v.thumbnail,'produit_video.jpg');
+      prodPhotoFile=file;
+      const url=URL.createObjectURL(file);
+      if(pick) pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img id="prodPhotoPreviewImg" src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><button type="button" onclick="event.stopPropagation();enhanceProductPhoto()" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">✨ IA</button>`;
+    }catch(e){
+      if(pick) pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div>`;
+    }
+  }
+  showToast('🛍️ Complète le prix et la catégorie pour publier');
+}
 function closeAddProduct(){
-  document.getElementById('addProductModal').classList.remove('active');prodPhotoFile=null;
+  document.getElementById('addProductModal').classList.remove('active');prodPhotoFile=null;_pendingSourceVideoId=null;
   document.getElementById('photoPick').innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div>`;
   ['prodName','prodPrice','prodOldPrice','prodDesc','prodPhone','prodLocation'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prodProg').classList.remove('show');
@@ -11354,7 +11433,7 @@ async function submitProduct(){
   try{
     let imageUrl='';
     if(prodPhotoFile){document.getElementById('prodProgLabel').innerText='Upload photo...';imageUrl=await ikUpload(prodPhotoFile,'products',p=>{document.getElementById('prodProgFill').style.width=p+'%';});}
-    await db.ref('products').push({name,price:Number(price),oldPrice,desc,cat,phone,imageUrl,location,sold:false,sellerName:currentUser.name,sellerAvatar:currentUser.avatar||'',sellerVerified:currentUser.verified||false,sellerUid:currentUser.uid,createdAt:Date.now()});
+    await db.ref('products').push({name,price:Number(price),oldPrice,desc,cat,phone,imageUrl,location,sold:false,sellerName:currentUser.name,sellerAvatar:currentUser.avatar||'',sellerVerified:currentUser.verified||false,sellerBusinessVerified:currentUser.businessVerified||false,sellerUid:currentUser.uid,sourceVideoId:_pendingSourceVideoId||null,createdAt:Date.now()});
     showToast('🎉 Produit publié !');closeAddProduct();loadMarket();
   }catch(e){showToast('❌ '+e.message);btn.disabled=false;btn.innerText='🚀 Publier le produit';document.getElementById('prodProg').classList.remove('show');}
 }
@@ -12149,7 +12228,7 @@ let _dmTab = 'all';
 
 function loadDMs(){
   if(!currentUser){
-    document.getElementById('dmList').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted);"><div style="font-size:44px;margin-bottom:12px;">💬</div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:10px;">AES Chat</div><div style="font-size:13px;margin-bottom:16px;">Connecte-toi pour accéder à tes messages</div><button onclick="openAuth()" style="background:var(--gold);color:#14151A;border:none;padding:11px 24px;border-radius:20px;font-family:Syne,sans-serif;font-weight:700;font-size:13px;cursor:pointer;">Se connecter</button></div>';
+    document.getElementById('dmList').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted);"><div style="font-size:44px;margin-bottom:12px;">💬</div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:10px;">Discussions</div><div style="font-size:13px;margin-bottom:16px;">Connecte-toi pour accéder à tes messages</div><button onclick="openAuth()" style="background:var(--gold);color:#14151A;border:none;padding:11px 24px;border-radius:20px;font-family:Syne,sans-serif;font-weight:700;font-size:13px;cursor:pointer;">Se connecter</button></div>';
     return;
   }
   // Charger les stories des abonnés pour les afficher en haut
@@ -12357,8 +12436,8 @@ function openChat(uid,name,avatar,verified){
   kikoWatchPresence(uid, status=>{
     const el=document.getElementById('chatHstatus');
     if(el) el.innerHTML=status==='online'
-      ? '<span style="color:#4CAF50;">● En ligne</span>'
-      : `<span style="color:var(--muted);">● ${status}</span>`;
+      ? '<span style="color:#4CAF50;">en ligne</span>'
+      : `<span style="color:rgba(255,255,255,0.75);">${status}</span>`;
   });
 
   loadMessages();
@@ -12555,7 +12634,7 @@ async function sendMessage(){
   await db.ref('messages/'+key).push({from:currentUser.uid,to:curChatUid,text:txt,at:Date.now()});
   await db.ref('dms/'+key).update({
     lastMsg:txt,updatedAt:Date.now(),
-    otherName:curChatName,otherAvatar:'',otherVerified:currentUser.verified||false,
+    otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,
     ['unread/'+curChatUid]:true
   });
   sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:txt,at:Date.now(),read:false});
@@ -13784,6 +13863,8 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 // ═══ BADGE VÉRIFIÉ — cercle orange + check blanc (style Facebook, couleur perso) ═══
 // N'affiche rien si isVerified est falsy. Utilisé partout : profil, commentaires, vidéos, posts.
 const VERIF_CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 13L9.5 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Icône "boutique" pour le badge vérifié business (distinct du check créateur)
+const BIZ_CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 10V19a1 1 0 0 0 1 1H10V15h4V20H19a1 1 0 0 0 1-1V10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 10L4.5 5H19.5L21 10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 // ═══════════════════════════════════════
 //  BOUTIQUE PERSO — onglet profil & bouton raccourci
 // ═══════════════════════════════════════
@@ -13835,6 +13916,9 @@ function initExploreCard(){
 }
 function verifiedBadge(isVerified){
   return isVerified?`<span class="verif-badge" title="Compte vérifié">${VERIF_CHECK_SVG}</span>`:'';
+}
+function businessBadge(isBusiness){
+  return isBusiness?`<span class="biz-badge" title="Business vérifié">${BIZ_CHECK_SVG}</span>`:'';
 }
 function jsStr(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
 function showToast(msg){const t=document.getElementById('toast');t.innerText=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
@@ -14602,7 +14686,7 @@ async function handleCamFileForChat(file, type){
     await db.ref('dms/'+key).update({
       lastMsg: type==='video' ? '🎥 Vidéo' : '📷 Photo',
       updatedAt:Date.now(),
-      otherName:curChatName,otherAvatar:'',otherVerified:currentUser.verified||false,
+      otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,
       ['unread/'+curChatUid]:true
     });
     sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text: type==='video'?'🎥 Vidéo':'📷 Photo',at:Date.now(),read:false});
@@ -15248,22 +15332,50 @@ function initSFPullToRefresh(){
 .buzz-meta{ display:flex; flex-direction:column; gap:2px; margin-top:6px; }
 .buzz-author{ font-size:11.5px; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .buzz-verif{ color:var(--gold); margin-left:3px; font-size:10px; }
-/* ═══ BADGE VÉRIFIÉ — cercle orange + check blanc, style Facebook ═══ */
+/* ═══ BADGE VÉRIFIÉ — sceau à 8 pointes arrondies + check blanc, façon badge officiel ═══ */
 .verif-badge{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   flex-shrink:0;
-  width:13px;
-  height:13px;
-  border-radius:50%;
-  background:#ff7a00;
+  width:14px;
+  height:14px;
   vertical-align:middle;
   margin-left:3px;
   position:relative;
   top:-1px;
 }
-.verif-badge svg{ width:64%; height:64%; display:block; }
+.verif-badge::before, .verif-badge::after{
+  content:'';
+  position:absolute; inset:0;
+  background:#ff7a00;
+  border-radius:30%;
+}
+.verif-badge::before{ transform:rotate(0deg); }
+.verif-badge::after{ transform:rotate(45deg); }
+.verif-badge svg{ position:relative; z-index:1; width:56%; height:56%; display:block; }
+/* ═══ BADGE VÉRIFIÉ BUSINESS — même sceau, couleur bleue pour le distinguer du check orange créateur ═══ */
+.biz-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  width:14px;
+  height:14px;
+  vertical-align:middle;
+  margin-left:3px;
+  position:relative;
+  top:-1px;
+}
+.biz-badge::before, .biz-badge::after{
+  content:'';
+  position:absolute; inset:0;
+  background:var(--blue,#5B8DEF);
+  border-radius:30%;
+}
+.biz-badge::before{ transform:rotate(0deg); }
+.biz-badge::after{ transform:rotate(45deg); }
+.biz-badge svg{ position:relative; z-index:1; width:58%; height:58%; display:block; }
 .buzz-views{ font-size:10.5px; color:var(--muted); }
 .buzz-more{ flex:0 0 70px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
 .buzz-more-ico{
