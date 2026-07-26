@@ -1832,81 +1832,125 @@ textarea.inp { resize: none; }
 /* ─── PROFIL ─── */
 #profileScreen { overflow-y: auto; padding-bottom: 90px; }
 #profileScreen::-webkit-scrollbar { display: none; }
+
+/* ═══ Header profil : nom + bascule thème + réglages ═══ */
+.pr-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 10px;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.pr-header-name {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 19px; color: var(--text);
+  display: flex; align-items: center; gap: 6px; max-width: 60vw; overflow: hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+}
+.pr-header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.pr-icon-btn {
+  width: 38px; height: 38px; border-radius: 50%; background: var(--surface2);
+  border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; flex-shrink: 0;
+}
+
+/* ═══ Carte profil (avatar à gauche / texte à droite, compact) ═══ */
 .phero {
-  padding: 82px 20px 22px; text-align: center;
-  background: linear-gradient(to bottom, rgba(7,26,61,0.04), transparent);
+  margin: 14px 16px 0; padding: 20px 18px; text-align: left;
+  background: var(--gold3); border: 1px solid var(--border2);
+  border-radius: var(--r-lg); position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 16px;
 }
 .pav-wrap {
-  width: 92px; height: 92px; border-radius: 50%; padding: 3px;
+  width: 88px; height: 88px; border-radius: 50%; padding: 3px;
   background: linear-gradient(135deg, var(--gold2), var(--gold));
-  margin: 0 auto 14px; position: relative; cursor: pointer;
+  margin: 0; position: relative; cursor: pointer; flex-shrink: 0;
   box-shadow: var(--shadow-gold);
 }
 .pav {
   width: 100%; height: 100%; border-radius: 50%; background: var(--surface2);
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 32px; color: var(--gold);
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 30px; color: var(--gold);
   border: 3px solid var(--bg); overflow: hidden;
 }
 .pav img { width: 100%; height: 100%; object-fit: cover; }
 .pav-edit {
-  position: absolute; bottom: 0; right: 0; width: 27px; height: 27px; border-radius: 50%;
-  background: var(--navy); display: flex; align-items: center; justify-content: center;
-  font-size: 11px; border: 2.5px solid var(--bg);
+  position: absolute; bottom: 0; right: 0; width: 25px; height: 25px; border-radius: 50%;
+  background: var(--gold); display: flex; align-items: center; justify-content: center;
+  font-size: 10px; border: 2.5px solid var(--bg);
   box-shadow: var(--shadow-sm);
 }
-.pname { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: var(--text); margin-bottom: 3px; }
-.phandle { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
-.pbio { font-size: 13px; color: var(--text2); line-height: 1.55; max-width: 260px; margin: 0 auto 14px; }
+.phero-info { flex: 1; min-width: 0; }
+.pname { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 19px; color: var(--text); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+.phandle { font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+.pbio { font-size: 12.5px; color: var(--text2); line-height: 1.45; margin: 0; }
 .pedit-btn {
   background: var(--navy); border: none; color: var(--gold);
   border-radius: var(--r-lg); padding: 8px 20px; font-family: 'Syne', sans-serif;
   font-size: 12px; font-weight: 700; cursor: pointer; margin-bottom: 18px;
   box-shadow: 0 4px 16px rgba(7,26,61,0.2);
 }
+
+/* ═══ Barre de stats sombre (toujours contrastée, quel que soit le thème) ═══ */
 .pstats {
-  display: flex; justify-content: center; margin-bottom: 18px;
-  border: 1.5px solid var(--border); border-radius: var(--r-md);
-  overflow: hidden; background: var(--surface);
-  box-shadow: var(--shadow-sm);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  margin: 16px 16px 22px; border-radius: var(--r-lg);
+  background: linear-gradient(160deg, #1B1D24, #14151A);
+  overflow: hidden; box-shadow: var(--shadow-md);
 }
 .pstat {
-  flex: 1; text-align: center; padding: 16px 0;
-  border-right: 1px solid var(--border); cursor: pointer;
-  transition: background 0.2s;
+  text-align: center; padding: 16px 2px; cursor: pointer;
+  border-right: 1px solid rgba(255,255,255,0.08); transition: background 0.2s;
 }
 .pstat:last-child { border-right: none; }
-.pstat:active { background: var(--surface2); }
-.pstat-n { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; color: var(--text); }
-.pstat-l { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 500; }
+.pstat:active { background: rgba(255,255,255,0.05); }
+.pstat-ic { font-size: 14px; margin-bottom: 6px; line-height: 1; }
+.pstat-n { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; color: #FFFFFF; }
+.pstat-l { font-size: 9.5px; color: rgba(255,255,255,0.55); margin-top: 2px; font-weight: 600; }
+
+/* ═══ Raccourcis (grille 2x3) ═══ */
+.pr-section-head { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; margin-bottom: 10px; }
+.pr-section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--text); }
+.pr-see-all { font-size: 12px; color: var(--muted); font-weight: 600; cursor: pointer; }
+.pr-shortcuts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px; margin-bottom: 18px; }
+.pr-short-card {
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--r-md); padding: 14px 6px; font-size: 12px; font-weight: 600;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
+  box-shadow: var(--shadow-xs);
+}
+.pr-short-ic {
+  width: 38px; height: 38px; border-radius: 50%; background: var(--gold3); color: var(--gold);
+  display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+}
+
+/* ═══ Bandeau Premium ═══ */
+.pr-premium-banner {
+  display: flex; align-items: center; gap: 12px; margin: 0 16px 20px; padding: 14px;
+  background: var(--gold3); border: 1px solid var(--border2); border-radius: var(--r-lg);
+  cursor: pointer;
+}
+.pr-premium-ic {
+  width: 44px; height: 44px; border-radius: var(--r-sm); background: #14151A;
+  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+.pr-premium-txt { flex: 1; min-width: 0; }
+.pr-premium-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: var(--text); }
+.pr-premium-sub { font-size: 11.5px; color: var(--text2); margin-top: 2px; }
+.pr-premium-btn {
+  background: var(--gold); color: #fff; border: none; border-radius: 999px;
+  padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+}
+
 .pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; }
 .pgitem { aspect-ratio: 9/16; background: var(--surface2); position: relative; overflow: hidden; cursor: pointer; }
 .pgitem video { width: 100%; height: 100%; object-fit: cover; }
 
-/* ═══ Bandeau motif derrière l'avatar profil (identité Sahel) ═══ */
-.phero-pattern {
-  position: absolute; top: 0; left: 0; right: 0; height: 150px; z-index: -1;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255,122,48,0.16) 0%, transparent 45%),
-    radial-gradient(circle at 80% 10%, rgba(255,122,48,0.10) 0%, transparent 40%),
-    var(--bg2);
-  border-bottom: 1px solid var(--border);
-}
-.phero { position: relative; }
 .pverif-pill {
   display: inline-flex; align-items: center; gap: 5px;
   background: var(--gold3); border: 1px solid var(--border2); color: var(--gold2);
   font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 999px;
-  margin: 6px 0 4px;
+  margin: 6px 4px 0 0;
 }
-.ploc { font-size: 12px; color: var(--text2); margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-.pactions { display: flex; gap: 8px; margin-bottom: 18px; padding: 0 4px; }
-.pact-btn {
-  flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text);
-  border-radius: var(--r-md); padding: 11px 6px; font-size: 12px; font-weight: 600;
-  display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
-}
-.pact-btn span:first-child { font-size: 16px; }
+.ploc { font-size: 12px; color: var(--text2); margin-top: 6px; display: flex; align-items: center; justify-content: flex-start; gap: 4px; }
 .ptabs {
   display: flex; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   margin-bottom: 2px; position: sticky; top: 0; background: var(--bg); z-index: 20;
@@ -3981,20 +4025,9 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
 }
 .pgitem:active{ transform: scale(0.96) !important; }
 
-/* ─── PROFIL — avatar anneau lumineux + cartes stats ─── */
-.pav-wrap{ position: relative; }
-.pav{
-  border: 3px solid var(--bg) !important;
-  box-shadow: 0 0 0 3px var(--gold), 0 0 22px var(--gold-glow) !important;
-  background: var(--surface2) !important;
-}
-.pstat{
-  background: var(--glass) !important;
-  border-radius: var(--r-sm) !important;
-  margin: 3px; border: 1px solid var(--border) !important;
-}
-.pstat-n{ color: var(--gold) !important; }
-.pstat-l{ color: var(--muted) !important; }
+/* ─── PROFIL — avatar & stats : styles gérés par .pav / .pstat plus haut,
+     ce bloc ne doit plus rien surcharger pour rester fidèle à la maquette ─── */
+
 
 /* ─── Boutons & inputs raccordés à la nouvelle identité ─── */
 .btn-gold{
@@ -4388,41 +4421,71 @@ document.addEventListener('load', function(e){
 </div>
 
 <div id="profileScreen" class="screen">
-  <!-- Header profil avec bouton paramètres -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 16px 10px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;">
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--text);">Mon Profil</div>
-    <div onclick="openSettings()" style="width:38px;height:38px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="var(--gold)" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="var(--gold)" stroke-width="1.8"/></svg>
+  <!-- Header profil : nom + bascule thème + réglages -->
+  <div class="pr-header">
+    <div class="pr-header-name"><span id="profileHeaderName">Profil</span> 👑</div>
+    <div class="pr-header-actions">
+      <div class="pr-icon-btn" onclick="toggleThemeQuick()" title="Thème">🌙</div>
+      <div class="pr-icon-btn" onclick="openSettings()" title="Réglages">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="var(--gold)" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="var(--gold)" stroke-width="1.8"/></svg>
+      </div>
     </div>
   </div>
+
+  <!-- Carte identité -->
   <div class="phero">
-    <div class="phero-pattern"></div>
     <div class="pav-wrap" onclick="needAuth(()=>kikoOpenFilePicker('avatarInput'))">
       <div class="pav" id="profileAvEl">?</div>
       <div class="pav-edit">✏️</div>
       <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
     </div>
-    <div class="pname" id="profileNameEl">Invité</div>
-    <div class="phandle" id="profileHandleEl">@inconnu</div>
-    <div class="pbio" id="profileBioEl">Crée un compte pour profiter de toutes les fonctionnalités 🌍</div>
-    <div class="pverif-pill" id="profileVerifiedPill" style="display:none;">✓ Créateur vérifié</div>
-    <div class="pverif-pill" id="profileBusinessPill" style="display:none;background:rgba(91,141,239,0.14);border-color:rgba(91,141,239,0.4);color:var(--blue,#5B8DEF);">🏪 Vendeur vérifié</div>
-    <div class="ploc" id="profileLocEl" style="display:none;">📍 <span id="profileLocText"></span></div>
-    <div class="pstats">
-      <div class="pstat" onclick="openFollowModal('videos')"><div class="pstat-n" id="pVids">0</div><div class="pstat-l">Vidéos</div></div>
-      <div class="pstat" onclick="openFollowModal('followers')"><div class="pstat-n" id="pFollowers">0</div><div class="pstat-l">Abonnés</div></div>
-      <div class="pstat" onclick="openFollowModal('following')"><div class="pstat-n" id="pFollowingCount">0</div><div class="pstat-l">Abonnements</div></div>
+    <div class="phero-info">
+      <div class="pname" id="profileNameEl">Invité</div>
+      <div class="phandle" id="profileHandleEl">@inconnu</div>
+      <div class="pbio" id="profileBioEl">Crée un compte pour profiter de toutes les fonctionnalités 🌍</div>
+      <div class="pverif-pill" id="profileVerifiedPill" style="display:none;">✓ Créateur vérifié</div>
+      <div class="pverif-pill" id="profileBusinessPill" style="display:none;background:rgba(91,141,239,0.14);border-color:rgba(91,141,239,0.4);color:var(--blue,#5B8DEF);">🏪 Vendeur vérifié</div>
+      <div class="ploc" id="profileLocEl" style="display:none;">📍 <span id="profileLocText"></span></div>
     </div>
-    <div class="pactions">
-      <div class="pact-btn" onclick="needAuth(()=>kikoOpenFilePicker('statusInput'))">
-        <input type="file" id="statusInput" accept="image/*,video/*" style="display:none;" onchange="openStoryTextModal(this)">
-        <span>📸</span><span>Statut</span>
-      </div>
-      <div class="pact-btn" onclick="needAuth(openMyBoutique)"><span>🛍️</span><span>Boutique</span></div>
-      <button class="pact-btn" id="editProfileBtn" style="display:none;border:none;" onclick="openEditProfile()"><span>✏️</span><span>Modifier</span></button>
-    </div>
-    <button class="btn-ghost" id="logoutBtn" style="display:none;max-width:180px;margin:0 auto 6px;" onclick="doLogout()">🚪 Déconnexion</button>
   </div>
+
+  <!-- Barre de stats sombre -->
+  <div class="pstats">
+    <div class="pstat" onclick="openFollowModal('videos')"><div class="pstat-ic">▶️</div><div class="pstat-n" id="pVids">0</div><div class="pstat-l">Vidéos</div></div>
+    <div class="pstat" onclick="openFollowModal('followers')"><div class="pstat-ic">👥</div><div class="pstat-n" id="pFollowers">0</div><div class="pstat-l">Abonnés</div></div>
+    <div class="pstat"><div class="pstat-ic">❤️</div><div class="pstat-n" id="pLikes">0</div><div class="pstat-l">J'aime</div></div>
+    <div class="pstat" onclick="openFollowModal('following')"><div class="pstat-ic">🔖</div><div class="pstat-n" id="pFollowingCount">0</div><div class="pstat-l">Abonnements</div></div>
+  </div>
+
+  <!-- Raccourcis -->
+  <div class="pr-section-head">
+    <div class="pr-section-title">Raccourcis</div>
+    <div class="pr-see-all">Voir tout ›</div>
+  </div>
+  <div class="pr-shortcuts">
+    <div class="pr-short-card" onclick="openFollowModal('videos')"><div class="pr-short-ic">▶️</div><span>Vidéos</span></div>
+    <div class="pr-short-card" onclick="openFollowModal('followers')"><div class="pr-short-ic">👥</div><span>Abonnés</span></div>
+    <div class="pr-short-card" onclick="openFollowModal('following')"><div class="pr-short-ic">🔖</div><span>Abonnements</span></div>
+    <div class="pr-short-card" onclick="needAuth(()=>kikoOpenFilePicker('statusInput'))">
+      <input type="file" id="statusInput" accept="image/*,video/*" style="display:none;" onchange="openStoryTextModal(this)">
+      <div class="pr-short-ic">📸</div><span>Statut</span>
+    </div>
+    <div class="pr-short-card" onclick="needAuth(openMyBoutique)"><div class="pr-short-ic" style="background:rgba(52,211,153,0.14);color:var(--green);">🛍️</div><span>Boutique</span></div>
+    <div class="pr-short-card" id="editProfileBtn" style="display:none;" onclick="openEditProfile()"><div class="pr-short-ic">✏️</div><span>Modifier profil</span></div>
+  </div>
+
+  <!-- Bandeau Premium -->
+  <div class="pr-premium-banner" onclick="openPremiumInfo()">
+    <div class="pr-premium-ic">👑</div>
+    <div class="pr-premium-txt">
+      <div class="pr-premium-title">KIKO Premium</div>
+      <div class="pr-premium-sub">Accédez à des outils exclusifs</div>
+    </div>
+    <button class="pr-premium-btn" onclick="event.stopPropagation();openPremiumInfo()">Découvrir</button>
+  </div>
+
+  <button class="btn-ghost" id="logoutBtn" style="display:none;max-width:180px;margin:0 auto 18px;" onclick="doLogout()">🚪 Déconnexion</button>
+
   <div class="ptabs" id="profileTabs">
     <div class="ptab active" data-ptab="pub" onclick="switchProfileTab('pub',this)">Publications</div>
     <div class="ptab" data-ptab="statuts" onclick="switchProfileTab('statuts',this)">Statuts</div>
@@ -8547,7 +8610,7 @@ function applyUserUI(){
   const loginBtn=document.getElementById('loginTopBtn');
   if(loginBtn)loginBtn.onclick=isLogged?()=>showScreen('profile'):openAuth;
   document.getElementById('logoutBtn').style.display=isLogged?'block':'none';
-  document.getElementById('editProfileBtn').style.display=isLogged?'block':'none';
+  document.getElementById('editProfileBtn').style.display=isLogged?'flex':'none';
   document.getElementById('feedTabs').style.display=isLogged?'flex':'none';
 
   // Helper : mettre à jour un avatar mini (initial + img)
@@ -8569,6 +8632,7 @@ function applyUserUI(){
     document.getElementById('profileAvEl').innerHTML=currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:currentUser.name[0].toUpperCase();
     document.getElementById('profileNameEl').innerHTML=esc(currentUser.name)+verifiedBadge(currentUser.verified);
     document.getElementById('profileHandleEl').innerText='@'+currentUser.name.toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,'');
+    const phn=document.getElementById('profileHeaderName'); if(phn) phn.innerText=currentUser.name;
     document.getElementById('profileBioEl').innerText=currentUser.bio||'Créateur de contenu africain 🌍';
     const vp=document.getElementById('profileVerifiedPill'); if(vp) vp.style.display=currentUser.verified?'inline-flex':'none';
     const bp=document.getElementById('profileBusinessPill'); if(bp) bp.style.display=currentUser.businessVerified?'inline-flex':'none';
@@ -8586,6 +8650,7 @@ function applyUserUI(){
     document.getElementById('profileNameEl').innerText='Invité';
     document.getElementById('profileHandleEl').innerText='@inconnu';
     document.getElementById('profileBioEl').innerText='Crée un compte pour profiter de toutes les fonctionnalités 🌍';
+    const phn=document.getElementById('profileHeaderName'); if(phn) phn.innerText='Profil';
     const vp=document.getElementById('profileVerifiedPill'); if(vp) vp.style.display='none';
     const bp=document.getElementById('profileBusinessPill'); if(bp) bp.style.display='none';
     const locEl=document.getElementById('profileLocEl'); if(locEl) locEl.style.display='none';
@@ -8632,6 +8697,11 @@ function setThemeMode(mode){
   localStorage.setItem('aes_theme',m); // choix manuel explicite : ne suivra plus le système
   const tt=document.getElementById('settThemeToggle'); if(tt)tt.checked=(m==='light');
 }
+function toggleThemeQuick(){
+  const isLight=document.documentElement.getAttribute('data-theme')==='light';
+  setThemeMode(isLight?'dark':'light');
+}
+function openPremiumInfo(){ showToast('👑 KIKO Premium bientôt disponible !'); }
 // Si l'utilisateur n'a jamais choisi de thème manuellement, on continue de suivre
 // les changements de préférence système en direct (ex: bascule auto la nuit).
 try{
@@ -12193,6 +12263,8 @@ async function renderProfile(){
   const lkSnap=await db.ref('followers/'+currentUser.uid).once('value');
   document.getElementById('pFollowers').innerText=fmt(lkSnap.numChildren());
   document.getElementById('pFollowingCount').innerText=fmt(Object.keys(following).length);
+  const totalLikes=mine.reduce((s,v)=>s+(v.likes||0),0);
+  const pLikesEl=document.getElementById('pLikes'); if(pLikesEl) pLikesEl.innerText=fmt(totalLikes);
   document.getElementById('profileGrid').innerHTML=mine.length
     ?mine.map(v=>`<div class="pgitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span><button class="pg-del-btn" onclick="event.stopPropagation();confirmDeleteVideo('${v.id}')">🗑</button></div></div>`).join('')
     :'<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Aucune vidéo publiée</div>';
