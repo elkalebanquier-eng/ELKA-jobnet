@@ -5121,17 +5121,6 @@ document.addEventListener('load', function(e){
     <span>Accueil</span>
   </div>
 
-  <!-- 🗺️ Carte — explorer l'Afrique par pays (Buzz reste accessible via l'accueil → Tendances locales) -->
-  <div class="nbtn" id="nb-carte" onclick="showScreen('carte')">
-    <div class="ni">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 3L3 5.5V21L9 18.5L15 21L21 18.5V3L15 5.5L9 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
-        <path d="M9 3V18.5M15 5.5V21" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <span>Carte</span>
-  </div>
-
   <!-- Marché — neon vert/rose comme image -->
   <div class="nbtn" id="nb-market" onclick="showScreen('market')">
     <div class="ni ni-market">
@@ -5282,7 +5271,7 @@ document.addEventListener('load', function(e){
 
       <!-- ÉTAT 1 : Pas de vidéo sélectionnée -->
       <div id="vStateEmpty">
-        <button class="cam-open-btn" onclick="openCamera('video')">📹 Filmer avec effets</button>
+        <button class="cam-open-btn" onclick="openKikoProCamera('video')">📹 Filmer avec effets</button>
 
         <!-- Gros bouton galerie — label HTML pour garantir l'ouverture native -->
         <div onclick="kikoOpenFilePicker('videoInput')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--surface);border:2px dashed var(--border2);border-radius:var(--r-lg);padding:32px 16px;cursor:pointer;text-align:center;margin-bottom:4px;">
@@ -5299,7 +5288,7 @@ document.addEventListener('load', function(e){
 
     <!-- PANEL PHOTO -->
     <div class="upload-panel" id="upanel-photo">
-      <button type="button" class="cam-open-btn" onclick="openCamera('photo')" style="width:100%;margin-bottom:10px;">📷 Prendre une photo (avec filtres)</button>
+      <button type="button" class="cam-open-btn" onclick="openKikoProCamera('photo')" style="width:100%;margin-bottom:10px;">📷 Prendre une photo (avec filtres)</button>
       <div class="photo-picker-zone" id="photoPickZone" onclick="kikoOpenFilePicker('photoFilesInput')">
         <input type="file" id="photoFilesInput" accept="image/*" multiple style="display:none" onchange="onPhotosSelected(this)">
         <div style="font-size:36px;margin-bottom:8px;">🖼️</div>
@@ -5756,9 +5745,13 @@ document.addEventListener('load', function(e){
       <div class="sc-row-ico" style="background:#25D366;color:#fff;">✏️</div>
       <div class="sc-row-txt">Statut texte</div>
     </div>
+    <div class="sc-row" onclick="closeStatusChoice();openKikoProCamera('photo','story');">
+      <div class="sc-row-ico" style="background:var(--gold);color:#0B1020;">📸</div>
+      <div class="sc-row-txt">Prendre une photo/vidéo</div>
+    </div>
     <div class="sc-row" onclick="closeStatusChoice();kikoOpenFilePicker('statusInput');">
-      <div class="sc-row-ico" style="background:var(--surface2);color:var(--gold);">📷</div>
-      <div class="sc-row-txt">Photo ou vidéo</div>
+      <div class="sc-row-ico" style="background:var(--surface2);color:var(--gold);">🖼️</div>
+      <div class="sc-row-txt">Choisir depuis la galerie</div>
     </div>
   </div>
 </div>
@@ -6510,7 +6503,7 @@ try{
 function _saveMarketFilters(){
   try{ localStorage.setItem('kiko_market_filters', JSON.stringify({cat:currentCat,min:priceMin,max:priceMax})); }catch(e){}
 }
-let curChatUid=null,curChatName=null,curChatVerified=false;
+let curChatUid=null,curChatName=null,curChatVerified=false,curChatBusinessVerified=false;
 let curStories=[],curStoryIdx=0,curGroupIdx=0,allStoryGroups=[];
 let searchTabCurrent='videos';
 let notifListener=null,commentsListener=null;
@@ -6944,6 +6937,8 @@ async function kikoSubmitOpportunity(){
       auteur: currentUser?currentUser.name:'Anonyme',
       authorUid: currentUser?currentUser.uid:null,
       authorAvatar: currentUser?currentUser.avatar:null,
+      verified: currentUser?(currentUser.verified||false):false,
+      businessVerified: currentUser?(currentUser.businessVerified||false):false,
       createdAt: Date.now(),
       visibilityBoost: 15, // léger coup de pouce : les opportunités sont le cœur de KIKO
       likes:0, commentCount:0, shares:0, views:0
@@ -7016,7 +7011,7 @@ async function publishTextPost(){
     await db.ref('posts').push({
       type:'text',text,
       bgId:selectedBg.id,bgCss:selectedBg.css,textColor:selectedBg.textColor,
-      auteur:currentUser.name,authorUid:currentUser.uid,
+      auteur:currentUser.name,authorUid:currentUser.uid,verified:currentUser.verified||false,businessVerified:currentUser.businessVerified||false,
       authorAvatar:currentUser.avatar||'',
       country:currentUser.country||null,
       likes:0,shares:0,createdAt:Date.now()
@@ -7305,7 +7300,7 @@ async function publishPhotoPost(){
     await db.ref('posts').push({
       type:'photo',photoUrls:urls,desc,
       ...musicData,
-      auteur:currentUser.name,authorUid:currentUser.uid,
+      auteur:currentUser.name,authorUid:currentUser.uid,verified:currentUser.verified||false,businessVerified:currentUser.businessVerified||false,
       authorAvatar:currentUser.avatar||'',
       country:currentUser.country||null,
       likes:0,shares:0,createdAt:Date.now()
@@ -7499,13 +7494,14 @@ function buildHomeVideoBreakHtml(videos, breakIndex){
   const cards = chunk.map(v=>{
     const dur = v.duration?formatDur(v.duration):'';
     const verified = verifiedBadge(v.authorVerified||v.verified);
+    const business = businessBadge(v.authorBusinessVerified);
     return `<div class="buzz-card" onclick="showScreen('buzz')">
       <div class="buzz-thumb" style="background-image:url('${optVidThumb(v.thumbnail,240)||''}')">
         <div class="buzz-play-ico">▶</div>
         ${dur?`<span class="buzz-dur">${dur}</span>`:''}
       </div>
       <div class="buzz-meta">
-        <span class="buzz-author">@${esc(v.auteur||'anonyme')}${verified}</span>
+        <span class="buzz-author">@${esc(v.auteur||'anonyme')}${verified}${business}</span>
         <span class="buzz-views">👁 ${fmt(v.views||0)}</span>
       </div>
     </div>`;
@@ -7773,6 +7769,7 @@ function buildPhotoCard(p,i){
     </div>
     <audio id="pmusic-${p.id}" src="${p.musicUrl}" loop preload="none"></audio>`:'';
   const verified=verifiedBadge(p.verified);
+  const business=businessBadge(p.businessVerified);
   const isOwn=currentUser&&p.authorUid===currentUser.uid;
   const isFollowingAuthor=currentUser&&p.authorUid&&following[p.authorUid];
   const followBadge=(!isOwn&&p.authorUid)
@@ -7811,7 +7808,7 @@ function buildPhotoCard(p,i){
         ${followBadge}
       </div>
       <div class="pcard-header-info">
-        <div class="pcard-header-name">@${esc(p.auteur||'anonyme')} ${verified}</div>
+        <div class="pcard-header-name">@${esc(p.auteur||'anonyme')} ${verified}${business}</div>
         <div class="pcard-header-time">${ago}</div>
       </div>
     </div>
@@ -7921,6 +7918,7 @@ function buildPfsSlide(p){
   const ago=timeAgo(p.createdAt);
   const mainPhoto=(p.photoUrls&&p.photoUrls[0])||'';
   const verified=verifiedBadge(p.verified);
+  const business=businessBadge(p.businessVerified);
   const isOwn=currentUser&&p.authorUid===currentUser.uid;
   const isFollowingAuthor=currentUser&&p.authorUid&&following[p.authorUid];
   const followBadge=(!isOwn&&p.authorUid)
@@ -7951,7 +7949,7 @@ function buildPfsSlide(p){
           ${followBadge}
         </div>
         <div class="pcard-header-info">
-          <div class="pcard-header-name">@${esc(p.auteur||'anonyme')} ${verified}</div>
+          <div class="pcard-header-name">@${esc(p.auteur||'anonyme')} ${verified}${business}</div>
           <div class="pcard-header-time">${ago}</div>
         </div>
       </div>
@@ -8101,7 +8099,7 @@ function buildOpportunityCard(p,i){
     <div class="tcard-content">
       <div class="tcard-author-row">
         <div class="tcard-av">${avH}</div>
-        <div class="tcard-name" style="color:#FFD9A8;">@${esc(p.auteur||'anonyme')}</div>
+        <div class="tcard-name" style="color:#FFD9A8;">@${esc(p.auteur||'anonyme')}${verifiedBadge(p.verified)}${businessBadge(p.businessVerified)}</div>
         <div style="margin-left:auto;font-size:11px;color:#FFB347;">${timeAgo(p.createdAt)}</div>
       </div>
       <div style="font-weight:800;font-size:16px;color:#fff;margin:8px 0 4px;font-family:'Syne',sans-serif;">${esc(p.titre||'')}</div>
@@ -8305,7 +8303,7 @@ function openInstaPost(postId){
   igCurPost=p;
   document.getElementById('igPostViewer').classList.add('active');
   document.getElementById('igpvAv').innerHTML=p.authorAvatar?`<img src="${optImg(p.authorAvatar,80)}" alt="">`:(p.auteur||'A')[0].toUpperCase();
-  document.getElementById('igpvUname').innerHTML=`@${esc(p.auteur||'anonyme')}<span id="igpvBadge">${verifiedBadge(p.verified)}</span>`;
+  document.getElementById('igpvUname').innerHTML=`@${esc(p.auteur||'anonyme')}<span id="igpvBadge">${verifiedBadge(p.verified)}${businessBadge(p.businessVerified)}</span>`;
   document.getElementById('igpvImg').src=optImg((p.photoUrls&&p.photoUrls[0])||'',900);
   document.getElementById('igpvImgBg').style.backgroundImage=`url('${optImg((p.photoUrls&&p.photoUrls[0])||'',60)}')`;
 
@@ -8314,7 +8312,7 @@ function openInstaPost(postId){
   document.getElementById('igpvProgress').innerHTML=Array.from({length:nbSeg}).map(()=>'<div class="igpv-progress-seg"></div>').join('');
 
   // Ligne nom + heure sous la photo (répète l'auteur, comme dans l'en-tête)
-  document.getElementById('igpvUname2').innerHTML=`@${esc(p.auteur||'anonyme')}<span id="igpvBadge2">${verifiedBadge(p.verified)}</span>`;
+  document.getElementById('igpvUname2').innerHTML=`@${esc(p.auteur||'anonyme')}<span id="igpvBadge2">${verifiedBadge(p.verified)}${businessBadge(p.businessVerified)}</span>`;
   document.getElementById('igpvTime2').textContent=timeAgo(p.createdAt);
 
   const isLiked=liked.includes(p.id);
@@ -8910,7 +8908,7 @@ function _doShowScreen(n){
   };
   const navMap = {
     home:'nb-home', market:'nb-market', notif:'nb-notif',
-    dm:'nb-dm', job:'nb-job', profile:'nb-profile', carte:'nb-carte'
+    dm:'nb-dm', job:'nb-job', profile:'nb-profile'
   };
   const sid = screenMap[n];
   if(sid){ const el=document.getElementById(sid); if(el) el.classList.add('active'); }
@@ -9374,24 +9372,36 @@ async function _toggleUserVerified(uid,newVal,btn){
   if(btn){btn.disabled=true;btn.innerText='...';}
   try{
     await db.ref('users/'+uid+'/verified').set(newVal);
-    // Propager sur les vidéos, posts et annonces marché existants de cet utilisateur, pour que
-    // le badge apparaisse partout immédiatement (feed vidéo, posts Actu, marché) sans republier.
-    const [vidsSnap,postsSnap,prodSnap]=await Promise.all([
-      db.ref('videos').orderByChild('authorUid').equalTo(uid).once('value'),
-      db.ref('posts').orderByChild('authorUid').equalTo(uid).once('value'),
-      db.ref('products').orderByChild('sellerUid').equalTo(uid).once('value')
-    ]);
-    const updates={};
-    Object.keys(vidsSnap.val()||{}).forEach(id=>updates['videos/'+id+'/authorVerified']=newVal);
-    Object.keys(postsSnap.val()||{}).forEach(id=>updates['posts/'+id+'/verified']=newVal);
-    Object.keys(prodSnap.val()||{}).forEach(id=>updates['products/'+id+'/sellerVerified']=newVal);
-    if(Object.keys(updates).length)await db.ref().update(updates);
-    showToast(newVal?'✅ Badge activé':'Badge retiré');
-    _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
   }catch(e){
     showToast('⚠️ Erreur — réessaie');
     if(btn){btn.disabled=false;}
+    return;
   }
+  // Propager sur les vidéos, posts et annonces marché existants de cet utilisateur, pour que
+  // le badge apparaisse partout immédiatement (feed vidéo, posts Actu, marché) sans republier.
+  // Écritures séparées : une écriture multi-chemins Firebase est atomique — un seul chemin
+  // refusé par les règles ferait échouer TOUT le lot, y compris Marché.
+  try{
+    const prodSnap=await db.ref('products').orderByChild('sellerUid').equalTo(uid).once('value');
+    const updates={};
+    Object.keys(prodSnap.val()||{}).forEach(id=>updates['products/'+id+'/sellerVerified']=newVal);
+    if(Object.keys(updates).length)await db.ref().update(updates);
+  }catch(e){ console.error('Propagation badge vérifié → produits échouée:',e); }
+  try{
+    const vidsSnap=await db.ref('videos').orderByChild('authorUid').equalTo(uid).once('value');
+    const updates={};
+    Object.keys(vidsSnap.val()||{}).forEach(id=>updates['videos/'+id+'/authorVerified']=newVal);
+    if(Object.keys(updates).length)await db.ref().update(updates);
+  }catch(e){ console.error('Propagation badge vérifié → vidéos échouée:',e); }
+  try{
+    const postsSnap=await db.ref('posts').orderByChild('authorUid').equalTo(uid).once('value');
+    const updates={};
+    Object.keys(postsSnap.val()||{}).forEach(id=>updates['posts/'+id+'/verified']=newVal);
+    if(Object.keys(updates).length)await db.ref().update(updates);
+  }catch(e){ console.error('Propagation badge vérifié → posts échouée:',e); }
+  showToast(newVal?'✅ Badge activé':'Badge retiré');
+  _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
+  if(btn){btn.disabled=false;}
 }
 // ═══════════════════════════════════════
 //  ADMIN — activer/désactiver le badge "vérifié business" (vendeurs Market)
@@ -9402,16 +9412,35 @@ async function _toggleUserBusinessVerified(uid,newVal,btn){
   if(btn){btn.disabled=true;btn.innerText='...';}
   try{
     await db.ref('users/'+uid+'/businessVerified').set(newVal);
+  }catch(e){
+    showToast('⚠️ Erreur — réessaie');
+    if(btn){btn.disabled=false;}
+    return;
+  }
+  // Chaque collection est propagée séparément : une écriture multi-chemins Firebase
+  // est atomique — un seul chemin refusé par les règles ferait échouer TOUT le lot,
+  // y compris Marché. En les séparant, un blocage sur l'une n'empêche plus les autres.
+  try{
     const prodSnap=await db.ref('products').orderByChild('sellerUid').equalTo(uid).once('value');
     const updates={};
     Object.keys(prodSnap.val()||{}).forEach(id=>updates['products/'+id+'/sellerBusinessVerified']=newVal);
     if(Object.keys(updates).length)await db.ref().update(updates);
-    showToast(newVal?'✅ Badge business activé':'Badge business retiré');
-    _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
-  }catch(e){
-    showToast('⚠️ Erreur — réessaie');
-    if(btn){btn.disabled=false;}
-  }
+  }catch(e){ console.error('Propagation badge business → produits échouée:',e); }
+  try{
+    const vidsSnap=await db.ref('videos').orderByChild('authorUid').equalTo(uid).once('value');
+    const updates={};
+    Object.keys(vidsSnap.val()||{}).forEach(id=>updates['videos/'+id+'/authorBusinessVerified']=newVal);
+    if(Object.keys(updates).length)await db.ref().update(updates);
+  }catch(e){ console.error('Propagation badge business → vidéos échouée:',e); }
+  try{
+    const postsSnap=await db.ref('posts').orderByChild('authorUid').equalTo(uid).once('value');
+    const updates={};
+    Object.keys(postsSnap.val()||{}).forEach(id=>updates['posts/'+id+'/businessVerified']=newVal);
+    if(Object.keys(updates).length)await db.ref().update(updates);
+  }catch(e){ console.error('Propagation badge business → posts échouée:',e); }
+  showToast(newVal?'✅ Badge business activé':'Badge business retiré');
+  _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
+  if(btn){btn.disabled=false;}
 }
 function loadFeed(){loadFeedMixed();loadHomeStories();initFeedPullToRefresh();}
 
@@ -9428,12 +9457,13 @@ function loadBuzzHomePreview(){
     row.innerHTML=vids.map(v=>{
       const dur=v.duration?formatDur(v.duration):'';
       const verified=verifiedBadge(v.authorVerified||v.verified);
+      const business=businessBadge(v.authorBusinessVerified);
       return `<div class="buzz-card" onclick="showScreen('buzz')">
         <div class="buzz-thumb" style="background-image:url('${optVidThumb(v.thumbnail,240)||''}')">
           ${dur?`<span class="buzz-dur">${dur}</span>`:''}
         </div>
         <div class="buzz-meta">
-          <span class="buzz-author">@${esc(v.auteur||'anonyme')}${verified}</span>
+          <span class="buzz-author">@${esc(v.auteur||'anonyme')}${verified}${business}</span>
           <span class="buzz-views">👁 ${fmt(v.views||0)}</span>
         </div>
       </div>`;
@@ -9950,7 +9980,7 @@ function buildVCard(v,i){
           <div class="vav">${avH}</div>
           ${!isOwn&&v.authorUid?`<div class="vplus${isFollowing?' active':''}" id="vpfollow-${v.id}" onclick="event.stopPropagation();needAuth(()=>toggleFollowBadgeVid('${v.id}','${v.authorUid}','${esc(v.auteur||'')}'))">${isFollowing?'✓':'+'}</div>`:''}
         </div>
-        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}',${(v.authorVerified||v.verified)?1:0})">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}</div>
+        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}',${(v.authorVerified||v.verified)?1:0},${v.authorBusinessVerified?1:0})">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}${businessBadge(v.authorBusinessVerified)}</div>
       </div>
       ${desc?`<div class="vdesc">${esc(desc)}</div>`:''}
       ${tags.length?`<div class="vtags">${tags.map(tg=>`<span class="vtag" onclick="searchByTag('${esc(tg)}')">${esc(tg)}</span>`).join('')}</div>`:''}
@@ -11023,7 +11053,7 @@ async function openFollowModal(type){
 }
 function renderFollowItem(u){
   const avH=u.avatar?`<img src="${optImg(u.avatar,80)}" alt="" loading="lazy" decoding="async">`:( u.name||'?')[0].toUpperCase();
-  return `<div class="fmod-item"><div class="fmod-av">${avH}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;display:flex;align-items:center;">${esc(u.name||'')}${verifiedBadge(u.verified)}</div><div style="font-size:11px;color:var(--muted);">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div><button class="acc-follow" onclick="needAuth(()=>openDMWith('${u.uid}','${esc(u.name||'')}','${u.avatar||''}',${u.verified?1:0}))">💬 DM</button></div>`;
+  return `<div class="fmod-item"><div class="fmod-av">${avH}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;display:flex;align-items:center;">${esc(u.name||'')}${verifiedBadge(u.verified)}${businessBadge(u.businessVerified)}</div><div style="font-size:11px;color:var(--muted);">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div><button class="acc-follow" onclick="needAuth(()=>openDMWith('${u.uid}','${esc(u.name||'')}','${u.avatar||''}',${u.verified?1:0},${u.businessVerified?1:0}))">💬 DM</button></div>`;
 }
 
 // ═══════════════════════════════════════
@@ -11058,7 +11088,7 @@ function renderComments(cmts){
   const list=document.getElementById('clist');
   const wasAtBottom=list.scrollHeight-list.scrollTop-list.clientHeight<60;
   list.innerHTML=cmts.length
-    ?cmts.map(c=>`<div class="citem"><div class="cav">${c.avatar?`<img src="${optImg(c.avatar,60)}" alt="" loading="lazy" decoding="async">`:( c.author||'A')[0].toUpperCase()}</div><div><div class="cname">${esc(c.author||'anonyme')}${verifiedBadge(c.verified)}</div><div class="ctext">${esc(c.text)}</div><div class="ctime">${timeAgo(c.at||Date.now())}</div></div></div>`).join('')
+    ?cmts.map(c=>`<div class="citem"><div class="cav">${c.avatar?`<img src="${optImg(c.avatar,60)}" alt="" loading="lazy" decoding="async">`:( c.author||'A')[0].toUpperCase()}</div><div><div class="cname">${esc(c.author||'anonyme')}${verifiedBadge(c.verified)}${businessBadge(c.businessVerified)}</div><div class="ctext">${esc(c.text)}</div><div class="ctime">${timeAgo(c.at||Date.now())}</div></div></div>`).join('')
     :'<div style="text-align:center;color:var(--muted);padding:28px;font-size:12px;">Aucun commentaire 💬<br>Sois le premier !</div>';
   if(wasAtBottom)list.scrollTop=list.scrollHeight;
 }
@@ -11067,7 +11097,7 @@ async function sendComment(){
   if(!currentUser){closeComments();needAuth(()=>openComments(curVidId));return;}
   const inp=document.getElementById('cinput');const txt=inp.value.trim();if(!txt)return;
   inp.value='';
-  await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',verified:currentUser.verified||false,text:txt,at:Date.now()});
+  await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',verified:currentUser.verified||false,businessVerified:currentUser.businessVerified||false,text:txt,at:Date.now()});
   const vid=allVids.find(v=>v.id===curVidId);
   if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'comment',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,vidId:curVidId,at:Date.now(),read:false});
 }
@@ -11075,7 +11105,7 @@ async function sendComment(){
 // ═══════════════════════════════════════
 //  NOTIFICATIONS — push améliorées
 // ═══════════════════════════════════════
-function sendNotif(toUid,data){if(data.fromUid&&data.fromVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromVerified=currentUser.verified||false;db.ref('notifications/'+toUid).push(data);}
+function sendNotif(toUid,data){if(data.fromUid&&data.fromVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromVerified=currentUser.verified||false;if(data.fromUid&&data.fromBusinessVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromBusinessVerified=currentUser.businessVerified||false;db.ref('notifications/'+toUid).push(data);}
 function startNotifListener(){
   if(!currentUser||notifListener)return;
   notifListener=db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(1).on('child_added',snap=>{
@@ -11117,9 +11147,9 @@ function loadNotifs(){
       ?notifs.map(n=>{
         const avH=n.fromAvatar?`<img src="${optImg(n.fromAvatar,80)}" alt="" loading="lazy" decoding="async">`:( n.fromName||'?')[0].toUpperCase();
         const icons={like:'❤️',comment:'💬',follow:'👥',dm:'💬',reconnaissance:'👑'};
-        const vb=verifiedBadge(n.fromVerified);
+        const vb=verifiedBadge(n.fromVerified)+businessBadge(n.fromBusinessVerified);
         const texts={like:`<b>${esc(n.fromName)}</b>${vb} a aimé ta vidéo`,comment:`<b>${esc(n.fromName)}</b>${vb} a commenté : "<i>${esc((n.text||'').slice(0,40))}</i>"`,follow:`<b>${esc(n.fromName)}</b>${vb} s'est abonné(e) à toi 👥`,dm:`<b>${esc(n.fromName)}</b>${vb} t'a envoyé un message`,reconnaissance:`<b>${esc(n.fromName)}</b>${vb} a couronné ta vidéo 👑`};
-        const onclick=n.type==='dm'?`openDMWith('${n.fromUid||''}','${esc(n.fromName||'')}','',${n.fromVerified?1:0})`:n.vidId?`goToVid('${n.vidId}')`:''
+        const onclick=n.type==='dm'?`openDMWith('${n.fromUid||''}','${esc(n.fromName||'')}','',${n.fromVerified?1:0},${n.fromBusinessVerified?1:0})`:n.vidId?`goToVid('${n.vidId}')`:''
         return `<div class="notif-item ${n.read?'':'unread'}" onclick="${onclick}">
           <div class="notif-av">${avH}</div>
           <div class="notif-text">${texts[n.type]||'Nouvelle notification'}</div>
@@ -11746,7 +11776,7 @@ function reactToStory(emoji,el){
   if(curStoryAuthorUid&&currentUser.uid!==curStoryAuthorUid){
     const key=dmKey(currentUser.uid,curStoryAuthorUid);
     db.ref('messages/'+key).push({from:currentUser.uid,to:curStoryAuthorUid,text:emoji+' (réaction au statut)',at:Date.now()});
-    db.ref('dms/'+key).update({lastMsg:emoji+' a réagi à ton statut',updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,['unread/'+curStoryAuthorUid]:true});
+    db.ref('dms/'+key).update({lastMsg:emoji+' a réagi à ton statut',updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,otherBusinessVerified:currentUser.businessVerified||false,['unread/'+curStoryAuthorUid]:true});
     sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:emoji+' a réagi à ton statut',at:Date.now(),read:false});
   }
   showToast(emoji+' Réaction envoyée');
@@ -11759,7 +11789,7 @@ function sendStoryReply(){
   if(curStoryAuthorUid&&currentUser.uid!==curStoryAuthorUid){
     const key=dmKey(currentUser.uid,curStoryAuthorUid);
     db.ref('messages/'+key).push({from:currentUser.uid,to:curStoryAuthorUid,text:txt,at:Date.now()});
-    db.ref('dms/'+key).update({lastMsg:txt,updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,['unread/'+curStoryAuthorUid]:true});
+    db.ref('dms/'+key).update({lastMsg:txt,updatedAt:Date.now(),otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,otherBusinessVerified:currentUser.businessVerified||false,['unread/'+curStoryAuthorUid]:true});
     sendNotif(curStoryAuthorUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:txt,at:Date.now(),read:false});
     playMsgSendSound();
     showToast('✅ Réponse envoyée à @'+curStoryAuthorName);
@@ -12022,6 +12052,7 @@ async function uploadVideo(){
       videoUrl, thumbnail, ...musicData,
       auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
       authorUid:currentUser.uid, country:currentUser.country||null,
+      authorVerified:currentUser.verified||false, authorBusinessVerified:currentUser.businessVerified||false,
       desc, privacy, location: location||null, likes:0, views:0, createdAt:Date.now()
     });
     KIKO_CACHE.clear('videos'); // invalide le cache pour forcer rechargement
@@ -12036,6 +12067,7 @@ async function uploadVideo(){
         videoUrl, thumbnail, ...musicData,
         auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
         authorUid:currentUser.uid, country:currentUser.country||null,
+        authorVerified:currentUser.verified||false, authorBusinessVerified:currentUser.businessVerified||false,
         desc, privacy, likes:0, views:0, createdAt:Date.now(), id:'_new_'+Date.now()
       });
     }, 800);
@@ -12126,7 +12158,14 @@ function vpsCaptureThumbnail(vid){
 //  AVATAR
 // ═══════════════════════════════════════
 async function uploadAvatar(input){
-  const f=input.files[0];if(!f)return;showToast('⏳ Upload photo...');
+  const f=input.files[0];if(!f)return;
+  handleCamFileForAvatar(f);
+}
+
+// Appelée par uploadAvatar() (galerie) ET par openKikoProCamera('photo','avatar')
+// (caméra native) — même traitement dans les deux cas.
+async function handleCamFileForAvatar(f){
+  showToast('⏳ Upload photo...');
   try{
     const url=await ikUpload(f,'avatars',null);
     openPhotoEnhancer(url, async(finalUrl)=>{
@@ -12267,13 +12306,13 @@ function renderDMList(){
     const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
     const preview = c.lastMsg || '...';
-    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}',${c.otherVerified?1:0})">
+    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}',${c.otherVerified?1:0},${c.otherBusinessVerified?1:0})">
       <div class="aeschat-conv-av-wrap">
         <div class="aeschat-conv-av">${avH}</div>
         <div class="aeschat-conv-online"></div>
       </div>
       <div class="aeschat-conv-body">
-        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}</div>
+        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}${businessBadge(c.otherBusinessVerified)}</div>
         <div class="aeschat-conv-preview ${hasUnread?'unread':''}">${esc(preview)}</div>
       </div>
       <div class="aeschat-conv-meta">
@@ -12301,10 +12340,10 @@ function filterDMList(val){
     const otherUid = c.key.replace(currentUser.uid,'').replace('_','');
     const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
-    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}',${c.otherVerified?1:0})">
+    return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}',${c.otherVerified?1:0},${c.otherBusinessVerified?1:0})">
       <div class="aeschat-conv-av-wrap"><div class="aeschat-conv-av">${avH}</div></div>
       <div class="aeschat-conv-body">
-        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}</div>
+        <div class="aeschat-conv-name">${esc(c.otherName||otherUid)}${verifiedBadge(c.otherVerified)}${businessBadge(c.otherBusinessVerified)}</div>
         <div class="aeschat-conv-preview ${hasUnread?'unread':''}">${esc(c.lastMsg||'...')}</div>
       </div>
       <div class="aeschat-conv-meta"><div class="aeschat-conv-time ${hasUnread?'unread-time':''}">${timeAgo(c.updatedAt||Date.now())}</div>${hasUnread?'<div class="aeschat-conv-badge">1</div>':''}</div>
@@ -12329,8 +12368,8 @@ function showNewChatOptions(){
       const div = document.createElement('div');
       div.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;';
       const av = u.avatar?`<img src="${optImg(u.avatar,84)}" loading="lazy" decoding="async" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;">`:`<div style="width:42px;height:42px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:#fff;">${(u.name||'?')[0]}</div>`;
-      div.innerHTML=`${av}<div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;">${esc(u.name||uid)}${verifiedBadge(u.verified)}</div><div style="font-size:11px;color:var(--muted);">@${uid.slice(0,8)}</div></div>`;
-      div.onclick=()=>{ov.remove();openChat(uid,u.name||uid,u.avatar||'',u.verified?1:0);};
+      div.innerHTML=`${av}<div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;">${esc(u.name||uid)}${verifiedBadge(u.verified)}${businessBadge(u.businessVerified)}</div><div style="font-size:11px;color:var(--muted);">@${uid.slice(0,8)}</div></div>`;
+      div.onclick=()=>{ov.remove();openChat(uid,u.name||uid,u.avatar||'',u.verified?1:0,u.businessVerified?1:0);};
       sheet.appendChild(div);
     });
   });
@@ -12412,23 +12451,23 @@ function loadChatStories(){
 //  CHAT — OUVERTURE ET MESSAGES
 // ═══════════════════════════════════════
 function dmKey(a,b){return [a,b].sort().join('_');}
-function openDMWith(uid,name,avatar,verified){if(!currentUser){needAuth(()=>openDMWith(uid,name,avatar,verified));return;}if(!uid||uid===currentUser.uid)return;openChat(uid,name,avatar,verified);}
+function openDMWith(uid,name,avatar,verified,businessVerified){if(!currentUser){needAuth(()=>openDMWith(uid,name,avatar,verified,businessVerified));return;}if(!uid||uid===currentUser.uid)return;openChat(uid,name,avatar,verified,businessVerified);}
 
 let _chatMsgListener = null;
 let _chatListenerKey = null; // clé active du listener pour éviter les conflits
 
-function openChat(uid,name,avatar,verified){
+function openChat(uid,name,avatar,verified,businessVerified){
   if(!currentUser)return;
   // ── Détacher l'ancien listener proprement ──
   if(_chatMsgListener && _chatListenerKey){
     db.ref('messages/'+_chatListenerKey).off('value',_chatMsgListener);
     _chatMsgListener=null; _chatListenerKey=null;
   }
-  curChatUid=uid; curChatName=name; curChatVerified=!!verified;
+  curChatUid=uid; curChatName=name; curChatVerified=!!verified; curChatBusinessVerified=!!businessVerified;
   _lastMsgCount=0;
   const hav=document.getElementById('chatHav');
   hav.innerHTML=avatar?`<img src="${avatar}" alt="">`:((name||'?')[0].toUpperCase());
-  document.getElementById('chatHname').innerHTML=esc(name||uid)+verifiedBadge(verified);
+  document.getElementById('chatHname').innerHTML=esc(name||uid)+verifiedBadge(verified)+businessBadge(businessVerified);
   document.getElementById('chatHstatus').innerText='...';
   document.getElementById('chatScreen').classList.add('active');
 
@@ -12453,7 +12492,7 @@ function openChat(uid,name,avatar,verified){
       (m.from===currentUser.uid && m.to===uid) ||
       (m.from===uid && m.to===currentUser.uid)
     );
-    renderMessages(filtered, uid, name, avatar, verified);
+    renderMessages(filtered, uid, name, avatar, verified, businessVerified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
   });
 }
@@ -12465,14 +12504,14 @@ function closeChatScreen(){
   }
   kikoUnwatchPresence(); // stopper le watcher de présence
   document.getElementById('chatScreen').classList.remove('active');
-  curChatUid=null; curChatName=null; curChatVerified=false;
+  curChatUid=null; curChatName=null; curChatVerified=false; curChatBusinessVerified=false;
 }
 
 function loadMessages(){
   if(!currentUser||!curChatUid)return;
   const key=dmKey(currentUser.uid,curChatUid);
   db.ref('messages/'+key).orderByChild('at').limitToLast(60).once('value').then(snap=>{
-    renderMessages(Object.values(snap.val()||{}), curChatUid, curChatName, '', curChatVerified);
+    renderMessages(Object.values(snap.val()||{}), curChatUid, curChatName, '', curChatVerified, curChatBusinessVerified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
   });
 }
@@ -12492,7 +12531,7 @@ function kikoOpenMediaViewer(url, type){
     : `<img src="${url}" style="max-width:94vw;max-height:88vh;border-radius:8px;object-fit:contain;">`;
   ov.style.display='flex';
 }
-function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified){
+function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified, otherBusinessVerified){
   const mc = document.getElementById('chatMessages');
   if(!msgs.length){
     mc.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 20px;font-size:13px;"><div style="font-size:40px;margin-bottom:10px;">👋</div>Envoie le premier message !</div>';
@@ -12529,7 +12568,7 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified){
       lastDay = dayKey;
     }
     html += `<div class="msg-group ${isMe?'me':'them'}">`;
-    if(!isMe) html += `<div class="msg-group-header"><div class="msg-group-av">${avH}</div><div class="msg-group-name">${esc(otherName||'')}${verifiedBadge(otherVerified)}</div></div>`;
+    if(!isMe) html += `<div class="msg-group-header"><div class="msg-group-av">${avH}</div><div class="msg-group-name">${esc(otherName||'')}${verifiedBadge(otherVerified)}${businessBadge(otherBusinessVerified)}</div></div>`;
     g.msgs.forEach(m=>{
       let bubbleContent;
       if(m.imageUrl){
@@ -12634,7 +12673,7 @@ async function sendMessage(){
   await db.ref('messages/'+key).push({from:currentUser.uid,to:curChatUid,text:txt,at:Date.now()});
   await db.ref('dms/'+key).update({
     lastMsg:txt,updatedAt:Date.now(),
-    otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,
+    otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,otherBusinessVerified:currentUser.businessVerified||false,
     ['unread/'+curChatUid]:true
   });
   sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:txt,at:Date.now(),read:false});
@@ -12647,7 +12686,7 @@ function autoResizeChatInp(el){
 function chatSendPhoto(){
   if(!currentUser){ needAuth(()=>chatSendPhoto()); return; }
   if(!curChatUid){ return; }
-  openCamera('photo','chat');
+  openKikoProCamera('photo','chat');
 }
 function callUser(){showToast('📞 Appel bientôt disponible !');}
 function videoCallUser(){showToast('🎥 Appel vidéo bientôt disponible !');}
@@ -12677,7 +12716,7 @@ async function renderAccounts(q){
   list.innerHTML=filtered.length?filtered.map(u=>{
     const avH=u.avatar?`<img src="${optImg(u.avatar,80)}" alt="" loading="lazy" decoding="async">`:( u.name||'?')[0].toUpperCase();
     const isFollowing=following[u.uid];const isMe=currentUser&&u.uid===currentUser.uid;
-    return `<div class="account-item"><div class="acc-av">${avH}</div><div style="flex:1"><div class="acc-name">${esc(u.name||'')}${verifiedBadge(u.verified)}</div><div class="acc-handle">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div>${!isMe?`<button class="acc-follow ${isFollowing?'following':''}" onclick="needAuth(()=>toggleFollowBtn('${u.uid}','${esc(u.name||'')}',this))">${isFollowing?'✅ Suivi ✅':'+ Suivre'}</button>`:''}</div>`;
+    return `<div class="account-item"><div class="acc-av">${avH}</div><div style="flex:1"><div class="acc-name">${esc(u.name||'')}${verifiedBadge(u.verified)}${businessBadge(u.businessVerified)}</div><div class="acc-handle">@${esc((u.name||'').toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,''))}</div></div>${!isMe?`<button class="acc-follow ${isFollowing?'following':''}" onclick="needAuth(()=>toggleFollowBtn('${u.uid}','${esc(u.name||'')}',this))">${isFollowing?'✅ Suivi ✅':'+ Suivre'}</button>`:''}</div>`;
   }).join(''):'<div style="text-align:center;padding:32px 16px;"><div style="font-size:32px;margin-bottom:8px;">🔍</div><div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:14px;color:var(--text);">Aucun compte trouvé</div></div>';
 }
 async function toggleFollowBtn(uid,name,btn){
@@ -13798,7 +13837,7 @@ function setLang(lang){
   showToast({fr:'🇫🇷 Français',bm:'🌍 Bambara',mos:'🌍 Mooré',dyu:'🌍 Dioula',ha:'🌍 Haoussa'}[lang]||lang);
 }
 function applyLang(){
-  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-job':'nav_job','nb-profile':'nav_profile','nb-carte':'nav_carte'};
+  const map={'nb-home':'nav_home','nb-search':'nav_search','nb-dm':'nav_chat','nb-market':'nav_market','nb-job':'nav_job','nb-profile':'nav_profile'};
   Object.entries(map).forEach(([id,k])=>{
     const btn=document.getElementById(id);
     const span=btn?btn.querySelector('span'):null;
@@ -14254,6 +14293,41 @@ async function openCamera(mode='photo', calledFrom='post'){
 }
 
 // ═══════════════════════════════════════════════════════════
+//  KIKO PRO CAMERA — pont vers le plugin Capacitor natif.
+//  Point d'entrée UNIQUE à utiliser partout dans l'app (post, chat,
+//  story, avatar…) à la place d'un appel direct à openCamera().
+//  Si le plugin natif n'est pas disponible (test en navigateur, build
+//  pas encore synchronisée), on retombe automatiquement sur l'ancienne
+//  caméra web — aucune régression possible.
+// ═══════════════════════════════════════════════════════════
+async function openKikoProCamera(mode='photo', calledFrom='post'){
+  if(!window.Capacitor?.Plugins?.KikoProCamera){
+    return openCamera(mode, calledFrom); // fallback caméra web existante
+  }
+  try{
+    const result = await window.Capacitor.Plugins.KikoProCamera.open({mode});
+    if(!result?.uri) return;
+
+    const webUri = window.Capacitor.convertFileSrc(result.uri);
+    const resp = await fetch(webUri);
+    const blob = await resp.blob();
+    const type = result.isVideo ? 'video' : 'photo';
+    const ext = result.isVideo ? 'mp4' : 'jpg';
+    const mimeType = result.isVideo ? (blob.type||'video/mp4') : 'image/jpeg';
+    const file = new File([blob], `kikopro_${Date.now()}.${ext}`, {type:mimeType});
+
+    // Réutilise EXACTEMENT le même aiguillage que l'ancienne caméra web —
+    // aucune modification du pipeline d'upload Cloudinary/ImageKit/Firebase.
+    if(calledFrom==='chat'){ handleCamFileForChat(file, type); }
+    else if(calledFrom==='story' || calledFrom==='status'){ handleCamFileForStory(file, type); }
+    else if(calledFrom==='avatar'){ handleCamFileForAvatar(file); }
+    else { handleCamFileForPost(file, type); }
+  }catch(e){
+    console.warn('KikoProCamera annulé ou indisponible :', e);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 //  SYSTÈME DE PERMISSIONS AVEC CONTEXTE
 //  (explique POURQUOI avant de déclencher la popup native Android)
 // ═══════════════════════════════════════════════════════════
@@ -14686,7 +14760,7 @@ async function handleCamFileForChat(file, type){
     await db.ref('dms/'+key).update({
       lastMsg: type==='video' ? '🎥 Vidéo' : '📷 Photo',
       updatedAt:Date.now(),
-      otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,
+      otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,otherBusinessVerified:currentUser.businessVerified||false,
       ['unread/'+curChatUid]:true
     });
     sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text: type==='video'?'🎥 Vidéo':'📷 Photo',at:Date.now(),read:false});
@@ -14880,6 +14954,7 @@ function buildSFPost(p){
   const myReact=currentUser&&p.userReactions&&p.userReactions[currentUser.uid]||null;
   const likeIco=myReact||(isLiked?'❤️':'🤍');
   const verified=verifiedBadge(p.verified);
+  const business=businessBadge(p.businessVerified);
 
   // Photo principale
   let mainPhoto='';
@@ -14911,7 +14986,7 @@ function buildSFPost(p){
       <div class="pfcard-header" onclick="event.stopPropagation()">
         <div class="pfcard-av">${avH}</div>
         <div class="pfcard-info">
-          <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}</div>
+          <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}${business}</div>
           <div class="pfcard-ago">${ago}</div>
         </div>
         ${followBtn}
@@ -14964,7 +15039,7 @@ function buildSFPost(p){
       <div class="pfcard-txt-head" onclick="_openPost('${p.id}')">
         <div class="pfcard-av">${avH}</div>
         <div class="pfcard-info">
-          <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}</div>
+          <div class="pfcard-name">${esc(p.auteur||'anonyme')} ${verified}${business}</div>
           <div class="pfcard-ago">${ago}</div>
         </div>
         ${typeBadge}
@@ -15599,7 +15674,7 @@ function jbRenderPost(p){
     <div class="jb-card-head">
       <div class="jb-avatar">${p.user.avatar||'👤'}</div>
       <div style="flex:1;">
-        <div class="jb-uname">${p.user.name}${p.premium?'<span class="jb-badge-premium">PREMIUM</span>':''}</div>
+        <div class="jb-uname">${p.user.name}${verifiedBadge(p.user.verified)}${businessBadge(p.user.businessVerified)}${p.premium?'<span class="jb-badge-premium">PREMIUM</span>':''}</div>
         <div class="jb-city">📍 ${p.city||'—'}</div>
       </div>
       <span class="jb-type-tag" style="background:${meta.bg};color:${meta.fg};">${meta.emoji} ${meta.label}</span>
@@ -15765,7 +15840,7 @@ async function jbSubmitPost(){
   const newPost={
     type: jbPostType, domain,
     premium:false, authorUid:currentUser.uid,
-    user:{name:currentUser.name||'Utilisateur', avatar:'👤', city},
+    user:{name:currentUser.name||'Utilisateur', avatar:'👤', city, verified:currentUser.verified||false, businessVerified:currentUser.businessVerified||false},
     title, desc, city, price:price||'À négocier',
     skills:skills.split(',').map(s=>s.trim()).filter(Boolean),
     wa: wa||currentUser.phone||'',
