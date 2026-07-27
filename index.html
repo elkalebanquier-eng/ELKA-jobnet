@@ -575,6 +575,11 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   z-index: 1; pointer-events: none;
   background: linear-gradient(to top, rgba(7,26,61,0.88) 0%, rgba(7,26,61,0.2) 70%, transparent 100%);
 }
+.vtop-grad {
+  position: absolute; top: 0; left: 0; right: 0; height: 90px;
+  z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(7,26,61,0.55) 0%, transparent 100%);
+}
 
 /* Réajustement des positions absolues pour les vcard en mode card */
 .vcard .vprogress {
@@ -585,16 +590,19 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .vcard .vinfo {
   bottom: 130px;
-  right: 14px;
+  right: 64px;
 }
 .vcard .kiko-vid-actions {
-  bottom: 66px;
+  bottom: 70px; right: 10px;
 }
 .vcard .vmute-btn {
   top: 10px; right: 10px;
 }
+.vcard .vtop-author {
+  top: 10px; left: 10px; right: 60px;
+}
 .vcard .vtrend-badge {
-  top: 10px; left: 10px;
+  top: 58px; left: 10px;
 }
 .vcard .vcontrols {
   top: 40%;
@@ -956,20 +964,26 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   height: 8px; background: var(--bg2); margin: 4px 0;
 }
 
-/* Progress bar */
+/* Progress bar — zone tactile agrandie (22px) tout en gardant le trait visuel fin de 2.5px
+   ancré en bas de la zone, donc le rendu visuel ne change pas, seule la surface cliquable grandit. */
 .vprogress {
   position: absolute;
   bottom: calc(62px + env(safe-area-inset-bottom));
   left: 0; right: 0;
-  height: 2.5px; background: rgba(255,255,255,0.12); z-index: 20;
-  cursor: pointer; transition: height 0.2s;
+  height: 22px; background: transparent; z-index: 20;
+  cursor: pointer;
 }
-.vprogress:active { height: 5px; }
+.vprogress::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 2.5px; background: rgba(255,255,255,0.12); transition: height 0.2s;
+}
+.vprogress:active::after { height: 5px; }
 .vpfill {
-  height: 100%; width: 0%;
+  position: absolute; left: 0; bottom: 0; height: 2.5px; width: 0%;
   background: linear-gradient(90deg, var(--gold), var(--gold2));
-  transition: width 0.08s linear; pointer-events: none;
+  transition: width 0.08s linear, height 0.2s; pointer-events: none;
 }
+.vprogress:active .vpfill { height: 5px; }
 .vtime-row {
   position: absolute;
   bottom: calc(66px + env(safe-area-inset-bottom));
@@ -1063,7 +1077,11 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   position: absolute; bottom: calc(72px + env(safe-area-inset-bottom));
   left: 14px; right: 74px; z-index: 10;
 }
-.vauthor-row { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+/* ═══ Barre auteur EN HAUT de la vidéo ═══ */
+.vtop-author {
+  position: absolute; top: 14px; left: 14px; right: 74px; z-index: 16;
+  display: flex; align-items: center; gap: 9px;
+}
 .vav {
   width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
   background: var(--gold);
@@ -1104,7 +1122,10 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 .vdesc {
   font-size: 13px; color: rgba(255,255,255,0.9); line-height: 1.55;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden; margin-bottom: 7px; font-weight: 400;
+  overflow: hidden; margin-bottom: 7px; font-weight: 400; cursor: pointer;
+}
+.vdesc.expanded {
+  -webkit-line-clamp: unset; overflow: visible; max-height: 40vh; overflow-y: auto;
 }
 .vtags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
 .vtag {
@@ -1336,40 +1357,38 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   100% { opacity:0; transform:translate(-50%,-140px) scale(0.9); }
 }
 
-/* ═══ DOCK D'ACTIONS VIDÉO — barre horizontale flottante, signature KIKO ═══
-   (ni colonne latérale façon TikTok/Instagram : un dock capsule centré en bas,
-   verre doré, aligné avec le reste de l'esthétique "Sahel Futur") */
+/* ═══ CAPSULE D'ACTIONS VIDÉO — colonne verticale à droite, façon Reels ═══
+   (translucide, discrète, alignée verticalement — inspirée d'une référence
+   visuelle transmise par l'utilisateur) */
 .kiko-vid-actions {
-  position: absolute; left: 50%; bottom: 110px;
-  transform: translateX(-50%);
-  display: flex; flex-direction: row; align-items: center; gap: 5px; z-index: 15;
-  background: rgba(10,12,18,0.5);
-  border: 1px solid rgba(212,165,74,0.3);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border-radius: 24px;
-  padding: 7px 9px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  position: absolute; right: 10px; bottom: 130px; left: auto; transform: none;
+  display: flex; flex-direction: column; align-items: center; gap: 16px; z-index: 15;
+  background: rgba(30,32,38,0.38);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-radius: 999px;
+  padding: 16px 10px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .kiko-vid-btn {
-  width: 38px;
+  width: auto;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform 0.15s; gap: 2px;
+  cursor: pointer; transition: transform 0.15s; gap: 3px;
 }
-.kiko-vid-btn:active { transform: scale(0.86); }
+.kiko-vid-btn:active { transform: scale(0.82); }
 .kiko-vid-btn-ico {
-  width: 32px; height: 32px; border-radius: 11px;
+  width: auto; height: auto; border-radius: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 16.5px; line-height: 1;
-  background: rgba(255,255,255,0.07);
-  transition: background 0.18s;
+  font-size: 24px; line-height: 1;
+  background: transparent; transition: transform 0.18s;
 }
-.kiko-vid-btn.liked .kiko-vid-btn-ico { background: rgba(255,60,90,0.28); }
-.kiko-vid-btn.reconnu .kiko-vid-btn-ico { background: linear-gradient(135deg,var(--gold),var(--gold2)); }
-.kiko-vid-btn-lbl { font-size: 8.5px; font-weight: 700; color: rgba(255,255,255,0.75); letter-spacing: 0.1px; }
+.kiko-vid-btn.liked .kiko-vid-btn-ico,
+.kiko-vid-btn.reconnu .kiko-vid-btn-ico { transform: scale(1.15); }
+.kiko-vid-btn-lbl { font-size: 10.5px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 .kiko-reco-btn-ico { font-size: 16px; }
 
-/* Séparateur tactile vertical entre les groupes de boutons (mode horizontal) */
-.kiko-vid-btn-sep { width: 1px; height: 26px; background: rgba(255,255,255,0.14); margin: 0 1px; flex-shrink: 0; }
+/* Le séparateur horizontal n'a plus de sens en colonne verticale */
+.kiko-vid-btn-sep { display: none; }
 
 
 .ad-info { position: absolute; bottom: 88px; left: 14px; right: 72px; z-index: 10; }
@@ -3912,14 +3931,17 @@ body:not(.screen-home) #topnav{
 .acircle.liked{ color: var(--gold) !important; box-shadow: 0 0 0 1px var(--gold-glow), 0 6px 18px var(--gold-glow); }
 .aitem span{ color: #fff !important; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
 
-/* ─── Barre de progression élégante ─── */
-.vcard .vprogress, #vprogress, .vprogress{
+/* ─── Barre de progression élégante ───
+   .vprogress reste transparente (zone tactile agrandie invisible) ;
+   le trait visuel fin est porté par ::after, arrondi + surbrillance ici. */
+.vcard .vprogress::after, #vprogress::after{
   background: rgba(255,255,255,0.18) !important;
   border-radius: 6px; overflow: hidden;
 }
-.vprogress-fill, .vcard .vprogress > div{
+.vprogress-fill, .vcard .vprogress > .vpfill{
   background: linear-gradient(90deg, var(--gold), var(--gold2)) !important;
   box-shadow: 0 0 8px var(--gold-glow);
+  border-radius: 6px;
 }
 
 /* ─── BOTTOM NAV — barre flottante en verre ─── */
@@ -4292,7 +4314,6 @@ document.addEventListener('load', function(e){
 <div id="buzzScreen" class="screen">
   <div class="buzz-screen-head">
     <div class="buzz-back" onclick="showScreen('home')">←</div>
-    <div class="buzz-screen-title">🔥 Buzz</div>
   </div>
   <div id="feedPtr" class="feed-ptr"><div class="feed-ptr-spin"></div><span>Tire pour actualiser</span></div>
   <div id="feed"><div class="feedph" style="height:60vh;"><div class="spinner"></div><span>Chargement...</span></div></div>
@@ -10095,13 +10116,23 @@ function buildVCard(v,i){
   const preload=(i===0&&!isDataSaverActive())?'auto':'none';
   const isTrending=viralScore(v)>=TREND_THRESHOLD;
   const vidSrcAttr=(i===0&&!isDataSaverActive())?`src="${optVid(v.videoUrl)}"`:`data-src="${optVid(v.videoUrl)}"`;
-  return `<div class="vcard" id="vc-${v.id}" ondblclick="doubleTapLike('${v.id}',${i})">
+  return `<div class="vcard" id="vc-${v.id}" ondblclick="doubleTapLike('${v.id}',${i},event)">
     <div class="vcard-bg" style="background-image:url('${optVidThumb(v.thumbnail,60)||''}')"></div>
+    <div class="vtop-grad"></div>
     <video ${vidSrcAttr} poster="${optVidThumb(v.thumbnail,480)||''}" loop playsinline muted preload="${preload}"
       onclick="tapVid(this,${i})" id="vid-${v.id}"></video>
     <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}" role="button" aria-label="Lecture / Pause">⏸</div></div>
     <div class="vmute-btn" id="vmute-${v.id}" onclick="toggleMute('${v.id}')" role="button" aria-label="Activer ou couper le son">🔇</div>
     <div class="heart-anim" id="ha-${i}">❤️</div>
+
+    <!-- ═══ NOM D'AUTEUR — en haut de la vidéo ═══ -->
+    <div class="vtop-author">
+      <div class="vavwrap">
+        <div class="vav">${avH}</div>
+        ${!isOwn&&v.authorUid?`<div class="vplus${isFollowing?' active':''}" id="vpfollow-${v.id}" onclick="event.stopPropagation();needAuth(()=>toggleFollowBadgeVid('${v.id}','${v.authorUid}','${esc(v.auteur||'')}'))">${isFollowing?'✓':'+'}</div>`:''}
+      </div>
+      <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}',${(v.authorVerified||v.verified)?1:0},${v.authorBusinessVerified?1:0})">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}${businessBadge(v.authorBusinessVerified)}</div>
+    </div>
 
     ${isTrending?`<div class="vtrend-badge"><span class="fire">🔥</span> Tendance AES</div>`:''}
 
@@ -10128,14 +10159,7 @@ function buildVCard(v,i){
     </div>
 
     <div class="vinfo">
-      <div class="vauthor-row">
-        <div class="vavwrap">
-          <div class="vav">${avH}</div>
-          ${!isOwn&&v.authorUid?`<div class="vplus${isFollowing?' active':''}" id="vpfollow-${v.id}" onclick="event.stopPropagation();needAuth(()=>toggleFollowBadgeVid('${v.id}','${v.authorUid}','${esc(v.auteur||'')}'))">${isFollowing?'✓':'+'}</div>`:''}
-        </div>
-        <div class="vname" onclick="openDMWith('${v.authorUid||''}','${esc(v.auteur||'')}','${v.authorAvatar||''}',${(v.authorVerified||v.verified)?1:0},${v.authorBusinessVerified?1:0})">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}${businessBadge(v.authorBusinessVerified)}</div>
-      </div>
-      ${desc?`<div class="vdesc">${esc(desc)}</div>`:''}
+      ${desc?`<div class="vdesc" id="vdesc-${v.id}" onclick="event.stopPropagation();toggleDescExpand('${v.id}')">${esc(desc)}</div>`:''}
       ${tags.length?`<div class="vtags">${tags.map(tg=>`<span class="vtag" onclick="searchByTag('${esc(tg)}')">${esc(tg)}</span>`).join('')}</div>`:''}
       ${(()=>{
         const hasMusic=!!v.musicUrl;
@@ -10160,36 +10184,30 @@ function buildVCard(v,i){
     <div class="vkiko-stats" style="display:none;">
       <div class="vkiko-stat">❤️ <span id="lc-${v.id}">${fmt(v.likes||0)}</span></div>
       <div class="vkiko-stat">😎 <span id="ic-${v.id}">${fmt(v.interesting||0)}</span></div>
-      <div class="vkiko-stat">💬 <span id="cc-${v.id}">0</span></div>
       <div class="vkiko-stat">👁 <span id="vv2-${v.id}">${fmt(v.views||0)}</span></div>
     </div>
 
-    <!-- ═══ BOUTONS FLOTTANTS VIDÉO (original, non-TikTok) ═══ -->
+    <!-- ═══ CAPSULE FLOTTANTE VIDÉO — verticale, façon Reels ═══ -->
     <div class="kiko-vid-actions">
       <div class="kiko-vid-btn${(reactions[v.id]||(liked.includes(v.id)?'like':''))?' reconnu':''}" id="reco-btn-${v.id}" onclick="event.stopPropagation();needAuth(()=>doubleTapLike('${v.id}',${i}))" title="Réagir" role="button" aria-label="Réagir à cette vidéo">
         <div class="kiko-vid-btn-ico" id="reco-ico-${v.id}">${reactions[v.id]==='interesting'?'😎':'😍'}</div>
         <div class="kiko-vid-btn-lbl" id="reco-lbl-${v.id}">${fmt((v.likes||0)+(v.interesting||0))}</div>
       </div>
-      <div class="kiko-vid-btn-sep"></div>
-      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>downloadVid('${jsStr(v.videoUrl)}','${v.id}','${jsStr(v.auteur||'')}'))" title="Télécharger" role="button" aria-label="Télécharger la vidéo">
-        <div class="kiko-vid-btn-ico" id="dl-ico-${v.id}">⬇️</div>
-        <div class="kiko-vid-btn-lbl" id="dl-lbl-${v.id}">Save</div>
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>openComments('${v.id}'))" title="Commentaires" role="button" aria-label="Voir les commentaires">
+        <div class="kiko-vid-btn-ico">💬</div>
+        <div class="kiko-vid-btn-lbl" id="cc-${v.id}">0</div>
       </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();openShareSheet('${v.id}')" title="Partager" role="button" aria-label="Partager la vidéo">
         <div class="kiko-vid-btn-ico">↗️</div>
         <div class="kiko-vid-btn-lbl">Partager</div>
       </div>
+      <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>downloadVid('${jsStr(v.videoUrl)}','${v.id}','${jsStr(v.auteur||'')}'))" title="Télécharger" role="button" aria-label="Télécharger la vidéo">
+        <div class="kiko-vid-btn-ico" id="dl-ico-${v.id}">⬇️</div>
+        <div class="kiko-vid-btn-lbl">Save</div>
+      </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>kikoToggleFavorite('${v.id}',this))" title="Favori" role="button" aria-label="Ajouter aux favoris">
         <div class="kiko-vid-btn-ico" id="fav-ico-${v.id}">⭐</div>
         <div class="kiko-vid-btn-lbl">Favori</div>
-      </div>
-      <div class="kiko-vid-btn" onclick="event.stopPropagation();kikoTogglePiP('${v.id}')" title="Picture-in-Picture" role="button" aria-label="Regarder en mode flottant (Picture-in-Picture)">
-        <div class="kiko-vid-btn-ico">🗔</div>
-        <div class="kiko-vid-btn-lbl">Flottant</div>
-      </div>
-      <div class="kiko-vid-btn" onclick="event.stopPropagation();kikoOpenReportModal('${v.id}')" title="Signaler" role="button" aria-label="Signaler cette vidéo">
-        <div class="kiko-vid-btn-ico">🚩</div>
-        <div class="kiko-vid-btn-lbl">Signaler</div>
       </div>
     </div>
     <div class="kiko-reco-layer" id="reco-layer-${i}"></div>
@@ -10554,6 +10572,7 @@ function kikoOpenMoreSheet(vidId, authorName, authorUid, isOwn){
   const items = [
     { icon:'🔗', label:'Copier le lien', sub:'Partage la publication', action:()=>{ navigator.clipboard?.writeText(location.origin+'?v='+vidId).catch(()=>{}); showToast('🔗 Lien copié !'); kikoCloseMoreSheet(); } },
     { icon:'↗️', label:'Partager', sub:'Envoyer à quelqu\'un', action:()=>{ openShareSheet(vidId); kikoCloseMoreSheet(); } },
+    { icon:'🗔', label:'Mode flottant', sub:'Picture-in-Picture', action:()=>{ kikoCloseMoreSheet(); kikoTogglePiP(vidId); } },
     'sep',
     { icon:'🙈', label:'Masquer cette publication', sub:'Tu ne la verras plus', action:()=>{ document.getElementById('vc-'+vidId)?.remove(); showToast('Publication masquée'); kikoCloseMoreSheet(); } },
     { icon:'🚫', label:'Ne plus recommander @'+authorName, sub:'Moins de contenu de cet auteur', action:()=>{ showToast('Préférence enregistrée'); kikoCloseMoreSheet(); } },
@@ -10830,6 +10849,12 @@ function initRadialLongPress(){
   }, {passive:true});
 }
 
+// Déplier/replier la description d'une vidéo au tap
+function toggleDescExpand(id){
+  const el=document.getElementById('vdesc-'+id);
+  if(el) el.classList.toggle('expanded');
+}
+
 // Seek en cliquant sur la barre de progression
 function seekVid(e,vidId){
   const video=document.getElementById('vid-'+vidId);
@@ -10886,8 +10911,18 @@ function goFullscreen(vidId){
   else if(video.webkitRequestFullscreen)video.webkitRequestFullscreen();
 }
 
-function doubleTapLike(id,i){
+function doubleTapLike(id,i,e){
   if(!currentUser){needAuth(()=>openComments(id));return;}
+  // Positionne le cœur exactement là où le doigt a tapé (au lieu du centre fixe)
+  if(e){
+    const card=document.getElementById('vc-'+id);
+    const ha0=document.getElementById('ha-'+i);
+    if(card&&ha0){
+      const rect=card.getBoundingClientRect();
+      ha0.style.left=(e.clientX-rect.left)+'px';
+      ha0.style.top=(e.clientY-rect.top)+'px';
+    }
+  }
   const prev=reactions[id]||null; // null | 'like' | 'interesting'
   let next,emoji;
   if(!prev||prev==='interesting'){
@@ -15970,13 +16005,14 @@ function initSFPullToRefresh(){
   position:absolute; inset:0;
 }
 #buzzScreen .vcard::before{ height:45%; }
-#buzzScreen .vcard .vinfo{ bottom:164px; right:14px; }
-#buzzScreen .vcard .kiko-vid-actions{ bottom: calc(14px + env(safe-area-inset-bottom)); }
+#buzzScreen .vcard .vinfo{ bottom:174px; right:66px; }
+#buzzScreen .vcard .kiko-vid-actions{ bottom: calc(120px + env(safe-area-inset-bottom)); right:12px; }
 #buzzScreen .vcard .vactions{ bottom: calc(14px + env(safe-area-inset-bottom)); }
 #buzzScreen .vcard .vprogress{ bottom:84px; }
 #buzzScreen .vcard .vtime-row{ bottom:88px; }
 #buzzScreen .vcard .vmute-btn{ top:calc(14px + env(safe-area-inset-top)); right:14px; }
-#buzzScreen .vcard .vtrend-badge{ top:calc(14px + env(safe-area-inset-top)); left:14px; }
+#buzzScreen .vcard .vtop-author{ top:calc(54px + env(safe-area-inset-top)); left:14px; right:64px; }
+#buzzScreen .vcard .vtrend-badge{ top:calc(102px + env(safe-area-inset-top)); left:14px; }
 /* Les cartes photo/texte mixées dans Buzz restent en format carte normale (pas plein écran) */
 #buzzScreen .pcard{ margin:14px; }
 </style>
