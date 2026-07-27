@@ -1891,12 +1891,14 @@ textarea.inp { resize: none; }
 
 /* ═══ Barre de stats sombre (toujours contrastée, quel que soit le thème) ═══ */
 .pstats {
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: flex;
   margin: 16px 16px 22px; border-radius: var(--r-lg);
   background: linear-gradient(160deg, #1B1D24, #14151A);
   overflow: hidden; box-shadow: var(--shadow-md);
 }
 .pstat {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; padding: 16px 2px; cursor: pointer;
   border-right: 1px solid rgba(255,255,255,0.08); transition: background 0.2s;
 }
@@ -1913,13 +1915,13 @@ textarea.inp { resize: none; }
 .pr-shortcuts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px; margin-bottom: 18px; }
 .pr-short-card {
   background: var(--surface); border: 1px solid var(--border); color: var(--text);
-  border-radius: var(--r-md); padding: 14px 6px; font-size: 12px; font-weight: 600;
-  display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
+  border-radius: var(--r-md); padding: 10px 4px; font-size: 11.5px; font-weight: 600;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;
   box-shadow: var(--shadow-xs);
 }
 .pr-short-ic {
-  width: 38px; height: 38px; border-radius: 50%; background: var(--gold3); color: var(--gold);
-  display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+  width: 32px; height: 32px; border-radius: 50%; background: var(--gold3); color: var(--gold);
+  display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
 }
 
 /* ═══ Bandeau Premium ═══ */
@@ -6022,17 +6024,45 @@ window.pollinationsAuthParam = function(){
 <script>
 // ═══════════════════════════════════════
 //  FIREBASE
+//  Si le SDK Firebase (chargé depuis gstatic.com) n'a pas pu se charger
+//  (pas d'internet, connexion trop lente, ou bloqué par un bloqueur de
+//  pubs/traqueurs comme Brave Shields), on ne plante plus toute la page :
+//  on utilise un "db" factice qui répond des valeurs vides, pour que
+//  tout le reste du script (traductions, interface, etc.) continue de
+//  fonctionner normalement.
 // ═══════════════════════════════════════
-firebase.initializeApp({
-  apiKey:"AIzaSyDHA87Tzxk9SMFGcHlhvx3Qmj6LUElPjJM",
-  authDomain:"market-94bd8.firebaseapp.com",
-  databaseURL:"https://market-94bd8-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:"market-94bd8",
-  storageBucket:"market-94bd8.firebasestorage.app",
-  messagingSenderId:"641440139975",
-  appId:"1:641440139975:web:ad794e3e7c0b151dd98ce2"
-});
-const db=firebase.database();
+function _kikoFakeSnapshot(){
+  return { val:()=>null, exists:()=>false, numChildren:()=>0, forEach:()=>{}, key:null };
+}
+function _kikoFakeRef(){
+  return {
+    ref:_kikoFakeRef, child:_kikoFakeRef, orderByChild:_kikoFakeRef, orderByKey:_kikoFakeRef,
+    orderByValue:_kikoFakeRef, limitToFirst:_kikoFakeRef, limitToLast:_kikoFakeRef,
+    equalTo:_kikoFakeRef, startAt:_kikoFakeRef, endAt:_kikoFakeRef,
+    once:()=>Promise.resolve(_kikoFakeSnapshot()),
+    on:()=>{}, off:()=>{},
+    push:()=>({ key:'offline_'+Date.now(), set:()=>Promise.resolve(), then:(f)=>Promise.resolve(f&&f()) }),
+    set:()=>Promise.resolve(), update:()=>Promise.resolve(), remove:()=>Promise.resolve(),
+    transaction:()=>Promise.resolve()
+  };
+}
+let db;
+try{
+  if(typeof firebase==='undefined') throw new Error('SDK Firebase non chargé (pas de connexion internet ?)');
+  firebase.initializeApp({
+    apiKey:"AIzaSyDHA87Tzxk9SMFGcHlhvx3Qmj6LUElPjJM",
+    authDomain:"market-94bd8.firebaseapp.com",
+    databaseURL:"https://market-94bd8-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:"market-94bd8",
+    storageBucket:"market-94bd8.firebasestorage.app",
+    messagingSenderId:"641440139975",
+    appId:"1:641440139975:web:ad794e3e7c0b151dd98ce2"
+  });
+  db=firebase.database();
+}catch(e){
+  console.warn('⚠️ KIKO : Firebase indisponible, mode dégradé activé —', e.message);
+  db=_kikoFakeRef();
+}
 
 // ═══════════════════════════════════════
 //  CAPACITOR — pont natif (APK uniquement)
