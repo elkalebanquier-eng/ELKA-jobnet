@@ -91,30 +91,30 @@
   --ease:     cubic-bezier(.22,.88,.32,1);
   --ease-out: cubic-bezier(.16,1,.3,1);
 
-  /* ═══ WHATSAPP — palette dédiée Chat & Statuts ═══ */
-  --wa-green:       #25D366;
-  --wa-teal:        #008069;
-  --wa-teal-dk:     #005c4b;
-  --wa-header:      #202c33;
-  --wa-header-ic:   #aebac1;
-  --wa-panel:       #111b21;
-  --wa-panel2:      #1f2c34;
-  --wa-list-hover:  #202c33;
-  --wa-text:        #e9edef;
-  --wa-text2:       #8696a0;
+  /* ═══ KIKO CHAT — palette dédiée Chat & Statuts (identité orange/marine, plus de vert WhatsApp) ═══ */
+  --wa-green:       #FF7A30;
+  --wa-teal:        #0B1B33;
+  --wa-teal-dk:     #3A2313;
+  --wa-header:      #14151A;
+  --wa-header-ic:   #C9CDD3;
+  --wa-panel:       #111214;
+  --wa-panel2:      #1B1D24;
+  --wa-list-hover:  #1B1D24;
+  --wa-text:        #EDEDEF;
+  --wa-text2:       #8A8D96;
   --wa-border:      rgba(255,255,255,0.06);
-  --wa-bubble-me:   #005c4b;
-  --wa-bubble-them: #202c33;
-  --wa-bubble-text-me:   #e9edef;
-  --wa-bubble-text-them: #e9edef;
-  --wa-chat-bg:     #0b141a;
-  --wa-check:       #8696a0;
-  --wa-check-read:  #53bdeb;
-  --wa-fab:         #00a884;
-  --wa-input-bar:   #202c33;
-  --wa-input-field: #2a3942;
-  --wa-ring-unseen: linear-gradient(135deg,#25D366,#128C7E);
-  --wa-ring-seen:   #8696a0;
+  --wa-bubble-me:   #3A2313;
+  --wa-bubble-them: #1B1D24;
+  --wa-bubble-text-me:   #F3E9DF;
+  --wa-bubble-text-them: #EDEDEF;
+  --wa-chat-bg:     #0E0F13;
+  --wa-check:       #8A8D96;
+  --wa-check-read:  #FFB86B;
+  --wa-fab:         #FF7A30;
+  --wa-input-bar:   #14151A;
+  --wa-input-field: #24262E;
+  --wa-ring-unseen: linear-gradient(135deg,#FF7A30,#FFB86B);
+  --wa-ring-seen:   #8A8D96;
 }
 
 /* ═══ THÈME CLAIR — activé via data-theme="light" sur <html> ═══ */
@@ -138,21 +138,21 @@
   --glass:     rgba(255,255,255,0.72);
   --glass-dark:rgba(255,255,255,0.85);
 
-  /* ═══ WHATSAPP — surcharge thème clair ═══ */
-  --wa-header:      #008069;
-  --wa-header-ic:   #ffffff;
+  /* ═══ KIKO CHAT — surcharge thème clair ═══ */
+  --wa-header:      #FFFFFF;
+  --wa-header-ic:   #FF7A30;
   --wa-panel:       #ffffff;
-  --wa-panel2:      #f0f2f5;
-  --wa-list-hover:  #f5f6f6;
-  --wa-text:        #111b21;
-  --wa-text2:       #667781;
+  --wa-panel2:      #FAF6F2;
+  --wa-list-hover:  #FFF3EA;
+  --wa-text:        #1A1B1F;
+  --wa-text2:       #7A7D85;
   --wa-border:      rgba(0,0,0,0.08);
-  --wa-bubble-me:   #d9fdd3;
+  --wa-bubble-me:   #FFE3D1;
   --wa-bubble-them: #ffffff;
-  --wa-bubble-text-me:   #111b21;
-  --wa-bubble-text-them: #111b21;
-  --wa-chat-bg:     #efeae2;
-  --wa-input-bar:   #f0f2f5;
+  --wa-bubble-text-me:   #1A1B1F;
+  --wa-bubble-text-them: #1A1B1F;
+  --wa-chat-bg:     #FBF3EC;
+  --wa-input-bar:   #FAF6F2;
   --wa-input-field: #ffffff;
 }
 
@@ -2509,15 +2509,15 @@ textarea.inp { resize: none; }
 }
 .msg-bubble.me {
   background: var(--wa-bubble-me);
-  color: var(--wa-bubble-text-me); border-radius: 8px 8px 0 8px; font-weight: 400;
+  color: var(--wa-bubble-text-me); border-radius: 16px 16px 4px 16px; font-weight: 400;
 }
 .msg-bubble.them {
   background: var(--wa-bubble-them); color: var(--wa-bubble-text-them);
-  border-radius: 8px 8px 8px 0;
+  border-radius: 16px 16px 16px 4px;
   border: none;
 }
-.msg-group.me .msg-bubble.me:not(:first-child) { border-radius: 8px; }
-.msg-group.them .msg-bubble.them:not(:first-child) { border-radius: 8px; }
+.msg-group.me .msg-bubble.me:not(:first-child) { border-radius: 16px; }
+.msg-group.them .msg-bubble.them:not(:first-child) { border-radius: 16px; }
 .msg-bubble-text { white-space: pre-wrap; }
 .msg-meta {
   display: inline-flex; align-items: center; gap: 3px; float: right;
@@ -2534,6 +2534,47 @@ textarea.inp { resize: none; }
 .msg-reactions { display: flex; gap: 4px; padding: 0 4px; }
 .msg-react-opt { font-size: 18px; cursor: pointer; padding: 2px 3px; border-radius: 50%; transition: transform 0.15s; }
 .msg-react-opt:active { transform: scale(1.3); }
+.msg-group.me .msg-reactions { justify-content: flex-end; margin: -6px 4px 4px 0; }
+.msg-group.them .msg-reactions { justify-content: flex-start; margin: -6px 0 4px 4px; }
+.msg-reaction-pill {
+  display: inline-flex; align-items: center; gap: 2px; font-size: 12px;
+  background: var(--wa-panel2); border: 1px solid var(--wa-border);
+  border-radius: 999px; padding: 2px 7px; box-shadow: var(--shadow-xs);
+}
+.msg-reply-quote {
+  border-left: 3px solid var(--gold); background: rgba(0,0,0,0.12);
+  border-radius: 8px; padding: 5px 8px; margin-bottom: 5px; cursor: pointer; max-width: 100%;
+}
+.msg-bubble.them .msg-reply-quote { background: rgba(0,0,0,0.05); }
+.msg-reply-name { font-size: 11.5px; font-weight: 700; color: var(--gold); }
+.msg-reply-text { font-size: 12.5px; color: inherit; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-voice { display: flex; align-items: center; gap: 8px; min-width: 200px; }
+.msg-voice-ic { font-size: 16px; flex-shrink: 0; }
+.msg-voice audio { max-width: 175px; height: 32px; }
+.msg-voice-dur { font-size: 11px; color: var(--wa-text2); flex-shrink: 0; }
+.chat-reply-preview {
+  background: var(--wa-panel2); border-top: 1px solid var(--wa-border);
+  padding: 8px 10px; flex-shrink: 0;
+}
+.chat-reply-preview-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border-left: 3px solid var(--gold); background: var(--wa-panel); border-radius: 8px; padding: 6px 10px;
+}
+.chat-reply-preview-name { font-size: 11.5px; font-weight: 700; color: var(--gold); }
+.chat-reply-preview-text { font-size: 12.5px; color: var(--wa-text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
+.chat-reply-preview-close { font-size: 16px; color: var(--wa-text2); cursor: pointer; padding: 4px; flex-shrink: 0; }
+.chat-voice-rec-bar {
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  background: var(--wa-input-bar); flex-shrink: 0;
+}
+.chat-voice-rec-dot { width: 10px; height: 10px; border-radius: 50%; background: #ff4d4f; animation: chatRecPulse 1s infinite; flex-shrink: 0; }
+@keyframes chatRecPulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.chat-voice-rec-time { font-size: 13px; color: var(--wa-text); flex: 1; }
+.chat-voice-rec-cancel, .chat-voice-rec-send {
+  font-size: 20px; cursor: pointer; padding: 6px 10px; border-radius: 50%;
+}
+.chat-voice-rec-send { background: var(--gold); }
 .chat-inp-row {
   padding: 8px 8px;
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
@@ -5933,12 +5974,19 @@ document.addEventListener('load', function(e){
       <div class="typing-dot"></div>
     </div>
   </div>
-  <div class="chat-inp-row">
+  <div class="chat-inp-row" id="chatInpRow">
     <div class="chat-inp-icon" onclick="showToast('😊 Emojis à venir')">😊</div>
-    <textarea class="chat-inp" id="chatInp" placeholder="Message" rows="1" oninput="autoResizeChatInp(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+    <textarea class="chat-inp" id="chatInp" placeholder="Message" rows="1" oninput="autoResizeChatInp(this);notifyTyping();" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
     <div class="chat-inp-icon" onclick="chatSendPhoto()">📎</div>
     <div class="chat-inp-icon" onclick="chatSendPhoto()">📷</div>
+    <div class="chat-inp-icon" id="chatMicBtn" onclick="startVoiceRecording()">🎙️</div>
     <div class="chat-send" onclick="sendMessage()">➤</div>
+  </div>
+  <div class="chat-voice-rec-bar" id="chatVoiceRecBar" style="display:none;">
+    <div class="chat-voice-rec-dot"></div>
+    <div class="chat-voice-rec-time" id="chatVoiceRecTime">0:00</div>
+    <div class="chat-voice-rec-cancel" onclick="cancelVoiceRecording()">🗑️</div>
+    <div class="chat-voice-rec-send" onclick="stopVoiceRecording()">➤</div>
   </div>
 </div>
 
@@ -12557,6 +12605,11 @@ function openDMWith(uid,name,avatar,verified,businessVerified){if(!currentUser){
 
 let _chatMsgListener = null;
 let _chatListenerKey = null; // clé active du listener pour éviter les conflits
+let _typingListener = null;
+let _typingListenerKey = null;
+let _typingListenerUid = null;
+let replyingTo = null; // {id, text, fromMe} message auquel on répond, ou null
+let _voiceRecorder = null, _voiceChunks = [], _voiceStartAt = 0, _voiceTimerInt = null;
 
 function openChat(uid,name,avatar,verified,businessVerified){
   if(!currentUser)return;
@@ -12588,7 +12641,7 @@ function openChat(uid,name,avatar,verified,businessVerified){
   _chatMsgListener=db.ref('messages/'+key).orderByChild('at').limitToLast(60).on('value',snap=>{
     // Guard : si l'utilisateur a changé de conversation entre-temps, ignorer
     if(curChatUid!==uid) return;
-    const msgs=Object.values(snap.val()||{});
+    const msgs=Object.entries(snap.val()||{}).map(([id,m])=>Object.assign({id},m));
     // Filtrer strictement : seuls les messages de cette paire
     const filtered=msgs.filter(m=>
       (m.from===currentUser.uid && m.to===uid) ||
@@ -12597,6 +12650,19 @@ function openChat(uid,name,avatar,verified,businessVerified){
     renderMessages(filtered, uid, name, avatar, verified, businessVerified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
   });
+
+  // ── Indicateur "en train d'écrire" ──
+  if(_typingListener && _typingListenerKey && _typingListenerUid){ db.ref('typing/'+_typingListenerKey+'/'+_typingListenerUid).off('value',_typingListener); }
+  _typingListenerKey=key; _typingListenerUid=uid;
+  _typingListener=db.ref('typing/'+key+'/'+uid).on('value',snap=>{
+    if(curChatUid!==uid) return;
+    const ts=snap.val();
+    const isTyping = ts && (Date.now()-ts<4000);
+    const el=document.getElementById('typingIndicator');
+    if(el) el.classList.toggle('show',!!isTyping);
+    const mc=document.getElementById('chatMessages');
+    if(mc && isTyping) mc.scrollTop=mc.scrollHeight;
+  });
 }
 
 function closeChatScreen(){
@@ -12604,6 +12670,12 @@ function closeChatScreen(){
     db.ref('messages/'+_chatListenerKey).off('value',_chatMsgListener);
     _chatMsgListener=null; _chatListenerKey=null;
   }
+  if(_typingListener && _typingListenerKey && _typingListenerUid){
+    db.ref('typing/'+_typingListenerKey+'/'+_typingListenerUid).off('value',_typingListener);
+    _typingListener=null; _typingListenerUid=null;
+  }
+  if(currentUser && _chatListenerKey) db.ref('typing/'+_chatListenerKey+'/'+currentUser.uid).remove();
+  cancelReply();
   kikoUnwatchPresence(); // stopper le watcher de présence
   document.getElementById('chatScreen').classList.remove('active');
   curChatUid=null; curChatName=null; curChatVerified=false; curChatBusinessVerified=false;
@@ -12613,7 +12685,8 @@ function loadMessages(){
   if(!currentUser||!curChatUid)return;
   const key=dmKey(currentUser.uid,curChatUid);
   db.ref('messages/'+key).orderByChild('at').limitToLast(60).once('value').then(snap=>{
-    renderMessages(Object.values(snap.val()||{}), curChatUid, curChatName, '', curChatVerified, curChatBusinessVerified);
+    const msgs=Object.entries(snap.val()||{}).map(([id,m])=>Object.assign({id},m));
+    renderMessages(msgs, curChatUid, curChatName, '', curChatVerified, curChatBusinessVerified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
   });
 }
@@ -12633,10 +12706,12 @@ function kikoOpenMediaViewer(url, type){
     : `<img src="${url}" style="max-width:94vw;max-height:88vh;border-radius:8px;object-fit:contain;">`;
   ov.style.display='flex';
 }
+let _msgsById = {}; // cache des derniers messages affichés, pour la réponse/réaction
 function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified, otherBusinessVerified){
   const mc = document.getElementById('chatMessages');
   if(!msgs.length){
     mc.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 20px;font-size:13px;"><div style="font-size:40px;margin-bottom:10px;">👋</div>Envoie le premier message !</div>';
+    _msgsById={};
     return;
   }
 
@@ -12646,6 +12721,7 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified, o
     if(newest.from !== currentUser.uid) playMsgReceiveSound();
   }
   _lastMsgCount = msgs.length;
+  _msgsById = {}; msgs.forEach(m=>{ if(m.id) _msgsById[m.id]=m; });
 
   // Grouper les messages par auteur et par fenêtre de temps (5 min)
   const groups = [];
@@ -12677,17 +12753,119 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified, o
         bubbleContent = `<img src="${m.imageUrl}" loading="lazy" onclick="kikoOpenMediaViewer('${m.imageUrl}','image')" style="max-width:220px;border-radius:8px;display:block;cursor:pointer;">`;
       } else if(m.videoUrl){
         bubbleContent = `<video src="${m.videoUrl}" style="max-width:220px;border-radius:8px;display:block;" controls preload="metadata"></video>`;
+      } else if(m.voiceUrl){
+        bubbleContent = `<div class="msg-voice"><span class="msg-voice-ic">🎙️</span><audio src="${m.voiceUrl}" controls preload="metadata"></audio>${m.duration?`<span class="msg-voice-dur">${fmtVoiceDur(m.duration)}</span>`:''}</div>`;
       } else {
         bubbleContent = `<span class="msg-bubble-text">${esc(m.text||'')}</span>`;
       }
       const mediaPad = (m.imageUrl||m.videoUrl) ? 'padding:3px;' : '';
       const ticks = isMe ? `<span class="msg-ticks">✓✓</span>` : '';
-      html += `<div class="msg-bubble ${isMe?'me':'them'}" style="${mediaPad}">${bubbleContent}<span class="msg-meta">${waTime(m.at)}${ticks}</span></div>`;
+      const replyHtml = m.replyTo ? `<div class="msg-reply-quote" onclick="event.stopPropagation();scrollToMsg('${m.replyTo.id}')"><div class="msg-reply-name">${esc(m.replyTo.fromName||'')}</div><div class="msg-reply-text">${esc(m.replyTo.text||'')}</div></div>` : '';
+      const reactEntries = Object.entries(m.reactions||{}).filter(([,uids])=>uids&&Object.keys(uids).length);
+      const reactHtml = reactEntries.length ? `<div class="msg-reactions">${reactEntries.map(([emo,uids])=>{const n=Object.keys(uids).length;return `<span class="msg-reaction-pill">${emo}${n>1?n:''}</span>`;}).join('')}</div>` : '';
+      html += `<div class="msg-bubble ${isMe?'me':'them'}" style="${mediaPad}" data-mid="${m.id||''}" data-mine="${isMe?1:0}" id="msg-${m.id||''}">${replyHtml}${bubbleContent}<span class="msg-meta">${waTime(m.at)}${ticks}</span></div>${reactHtml}`;
     });
     html += '</div>';
   });
   mc.innerHTML = html;
   mc.scrollTop = mc.scrollHeight;
+  initChatLongPress();
+}
+
+// Durée d'un message vocal, format m:ss
+function fmtVoiceDur(sec){
+  sec = Math.round(sec||0);
+  return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+}
+// Défiler jusqu'à un message (ex: en tapant sur une citation de réponse)
+function scrollToMsg(id){
+  const el=document.getElementById('msg-'+id);
+  if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.transition='background 0.3s'; const bg=el.style.background; el.style.background='rgba(255,122,48,0.25)'; setTimeout(()=>{el.style.background=bg;},700); }
+}
+
+// ── Appui long sur une bulle → actions (réagir / répondre / supprimer) ──
+let _chatLongPressWired = false;
+let _lpTimer = null, _lpTarget = null;
+function initChatLongPress(){
+  if(_chatLongPressWired) return;
+  _chatLongPressWired = true;
+  const mc = document.getElementById('chatMessages');
+  if(!mc) return;
+  const start = (e)=>{
+    const b = e.target.closest('.msg-bubble');
+    if(!b) return;
+    _lpTarget = b;
+    _lpTimer = setTimeout(()=>{ openMsgActions(b.dataset.mid, b.dataset.mine==='1'); _lpTarget=null; }, 420);
+  };
+  const cancel = ()=>{ if(_lpTimer){ clearTimeout(_lpTimer); _lpTimer=null; } _lpTarget=null; };
+  mc.addEventListener('pointerdown', start, {passive:true});
+  mc.addEventListener('pointerup', cancel, {passive:true});
+  mc.addEventListener('pointermove', cancel, {passive:true});
+  mc.addEventListener('pointercancel', cancel, {passive:true});
+}
+
+function openMsgActions(msgId, isMine){
+  const m = _msgsById[msgId];
+  if(!m) return;
+  let ov = document.getElementById('msgActionsSheet');
+  if(ov) ov.remove();
+  ov = document.createElement('div');
+  ov.id = 'msgActionsSheet';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:999998;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;';
+  const emojis = ['❤️','👍','😂','😮','😢','🙏'];
+  ov.innerHTML = `
+    <div style="background:var(--wa-panel);width:100%;border-radius:18px 18px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom));" onclick="event.stopPropagation();">
+      <div style="display:flex;justify-content:space-around;padding-bottom:14px;margin-bottom:10px;border-bottom:1px solid var(--wa-border);">
+        ${emojis.map(e=>`<span style="font-size:26px;cursor:pointer;" onclick="reactToMsg('${msgId}','${e}');closeMsgActions();">${e}</span>`).join('')}
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;cursor:pointer;color:var(--wa-text);" onclick="startReply('${msgId}');closeMsgActions();"><span style="font-size:18px;">↩️</span><span style="font-size:14px;font-weight:600;">Répondre</span></div>
+      ${isMine?`<div style="display:flex;align-items:center;gap:12px;padding:12px 4px;cursor:pointer;color:#ff4d4f;" onclick="deleteMyMsg('${msgId}');closeMsgActions();"><span style="font-size:18px;">🗑️</span><span style="font-size:14px;font-weight:600;">Supprimer</span></div>`:''}
+    </div>`;
+  ov.onclick = closeMsgActions;
+  document.body.appendChild(ov);
+}
+function closeMsgActions(){ const ov=document.getElementById('msgActionsSheet'); if(ov) ov.remove(); }
+
+function reactToMsg(msgId, emoji){
+  if(!currentUser||!curChatUid||!msgId) return;
+  const key = dmKey(currentUser.uid, curChatUid);
+  const path = `messages/${key}/${msgId}/reactions/${emoji}/${currentUser.uid}`;
+  db.ref(path).once('value').then(snap=>{
+    if(snap.exists()) db.ref(path).remove();
+    else db.ref(path).set(true);
+  });
+}
+
+function deleteMyMsg(msgId){
+  if(!currentUser||!curChatUid||!msgId) return;
+  const key = dmKey(currentUser.uid, curChatUid);
+  db.ref('messages/'+key+'/'+msgId).remove();
+}
+
+// ── Répondre à un message ──
+function startReply(msgId){
+  const m = _msgsById[msgId];
+  if(!m) return;
+  let preview = m.text || (m.imageUrl?'📷 Photo':m.videoUrl?'🎥 Vidéo':m.voiceUrl?'🎙️ Message vocal':'');
+  replyingTo = { id: msgId, text: preview.slice(0,80), fromName: m.from===currentUser.uid ? 'Toi' : (curChatName||'') };
+  renderReplyPreview();
+  const inp=document.getElementById('chatInp'); if(inp) inp.focus();
+}
+function cancelReply(){
+  replyingTo = null;
+  renderReplyPreview();
+}
+function renderReplyPreview(){
+  let el = document.getElementById('chatReplyPreview');
+  const row = document.querySelector('.chat-inp-row');
+  if(!replyingTo){ if(el) el.remove(); return; }
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'chatReplyPreview';
+    el.className = 'chat-reply-preview';
+    row.parentNode.insertBefore(el, row);
+  }
+  el.innerHTML = `<div class="chat-reply-preview-bar"><div><div class="chat-reply-preview-name">${esc(replyingTo.fromName)}</div><div class="chat-reply-preview-text">${esc(replyingTo.text)}</div></div><span class="chat-reply-preview-close" onclick="cancelReply()">✕</span></div>`;
 }
 
 // Heure au format HH:MM, style WhatsApp
@@ -12772,13 +12950,34 @@ async function sendMessage(){
   inp.value='';inp.style.height='';
   const key=dmKey(currentUser.uid,curChatUid);
   playMsgSendSound();
-  await db.ref('messages/'+key).push({from:currentUser.uid,to:curChatUid,text:txt,at:Date.now()});
+  const payload={from:currentUser.uid,to:curChatUid,text:txt,at:Date.now()};
+  if(replyingTo) payload.replyTo={id:replyingTo.id,text:replyingTo.text,fromName:replyingTo.fromName};
+  await db.ref('messages/'+key).push(payload);
+  cancelReply();
+  clearTyping();
   await db.ref('dms/'+key).update({
     lastMsg:txt,updatedAt:Date.now(),
     otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,otherBusinessVerified:currentUser.businessVerified||false,
     ['unread/'+curChatUid]:true
   });
   sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:txt,at:Date.now(),read:false});
+}
+
+// ── Indicateur "en train d'écrire" (émission) ──
+let _typingNotifyTimer = null;
+function notifyTyping(){
+  if(!currentUser||!curChatUid) return;
+  const key=dmKey(currentUser.uid,curChatUid);
+  db.ref('typing/'+key+'/'+currentUser.uid).set(Date.now());
+  if(_typingNotifyTimer) clearTimeout(_typingNotifyTimer);
+  _typingNotifyTimer=setTimeout(clearTyping,3000);
+}
+function clearTyping(){
+  if(_typingNotifyTimer){ clearTimeout(_typingNotifyTimer); _typingNotifyTimer=null; }
+  if(currentUser&&curChatUid){
+    const key=dmKey(currentUser.uid,curChatUid);
+    db.ref('typing/'+key+'/'+currentUser.uid).remove();
+  }
 }
 
 function autoResizeChatInp(el){
@@ -12792,6 +12991,90 @@ function chatSendPhoto(){
 }
 function callUser(){showToast('📞 Appel bientôt disponible !');}
 function videoCallUser(){showToast('🎥 Appel vidéo bientôt disponible !');}
+
+// ═══════════════════════════════════════
+//  MESSAGE VOCAL
+// ═══════════════════════════════════════
+async function startVoiceRecording(){
+  if(!currentUser){ needAuth(()=>startVoiceRecording()); return; }
+  if(!curChatUid) return;
+  if(location.protocol!=='https:' && location.hostname!=='localhost' && location.hostname!=='127.0.0.1'){
+    showToast('🔒 Le micro nécessite une connexion HTTPS (ouvre le site en ligne, pas le fichier local)');
+    return;
+  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ showToast('🎙️ Micro non disponible sur ce navigateur'); return; }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    _voiceChunks = [];
+    _voiceRecorder = new MediaRecorder(stream);
+    _voiceRecorder.ondataavailable = e=>{ if(e.data&&e.data.size>0) _voiceChunks.push(e.data); };
+    _voiceRecorder.onstop = ()=>{ stream.getTracks().forEach(t=>t.stop()); };
+    _voiceRecorder.start();
+    _voiceStartAt = Date.now();
+    document.getElementById('chatInpRow').style.display='none';
+    document.getElementById('chatVoiceRecBar').style.display='flex';
+    _voiceTimerInt = setInterval(()=>{
+      const el=document.getElementById('chatVoiceRecTime');
+      if(el) el.innerText=fmtVoiceDur((Date.now()-_voiceStartAt)/1000);
+    },250);
+  }catch(e){
+    if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
+      showToast('🎙️ Micro bloqué : autorise l\'accès au micro pour ce site dans les paramètres de ton navigateur');
+    } else if(e.name==='NotFoundError'){
+      showToast('🎙️ Aucun micro détecté sur cet appareil');
+    } else {
+      showToast('🎙️ Impossible d\'accéder au micro ('+(e.name||e.message||'erreur inconnue')+')');
+    }
+  }
+}
+function _stopRecorderInternal(){
+  if(_voiceTimerInt){ clearInterval(_voiceTimerInt); _voiceTimerInt=null; }
+  document.getElementById('chatInpRow').style.display='flex';
+  document.getElementById('chatVoiceRecBar').style.display='none';
+  if(_voiceRecorder && _voiceRecorder.state!=='inactive') _voiceRecorder.stop();
+}
+function cancelVoiceRecording(){
+  _stopRecorderInternal();
+  _voiceRecorder=null; _voiceChunks=[];
+}
+function stopVoiceRecording(){
+  if(!_voiceRecorder){ return; }
+  const durationSec = (Date.now()-_voiceStartAt)/1000;
+  if(durationSec < 1){ cancelVoiceRecording(); return; }
+  const rec = _voiceRecorder;
+  rec.onstop = ()=>{
+    rec.stream && rec.stream.getTracks && rec.stream.getTracks().forEach(t=>t.stop());
+    const blob = new Blob(_voiceChunks, {type:'audio/webm'});
+    _voiceChunks=[]; _voiceRecorder=null;
+    sendVoiceNote(blob, durationSec);
+  };
+  _stopRecorderInternal();
+}
+async function sendVoiceNote(blob, durationSec){
+  if(!currentUser||!curChatUid) return;
+  const key = dmKey(currentUser.uid,curChatUid);
+  const rTo = replyingTo ? {id:replyingTo.id,text:replyingTo.text,fromName:replyingTo.fromName} : null;
+  cancelReply();
+  try{
+    showToast('🎙️ Envoi du message vocal…');
+    const file = new File([blob],'voice_'+Date.now()+'.webm',{type:'audio/webm'});
+    const url = await clUpload(file, ()=>{});
+    const payload={from:currentUser.uid,to:curChatUid,voiceUrl:url,duration:durationSec,at:Date.now()};
+    if(rTo) payload.replyTo=rTo;
+    await db.ref('messages/'+key).push(payload);
+    clearTyping();
+    playMsgSendSound();
+    await db.ref('dms/'+key).update({
+      lastMsg:'🎙️ Message vocal',updatedAt:Date.now(),
+      otherName:currentUser.name,otherAvatar:currentUser.avatar||'',otherVerified:currentUser.verified||false,otherBusinessVerified:currentUser.businessVerified||false,
+      ['unread/'+curChatUid]:true
+    });
+    sendNotif(curChatUid,{type:'dm',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',fromVerified:currentUser.verified||false,text:'🎙️ Message vocal',at:Date.now(),read:false});
+  }catch(e){
+    showToast('❌ Échec de l\'envoi du message vocal');
+  }
+}
+
 
 
 // ═══════════════════════════════════════
