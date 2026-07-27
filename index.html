@@ -2817,10 +2817,10 @@ textarea.inp { resize: none; }
   transform: translateX(-50%) translateY(14px);
   background: var(--bg2);
   border: 1px solid var(--border);
-  color: var(--text); padding: 10px 22px; border-radius: 32px;
+  color: var(--text); padding: 10px 20px; border-radius: 18px;
   font-size: 13px; font-weight: 600; z-index: 999;
   opacity: 0; transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
-  white-space: nowrap;
+  white-space: normal; max-width: min(86vw, 360px); width: max-content; text-align: center;
   box-shadow: var(--shadow-lg);
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -13019,11 +13019,11 @@ async function startVoiceRecording(){
     },250);
   }catch(e){
     if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
-      showToast('🎙️ Micro bloqué : autorise l\'accès au micro pour ce site dans les paramètres de ton navigateur');
+      showToast('🎙️ Accès au micro bloqué pour ce site');
     } else if(e.name==='NotFoundError'){
-      showToast('🎙️ Aucun micro détecté sur cet appareil');
+      showToast('🎙️ Aucun micro détecté');
     } else {
-      showToast('🎙️ Impossible d\'accéder au micro ('+(e.name||e.message||'erreur inconnue')+')');
+      showToast('🎙️ Micro indisponible ('+(e.name||'erreur')+')');
     }
   }
 }
