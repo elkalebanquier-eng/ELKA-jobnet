@@ -1382,6 +1382,10 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   font-size: 24px; line-height: 1;
   background: transparent; transition: transform 0.18s;
 }
+.kiko-vid-btn-ico.active svg {
+  filter: drop-shadow(0 0 6px rgba(255,201,77,0.85)) drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+  transform: scale(1.1);
+}
 .kiko-vid-btn.liked .kiko-vid-btn-ico,
 .kiko-vid-btn.reconnu .kiko-vid-btn-ico { transform: scale(1.15); }
 .kiko-vid-btn-lbl { font-size: 10.5px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
@@ -4155,6 +4159,21 @@ html.kiko-noscroll{ overflow: hidden !important; touch-action: none; }
 </style>
 </head>
 <body>
+<!-- Dégradés dorés/rubis réutilisés par les icônes des boutons flottants vidéo -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="gGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE9B0"/>
+      <stop offset="45%" stop-color="#D4A54A"/>
+      <stop offset="100%" stop-color="#8a6a1f"/>
+    </linearGradient>
+    <linearGradient id="gRuby" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff8fa3"/>
+      <stop offset="50%" stop-color="#d81e3a"/>
+      <stop offset="100%" stop-color="#7a0f20"/>
+    </linearGradient>
+  </defs>
+</svg>
 <script>(function(){
   try{
     const saved=localStorage.getItem('aes_theme');
@@ -10104,6 +10123,23 @@ function buildAdCard(v,i){
   </div>`;
 }
 
+// Icônes dorées 3D (SVG) pour la capsule d'actions vidéo — remplace les emojis plats
+function goldIcon(name, grad){
+  grad = grad || 'gGold';
+  const paths = {
+    heart:   'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+    comment: 'M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
+    share:   'M14 3l7 7-7 7v-4.3C9 12.9 6 15 4 19c0.6-7 4.5-11.3 10-11.6V3z',
+    save:    'M6 2h12v20l-6-4-6 4V2z',
+    star:    'M12 2l2.9 6.9L22 9.2l-5.5 4.8L18 21l-6-3.9L6 21l1.5-7L2 9.2l7.1-.3L12 2z'
+  };
+  const d = paths[name]; if(!d) return '';
+  const stroke = grad==='gRuby' ? '#5a0f1a' : '#6b4f18';
+  return `<svg viewBox="0 0 24 24" width="25" height="25" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));">
+    <path d="${d}" fill="url(#${grad})" stroke="${stroke}" stroke-width="0.6" stroke-linejoin="round"/>
+  </svg>`;
+}
+
 function buildVCard(v,i){
   if(v._isAd)return buildAdCard(v,i);
   const isLiked=liked.includes(v.id);
@@ -10190,23 +10226,23 @@ function buildVCard(v,i){
     <!-- ═══ CAPSULE FLOTTANTE VIDÉO — verticale, façon Reels ═══ -->
     <div class="kiko-vid-actions">
       <div class="kiko-vid-btn${(reactions[v.id]||(liked.includes(v.id)?'like':''))?' reconnu':''}" id="reco-btn-${v.id}" onclick="event.stopPropagation();needAuth(()=>doubleTapLike('${v.id}',${i}))" title="Réagir" role="button" aria-label="Réagir à cette vidéo">
-        <div class="kiko-vid-btn-ico" id="reco-ico-${v.id}">${reactions[v.id]==='interesting'?'😎':'😍'}</div>
+        <div class="kiko-vid-btn-ico" id="reco-ico-${v.id}">${goldIcon('heart', reactions[v.id]==='interesting'?'gGold':'gRuby')}</div>
         <div class="kiko-vid-btn-lbl" id="reco-lbl-${v.id}">${fmt((v.likes||0)+(v.interesting||0))}</div>
       </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>openComments('${v.id}'))" title="Commentaires" role="button" aria-label="Voir les commentaires">
-        <div class="kiko-vid-btn-ico">💬</div>
+        <div class="kiko-vid-btn-ico">${goldIcon('comment')}</div>
         <div class="kiko-vid-btn-lbl" id="cc-${v.id}">0</div>
       </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();openShareSheet('${v.id}')" title="Partager" role="button" aria-label="Partager la vidéo">
-        <div class="kiko-vid-btn-ico">↗️</div>
+        <div class="kiko-vid-btn-ico">${goldIcon('share')}</div>
         <div class="kiko-vid-btn-lbl">Partager</div>
       </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>downloadVid('${jsStr(v.videoUrl)}','${v.id}','${jsStr(v.auteur||'')}'))" title="Télécharger" role="button" aria-label="Télécharger la vidéo">
-        <div class="kiko-vid-btn-ico" id="dl-ico-${v.id}">⬇️</div>
+        <div class="kiko-vid-btn-ico" id="dl-ico-${v.id}">${goldIcon('save')}</div>
         <div class="kiko-vid-btn-lbl">Save</div>
       </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>kikoToggleFavorite('${v.id}',this))" title="Favori" role="button" aria-label="Ajouter aux favoris">
-        <div class="kiko-vid-btn-ico" id="fav-ico-${v.id}">⭐</div>
+        <div class="kiko-vid-btn-ico" id="fav-ico-${v.id}">${goldIcon('star')}</div>
         <div class="kiko-vid-btn-lbl">Favori</div>
       </div>
     </div>
@@ -10701,14 +10737,14 @@ function kikoToggleReconnaissance(vidId, cardIdx){
   if(isReconnu){
     _reconnu=_reconnu.filter(x=>x!==vidId);
     btn&&btn.classList.remove('reconnu');
-    if(ico)ico.textContent='😍';
+    if(ico)ico.innerHTML=goldIcon('heart','gRuby');
     ref.transaction(n=>Math.max(0,(n||0)-1)).then(r=>{
       if(lbl) lbl.innerText=fmt(r.snapshot.val()||0);
     });
   } else {
     _reconnu.push(vidId);
     btn&&btn.classList.add('reconnu');
-    if(ico)ico.textContent='😎';
+    if(ico)ico.innerHTML=goldIcon('heart','gGold');
     kikoPlayReconnaissanceAnim(cardIdx);
     ref.transaction(n=>(n||0)+1).then(r=>{
       if(lbl) lbl.innerText=fmt(r.snapshot.val()||0);
@@ -10768,12 +10804,12 @@ function kikoToggleFavorite(vidId,btnEl){
   const icoEl=document.getElementById('fav-ico-'+vidId);
   if(isFav){
     _favorites=_favorites.filter(x=>x!==vidId);
-    if(icoEl) icoEl.innerText='⭐';
+    if(icoEl) icoEl.classList.remove('active');
     db.ref('favorites/'+currentUser.uid+'/'+vidId).remove();
     showToast('Retiré des favoris');
   } else {
     _favorites.push(vidId);
-    if(icoEl) icoEl.innerText='🌟';
+    if(icoEl) icoEl.classList.add('active');
     db.ref('favorites/'+currentUser.uid+'/'+vidId).set(Date.now());
     showToast('⭐ Ajouté aux favoris !');
   }
@@ -10945,7 +10981,7 @@ function doubleTapLike(id,i,e){
   const recoBtn=document.getElementById('reco-btn-'+id);
   const recoIco=document.getElementById('reco-ico-'+id);
   if(recoBtn)recoBtn.classList.add('reconnu');
-  if(recoIco)recoIco.textContent=emoji;
+  if(recoIco)recoIco.innerHTML=goldIcon('heart', next==='interesting'?'gGold':'gRuby');
   if(next==='interesting')kikoPlayReconnaissanceAnim(i);
 }
 let _globalObs=null;
@@ -11101,46 +11137,35 @@ function trackView(vidId,authorUid){
 function toggleLike(id){
   if(!currentUser)return;
   kikoHaptic(8);
+  // "J'aime" reste 100% local (pas d'écriture Firebase) — seule la
+  // "Reconnaissance" (doubleTapLike / interesting) est enregistrée côté serveur.
   const isLiked=liked.includes(id);
   const circle=document.getElementById('lk-'+id);
   if(isLiked){
     liked=liked.filter(x=>x!==id);
     if(circle){circle.innerText='🤍';circle.classList.remove('liked');}
-    db.ref('videos/'+id+'/likes').transaction(v=>Math.max(0,(v||0)-1));
-    db.ref('videos/'+id+'/likedBy/'+currentUser.uid).remove();
   } else {
     liked.push(id);
     if(circle){circle.innerText='❤️';circle.classList.add('liked');}
-    db.ref('videos/'+id+'/likes').transaction(v=>(v||0)+1);
-    db.ref('videos/'+id+'/likedBy/'+currentUser.uid).set(true);
     const vid=allVids.find(x=>x.id===id);
-    if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'like',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',vidId:id,at:Date.now(),read:false});
-    // 🧠 Signal fort pour KikoAI : un like compte plus qu'un simple visionnage
+    // 🧠 Signal fort pour KikoAI : un like compte plus qu'un simple visionnage (analytique locale uniquement)
     const wt=_aiWatch[id];
     recordAiInteraction(vid,{liked:true,watchRatio:wt&&wt.lastTime?Math.min(1,wt.lastTime/(vid?.duration||wt.lastTime||1)):undefined});
   }
   localStorage.setItem('aes_liked',JSON.stringify(liked));
 }
 async function syncLikedFromFirebase(vids){
+  // "J'aime" est désormais purement local (déjà restauré depuis localStorage
+  // au chargement) — on ne synchronise plus que la Reconnaissance depuis Firebase.
   if(!currentUser)return;
   await Promise.all(vids.slice(0,20).map(async v=>{
-    const snap=await db.ref('videos/'+v.id+'/likedBy/'+currentUser.uid).once('value');
-    if(snap.val()&&!liked.includes(v.id)){
-      liked.push(v.id);
-      reactions[v.id]='like';
-      const c=document.getElementById('lk-'+v.id);
-      if(c){c.innerText='❤️';c.classList.add('liked');}
-      const ico=document.getElementById('reco-ico-'+v.id);
-      const btn=document.getElementById('reco-btn-'+v.id);
-      if(ico)ico.textContent='😍';
-      if(btn)btn.classList.add('reconnu');
-    } else if(!snap.val()){
+    if(!reactions[v.id]){
       const isnap=await db.ref('videos/'+v.id+'/interestingBy/'+currentUser.uid).once('value');
       if(isnap.val()){
         reactions[v.id]='interesting';
         const ico=document.getElementById('reco-ico-'+v.id);
         const btn=document.getElementById('reco-btn-'+v.id);
-        if(ico)ico.textContent='😎';
+        if(ico)ico.innerHTML=goldIcon('heart','gGold');
         if(btn)btn.classList.add('reconnu');
       }
     }
@@ -13735,14 +13760,14 @@ function setDlProgress(id,pct){
   const lbl=document.getElementById('dl-lbl-'+id);
   const ico=document.getElementById('dl-ico-'+id);
   if(lbl)lbl.textContent=pct+'%';
-  if(ico)ico.textContent='⏳';
+  if(ico)ico.innerHTML='⏳';
 }
 function resetDlProgress(id){
   delete _dlLastPct[id];
   const lbl=document.getElementById('dl-lbl-'+id);
   const ico=document.getElementById('dl-ico-'+id);
   if(lbl)lbl.textContent='Save';
-  if(ico)ico.textContent='⬇️';
+  if(ico)ico.innerHTML=goldIcon('save');
 }
 async function fetchWithProgress(url,onProgress){
   const res=await fetch(url);
