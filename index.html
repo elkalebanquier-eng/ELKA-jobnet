@@ -2548,9 +2548,14 @@ textarea.inp { resize: none; }
 .msg-bubble.them .msg-reply-quote { background: rgba(0,0,0,0.05); }
 .msg-reply-name { font-size: 11.5px; font-weight: 700; color: var(--gold); }
 .msg-reply-text { font-size: 12.5px; color: inherit; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.msg-voice { display: flex; align-items: center; gap: 8px; min-width: 200px; }
-.msg-voice-ic { font-size: 16px; flex-shrink: 0; }
-.msg-voice audio { max-width: 175px; height: 32px; }
+.msg-voice { display: flex; align-items: center; gap: 8px; min-width: 190px; cursor: pointer; }
+.msg-voice-play {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold); color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; user-select: none;
+}
+.msg-voice-bar { flex: 1; height: 4px; background: rgba(128,128,128,0.3); border-radius: 4px; overflow: hidden; }
+.msg-voice-fill { height: 100%; width: 0%; background: var(--gold); border-radius: 4px; }
 .msg-voice-dur { font-size: 11px; color: var(--wa-text2); flex-shrink: 0; }
 .chat-reply-preview {
   background: var(--wa-panel2); border-top: 1px solid var(--wa-border);
@@ -12452,7 +12457,7 @@ function renderDMList(){
     return;
   }
   list.innerHTML = convs.map(c=>{
-    const otherUid = c.key.replace(currentUser.uid,'').replace('_','');
+    const otherUid = otherUidFromKey(c.key, currentUser.uid);
     const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
     const preview = c.lastMsg || '...';
@@ -12487,7 +12492,7 @@ function filterDMList(val){
   const filtered = _dmAllConvs.filter(c=>(c.otherName||'').toLowerCase().includes(q)||(c.lastMsg||'').toLowerCase().includes(q));
   if(!filtered.length){list.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">Aucun résultat pour "'+esc(val)+'"</div>';return;}
   list.innerHTML = filtered.map(c=>{
-    const otherUid = c.key.replace(currentUser.uid,'').replace('_','');
+    const otherUid = otherUidFromKey(c.key, currentUser.uid);
     const avH = c.otherAvatar ? `<img src="${optImg(c.otherAvatar,100)}" alt="" loading="lazy" decoding="async">` : (c.otherName||'?')[0].toUpperCase();
     const hasUnread = c.unread && c.unread[currentUser.uid];
     return `<div class="aeschat-conv-item" onclick="openChat('${otherUid}','${esc(c.otherName||'')}','${c.otherAvatar||''}',${c.otherVerified?1:0},${c.otherBusinessVerified?1:0})">
@@ -12601,6 +12606,15 @@ function loadChatStories(){
 //  CHAT — OUVERTURE ET MESSAGES
 // ═══════════════════════════════════════
 function dmKey(a,b){return [a,b].sort().join('_');}
+// Extraction fiable de l'autre uid depuis une clé "uidA_uidB" (plus robuste qu'un simple replace,
+// qui pouvait casser si l'uid apparaissait ailleurs dans la chaîne)
+function otherUidFromKey(key, myUid){
+  if(!key||!myUid) return '';
+  if(key.startsWith(myUid+'_')) return key.slice(myUid.length+1);
+  if(key.endsWith('_'+myUid)) return key.slice(0, key.length-myUid.length-1);
+  // Repli : ancienne méthode, au cas où le format ne correspond pas
+  return key.replace(myUid,'').replace(/^_|_$/,'');
+}
 function openDMWith(uid,name,avatar,verified,businessVerified){if(!currentUser){needAuth(()=>openDMWith(uid,name,avatar,verified,businessVerified));return;}if(!uid||uid===currentUser.uid)return;openChat(uid,name,avatar,verified,businessVerified);}
 
 let _chatMsgListener = null;
@@ -12649,6 +12663,9 @@ function openChat(uid,name,avatar,verified,businessVerified){
     );
     renderMessages(filtered, uid, name, avatar, verified, businessVerified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
+  }, err=>{
+    console.warn('Erreur lecture messages', err);
+    showToast('⚠️ Chargement des messages impossible ('+(err.code||err.message||'erreur')+')');
   });
 
   // ── Indicateur "en train d'écrire" ──
@@ -12688,6 +12705,9 @@ function loadMessages(){
     const msgs=Object.entries(snap.val()||{}).map(([id,m])=>Object.assign({id},m));
     renderMessages(msgs, curChatUid, curChatName, '', curChatVerified, curChatBusinessVerified);
     db.ref('dms/'+key+'/unread/'+currentUser.uid).remove();
+  }).catch(err=>{
+    console.warn('Erreur loadMessages', err);
+    showToast('⚠️ Chargement des messages impossible ('+(err.code||err.message||'erreur')+')');
   });
 }
 
@@ -12754,7 +12774,7 @@ function renderMessages(msgs, otherUid, otherName, otherAvatar, otherVerified, o
       } else if(m.videoUrl){
         bubbleContent = `<video src="${m.videoUrl}" style="max-width:220px;border-radius:8px;display:block;" controls preload="metadata"></video>`;
       } else if(m.voiceUrl){
-        bubbleContent = `<div class="msg-voice"><span class="msg-voice-ic">🎙️</span><audio src="${m.voiceUrl}" controls preload="metadata"></audio>${m.duration?`<span class="msg-voice-dur">${fmtVoiceDur(m.duration)}</span>`:''}</div>`;
+        bubbleContent = `<div class="msg-voice" onclick="toggleVoicePlay(this)"><span class="msg-voice-play">▶️</span><div class="msg-voice-bar"><div class="msg-voice-fill"></div></div><span class="msg-voice-dur">${m.duration?fmtVoiceDur(m.duration):'0:00'}</span><audio src="${m.voiceUrl}" preload="metadata" style="display:none;"></audio></div>`;
       } else {
         bubbleContent = `<span class="msg-bubble-text">${esc(m.text||'')}</span>`;
       }
@@ -12777,6 +12797,50 @@ function fmtVoiceDur(sec){
   sec = Math.round(sec||0);
   return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
 }
+
+// ── Lecteur audio personnalisé pour les messages vocaux (plus fiable que <audio controls> en WebView) ──
+let _curVoiceAudio = null, _curVoiceEl = null;
+function toggleVoicePlay(wrapEl){
+  const audio = wrapEl.querySelector('audio');
+  const playBtn = wrapEl.querySelector('.msg-voice-play');
+  const fill = wrapEl.querySelector('.msg-voice-fill');
+  const durEl = wrapEl.querySelector('.msg-voice-dur');
+  if(!audio) return;
+
+  // Si un autre vocal est en cours de lecture, on l'arrête
+  if(_curVoiceAudio && _curVoiceAudio!==audio){
+    _curVoiceAudio.pause();
+    if(_curVoiceEl){
+      const pb=_curVoiceEl.querySelector('.msg-voice-play'); if(pb) pb.innerText='▶️';
+    }
+  }
+
+  if(audio.paused){
+    audio.play().catch(()=>{ showToast('❌ Lecture audio impossible'); });
+    playBtn.innerText='⏸️';
+    _curVoiceAudio = audio; _curVoiceEl = wrapEl;
+  } else {
+    audio.pause();
+    playBtn.innerText='▶️';
+  }
+
+  if(!audio._kikoWired){
+    audio._kikoWired = true;
+    const origDur = durEl.innerText;
+    audio.addEventListener('timeupdate', ()=>{
+      if(audio.duration){
+        fill.style.width = (audio.currentTime/audio.duration*100)+'%';
+        durEl.innerText = fmtVoiceDur(audio.duration-audio.currentTime);
+      }
+    });
+    audio.addEventListener('ended', ()=>{
+      playBtn.innerText='▶️'; fill.style.width='0%'; durEl.innerText=origDur;
+      if(_curVoiceAudio===audio){ _curVoiceAudio=null; _curVoiceEl=null; }
+    });
+    audio.addEventListener('pause', ()=>{ playBtn.innerText='▶️'; });
+  }
+}
+
 // Défiler jusqu'à un message (ex: en tapant sur une citation de réponse)
 function scrollToMsg(id){
   const el=document.getElementById('msg-'+id);
