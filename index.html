@@ -5674,6 +5674,15 @@ document.addEventListener('load', function(e){
   <div onclick="kikoCancelUploadPill()" style="font-size:16px;color:var(--muted);cursor:pointer;padding:4px;flex-shrink:0;">✕</div>
 </div>
 
+<!-- ═══ VIEWER VIDÉO PLEIN ÉCRAN DEPUIS LE PROFIL — reste sur l'onglet Profil ═══ -->
+<div id="profileVideoViewer" style="display:none;position:fixed;inset:0;z-index:700;background:#000;flex-direction:column;">
+  <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;position:absolute;top:0;left:0;right:0;z-index:20;background:linear-gradient(to bottom, rgba(0,0,0,0.65), transparent);pointer-events:none;">
+    <div onclick="closeProfileVideoViewer()" class="buzz-back" style="pointer-events:auto;">←</div>
+    <div class="buzz-screen-title">Mes vidéos</div>
+  </div>
+  <div id="pvvFeed"></div>
+</div>
+
 
 <div id="musicPickerBlock" style="display:none;">
   <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;">🎵 Musique</div>
@@ -6814,6 +6823,7 @@ function _getModalChecks(){
     { id:'statusChoiceModal',  fn:()=>closeStatusChoice() },
     { id:'igPostViewer',       fn:()=>closeInstaPost() },
     { id:'pfsViewer',          fn:()=>closePhotoFullscreen() },
+    { id:'profileVideoViewer', fn:()=>closeProfileVideoViewer() },
     { id:'musicAdminOverlay',  fn:()=>{ if(typeof closeMusicAdmin==='function') closeMusicAdmin(); else _close('musicAdminOverlay'); } },
     { id:'newsAdminOverlay',   fn:()=>{ if(typeof closeNewsAdmin==='function') closeNewsAdmin(); else _close('newsAdminOverlay'); } },
     // panels glissants
@@ -11042,7 +11052,7 @@ let _globalObs=null;
 // à la fois, peu importe le nombre d'observateurs/sections actifs.
 let _activePlayingVideo=null;
 function enforceSingleVideoPlayback(activeVideo){
-  document.querySelectorAll('#feed video, #buzzScreen video').forEach(other=>{
+  document.querySelectorAll('#feed video, #buzzScreen video, #profileVideoViewer video').forEach(other=>{
     if(other!==activeVideo&&!other.paused){other.pause();}
   });
   _activePlayingVideo=activeVideo;
@@ -12468,7 +12478,7 @@ async function renderProfile(){
   const totalLikes=mine.reduce((s,v)=>s+(v.likes||0),0);
   const pLikesEl=document.getElementById('pLikes'); if(pLikesEl) pLikesEl.innerText=fmt(totalLikes);
   document.getElementById('profileGrid').innerHTML=mine.length
-    ?mine.map(v=>`<div class="pgitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span><button class="pg-del-btn" onclick="event.stopPropagation();confirmDeleteVideo('${v.id}')">🗑</button></div></div>`).join('')
+    ?mine.map(v=>`<div class="pgitem" onclick="openProfileVideoViewer('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span><button class="pg-del-btn" onclick="event.stopPropagation();confirmDeleteVideo('${v.id}')">🗑</button></div></div>`).join('')
     :'<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Aucune vidéo publiée</div>';
 }
 
@@ -13340,6 +13350,33 @@ function goToVid(id){
     // Le feed vient d'être chargé (ou est en cours) → laisser le temps au DOM de se remplir
     setTimeout(scrollToIt,500);
   }
+}
+
+// Ouvre les vidéos d'un profil dans un viewer plein écran local — reste sur l'onglet
+// Profil (contrairement à goToVid qui bascule vers l'onglet Buzz). Défilement vertical
+// entre toutes les vidéos de ce profil, mêmes actions/interactions que dans Buzz.
+function openProfileVideoViewer(id){
+  if(!currentUser)return;
+  const mine=allVids.filter(v=>v.authorUid===currentUser.uid);
+  if(!mine.length)return;
+  // Si le feed Buzz a déjà rendu ces mêmes vidéos (mêmes ids), on le vide pour éviter
+  // les id DOM en double (vc-xxx) entre les deux viewers ; il se rechargera à la prochaine
+  // visite de l'onglet Buzz.
+  const feedEl=document.getElementById('feed');
+  if(feedEl && window._buzzLoaded){ feedEl.innerHTML=''; window._buzzLoaded=false; }
+  const pvvFeed=document.getElementById('pvvFeed');
+  pvvFeed.innerHTML=mine.map((v,i)=>buildVCard(v,i)).join('');
+  document.getElementById('profileVideoViewer').style.display='flex';
+  initObserver();
+  initProgress();
+  const target=document.getElementById('vc-'+id);
+  if(target) target.scrollIntoView({behavior:'instant'});
+}
+function closeProfileVideoViewer(){
+  const overlay=document.getElementById('profileVideoViewer');
+  overlay.querySelectorAll('video').forEach(v=>{try{v.pause();}catch(e){}});
+  overlay.style.display='none';
+  document.getElementById('pvvFeed').innerHTML='';
 }
 
 // ═══════════════════════════════════════
@@ -16083,6 +16120,38 @@ function initSFPullToRefresh(){
 #buzzScreen .vcard .vtrend-badge{ top:calc(102px + env(safe-area-inset-top)); left:14px; }
 /* Les cartes photo/texte mixées dans Buzz restent en format carte normale (pas plein écran) */
 #buzzScreen .pcard{ margin:14px; }
+
+/* ── Viewer vidéo plein écran depuis le Profil (reste sur l'onglet Profil, pas de bascule vers Buzz) ── */
+#profileVideoViewer{ overflow:hidden !important; }
+#profileVideoViewer #pvvFeed{
+  flex:1; padding:0; margin:0;
+  overflow-y:scroll; scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+#profileVideoViewer #pvvFeed::-webkit-scrollbar{ display:none; }
+#profileVideoViewer .vcard{
+  width:100%; height:100%;
+  margin:0 !important; border-radius:0 !important; border:none !important;
+  box-shadow:none !important;
+  scroll-snap-align:start; scroll-snap-stop:always;
+  background:#000 !important;
+}
+#profileVideoViewer .vcard-bg{ border-radius:0 !important; }
+#profileVideoViewer .vcard video{
+  width:100%; height:100%; max-height:none !important;
+  aspect-ratio:auto !important;
+  object-fit:contain; border-radius:0 !important;
+  position:absolute; inset:0;
+}
+#profileVideoViewer .vcard::before{ height:45%; }
+#profileVideoViewer .vcard .vinfo{ bottom:174px; right:66px; }
+#profileVideoViewer .vcard .kiko-vid-actions{ bottom: calc(120px + env(safe-area-inset-bottom)); right:12px; }
+#profileVideoViewer .vcard .vactions{ bottom: calc(14px + env(safe-area-inset-bottom)); }
+#profileVideoViewer .vcard .vprogress{ bottom:84px; }
+#profileVideoViewer .vcard .vtime-row{ bottom:88px; }
+#profileVideoViewer .vcard .vmute-btn{ top:calc(14px + env(safe-area-inset-top)); right:14px; }
+#profileVideoViewer .vcard .vtop-author{ top:calc(54px + env(safe-area-inset-top)); left:14px; right:64px; }
+#profileVideoViewer .vcard .vtrend-badge{ top:calc(102px + env(safe-area-inset-top)); left:14px; }
 </style>
 
 <script>
