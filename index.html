@@ -26,6 +26,7 @@
 <link rel="dns-prefetch" href="https://market-94bd8-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preload" href="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" as="script">
 <link rel="preload" href="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js" as="script">
+<link rel="preload" href="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" as="script">
 <title>KIKO👑</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
@@ -6147,6 +6148,7 @@ document.addEventListener('load', function(e){
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
 // ═══════════════════════════════════════
 //  CONFIG POLLINATIONS (IA texte/image)
@@ -6186,6 +6188,7 @@ function _kikoFakeRef(){
   };
 }
 let db;
+let auth;
 try{
   if(typeof firebase==='undefined') throw new Error('SDK Firebase non chargé (pas de connexion internet ?)');
   firebase.initializeApp({
@@ -6198,9 +6201,12 @@ try{
     appId:"1:641440139975:web:ad794e3e7c0b151dd98ce2"
   });
   db=firebase.database();
+  auth=firebase.auth();
+  auth.languageCode='fr';
 }catch(e){
   console.warn('⚠️ KIKO : Firebase indisponible, mode dégradé activé —', e.message);
   db=_kikoFakeRef();
+  auth=null;
 }
 
 // ═══════════════════════════════════════
@@ -8702,20 +8708,63 @@ async function doAuth(){
   if(phone.replace('+','').length<8){errEl.innerText='Numéro invalide';return;}
   const btn=document.getElementById('authBtn');btn.disabled=true;btn.innerText='⏳...';
   try{
+    if(!auth) throw new Error('Connexion au service de compte indisponible, réessaie plus tard');
+    // Le numéro sert de pseudo-email interne à Firebase Auth (qui exige un email) —
+    // l'utilisateur ne voit jamais cette adresse, elle ne sert qu'en coulisses.
+    const fakeEmail=phone.replace('+','')+'@kiko.app';
     if(authMode==='register'){
       if(!name){errEl.innerText='Entre ton pseudo';btn.disabled=false;btn.innerText="S'inscrire";return;}
       const snap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
       if(snap.exists()){errEl.innerText='Numéro déjà utilisé';btn.disabled=false;btn.innerText="S'inscrire";return;}
-      const uid='u_'+Date.now();
-      const user={uid,name,phone,pass,country:_userGeoCountry||'',city:_userGeoCity||'',avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
+      const cred=await auth.createUserWithEmailAndPassword(fakeEmail,pass);
+      const uid=cred.user.uid;
+      // ⚠️ Le mot de passe n'est plus jamais écrit ici : Firebase Auth le gère
+      // (haché + salé) de son côté, séparément de la fiche profil ci-dessous.
+      // authUid==uid pour un nouveau compte : voir le cas de migration ci-dessous
+      // pour comprendre pourquoi les deux champs existent séparément.
+      const user={uid,authUid:uid,name,phone,country:_userGeoCountry||'',city:_userGeoCity||'',avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
       await db.ref('users/'+uid).set(user);
       currentUser=user;
     } else {
-      const snap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
-      if(!snap.exists()){errEl.innerText='Numéro introuvable';btn.disabled=false;btn.innerText='Se connecter';return;}
-      const user=Object.values(snap.val()).find(u=>u.pass===pass);
-      if(!user){errEl.innerText='Mot de passe incorrect';btn.disabled=false;btn.innerText='Se connecter';return;}
-      currentUser=user;
+      let authUid, migratedProfile=null;
+      try{
+        const cred=await auth.signInWithEmailAndPassword(fakeEmail,pass);
+        authUid=cred.user.uid;
+      }catch(authErr){
+        if(authErr.code!=='auth/user-not-found') throw authErr;
+        // ─── MIGRATION DOUCE ───────────────────────────────────────────────
+        // Ce compte a été créé avant le passage à Firebase Auth : il n'existe
+        // pas encore côté Auth. On vérifie une DERNIÈRE FOIS à l'ancienne
+        // (comparaison directe du champ pass hérité), puis on crée son compte
+        // Auth et on supprime ce champ pass pour de bon — sans jamais changer
+        // son uid d'origine, pour ne perdre aucune donnée (posts, likes, etc.
+        // sont tous liés à cet uid).
+        const legacySnap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
+        if(!legacySnap.exists()){errEl.innerText='Numéro introuvable';btn.disabled=false;btn.innerText='Se connecter';return;}
+        const [legacyUid,legacyUser]=Object.entries(legacySnap.val())[0];
+        if(legacyUser.pass!==pass){errEl.innerText='Mot de passe incorrect';btn.disabled=false;btn.innerText='Se connecter';return;}
+        let newCred;
+        try{ newCred=await auth.createUserWithEmailAndPassword(fakeEmail,pass); }
+        catch(createErr){
+          // Cas rare : le compte Auth existe déjà (ex. migration précédente interrompue
+          // juste après la création Auth mais avant l'écriture ci-dessous) → on se connecte.
+          if(createErr.code==='auth/email-already-in-use') newCred=await auth.signInWithEmailAndPassword(fakeEmail,pass);
+          else throw createErr;
+        }
+        authUid=newCred.user.uid;
+        await db.ref('users/'+legacyUid).update({authUid,pass:null}); // pass:null = supprimé de la base
+        migratedProfile={uid:legacyUid,...legacyUser,authUid};
+        delete migratedProfile.pass;
+      }
+      if(migratedProfile){
+        currentUser=migratedProfile;
+      } else {
+        const snap=await db.ref('users').orderByChild('authUid').equalTo(authUid).once('value');
+        if(!snap.exists()){errEl.innerText='Profil introuvable, contacte le support';btn.disabled=false;btn.innerText='Se connecter';return;}
+        const [uid,u]=Object.entries(snap.val())[0];
+        currentUser={uid,...u};
+        delete currentUser.pass; // nettoyage si jamais un champ pass traînait encore
+      }
     }
     localStorage.setItem('aes_user',JSON.stringify(currentUser));
     const fSnap=await db.ref('following/'+currentUser.uid).once('value');
@@ -8733,44 +8782,40 @@ async function doAuth(){
     if(pendingAction){pendingAction();pendingAction=null;}
     // Onboarding uniquement pour les nouveaux inscrits
     if(authMode==='register') setTimeout(()=>kikoShowOnboarding(), 600);
-  }catch(e){errEl.innerText='Erreur: '+e.message;btn.disabled=false;btn.innerText=authMode==='login'?'Se connecter':"S'inscrire";}
+  }catch(e){
+    const AUTH_ERR_FR={
+      'auth/email-already-in-use':'Numéro déjà utilisé',
+      'auth/weak-password':'Mot de passe trop court (6 caractères minimum)',
+      'auth/wrong-password':'Mot de passe incorrect',
+      'auth/user-not-found':'Numéro introuvable',
+      'auth/invalid-email':'Numéro invalide',
+      'auth/too-many-requests':'Trop de tentatives, réessaie dans quelques minutes',
+      'auth/network-request-failed':'Erreur réseau, vérifie ta connexion'
+    };
+    errEl.innerText=AUTH_ERR_FR[e.code]||('Erreur: '+e.message);
+    btn.disabled=false;btn.innerText=authMode==='login'?'Se connecter':"S'inscrire";
+  }
 }
-async function doLogout(){
+function doLogout(){
   if(!currentUser)return;
   document.getElementById('logoutWarnPhone').value=currentUser.phone||'';
-  document.getElementById('logoutWarnPass').value=currentUser.pass||'⏳...';
+  const passEl=document.getElementById('logoutWarnPass');
+  // Le mot de passe n'est plus stocké nulle part côté serveur (géré par Firebase
+  // Auth, haché) : on ne peut plus jamais l'afficher ici, contrairement à avant.
+  // On informe simplement l'utilisateur au lieu de faire une recherche inutile.
+  passEl.value='';
+  passEl.placeholder='Non récupérable — garde-le précieusement de ton côté';
   document.getElementById('logoutWarnModal').classList.add('active');
-  // Sécurité : si le mot de passe n'est pas en mémoire locale, on va le rechercher dans Firebase
-  if(!currentUser.pass){
-    try{
-      const snap=await db.ref('users/'+currentUser.uid).once('value');
-      const fresh=snap.val();
-      if(fresh&&fresh.pass){
-        currentUser.pass=fresh.pass;
-        currentUser.phone=fresh.phone||currentUser.phone;
-        localStorage.setItem('aes_user',JSON.stringify(currentUser));
-        document.getElementById('logoutWarnPhone').value=currentUser.phone||'';
-        document.getElementById('logoutWarnPass').value=currentUser.pass;
-      } else {
-        document.getElementById('logoutWarnPass').value='';
-        document.getElementById('logoutWarnPass').placeholder='Mot de passe introuvable';
-      }
-    }catch(e){
-      document.getElementById('logoutWarnPass').value='';
-      document.getElementById('logoutWarnPass').placeholder='Erreur réseau';
-    }
-  }
 }
 function copyLogoutCreds(){
   const phone=document.getElementById('logoutWarnPhone').value;
-  const pass=document.getElementById('logoutWarnPass').value;
-  if(!pass){showToast('⚠️ Mot de passe introuvable, réessaie ou contacte le support');return;}
-  const txt='Numéro: '+phone+'\nMot de passe: '+pass;
-  navigator.clipboard?.writeText(txt).then(()=>showToast('📋 Copié ! Garde-les bien précieusement')).catch(()=>showToast('Copie manuelle : '+txt));
+  if(!phone){showToast('⚠️ Numéro introuvable');return;}
+  navigator.clipboard?.writeText(phone).then(()=>showToast('📋 Numéro copié !')).catch(()=>showToast('Copie manuelle : '+phone));
 }
 function confirmLogout(){
   document.getElementById('logoutWarnModal').classList.remove('active');
   if(typeof KikoAI!=='undefined') KikoAI.detachUser();
+  if(auth) auth.signOut().catch(()=>{});
   currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');
 }
 function needAuth(action){if(currentUser){action();return;}pendingAction=action;openAuth('Crée un compte pour accéder 🔒');}
