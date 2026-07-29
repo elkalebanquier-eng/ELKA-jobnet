@@ -8720,6 +8720,9 @@ async function doAuth(){
     following=fSnap.val()||{};
     localStorage.setItem('aes_following',JSON.stringify(following));
     if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); // sync du profil IA "pour toi" sur le compte
+    kikoSyncFavoritesFromCloud(); // migration douce : restaure les favoris si nouvel appareil
+    kikoSyncSavedPostsFromCloud(); // idem pour les posts enregistrés
+    kikoSyncLikedVideosFromCloud(); // idem pour les vidéos likées
     closeAuth();applyUserUI();
     showToast('👋 Bienvenue '+currentUser.name+' !');
     startNotifListener();loadNotifs();loadDMs();
@@ -10305,7 +10308,7 @@ function buildVCard(v,i){
         <div class="kiko-vid-btn-lbl">Save</div>
       </div>
       <div class="kiko-vid-btn" onclick="event.stopPropagation();needAuth(()=>kikoToggleFavorite('${v.id}',this))" title="Favori" role="button" aria-label="Ajouter aux favoris">
-        <div class="kiko-vid-btn-ico" id="fav-ico-${v.id}">${goldIcon('star')}</div>
+        <div class="kiko-vid-btn-ico${_favorites.includes(v.id)?' active':''}" id="fav-ico-${v.id}">${goldIcon('star')}</div>
         <div class="kiko-vid-btn-lbl">Favori</div>
       </div>
     </div>
@@ -10879,6 +10882,69 @@ function kikoToggleFavorite(vidId,btnEl){
   localStorage.setItem('kiko_favorites',JSON.stringify(_favorites));
 }
 
+// ═══════════════════════════════════════
+//  MIGRATION DOUCE — restaure les favoris depuis Firebase
+//  (utile quand l'utilisateur se connecte sur un nouvel appareil, ou après
+//  avoir vidé son cache : le cloud reste la source de vérité, le local
+//  n'est qu'un cache accéléré. On fusionne plutôt qu'on écrase, pour ne
+//  jamais perdre un favori ajouté localement avant la 1ère synchro.)
+// ═══════════════════════════════════════
+async function kikoSyncFavoritesFromCloud(){
+  if(!currentUser) return;
+  try{
+    const snap=await db.ref('favorites/'+currentUser.uid).once('value');
+    const cloud=snap.val()||{};
+    const cloudIds=Object.keys(cloud);
+    if(!cloudIds.length) return;
+    const before=_favorites.length;
+    _favorites=Array.from(new Set([..._favorites, ...cloudIds]));
+    if(_favorites.length!==before) localStorage.setItem('kiko_favorites',JSON.stringify(_favorites));
+    // Met à jour les étoiles déjà à l'écran (cartes vidéo déjà rendues)
+    _favorites.forEach(id=>{
+      const ico=document.getElementById('fav-ico-'+id);
+      if(ico) ico.classList.add('active');
+    });
+  }catch(e){ console.error('kikoSyncFavoritesFromCloud',e); }
+}
+
+// Même principe que kikoSyncFavoritesFromCloud, pour les publications enregistrées 🔖
+async function kikoSyncSavedPostsFromCloud(){
+  if(!currentUser) return;
+  try{
+    const snap=await db.ref('savedPosts/'+currentUser.uid).once('value');
+    const cloud=snap.val()||{};
+    const cloudIds=Object.keys(cloud);
+    if(!cloudIds.length) return;
+    const before=savedPosts.length;
+    savedPosts=Array.from(new Set([...savedPosts, ...cloudIds]));
+    if(savedPosts.length!==before) localStorage.setItem('aes_saved_posts',JSON.stringify(savedPosts));
+    savedPosts.forEach(id=>{
+      pcardPillUpdate('sfsave-'+id,{icon:'save',activeClass:'on',isActive:true});
+      const pcBtn=document.getElementById('pctopsave-'+id);
+      if(pcBtn) pcBtn.classList.add('on');
+    });
+  }catch(e){ console.error('kikoSyncSavedPostsFromCloud',e); }
+}
+
+// Même principe, pour la liste des vidéos likées ❤️ (l'icône cœur uniquement —
+// l'effet sur la recommandation, lui, est déjà synchronisé via kikoAiModel)
+async function kikoSyncLikedVideosFromCloud(){
+  if(!currentUser) return;
+  try{
+    const snap=await db.ref('likedVideos/'+currentUser.uid).once('value');
+    const cloud=snap.val()||{};
+    const cloudIds=Object.keys(cloud);
+    if(!cloudIds.length) return;
+    const before=liked.length;
+    liked=Array.from(new Set([...liked, ...cloudIds]));
+    if(liked.length!==before) localStorage.setItem('aes_liked',JSON.stringify(liked));
+    liked.forEach(id=>{
+      const circle=document.getElementById('lk-'+id)||document.getElementById('lk-compat-'+id);
+      if(circle){ circle.innerText='❤️'; circle.classList.add('liked'); }
+    });
+  }catch(e){ console.error('kikoSyncLikedVideosFromCloud',e); }
+}
+
 async function kikoSubmitReport(vidId, reason){
   kikoCloseMoreSheet();
   if(!currentUser){ showToast('Connecte-toi pour signaler'); return; }
@@ -11200,18 +11266,19 @@ function trackView(vidId,authorUid){
 function toggleLike(id){
   if(!currentUser)return;
   kikoHaptic(8);
-  // "J'aime" reste 100% local (pas d'écriture Firebase) — seule la
-  // "Reconnaissance" (doubleTapLike / interesting) est enregistrée côté serveur.
   const isLiked=liked.includes(id);
   const circle=document.getElementById('lk-'+id);
   if(isLiked){
     liked=liked.filter(x=>x!==id);
     if(circle){circle.innerText='🤍';circle.classList.remove('liked');}
+    db.ref('likedVideos/'+currentUser.uid+'/'+id).remove();
   } else {
     liked.push(id);
     if(circle){circle.innerText='❤️';circle.classList.add('liked');}
+    db.ref('likedVideos/'+currentUser.uid+'/'+id).set(Date.now());
     const vid=allVids.find(x=>x.id===id);
-    // 🧠 Signal fort pour KikoAI : un like compte plus qu'un simple visionnage (analytique locale uniquement)
+    // 🧠 Signal fort pour KikoAI : un like compte plus qu'un simple visionnage (déjà synchronisé
+    // via KikoAI.attachUser — voir kikoAiModel) ; la liste elle-même suit aussi le compte désormais.
     const wt=_aiWatch[id];
     recordAiInteraction(vid,{liked:true,watchRatio:wt&&wt.lastTime?Math.min(1,wt.lastTime/(vid?.duration||wt.lastTime||1)):undefined});
   }
@@ -14633,7 +14700,7 @@ setTimeout(()=>loadHomeSelection(), 950);             // sélection KIKO (créat
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
 setTimeout(()=>kikoShowOnboarding(), 1200);           // tour de bienvenue — pour TOUT nouvel utilisateur, même sans compte
 kikoInitNewBadges();
-if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
+if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); kikoSyncFavoritesFromCloud(); kikoSyncSavedPostsFromCloud(); kikoSyncLikedVideosFromCloud(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
 if(currentUser && !currentUser.country){ setTimeout(()=>kikoBackfillUserCountry(), 1800); }
 setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); checkBoostsAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
 
@@ -15718,6 +15785,8 @@ function sfToggleSave(postId){
   if(isNowSaved){savedPosts.push(postId);showToast('🔖 Publication enregistrée');}
   else{savedPosts=savedPosts.filter(x=>x!==postId);showToast('Retiré des enregistrements');}
   localStorage.setItem('aes_saved_posts',JSON.stringify(savedPosts));
+  if(isNowSaved) db.ref('savedPosts/'+currentUser.uid+'/'+postId).set(Date.now());
+  else db.ref('savedPosts/'+currentUser.uid+'/'+postId).remove();
   pcardPillUpdate('sfsave-'+postId,{icon:'save',activeClass:'on',isActive:isNowSaved});
   const pcBtn=document.getElementById('pctopsave-'+postId);
   if(pcBtn){
