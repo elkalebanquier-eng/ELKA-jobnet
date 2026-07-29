@@ -3365,6 +3365,14 @@ textarea.inp { resize: none; }
 }
 /* Plus d'infos auteur superposées à la photo (déplacées dans l'en-tête) → pas besoin du dégradé */
 .pfcard-img-wrap.pfcard-clean::after { display: none; }
+/* Placement encadré façon Buzz : photo inset avec marge, coins arrondis et bordure dorée discrète */
+.pfcard-img-wrap.pfcard-clean {
+  width: auto;
+  margin: 10px 12px 0;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+}
 
 /* Badge multi-photos */
 .pfcard-multi {
@@ -8029,7 +8037,7 @@ function buildPhotoCard(p,i){
       <div class="pcard-action pcard-pill${isSaved?' on':''}" id="pcsave-${p.id}" title="Enregistrer" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
         <div class="pcard-action-icon pcard-pill-ico">${goldIcon('save')}</div>
       </div>
-      <div class="pcard-action pcard-pill" title="Partager" onclick="event.stopPropagation();sharePost('${p.id}','${esc(p.auteur||'')}')">
+      <div class="pcard-action pcard-pill" id="psh-${p.id}" title="Partager" onclick="event.stopPropagation();sharePost('${p.id}','${esc(p.auteur||'')}')">
         <div class="pcard-action-icon pcard-pill-ico">${goldIcon('share')}</div>
         ${shareCountPc>0?`<span class="pcard-pill-label">${fmt(shareCountPc)}</span>`:''}
       </div>
@@ -8168,7 +8176,7 @@ function buildPfsSlide(p){
         <div class="pcard-action pcard-pill${isSaved?' on':''}" id="pfssave-${p.id}" title="Enregistrer" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
           <div class="pcard-action-icon pcard-pill-ico">${goldIcon('save')}</div>
         </div>
-        <div class="pcard-action pcard-pill" title="Partager" onclick="event.stopPropagation();sharePost('${p.id}','${esc(p.auteur||'')}')">
+        <div class="pcard-action pcard-pill" id="pfssh-${p.id}" title="Partager" onclick="event.stopPropagation();sharePost('${p.id}','${esc(p.auteur||'')}')">
           <div class="pcard-action-icon pcard-pill-ico">${goldIcon('share')}</div>
           ${shareCountPc>0?`<span class="pcard-pill-label">${fmt(shareCountPc)}</span>`:''}
         </div>
@@ -8352,22 +8360,21 @@ async function togglePostInteresting(postId){
   if(!currentUser){needAuth(()=>togglePostInteresting(postId));return;}
   const ref=db.ref('posts/'+postId+'/interestingBy/'+currentUser.uid);
   const isNowOn=!interestingPosts.includes(postId);
-  if(isNowOn){interestingPosts.push(postId);await ref.set(true);db.ref('posts/'+postId+'/interesting').transaction(v=>(v||0)+1);}
-  else{interestingPosts=interestingPosts.filter(x=>x!==postId);await ref.remove();db.ref('posts/'+postId+'/interesting').transaction(v=>Math.max(0,(v||0)-1));}
+  let newCount=0;
+  if(isNowOn){
+    interestingPosts.push(postId);await ref.set(true);
+    const res=await db.ref('posts/'+postId+'/interesting').transaction(v=>(v||0)+1);
+    newCount=res.snapshot.val()||0;
+  }else{
+    interestingPosts=interestingPosts.filter(x=>x!==postId);await ref.remove();
+    const res=await db.ref('posts/'+postId+'/interesting').transaction(v=>Math.max(0,(v||0)-1));
+    newCount=res.snapshot.val()||0;
+  }
   localStorage.setItem('aes_interesting',JSON.stringify(interestingPosts));
+  pcardPillUpdate('pint-'+postId,{icon:'star',activeClass:'on',isActive:isNowOn,count:newCount});
+  pcardPillUpdate('pfsint-'+postId,{icon:'star',activeClass:'on',isActive:isNowOn,count:newCount});
   const btn=document.getElementById('pint-'+postId);
-  if(btn){
-    btn.classList.toggle('on',isNowOn);
-    const ico=btn.querySelector('.pcard-pill-ico,.pcard-icobtn-ico');
-    if(ico)ico.textContent=isNowOn?'🌟':'⭐';
-    btn.style.transform='scale(1.08)';setTimeout(()=>btn.style.transform='',200);
-  }
-  const pfsBtn=document.getElementById('pfsint-'+postId);
-  if(pfsBtn){
-    pfsBtn.classList.toggle('on',isNowOn);
-    const ico2=pfsBtn.querySelector('.pcard-pill-ico');
-    if(ico2)ico2.textContent=isNowOn?'🌟':'⭐';
-  }
+  if(btn){btn.style.transform='scale(1.08)';setTimeout(()=>btn.style.transform='',200);}
 }
 
 // ═══════════════════════════════════════
@@ -8434,25 +8441,21 @@ async function togglePostLike(postId,type){
   if(isNowLiked){liked.push(postId);}else{liked=liked.filter(x=>x!==postId);}
   await ref.set(newCount);
   localStorage.setItem('aes_liked',JSON.stringify(liked));
-  const prefix=type==='photo'?'p':(type==='opp'?'o':'t');
-  const lkEl=document.getElementById(prefix+'lk-'+postId);
-  const iconEl=lkEl?lkEl.querySelector('.pcard-icobtn-ico,.pcard-action-icon'):null;
-  const labelEl=lkEl?lkEl.querySelector('.pcard-pill-label'):null;
-  const lcEl=document.getElementById(prefix+'lc-'+postId);
-  if(lkEl)lkEl.classList.toggle('liked',isNowLiked);
-  if(iconEl)iconEl.textContent=isNowLiked?'❤️':'🤍';
-  if(labelEl)labelEl.textContent='Favoris'+(newCount>0?' · '+fmt(newCount):'');
-  if(lcEl)lcEl.textContent=newCount>0?fmt(newCount):'';
-  const likecountLine=document.getElementById(prefix+'clikecount-'+postId);
-  if(likecountLine)likecountLine.textContent=newCount>0?'❤️ '+fmt(newCount):'';
-  // Sync avec le viewer plein écran (pfsViewer) si un post identique y est affiché
-  const pfsLk=document.getElementById('pfslk-'+postId);
-  if(pfsLk){
-    pfsLk.classList.toggle('liked',isNowLiked);
-    const pfsIco=pfsLk.querySelector('.pcard-pill-ico');
-    const pfsLabel=pfsLk.querySelector('.pcard-pill-label');
-    if(pfsIco)pfsIco.textContent=isNowLiked?'❤️':'🤍';
-    if(pfsLabel)pfsLabel.textContent='Favoris'+(newCount>0?' · '+fmt(newCount):'');
+  if(type==='photo'){
+    pcardPillUpdate('plk-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
+    pcardPillUpdate('pfslk-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
+    pcardPillUpdate('sflike-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
+    const likecountLine=document.getElementById('pflikecount-'+postId);
+    if(likecountLine)likecountLine.textContent=newCount>0?fmt(newCount)+" j'aime":'';
+  }else{
+    const prefix=type==='opp'?'o':'t';
+    const lkEl=document.getElementById(prefix+'lk-'+postId);
+    const lcEl=document.getElementById(prefix+'lc-'+postId);
+    if(lkEl){
+      lkEl.classList.toggle('liked',isNowLiked);
+      lkEl.style.color=isNowLiked?'var(--red)':lkEl.dataset.baseColor||lkEl.style.color;
+    }
+    if(lcEl)lcEl.textContent=fmt(newCount);
   }
 }
 
@@ -8463,7 +8466,11 @@ function sharePost(postId,auteur){
   const txt=`Post de @${auteur} sur AES👑`;
   if(navigator.share)navigator.share({title:'AES👑',text:txt}).catch(()=>{});
   else navigator.clipboard.writeText(txt).then(()=>showToast('🔗 Lien copié !'));
-  db.ref('posts/'+postId+'/shares').transaction(v=>(v||0)+1);
+  db.ref('posts/'+postId+'/shares').transaction(v=>(v||0)+1).then(res=>{
+    const c=res.snapshot.val()||0;
+    pcardPillUpdate('psh-'+postId,{count:c});
+    pcardPillUpdate('pfssh-'+postId,{count:c});
+  });
 }
 
 // ═══════════════════════════════════════
@@ -10147,6 +10154,27 @@ function goldIcon(name, grad){
   return `<svg viewBox="0 0 24 24" width="25" height="25" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));">
     <path d="${d}" fill="url(#${grad})" stroke="${stroke}" stroke-width="0.6" stroke-linejoin="round"/>
   </svg>`;
+}
+
+// Met à jour un badge du dock doré (pcard-pillrow) après une interaction : icône SVG + pastille de compteur.
+// btnId: id du bouton (ex: 'plk-'+postId). opts: {icon, grad, activeClass, isActive, count}
+function pcardPillUpdate(btnId, opts){
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  if(opts.activeClass) btn.classList.toggle(opts.activeClass, !!opts.isActive);
+  if(opts.icon){
+    const ico = btn.querySelector('.pcard-pill-ico');
+    if(ico) ico.innerHTML = goldIcon(opts.icon, opts.grad);
+  }
+  if(typeof opts.count === 'number'){
+    let badge = btn.querySelector('.pcard-pill-label');
+    if(opts.count > 0){
+      if(!badge){ badge = document.createElement('span'); badge.className='pcard-pill-label'; btn.appendChild(badge); }
+      badge.textContent = fmt(opts.count);
+    } else if(badge){
+      badge.remove();
+    }
+  }
 }
 
 function buildVCard(v,i){
@@ -15531,7 +15559,7 @@ function buildSFPost(p){
         <div class="pcard-action pcard-pill${isSaved?' on':''}" id="sfsave-${p.id}" title="Enregistrer" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
           <div class="pcard-action-icon pcard-pill-ico">${goldIcon('save')}</div>
         </div>
-        <div class="pcard-action pcard-pill" title="Partager" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
+        <div class="pcard-action pcard-pill" id="sfsh-${p.id}" title="Partager" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
           <div class="pcard-action-icon pcard-pill-ico">${goldIcon('share')}</div>
           ${shareCount>0?`<span class="pcard-pill-label">${fmt(shareCount)}</span>`:''}
         </div>
@@ -15579,7 +15607,7 @@ function buildSFPost(p){
         <div class="pcard-action pcard-pill${isSaved?' on':''}" id="sfsave-${p.id}" title="Enregistrer" onclick="event.stopPropagation();sfToggleSave('${p.id}')">
           <div class="pcard-action-icon pcard-pill-ico">${goldIcon('save')}</div>
         </div>
-        <div class="pcard-action pcard-pill" title="Partager" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
+        <div class="pcard-action pcard-pill" id="sfsh-${p.id}" title="Partager" onclick="event.stopPropagation();sfShare('${p.id}','${esc(p.auteur||'')}')">
           <div class="pcard-action-icon pcard-pill-ico">${goldIcon('share')}</div>
           ${shareCount>0?`<span class="pcard-pill-label">${fmt(shareCount)}</span>`:''}
         </div>
@@ -15617,10 +15645,9 @@ async function sfToggleLike(postId){
   const newCount=Math.max(0,cur+(isNowLiked?1:-1));
   await ref.set(newCount);
   // Update UI
-  const btn=document.getElementById('sflike-'+postId);
-  const ico=btn?btn.querySelector('.pcard-pill-ico'):null;
-  if(btn) btn.classList.toggle('liked',isNowLiked);
-  if(ico) ico.textContent=isNowLiked?'❤️':'🤍';
+  pcardPillUpdate('sflike-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
+  pcardPillUpdate('plk-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
+  pcardPillUpdate('pfslk-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
   const likecountLine=document.getElementById('pflikecount-'+postId);
   if(likecountLine) likecountLine.textContent=newCount>0?fmt(newCount)+" j'aime":'';
 }
@@ -15632,29 +15659,14 @@ function sfToggleSave(postId){
   if(isNowSaved){savedPosts.push(postId);showToast('🔖 Publication enregistrée');}
   else{savedPosts=savedPosts.filter(x=>x!==postId);showToast('Retiré des enregistrements');}
   localStorage.setItem('aes_saved_posts',JSON.stringify(savedPosts));
-  const btn=document.getElementById('sfsave-'+postId);
-  if(btn){
-    btn.classList.toggle('on',isNowSaved);
-    const ico=btn.querySelector('.pcard-pill-ico');
-    if(ico)ico.textContent=isNowSaved?'📌':'🔖';
-  }
+  pcardPillUpdate('sfsave-'+postId,{icon:'save',activeClass:'on',isActive:isNowSaved});
   const pcBtn=document.getElementById('pctopsave-'+postId);
   if(pcBtn){
     pcBtn.classList.toggle('on',isNowSaved);
     pcBtn.textContent=isNowSaved?'📌':'🔖';
   }
-  const pcPillBtn=document.getElementById('pcsave-'+postId);
-  if(pcPillBtn){
-    pcPillBtn.classList.toggle('on',isNowSaved);
-    const ico2=pcPillBtn.querySelector('.pcard-pill-ico');
-    if(ico2)ico2.textContent=isNowSaved?'📌':'🔖';
-  }
-  const pfsBtn=document.getElementById('pfssave-'+postId);
-  if(pfsBtn){
-    pfsBtn.classList.toggle('on',isNowSaved);
-    const ico3=pfsBtn.querySelector('.pcard-pill-ico');
-    if(ico3)ico3.textContent=isNowSaved?'📌':'🔖';
-  }
+  pcardPillUpdate('pcsave-'+postId,{icon:'save',activeClass:'on',isActive:isNowSaved});
+  pcardPillUpdate('pfssave-'+postId,{icon:'save',activeClass:'on',isActive:isNowSaved});
   const collectRow=document.getElementById('pccollect-'+postId);
   if(collectRow){
     collectRow.classList.toggle('on',isNowSaved);
@@ -15762,7 +15774,9 @@ function sfShare(postId,auteur){
   const txt=`Post de @${auteur} sur AES👑 Vidéos 🌍`;
   if(navigator.share)navigator.share({title:'AES👑',text:txt}).catch(()=>{});
   else navigator.clipboard.writeText(txt).then(()=>showToast('🔗 Lien copié !'));
-  db.ref('posts/'+postId+'/shares').transaction(v=>(v||0)+1);
+  db.ref('posts/'+postId+'/shares').transaction(v=>(v||0)+1).then(res=>{
+    pcardPillUpdate('sfsh-'+postId,{count:res.snapshot.val()||0});
+  });
 }
 
 // ─── Gallery viewer ───
