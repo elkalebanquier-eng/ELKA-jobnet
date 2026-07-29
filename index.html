@@ -7639,7 +7639,7 @@ async function loadFeedMixed(){
     allVids = cached;
     feed.innerHTML = buildFeedHtml(cached);
     const firstVid = feed.querySelector('video');
-    if(firstVid){ firstVid.muted = true; if(_isBuzzScreenVisible()) firstVid.play().catch(()=>{}); }
+    if(firstVid){ firstVid.muted = globalMuted; if(_isBuzzScreenVisible()) firstVid.play().catch(()=>{firstVid.muted=true;firstVid.play().catch(()=>{});}); }
     initObserver(); initProgress(); initRadialLongPress();
     setTimeout(()=>cached.forEach(v=>_tagVCard(v.id,v)), 50);
   } else {
@@ -7678,7 +7678,7 @@ async function loadFeedMixed(){
     if(firstId !== currentFirst){
       feed.innerHTML = buildFeedHtml(ranked);
       const firstVid = feed.querySelector('video');
-      if(firstVid){ firstVid.muted = true; if(_isBuzzScreenVisible()) firstVid.play().catch(()=>{}); }
+      if(firstVid){ firstVid.muted = globalMuted; if(_isBuzzScreenVisible()) firstVid.play().catch(()=>{firstVid.muted=true;firstVid.play().catch(()=>{});}); }
       initObserver(); initProgress(); initRadialLongPress();
       setTimeout(()=>vids.forEach(v=>_tagVCard(v.id,v)), 50);
     }
@@ -10226,7 +10226,6 @@ function buildVCard(v,i){
     <video ${vidSrcAttr} poster="${optVidThumb(v.thumbnail,480)||''}" loop playsinline muted preload="${preload}"
       onclick="tapVid(this,${i})" id="vid-${v.id}"></video>
     <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}" role="button" aria-label="Lecture / Pause">⏸</div></div>
-    <div class="vmute-btn" id="vmute-${v.id}" onclick="toggleMute('${v.id}')" role="button" aria-label="Activer ou couper le son">🔇</div>
     <div class="heart-anim" id="ha-${i}">❤️</div>
 
     <!-- ═══ NOM D'AUTEUR — en haut de la vidéo ═══ -->
@@ -10509,8 +10508,9 @@ function showAdvPanel(i){
   },2500);
 }
 
-// Son global — démarre muet, l'utilisateur active
-let globalMuted=true;
+// Son global — activé par défaut dans Buzz (l'utilisateur peut couper en tapant pause,
+// mais il n'y a plus de bouton mute séparé : le son joue directement à l'entrée)
+let globalMuted=false;
 function toggleMute(vidId){
   const video=document.getElementById('vid-'+vidId);
   const btn=document.getElementById('vmute-'+vidId);
