@@ -5658,6 +5658,22 @@ document.addEventListener('load', function(e){
 #vpsScrollArea::-webkit-scrollbar { display: none; }
 </style>
 
+<!-- ═══ PASTILLE FLOTTANTE — publication en arrière-plan (non bloquante) ═══ -->
+<div id="kikoUploadPill" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:9999;background:rgba(20,21,26,0.95);border:1px solid var(--border2);border-radius:var(--r-lg);padding:10px 14px;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.4);backdrop-filter:blur(10px);">
+  <div style="position:relative;width:34px;height:34px;flex-shrink:0;">
+    <svg width="34" height="34" viewBox="0 0 34 34" style="transform:rotate(-90deg);">
+      <circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
+      <circle id="kikoUploadPillCircle" cx="17" cy="17" r="14" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="87.96" style="transition:stroke-dashoffset 0.25s ease;"/>
+    </svg>
+    <div id="kikoUploadPillPct" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#fff;">0%</div>
+  </div>
+  <div style="flex:1;min-width:0;">
+    <div id="kikoUploadPillStatus" style="font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Publication de la vidéo...</div>
+    <div style="font-size:10.5px;color:var(--muted);">Tu peux continuer à utiliser l'app</div>
+  </div>
+  <div onclick="kikoCancelUploadPill()" style="font-size:16px;color:var(--muted);cursor:pointer;padding:4px;flex-shrink:0;">✕</div>
+</div>
+
 
 <div id="musicPickerBlock" style="display:none;">
   <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;">🎵 Musique</div>
@@ -12230,42 +12246,57 @@ function fmtDur(s){
   return m+':'+(sec<10?'0':'')+sec;
 }
 
+const CIRC_PILL = 87.96;
+function kikoUploadPillShow(status){
+  const pill=document.getElementById('kikoUploadPill');
+  if(!pill)return;
+  pill.style.display='flex';
+  kikoUploadPillSetProgress(0,status||'Publication de la vidéo...');
+}
+function kikoUploadPillSetProgress(p,label){
+  p=Math.max(0,Math.min(100,p));
+  const pctEl=document.getElementById('kikoUploadPillPct');
+  const circle=document.getElementById('kikoUploadPillCircle');
+  const status=document.getElementById('kikoUploadPillStatus');
+  if(pctEl)pctEl.textContent=Math.round(p)+'%';
+  if(circle)circle.style.strokeDashoffset=CIRC_PILL*(1-p/100);
+  if(label&&status)status.textContent=label;
+}
+function kikoUploadPillHide(){
+  const pill=document.getElementById('kikoUploadPill');
+  if(pill)pill.style.display='none';
+}
+function kikoCancelUploadPill(){
+  if(_vpsXHR){_vpsXHR.abort();_vpsXHR=null;}
+  kikoUploadPillHide();
+  showToast('❌ Envoi annulé');
+}
+
 async function uploadVideo(){
   if(!selFile){ showToast('⚠️ Choisis une vidéo'); return; }
 
+  // On capture tout ce dont on a besoin AVANT de fermer l'écran,
+  // car fermer l'écran réinitialise le panneau (selFile, champs, etc.)
+  const fileToUpload = selFile;
   const desc     = (document.getElementById('vpsDescInput')?.value||'').trim();
   const privacy  = document.getElementById('vpsPrivacy')?.value||'public';
-  // Si l'utilisateur n'a pas tapé de lieu manuellement, on retombe sur la ville
-  // détectée par géolocalisation (déjà stockée sur son profil) — ça garantit que
-  // la carte des créateurs a des données sans effort supplémentaire pour lui.
   const location = (document.getElementById('vpsLocationText')?.value||'').trim() || currentUser.city || '';
+  const reuseToggle = document.getElementById('musicAllowReuseToggle');
+  const musicData = selectedMusic ? {
+    musicUrl:selectedMusic.url, musicName:selectedMusic.name, musicArtist:selectedMusic.artist,
+    musicEmoji:selectedMusic.emoji||'🎵', musicCover:selectedMusic.cover||null,
+    musicAllowReuse:reuseToggle?reuseToggle.checked:true
+  } : {};
 
-  const btn = document.getElementById('vpsPublishBtn');
-  btn.disabled = true; btn.textContent = '⏳...';
-
-  const overlay = document.getElementById('vpsUploadOverlay');
-  const pctEl   = document.getElementById('vpsUploadPct');
-  const bar     = document.getElementById('vpsUploadBar');
-  const circle  = document.getElementById('vpsProgressCircle');
-  const status  = document.getElementById('vpsUploadStatus');
-  const sub     = document.getElementById('vpsUploadSub');
-  const CIRC = 326.73;
-  overlay.style.display = 'flex';
-  sub.textContent = 'Optimisation de la vidéo';
-
-  const setP = (p, label)=>{
-    p = Math.max(0, Math.min(100, p));
-    pctEl.textContent = Math.round(p)+'%';
-    bar.style.width = p+'%';
-    circle.style.strokeDashoffset = CIRC*(1-p/100);
-    if(label) status.textContent = label;
-  };
-  setP(2, 'Connexion...');
+  // On libère immédiatement l'utilisateur : il n'est pas obligé de rester
+  // à regarder la publication se faire, l'envoi continue en arrière-plan.
+  closeVideoPublishScreen();
+  kikoUploadPillShow('Optimisation de la vidéo...');
 
   try{
     const videoUrl = await new Promise((res, rej)=>{
       const fd = new FormData();
-      fd.append('file', selFile);
+      fd.append('file', fileToUpload);
       fd.append('upload_preset','Aes-upload');
       const xhr = new XMLHttpRequest();
       _vpsXHR = xhr;
@@ -12273,7 +12304,7 @@ async function uploadVideo(){
       xhr.upload.onprogress = e=>{
         if(e.lengthComputable){
           const pct = Math.round(e.loaded/e.total*100);
-          setP(5 + pct*0.88, `Envoi ${pct}%...`);
+          kikoUploadPillSetProgress(5 + pct*0.88, `Envoi ${pct}%...`);
         }
       };
       xhr.onload = ()=>{
@@ -12285,18 +12316,11 @@ async function uploadVideo(){
       xhr.send(fd);
     });
 
-    setP(96, 'Sauvegarde...');
+    kikoUploadPillSetProgress(96, 'Sauvegarde...');
 
     const thumbnail = videoUrl
       .replace('/video/upload/','/video/upload/so_0,w_480,f_jpg/')
       .replace(/\.(mp4|mov|avi|webm)$/i,'.jpg');
-
-    const reuseToggle = document.getElementById('musicAllowReuseToggle');
-    const musicData = selectedMusic ? {
-      musicUrl:selectedMusic.url, musicName:selectedMusic.name, musicArtist:selectedMusic.artist,
-      musicEmoji:selectedMusic.emoji||'🎵', musicCover:selectedMusic.cover||null,
-      musicAllowReuse:reuseToggle?reuseToggle.checked:true
-    } : {};
 
     await db.ref('videos').push({
       videoUrl, thumbnail, ...musicData,
@@ -12307,12 +12331,11 @@ async function uploadVideo(){
     });
     KIKO_CACHE.clear('videos'); // invalide le cache pour forcer rechargement
 
-    setP(100, '✅ Publié !');
+    kikoUploadPillSetProgress(100, '✅ Publié !');
     showToast('🎉 Vidéo publiée avec succès !');
 
     setTimeout(()=>{
-      overlay.style.display = 'none';
-      closeVideoPublishScreen();
+      kikoUploadPillHide();
       prependNewVideoToFeed({
         videoUrl, thumbnail, ...musicData,
         auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
@@ -12320,11 +12343,10 @@ async function uploadVideo(){
         authorVerified:currentUser.verified||false, authorBusinessVerified:currentUser.businessVerified||false,
         desc, privacy, likes:0, views:0, createdAt:Date.now(), id:'_new_'+Date.now()
       });
-    }, 800);
+    }, 1200);
 
   } catch(e){
-    overlay.style.display = 'none';
-    btn.disabled = false; btn.textContent = 'Publier';
+    kikoUploadPillHide();
     showToast('❌ '+e.message);
   }
 }
