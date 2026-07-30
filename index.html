@@ -3298,6 +3298,132 @@ textarea.inp { resize: none; }
   box-shadow: var(--shadow-xs);
 }
 .art-card-sm:active { transform: scale(0.98); }
+
+/* ─── CAMÉRA UI (COMPLÉMENT) ─── */
+.cam-topbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: calc(16px + env(safe-area-inset-top)) 20px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 100; pointer-events: none;
+}
+.cam-topbar > * { pointer-events: auto; }
+.cam-close-btn, .cam-flip-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.2);
+  color: #fff; transition: all 0.2s;
+}
+.cam-close-btn:active, .cam-flip-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.5); }
+
+.cam-rec-badge {
+  background: rgba(255,59,48,0.9); padding: 7px 14px; border-radius: 20px;
+  display: none; align-items: center; gap: 8px;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: #fff;
+  box-shadow: 0 4px 12px rgba(255,59,48,0.3);
+}
+.cam-rec-badge.active { display: flex; }
+.cam-rec-dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; animation: camPulse 1s infinite; }
+
+.cam-sidebar {
+  position: absolute; top: 110px; right: 16px;
+  display: flex; flex-direction: column; gap: 18px; z-index: 100;
+}
+.cam-side-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.2);
+  color: #fff; transition: all 0.2s;
+}
+.cam-side-btn.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
+.cam-side-btn:active { transform: scale(0.9); }
+
+.cam-controls {
+  padding: 24px 20px calc(28px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; background: #000;
+}
+.cam-shutter {
+  width: 82px; height: 82px; border-radius: 50%;
+  position: relative; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, opacity 0.2s;
+}
+.cam-shutter:active { transform: scale(0.9); }
+.cam-shutter-outer {
+  position: absolute; inset: 0; border: 5px solid #fff; border-radius: 50%;
+  opacity: 0.8;
+}
+.cam-shutter-inner {
+  width: 62px; height: 62px; border-radius: 50%;
+  background: #fff; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.cam-shutter.video-mode .cam-shutter-inner { background: #FF3B30; }
+.cam-shutter.recording .cam-shutter-inner { border-radius: 10px; transform: scale(0.55); }
+
+.cam-mode-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; min-width: 64px; }
+.cam-mode-icon { font-size: 24px; opacity: 0.6; transition: all 0.2s; }
+.cam-mode-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5); letter-spacing: 1.2px; text-transform: uppercase; }
+.cam-mode-btn.video-active .cam-mode-icon { opacity: 1; color: var(--gold); transform: scale(1.1); }
+.cam-mode-btn.video-active .cam-mode-label { color: var(--gold); opacity: 1; }
+
+.cam-gallery-btn {
+  width: 46px; height: 46px; border-radius: 12px;
+  border: 2px solid rgba(255,255,255,0.4); overflow: hidden;
+  background: #1a1a1a; cursor: pointer; transition: transform 0.2s;
+}
+.cam-gallery-btn:active { transform: scale(0.9); }
+
+.cam-grid { position: absolute; inset: 0; pointer-events: none; display: none; z-index: 2; }
+.cam-grid.active { display: block; }
+.grid-line { position: absolute; background: rgba(255,255,255,0.25); box-shadow: 0 0 2px rgba(0,0,0,0.3); }
+.grid-v1 { left: 33.33%; top: 0; bottom: 0; width: 1px; }
+.grid-v2 { left: 66.66%; top: 0; bottom: 0; width: 1px; }
+.grid-h1 { top: 33.33%; left: 0; right: 0; height: 1px; }
+.grid-h2 { top: 66.66%; left: 0; right: 0; height: 1px; }
+
+.cam-zoom-slider-wrap {
+  position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%);
+  width: 180px; z-index: 100; display: flex; flex-direction: column; align-items: center;
+  background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); padding: 8px 16px;
+  border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+}
+#camZoomSlider {
+  width: 100%; -webkit-appearance: none; background: rgba(255,255,255,0.2);
+  height: 3px; border-radius: 2px; margin: 10px 0;
+}
+#camZoomSlider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; cursor: pointer; border: 2px solid var(--gold);
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+
+.cam-flash-overlay {
+  position: absolute; inset: 0; background: #fff; z-index: 1000;
+  display: none; pointer-events: none;
+}
+.cam-flash-overlay.active { display: block; animation: camFlashSnap 0.4s ease-out forwards; }
+@keyframes camFlashSnap { 0% { opacity: 0.9; } 100% { opacity: 0; } }
+
+.cam-filter-label {
+  position: absolute; bottom: 260px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  color: #fff; font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 14px; padding: 6px 16px; border-radius: 20px;
+  z-index: 90; pointer-events: none; transition: all 0.3s;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.cam-timer-display {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 120px; font-family: 'Syne', sans-serif; font-weight: 800;
+  color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 500;
+  pointer-events: none; display: none;
+}
+.cam-timer-display.active { display: block; animation: timerPop 1s infinite; }
+@keyframes timerPop { 0% { transform: translate(-50%,-50%) scale(0.5); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(-50%,-50%) scale(1.5); opacity: 0; } }
+
 .art-card-sm-img {
   width: 92px; height: 92px; flex-shrink: 0; border-radius: 12px;
   overflow: hidden; background: var(--surface2); position: relative;
@@ -3322,6 +3448,35 @@ textarea.inp { resize: none; }
 #ptrWrap { display: flex; align-items: center; justify-content: center; height: 44px; color: var(--muted); font-size: 12px; opacity: 0; transition: opacity 0.3s; }
 #ptrWrap.show { opacity: 1; }
 
+/* ─── SKELETON LOADERS (Facebook Style) ─── */
+.sk-sfpost {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sk-sfpost-head { display: flex; align-items: center; gap: 10px; }
+.sk-sfpost-av-c { width: 38px; height: 38px; border-radius: 50%; background: var(--surface2); position: relative; overflow: hidden; }
+.sk-sfpost-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.sk-sfpost-line1 { width: 40%; height: 12px; background: var(--surface2); border-radius: 4px; position: relative; overflow: hidden; }
+.sk-sfpost-line2 { width: 20%; height: 10px; background: var(--surface2); border-radius: 4px; position: relative; overflow: hidden; }
+.sk-sfpost-img { width: 100%; aspect-ratio: 4/3; border-radius: 24px; background: var(--surface2); position: relative; overflow: hidden; }
+.sk-sfpost-actions { display: flex; justify-content: space-around; padding-top: 8px; }
+.sk-sfpost-action { width: 60px; height: 24px; background: var(--surface2); border-radius: 12px; position: relative; overflow: hidden; }
+
+.sk-sfpost .sk::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  animation: sk-shimmer 1.5s infinite;
+}
+@keyframes sk-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* ─── HOME FEED POSTS (pfcard) — photo cards style ─── */
 #sfList {
   display: flex; flex-direction: column; gap: 0;
@@ -3345,6 +3500,7 @@ textarea.inp { resize: none; }
   background: #000; overflow: hidden;
   aspect-ratio: 4/3;
   max-height: 70vw;
+  transform: translateZ(0);
 }
 .pfcard-bg {
   position: absolute; inset: -4px;
@@ -3356,6 +3512,8 @@ textarea.inp { resize: none; }
   position: absolute; inset: 0; z-index: 1;
   width: 100%; height: 100%;
   object-fit: cover; display: block;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 /* Dégradé bas pour lisibilité overlay */
 .pfcard-img-wrap::after {
@@ -3368,13 +3526,21 @@ textarea.inp { resize: none; }
 }
 /* Plus d'infos auteur superposées à la photo (déplacées dans l'en-tête) → pas besoin du dégradé */
 .pfcard-img-wrap.pfcard-clean::after { display: none; }
-/* Placement encadré façon Buzz : photo inset avec marge, coins arrondis et bordure dorée discrète */
+/* Placement encadré façon Buzz : photo inset avec marge, coins arrondis et bordure métallique premium */
 .pfcard-img-wrap.pfcard-clean {
   width: auto;
   margin: 10px 12px 0;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  border-radius: 24px;
+  border: 2.5px solid;
+  border-image: linear-gradient(135deg, #d4af37 0%, #f0e68c 50%, #daa520 100%) 1;
+  box-shadow: 
+    0 0 0 1px rgba(212,175,55,0.3),
+    0 8px 24px rgba(212,175,55,0.15),
+    inset 0 1px 2px rgba(255,255,255,0.15),
+    inset 0 -1px 2px rgba(0,0,0,0.3);
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 400px;
+  will-change: transform;
 }
 
 /* Badge multi-photos */
@@ -3464,7 +3630,32 @@ textarea.inp { resize: none; }
   backdrop-filter: blur(4px);
 }
 
-/* Barre d'actions façon Instagram — icônes seules à gauche, favoris à droite */
+/* Barre d'actions flottante Buzz Premium — icônes dorées 3D */
+.pcard-pillrow {
+  display: flex; align-items: center; justify-content: space-around; gap: 8px;
+  padding: 14px 12px;
+  background: rgba(212,175,55,0.08);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(212,175,55,0.2);
+  border-bottom: 1px solid rgba(212,175,55,0.2);
+  contain: layout style;
+}
+.pcard-action {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 8px; border-radius: 14px;
+  background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.2);
+  cursor: pointer; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s, color 0.15s;
+  font-size: 12px; font-weight: 700; color: var(--gold);
+  will-change: transform;
+  transform: translateZ(0);
+}
+.pcard-action:active { transform: scale(0.92); }
+.pcard-action.pcard-pill { background: rgba(212,175,55,0.12); border: 1.5px solid rgba(212,175,55,0.3); }
+.pcard-action.pcard-pill.liked { background: rgba(255,59,48,0.15); border-color: rgba(255,59,48,0.4); color: #FF3B30; }
+.pcard-action.pcard-pill.on { background: rgba(212,175,55,0.2); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 12px rgba(212,175,55,0.3); }
+.pcard-pill-ico { font-size: 18px; filter: drop-shadow(0 2px 4px rgba(212,175,55,0.3)); }
+.pcard-pill-label { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+
 .pfcard-actionbar {
   display: flex; align-items: center; gap: 4px;
   padding: 8px 6px 2px;
@@ -5447,7 +5638,7 @@ document.addEventListener('load', function(e){
         <button class="cam-open-btn" onclick="openKikoProCamera('video')">📹 Filmer avec effets</button>
 
         <!-- Gros bouton galerie — label HTML pour garantir l'ouverture native -->
-        <div onclick="kikoOpenFilePicker('videoInput')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--surface);border:2px dashed var(--border2);border-radius:var(--r-lg);padding:32px 16px;cursor:pointer;text-align:center;margin-bottom:4px;">
+        <div onclick="openKikoVideoGallery()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--surface);border:2px dashed var(--border2);border-radius:var(--r-lg);padding:32px 16px;cursor:pointer;text-align:center;margin-bottom:4px;">
           <span style="font-size:48px;">🎬</span>
           <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text);">Choisir une vidéo</span>
           <span style="font-size:12px;color:var(--muted);">Depuis ta galerie · MP4, MOV, WebM</span>
@@ -5529,7 +5720,7 @@ document.addEventListener('load', function(e){
         <video id="vpsPreviewVid" muted playsinline controls
           style="width:100%;max-height:42vh;object-fit:contain;display:block;"></video>
         <!-- Badge changer vidéo -->
-        <div onclick="kikoOpenFilePicker('videoInput')"
+        <div onclick="openKikoVideoGallery()"
           style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.2);border-radius: var(--r-lg);padding:5px 12px;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(6px);">
           🔄 Changer
         </div>
@@ -5737,14 +5928,34 @@ document.addEventListener('load', function(e){
 <!-- ═══ CAMÉRA PREMIUM + FILTRES ═══ -->
 <div id="cameraScreen">
   <div class="cam-viewport" id="camViewport">
-    <video id="camVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;transition:filter 0.3s;"></video>
+    <video id="camVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;transition:filter 0.3s, transform 0.2s;"></video>
     <canvas id="camFaceCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
-    <div class="cam-flash" id="camFlash"></div>
+    <div class="cam-flash-overlay" id="camFlashOverlay"></div>
+    <div class="cam-grid" id="camGrid">
+      <div class="grid-line grid-v1"></div>
+      <div class="grid-line grid-v2"></div>
+      <div class="grid-line grid-h1"></div>
+      <div class="grid-line grid-h2"></div>
+    </div>
+    <div class="cam-timer-display" id="camTimerDisplay">3</div>
     <div class="cam-corner cam-corner-tl"></div>
     <div class="cam-corner cam-corner-tr"></div>
     <div class="cam-corner cam-corner-bl"></div>
     <div class="cam-corner cam-corner-br"></div>
     <div class="cam-filter-label" id="camFilterLabel">Normal</div>
+    
+    <div class="cam-sidebar">
+      <div class="cam-side-btn" onclick="toggleCamFlash()" id="camFlashBtn" title="Flash">⚡</div>
+      <div class="cam-side-btn" onclick="toggleCamTimer()" id="camTimerBtn" title="Minuteur">⏲️</div>
+      <div class="cam-side-btn" onclick="toggleCamGrid()" id="camGridBtn" title="Grille">🌐</div>
+      <div class="cam-side-btn" onclick="toggleCamBeauty()" id="camBeautyBtn" title="Beauté">✨</div>
+    </div>
+
+    <div class="cam-zoom-slider-wrap" id="camZoomWrap">
+      <div style="font-size:10px;font-weight:800;margin-bottom:4px;color:rgba(255,255,255,0.6);">ZOOM</div>
+      <input type="range" id="camZoomSlider" min="1" max="4" step="0.1" value="1" oninput="onCamZoom(this.value)">
+    </div>
+
     <div class="cam-topbar">
       <div class="cam-close-btn" onclick="closeCamera()">✕</div>
       <div class="cam-rec-badge" id="camRecBadge"><div class="cam-rec-dot"></div><span id="camRecTimer">00:00</span></div>
@@ -5822,6 +6033,7 @@ document.addEventListener('load', function(e){
     <div style="width:100%;aspect-ratio:16/9;background:var(--surface2);border:1.5px dashed rgba(201,168,76,0.25);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;margin-bottom:14px;overflow:hidden;" id="photoPick">
       <input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div>
+      <button type="button" onclick="event.stopPropagation();openKikoProCamera('photo','product')" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius:var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">📷 Caméra</button>
     </div>
     <input type="text" class="inp" id="prodName" placeholder="Nom du produit">
     <input type="number" class="inp" id="prodPrice" placeholder="Prix en FCFA">
@@ -10407,9 +10619,9 @@ let feedLastKey=null,feedLoading=false,feedAllLoaded=false;
 function initInfiniteScroll(){
   const feed=document.getElementById('feed');
   feed.addEventListener('scroll',()=>{
-    if(feedLoading||feedAllLoaded)return;
+    if(feedLoading)return;
     if(feed.scrollTop+feed.clientHeight>=feed.scrollHeight-400){
-      loadMoreVideos();
+      loadMoreVideos(); // gère aussi le bouclage une fois feedAllLoaded=true
     }
   },{passive:true});
 }
@@ -10475,19 +10687,86 @@ function initFeedPullToRefresh(){
 }
 
 function loadMoreVideos(){
-  if(feedLoading||feedAllLoaded||!feedLastKey)return;
+  if(feedLoading)return;
+  if(feedAllLoaded){ loopFeedVideos(); return; } // 🔁 plus rien de neuf → on boucle le contenu déjà vu
+  if(!feedLastKey)return;
   feedLoading=true;
   db.ref('videos').orderByChild('createdAt').endBefore(feedLastKey).limitToLast(10).once('value')
     .then(snap=>{
       feedLoading=false;
       const raw=snap.val();
-      if(!raw||!Object.keys(raw).length){feedAllLoaded=true;return;}
+      if(!raw||!Object.keys(raw).length){feedAllLoaded=true;loopFeedVideos();return;}
       const more=Object.entries(raw).map(([id,v])=>({id,...v})).reverse();
       feedLastKey=more[more.length-1]?.createdAt||null;
       if(more.length<10)feedAllLoaded=true;
       allVids=[...allVids,...more];
       appendVideosToFeed(more,allVids.length-more.length);
+      pruneOldFeedCards();
     }).catch(()=>{feedLoading=false;});
+}
+
+// ═══════════════════════════════════════════════════════════
+//  🔁 FIL "INFINI" — tant que la base a peu de vidéos (peu d'utilisateurs
+//  actifs), on ne veut jamais montrer "fin du contenu" : une fois le vrai
+//  stock Firebase épuisé, on remélange les vidéos déjà vues et on les
+//  rejoue, comme le font les gros réseaux avec du contenu recyclé/recommandé
+//  en boucle. Ça marche sans casser les likes/vues/commentaires car
+//  pruneOldFeedCards() retire les anciennes cartes hors écran du DOM avant
+//  qu'on les rejoue — donc jamais deux cartes avec le même ID en même temps.
+// ═══════════════════════════════════════════════════════════
+let feedLooping=false, feedLoopSeed=0;
+const FEED_LOOP_MIN_VIDS=3; // en dessous, boucler ferait tourner 1-2 vidéos à l'infini, pas terrible
+
+function loopFeedVideos(){
+  if(feedLooping||allVids.length<FEED_LOOP_MIN_VIDS)return;
+  feedLooping=true;
+  feedLoopSeed++;
+  const pool=_seededShuffle([...allVids],feedLoopSeed);
+  const batch=pool.slice(0,Math.min(8,pool.length));
+  // Sécurité : si une carte avec ce même id traîne encore à l'écran (pas encore
+  // élaguée), on la retire d'abord pour ne jamais avoir deux IDs identiques en même temps.
+  batch.forEach(v=>{ document.getElementById('vc-'+v.id)?.remove(); });
+  const startIdx=allVids.length;
+  allVids=[...allVids,...batch];
+  appendVideosToFeed(batch,startIdx);
+  pruneOldFeedCards();
+  feedLooping=false;
+}
+
+// Mélange déterministe (seed différente à chaque boucle) — évite de revoir
+// exactement le même ordre à chaque tour.
+function _seededShuffle(arr,seed){
+  for(let i=arr.length-1;i>0;i--){
+    const x=Math.sin(seed*99991+i*131.7)*10000;
+    const j=Math.floor((x-Math.floor(x))*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+// Retire du DOM les cartes vidéo trop loin au-dessus de la carte visible —
+// comme le recyclage de vues des gros apps (TikTok/Reels ne gardent jamais
+// des centaines de vidéos en mémoire). Ça garde le feed léger ET libère les
+// IDs pour pouvoir rejouer ces mêmes vidéos plus tard sans collision.
+const FEED_KEEP_BEHIND=5;
+function pruneOldFeedCards(){
+  const feed=document.getElementById('feed');
+  if(!feed)return;
+  const cards=feed.querySelectorAll('.vcard');
+  if(cards.length<=FEED_KEEP_BEHIND+6)return;
+  const feedRect=feed.getBoundingClientRect();
+  const midY=feedRect.top+feedRect.height/2;
+  let curIdx=0;
+  cards.forEach((c,i)=>{ if(c.getBoundingClientRect().top<=midY)curIdx=i; });
+  const removeUntil=curIdx-FEED_KEEP_BEHIND;
+  for(let i=0;i<removeUntil;i++){
+    const c=cards[i];
+    if(!c)continue;
+    const v=c.querySelector('video');
+    if(v){ try{ v.pause(); v.removeAttribute('src'); v.load(); }catch(e){} }
+    if(_globalObs)_globalObs.unobserve(c);
+    c.remove();
+  }
 }
 
 function appendVideosToFeed(vids,startIdx){
@@ -11800,16 +12079,16 @@ async function kikoPublishVideoToMarket(vidId){
       const file=await peUrlToFile(v.thumbnail,'produit_video.jpg');
       prodPhotoFile=file;
       const url=URL.createObjectURL(file);
-      if(pick) pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img id="prodPhotoPreviewImg" src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><button type="button" onclick="event.stopPropagation();enhanceProductPhoto()" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">✨ IA</button>`;
+      if(pick) pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img id="prodPhotoPreviewImg" src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><button type="button" onclick="event.stopPropagation();enhanceProductPhoto()" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">✨ IA</button><button type="button" onclick="event.stopPropagation();openKikoProCamera('photo','product')" style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius: var(--r-sm);padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">📷</button>`;
     }catch(e){
-      if(pick) pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div>`;
+      if(pick) pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div><button type="button" onclick="event.stopPropagation();openKikoProCamera('photo','product')" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">📷 Caméra</button>`;
     }
   }
   showToast('🛍️ Complète le prix et la catégorie pour publier');
 }
 function closeAddProduct(){
   document.getElementById('addProductModal').classList.remove('active');prodPhotoFile=null;_pendingSourceVideoId=null;
-  document.getElementById('photoPick').innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div>`;
+  document.getElementById('photoPick').innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="font-size:32px;">📸</span>Photo du produit</div><button type="button" onclick="event.stopPropagation();openKikoProCamera('photo','product')" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">📷 Caméra</button>`;
   ['prodName','prodPrice','prodOldPrice','prodDesc','prodPhone','prodLocation'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prodProg').classList.remove('show');
   document.getElementById('addProdBtn').disabled=false;document.getElementById('addProdBtn').innerText='🚀 Publier le produit';
@@ -11819,9 +12098,24 @@ function onProductPhotoSelected(inp){
   const reader=new FileReader();
   reader.onload=e=>{
     const pick=document.getElementById('photoPick');
-    pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img id="prodPhotoPreviewImg" src="${e.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><button type="button" onclick="event.stopPropagation();enhanceProductPhoto()" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">✨ IA</button>`;
+    pick.innerHTML=`<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img id="prodPhotoPreviewImg" src="${e.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><button type="button" onclick="event.stopPropagation();enhanceProductPhoto()" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">✨ IA</button><button type="button" onclick="event.stopPropagation();openKikoProCamera('photo','product')" style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius: var(--r-sm);padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">📷</button>`;
   };
   reader.readAsDataURL(f);
+}
+
+// Reçoit une photo produit prise via la caméra KIKO (avec filtres) — même
+// traitement que la sélection galerie, juste une source différente.
+function handleCamFileForProduct(file){
+  if(!file) return;
+  prodPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const pick = document.getElementById('photoPick');
+    if(!pick) return;
+    pick.innerHTML = `<input type="file" accept="image/*" onchange="onProductPhotoSelected(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"><img id="prodPhotoPreviewImg" src="${e.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><button type="button" onclick="event.stopPropagation();enhanceProductPhoto()" style="position:absolute;bottom:8px;right:8px;background:var(--gold);color:#1a0a00;border:none;border-radius: var(--r-sm);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">✨ IA</button><button type="button" onclick="event.stopPropagation();openKikoProCamera('photo','product')" style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius: var(--r-sm);padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer;z-index:2;">📷</button>`;
+  };
+  reader.readAsDataURL(file);
+  showToast('📸 Photo produit ajoutée avec filtre');
 }
 async function enhanceProductPhoto(){
   if(!prodPhotoFile){showToast('⚠️ Choisis une photo d\'abord');return;}
@@ -12321,6 +12615,13 @@ function resetVideoPanel(){
 function onFileSelected(inp){
   const f = inp.files[0];
   if(!f) return;
+  handleSelectedVideoFile(f);
+}
+
+// Traitement commun d'une vidéo choisie, peu importe la source :
+// <input type=file> classique OU galerie native stylée (openKikoVideoGallery).
+function handleSelectedVideoFile(f){
+  if(!f) return;
   selFile = f;
 
   // Ferme juste le sheet de sélection (sans reset) et bascule sur l'écran pro
@@ -12363,6 +12664,36 @@ function onFileSelected(inp){
   selectedMusic=null;
   const vpsMusicLbl=document.getElementById('vpsMusicLabel');
   if(vpsMusicLbl) vpsMusicLbl.textContent='Optionnel — Choisir un son';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GALERIE VIDÉO — style Instagram/TikTok (grille native, pas le
+//  sélecteur générique "Fichiers/Drive" d'Android).
+//  Le plugin Capacitor stock "Camera" ne sait choisir QUE des photos —
+//  il n'existe pas d'équivalent officiel pour vidéo. Point d'entrée
+//  prêt à brancher un futur plugin natif KikoVideoGallery (même schéma
+//  que KikoProCamera) ; en attendant, fallback propre sur le sélecteur
+//  système classique (accept="video/*"), qui sur Android 13+ à jour
+//  affiche déjà la grille native "Photos et vidéos".
+// ═══════════════════════════════════════════════════════════
+async function openKikoVideoGallery(){
+  if(window.Capacitor?.Plugins?.KikoVideoGallery){
+    try{
+      const result = await window.Capacitor.Plugins.KikoVideoGallery.pick();
+      if(!result?.uri) return;
+      const webUri = window.Capacitor.convertFileSrc(result.uri);
+      const resp = await fetch(webUri);
+      const blob = await resp.blob();
+      const file = new File([blob], `kiko_gal_${Date.now()}.mp4`, {type:blob.type||'video/mp4'});
+      handleSelectedVideoFile(file);
+      return;
+    }catch(e){
+      console.warn('KikoVideoGallery annulé ou indisponible :', e);
+      return;
+    }
+  }
+  // Fallback : sélecteur système classique (déjà stylé nativement sur Android 13+)
+  kikoOpenFilePicker('videoInput');
 }
 
 function fmtDur(s){
@@ -14767,6 +15098,13 @@ const CAM_FILTERS = [
   { id:'mono',         name:'Mono',          css:'grayscale(1) contrast(1.1)',                               emoji:'⚫' },
   { id:'silvertone',   name:'Silvertone',    css:'grayscale(1) contrast(0.95) brightness(1.15)',            emoji:'🌫️' },
   { id:'noir',         name:'Noir',          css:'grayscale(1) contrast(1.5) brightness(0.85)',             emoji:'🌑' },
+  { id:'golden',       name:'Golden',        css:'sepia(0.45) saturate(1.4) brightness(1.08) contrast(1.05)', emoji:'✨' },
+  { id:'pastel',       name:'Pastel',        css:'saturate(0.75) brightness(1.12) contrast(0.92)',          emoji:'🎀' },
+  { id:'neon',         name:'Neon',          css:'saturate(2) contrast(1.25) hue-rotate(-15deg) brightness(1.05)', emoji:'💜' },
+  { id:'retro',        name:'Rétro',         css:'sepia(0.5) contrast(0.9) brightness(1.1) saturate(1.2)',    emoji:'🎞️' },
+  { id:'cyber',        name:'Cyber',         css:'hue-rotate(160deg) saturate(2.5) contrast(1.2)',           emoji:'🤖' },
+  { id:'fuji',         name:'Fuji',          css:'contrast(1.1) saturate(1.3) brightness(1.05) hue-rotate(-5deg)', emoji:'🗻' },
+  { id:'kodak',        name:'Kodak',         css:'contrast(1.2) saturate(1.5) brightness(0.95) sepia(0.1)',    emoji:'📸' }
 ];
 
 // ─── État caméra ───
@@ -14782,6 +15120,11 @@ let _camRecInterval = null;
 let _camResultBlob = null;
 let _camResultType = 'photo';    // 'photo' | 'video'
 let _camCalledFrom = 'post';     // 'post' | 'story' | 'status'
+let _camFlash = 'off';           // 'off' | 'on' | 'auto'
+let _camTimer = 0;               // 0 | 3 | 10
+let _camGrid = false;
+let _camBeauty = false;
+let _camZoom = 1;
 
 function initCameraModule(){
   buildFilterStrip();
@@ -14973,7 +15316,7 @@ function buildFilterStrip(){
 
 function filtThumbBg(f){
   // Couleurs de fond variées pour identifier visuellement
-  const bgs = ['#1a1a1a','#2a1800','#001a2a','#001028','#0a0a0a','#000','#0d001a','#1a1400','#1a1a1a','#050505','#1a0800','#1a0012'];
+  const bgs = ['#1a1a1a','#2a1800','#001a2a','#001028','#0a0a0a','#000','#0d001a','#1a1400','#1a1a1a','#050505','#1a0800','#1a0012','#2a1a05','#1a1420','#1a0022'];
   return bgs[CAM_FILTERS.indexOf(f)] || '#111';
 }
 
@@ -14981,8 +15324,7 @@ function setCamFilter(idx){
   _camFilterIdx = idx;
   const f = CAM_FILTERS[idx];
   // Appliquer sur le flux vidéo en direct
-  const vid = document.getElementById('camVideo');
-  if(vid) vid.style.filter = f.css;
+  updateCamVisuals();
   // Mettre à jour label
   const lbl = document.getElementById('camFilterLabel');
   if(lbl){ lbl.textContent = f.name; lbl.style.transform = 'translateX(-50%) scale(1.15)'; setTimeout(()=>lbl.style.transform='translateX(-50%) scale(1)',220); }
@@ -14990,12 +15332,79 @@ function setCamFilter(idx){
   document.querySelectorAll('.filt-chip').forEach((c,i)=>c.classList.toggle('active',i===idx));
 }
 
+function updateCamVisuals(){
+  const vid = document.getElementById('camVideo');
+  if(!vid) return;
+  const f = CAM_FILTERS[_camFilterIdx];
+  let filterStr = f.css==='none' ? '' : f.css;
+  if(_camBeauty){
+    filterStr += (filterStr?' ':'') + 'blur(0.5px) contrast(1.05) brightness(1.02) saturate(1.1)';
+  }
+  vid.style.filter = filterStr || 'none';
+  
+  // Miroir si front cam + Zoom
+  let transform = `scale(${_camZoom})`;
+  if(_camFacing==='user') transform += ' scaleX(-1)';
+  vid.style.transform = transform;
+}
+
+function toggleCamFlash(){
+  const modes = ['off','on','auto'];
+  let idx = modes.indexOf(_camFlash);
+  _camFlash = modes[(idx+1)%modes.length];
+  const btn = document.getElementById('camFlashBtn');
+  btn.textContent = _camFlash==='off' ? '⚡' : (_camFlash==='on' ? '⚡' : '⚡A');
+  btn.classList.toggle('active', _camFlash!=='off');
+  showToast('Flash : ' + _camFlash.toUpperCase());
+}
+
+function toggleCamTimer(){
+  const timers = [0, 3, 10];
+  let idx = timers.indexOf(_camTimer);
+  _camTimer = timers[(idx+1)%timers.length];
+  const btn = document.getElementById('camTimerBtn');
+  btn.textContent = _camTimer===0 ? '⏲️' : '⏲️' + _camTimer;
+  btn.classList.toggle('active', _camTimer!==0);
+  showToast('Minuteur : ' + (_camTimer===0 ? 'Désactivé' : _camTimer + 's'));
+}
+
+function toggleCamGrid(){
+  _camGrid = !_camGrid;
+  document.getElementById('camGrid').classList.toggle('active', _camGrid);
+  document.getElementById('camGridBtn').classList.toggle('active', _camGrid);
+}
+
+function toggleCamBeauty(){
+  _camBeauty = !_camBeauty;
+  document.getElementById('camBeautyBtn').classList.toggle('active', _camBeauty);
+  updateCamVisuals();
+  showToast('Mode Beauté : ' + (_camBeauty ? 'Activé' : 'Désactivé'));
+}
+
+async function onCamZoom(val){
+  _camZoom = val;
+  updateCamVisuals();
+  // Tenter d'appliquer le zoom matériel si supporté
+  if(_camStream){
+    const track = _camStream.getVideoTracks()[0];
+    const caps = track.getCapabilities ? track.getCapabilities() : {};
+    if(caps.zoom){
+      try { await track.applyConstraints({advanced: [{zoom: val}]}); } catch(e){}
+    }
+  }
+}
+
 async function openCamera(mode='photo', calledFrom='post'){
   _camCalledFrom = calledFrom;
   _camMode = mode;
   _camFilterIdx = 0;
   _camResultBlob = null;
-  _ffActiveIdx = 0; // filtre visage réinitialisé sur "Aucun" à chaque ouverture
+  _ffActiveIdx = 0;
+  _camFlash = 'off';
+  _camTimer = 0;
+  _camGrid = false;
+  _camBeauty = false;
+  _camZoom = 1;
 
   const screen = document.getElementById('cameraScreen');
   screen.style.display = 'flex';
@@ -15004,7 +15413,17 @@ async function openCamera(mode='photo', calledFrom='post'){
   // Réinitialiser UI
   document.getElementById('camResultOverlay').classList.remove('active');
   document.getElementById('camRecBadge').classList.remove('active');
+  document.getElementById('camGrid').classList.remove('active');
+  document.getElementById('camGridBtn').classList.remove('active');
+  document.getElementById('camFlashBtn').classList.remove('active');
+  document.getElementById('camFlashBtn').textContent = '⚡';
+  document.getElementById('camTimerBtn').classList.remove('active');
+  document.getElementById('camTimerBtn').textContent = '⏲️';
+  document.getElementById('camBeautyBtn').classList.remove('active');
+  document.getElementById('camZoomSlider').value = 1;
+  
   setCamFilter(0);
+  updateCamVisuals();
   document.querySelectorAll('.ff-chip').forEach((c,i)=>c.classList.toggle('active',i===0));
   updateCamModeUI();
 
@@ -15040,6 +15459,7 @@ async function openKikoProCamera(mode='photo', calledFrom='post'){
     if(calledFrom==='chat'){ handleCamFileForChat(file, type); }
     else if(calledFrom==='story' || calledFrom==='status'){ handleCamFileForStory(file, type); }
     else if(calledFrom==='avatar'){ handleCamFileForAvatar(file); }
+    else if(calledFrom==='product'){ handleCamFileForProduct(file); }
     else { handleCamFileForPost(file, type); }
   }catch(e){
     console.warn('KikoProCamera annulé ou indisponible :', e);
@@ -15157,6 +15577,29 @@ async function kikoRequestNotifPermission(){
 
 async function startCamStream(){
   if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); }
+  // 🔒 Si on est dans un contexte non-sécurisé (file://, pas localhost), getUserMedia
+  // échouera à coup sûr — inutile de demander la permission caméra KIKO puis de laisser
+  // le navigateur planter dessus. On bascule direct sur la caméra native, plus rapide
+  // et sans faux message de permission.
+  const insecureCtx = location.protocol==='file:' && location.hostname!=='localhost' && location.hostname!=='127.0.0.1';
+  if(insecureCtx || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    console.warn('startCamStream: contexte non sécurisé ou getUserMedia indisponible, bascule directe sur le natif.');
+    if(_camMode==='photo'){
+      closeCamera();
+      const nativeFile = await kikoNativeCameraPhoto();
+      if(nativeFile){
+        if(_camCalledFrom==='story' || _camCalledFrom==='status') handleCamFileForStory(nativeFile,'photo');
+        else if(_camCalledFrom==='product') handleCamFileForProduct(nativeFile);
+        else { handleCamFileForPost(nativeFile,'photo'); showToast('💡 Astuce : appuie sur "✨ IA" sur la photo pour ajouter un filtre'); }
+      } else {
+        document.getElementById('camNativeFallbackInput').click();
+      }
+    } else {
+      closeCamera();
+      document.getElementById('camNativeVideoFallbackInput').click();
+    }
+    return;
+  }
   const camAlreadyAsked = localStorage.getItem('kiko_perm_camera_asked');
   if(!camAlreadyAsked){
     const ok = await kikoAskPermission('camera');
@@ -15192,6 +15635,7 @@ async function startCamStream(){
       const nativeFile = await kikoNativeCameraPhoto();
       if(nativeFile){
         if(_camCalledFrom==='story' || _camCalledFrom==='status') handleCamFileForStory(nativeFile,'photo');
+        else if(_camCalledFrom==='product') handleCamFileForProduct(nativeFile);
         else { handleCamFileForPost(nativeFile,'photo'); showToast('💡 Astuce : appuie sur "✨ IA" sur la photo pour ajouter un filtre'); }
       } else {
         document.getElementById('camNativeFallbackInput').click();
@@ -15212,6 +15656,8 @@ function camNativeFallbackSelected(input){
   if(!file) return;
   if(_camCalledFrom==='story' || _camCalledFrom==='status'){
     handleCamFileForStory(file, 'photo');
+  } else if(_camCalledFrom==='product'){
+    handleCamFileForProduct(file);
   } else {
     handleCamFileForPost(file, 'photo');
     showToast('💡 Astuce : appuie sur "✨ IA" sur la photo pour ajouter un filtre');
@@ -15244,11 +15690,14 @@ function closeCamera(){
 
 async function flipCamera(){
   _camFacing = _camFacing==='user' ? 'environment' : 'user';
-  const btn = document.getElementById('camModeBtn');
   // Petit effet de flip
   const vid = document.getElementById('camVideo');
-  vid.style.transform = 'scaleX(0)';
-  setTimeout(async()=>{ await startCamStream(); vid.style.transform='scaleX(1)'; setCamFilter(_camFilterIdx); },200);
+  vid.style.opacity = '0';
+  setTimeout(async()=>{ 
+    await startCamStream(); 
+    vid.style.opacity = '1'; 
+    updateCamVisuals(); 
+  }, 200);
 }
 
 function toggleCamMode(){
@@ -15276,6 +15725,27 @@ function updateCamModeUI(){
 }
 
 function camCapture(){
+  if(_camTimer > 0 && !_camRecording){
+    const timerEl = document.getElementById('camTimerDisplay');
+    let count = _camTimer;
+    timerEl.textContent = count;
+    timerEl.classList.add('active');
+    const interval = setInterval(()=>{
+      count--;
+      if(count <= 0){
+        clearInterval(interval);
+        timerEl.classList.remove('active');
+        executeCamCapture();
+      } else {
+        timerEl.textContent = count;
+      }
+    }, 1000);
+  } else {
+    executeCamCapture();
+  }
+}
+
+function executeCamCapture(){
   if(_camMode==='photo'){ takePhoto(); }
   else { _camRecording ? stopVideoRec() : startVideoRec(); }
 }
@@ -15284,26 +15754,46 @@ function takePhoto(){
   const vid = document.getElementById('camVideo');
   const filter = CAM_FILTERS[_camFilterIdx];
 
-  // Flash
-  const flash = document.getElementById('camFlash');
-  flash.classList.add('snap');
-  setTimeout(()=>flash.classList.remove('snap'),400);
+  // Flash (Screen Flash pour front cam, ou simple overlay)
+  const flashOverlay = document.getElementById('camFlashOverlay');
+  if(_camFlash === 'on' || (_camFlash === 'auto' && Math.random() > 0.5)){
+    flashOverlay.classList.add('active');
+    setTimeout(()=>flashOverlay.classList.remove('active'), 400);
+  }
 
   // Canvas pour capturer avec filtre
   const canvas = document.createElement('canvas');
-  canvas.width = vid.videoWidth || 1280;
-  canvas.height = vid.videoHeight || 720;
+  const w = vid.videoWidth || 1280;
+  const h = vid.videoHeight || 720;
+  canvas.width = w;
+  canvas.height = h;
   const ctx = canvas.getContext('2d');
-  ctx.filter = filter.css;
-  // Mirror si front cam
-  if(_camFacing==='user'){ ctx.translate(canvas.width,0); ctx.scale(-1,1); }
-  ctx.drawImage(vid,0,0,canvas.width,canvas.height);
-  // 😍 Graver le filtre visage IA par-dessus (déjà en espace caméra brut, donc
-  // il suit exactement la même transformation miroir que la vidéo ci-dessus)
+  
+  // Appliquer les filtres CSS sur le canvas
+  let filterStr = filter.css==='none' ? '' : filter.css;
+  if(_camBeauty) filterStr += (filterStr?' ':'') + 'blur(0.5px) contrast(1.05) brightness(1.02) saturate(1.1)';
+  ctx.filter = filterStr || 'none';
+
+  // Gérer le Zoom et le Miroir
+  ctx.save();
+  if(_camFacing==='user'){ ctx.translate(w,0); ctx.scale(-1,1); }
+  
+  if(_camZoom > 1){
+    const zw = w / _camZoom;
+    const zh = h / _camZoom;
+    const zx = (w - zw) / 2;
+    const zy = (h - zh) / 2;
+    ctx.drawImage(vid, zx, zy, zw, zh, 0, 0, w, h);
+  } else {
+    ctx.drawImage(vid, 0, 0, w, h);
+  }
+  ctx.restore();
+
+  // 😍 Graver le filtre visage IA par-dessus
   const faceCanvas = document.getElementById('camFaceCanvas');
   if(faceCanvas && FACE_FILTERS[_ffActiveIdx].id!=='none' && faceCanvas.width>0){
     ctx.filter = 'none';
-    ctx.drawImage(faceCanvas,0,0,canvas.width,canvas.height);
+    ctx.drawImage(faceCanvas,0,0,w,h);
   }
 
   canvas.toBlob(blob=>{
@@ -15617,23 +16107,7 @@ async function loadSocialFeed(refresh=false){
   const list=document.getElementById('sfList');
   if(!sfLoaded||refresh){
     // Show skeleton
-    list.innerHTML=Array(3).fill(0).map(()=>`
-      <div class="sk-sfpost">
-        <div class="sk-sfpost-head">
-          <div class="sk-sfpost-av-c sk"></div>
-          <div class="sk-sfpost-lines">
-            <div class="sk-sfpost-line1 sk"></div>
-            <div class="sk-sfpost-line2 sk"></div>
-          </div>
-        </div>
-        <div class="sk-sfpost-body sk"></div>
-        <div class="sk-sfpost-img sk"></div>
-        <div class="sk-sfpost-actions">
-          <div class="sk-sfpost-action sk"></div>
-          <div class="sk-sfpost-action sk"></div>
-          <div class="sk-sfpost-action sk"></div>
-        </div>
-      </div>`).join('');
+    list.innerHTML=getSkeletonHtml();
   }
   // Unsubscribe previous listener
   if(sfRealtime){sfRealtime.off();sfRealtime=null;}
@@ -15654,11 +16128,32 @@ function renderSocialFeed(){
     list.innerHTML=`<div class="hf-section-empty">✨<br>Aucune publication encore<br><span style="font-size:12px;">Sois le premier à partager !</span></div>`;
     return;
   }
-  list.innerHTML=sfPosts.map(p=>buildSFPost(p)).join('');
+  list.innerHTML=sfPosts.map((p,i)=>buildSFPost(p,i)).join('');
   initSFPullToRefresh();
 }
 
-function buildSFPost(p){
+function getSkeletonHtml(){
+  return `
+    <div class="sk-sfpost">
+      <div class="sk-sfpost-head">
+        <div class="sk-sfpost-av-c sk"></div>
+        <div class="sk-sfpost-lines">
+          <div class="sk-sfpost-line1 sk"></div>
+          <div class="sk-sfpost-line2 sk"></div>
+        </div>
+      </div>
+      <div class="sk-sfpost-img sk"></div>
+      <div class="sk-sfpost-actions">
+        <div class="sk-sfpost-action sk"></div>
+        <div class="sk-sfpost-action sk"></div>
+        <div class="sk-sfpost-action sk"></div>
+      </div>
+    </div>
+  `.repeat(4);
+}
+
+function buildSFPost(p, index=0){
+  const isFirst = index === 0;
   const init=(p.auteur||'A')[0].toUpperCase();
   const avSrc=p.authorAvatar||'';
   const avH=avSrc
@@ -15700,7 +16195,7 @@ function buildSFPost(p){
     const isInteresting = interestingPosts.includes(p.id);
     const tagsP = (shortText.match(/#\w+/g)||[]);
     const descNoTags = esc(shortText.replace(/#\w+/g,'').trim());
-    const myAvH = currentUser&&currentUser.photoURL?`<img src="${optImg(currentUser.photoURL,60)}" alt="">`:'💬';
+    const myAvH = currentUser&&currentUser.photoURL?`<img src="${optImg(currentUser.photoURL,60)}" alt="" loading="lazy" decoding="async">`:'💬';
     return `<article class="pfcard" id="hfp-${p.id}">
       <div class="pfcard-header" onclick="event.stopPropagation()">
         <div class="pfcard-av">${avH}</div>
@@ -15712,7 +16207,7 @@ function buildSFPost(p){
       </div>
       <div class="pfcard-img-wrap pfcard-clean" onclick="_openPost('${p.id}')">
         <div class="pfcard-bg" style="background-image:url('${mainPhoto}')"></div>
-        <img class="pfcard-img" src="${mainPhoto}" alt="" loading="lazy" decoding="async">
+        <img class="pfcard-img" src="${mainPhoto}" alt="" ${isFirst?'fetchpriority="high" loading="eager"':'loading="lazy"'} decoding="async">
         ${typeBadge}
         ${p.photoUrls&&p.photoUrls.length>1?`<div class="pfcard-pagebadge">1/${p.photoUrls.length}</div>`:''}
       </div>
