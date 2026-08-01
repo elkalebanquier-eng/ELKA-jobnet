@@ -26,8 +26,16 @@
 <link rel="dns-prefetch" href="https://market-94bd8-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preload" href="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" as="script">
 <link rel="preload" href="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js" as="script">
-<link rel="preload" href="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" as="script">
 <title>KIKO👑</title>
+<meta name="description" content="KIKO — la plateforme sociale africaine : vidéos, marché, opportunités et communauté, pensée pour le Burkina Faso, le Mali et le Niger.">
+<meta property="og:title" content="KIKO👑">
+<meta property="og:description" content="La plateforme sociale africaine : vidéos, marché, opportunités et communauté.">
+<meta property="og:image" content="./icon-512.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="KIKO👑">
+<meta name="twitter:description" content="La plateforme sociale africaine : vidéos, marché, opportunités et communauté.">
+<meta name="twitter:image" content="./icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════
@@ -197,17 +205,21 @@ body { font-size: calc(1em * var(--font-scale)); }
 }
 .fontscale-btn.active { border-color: var(--gold2) !important; color: var(--gold2) !important; }
 img[loading="lazy"] {
-  background: var(--surface2);
-  filter: blur(10px);
-  opacity: 0.55;
-  transition: filter 0.45s var(--ease-out), opacity 0.45s var(--ease-out);
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  filter: blur(6px);
+  opacity: 0.7;
+  transition: filter 0.35s var(--ease-out), opacity 0.35s var(--ease-out), background 0.35s;
 }
 img[loading="lazy"].kiko-img-loaded {
   filter: blur(0);
   opacity: 1;
+  animation: none;
+  background: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  img[loading="lazy"] { filter: none; opacity: 1; transition: none; }
+  img[loading="lazy"] { filter: none; opacity: 1; transition: none; animation: none; }
 }
 
 /* ─── SCREENS ─── */
@@ -4772,8 +4784,16 @@ document.addEventListener('load', function(e){
       <div class="pr-short-ic">📸</div><span>Statut</span>
     </div>
     <div class="pr-short-card" onclick="needAuth(openMyBoutique)"><div class="pr-short-ic" style="background:rgba(52,211,153,0.14);color:var(--green);">🛍️</div><span>Boutique</span></div>
+    <div class="pr-short-card" onclick="needAuth(openDraftsModal)" style="position:relative;">
+      <div class="pr-short-ic" style="background:rgba(245,200,66,0.14);color:var(--gold);">📝</div><span>Brouillons</span>
+      <div id="draftsCountBadge" style="display:none;position:absolute;top:6px;right:14px;background:var(--red,#e53e3e);color:#fff;font-size:10px;font-weight:800;min-width:16px;height:16px;border-radius:8px;align-items:center;justify-content:center;padding:0 4px;">0</div>
+    </div>
+    <div class="pr-short-card" onclick="needAuth(openDashboardModal)"><div class="pr-short-ic" style="background:rgba(91,141,239,0.14);color:var(--blue,#5B8DEF);">📊</div><span>Statistiques</span></div>
     <div class="pr-short-card" id="editProfileBtn" style="display:none;" onclick="openEditProfile()"><div class="pr-short-ic">✏️</div><span>Modifier profil</span></div>
   </div>
+
+  <!-- Badges -->
+  <div class="pr-badges-row" id="profileBadgesRow" style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px;"></div>
 
   <!-- Bandeau Premium -->
   <div class="pr-premium-banner" onclick="openPremiumInfo()">
@@ -5530,27 +5550,27 @@ document.addEventListener('load', function(e){
 </div>
 
 <!-- MENU RADIAL KIKO👑 (bouton Publier) -->
-<div id="kikoPublishRadialOverlay" onclick="kikoClosePublishRadial()">
+<div id="kikoPublishRadialOverlay" onclick="kikoClosePublishRadial()" role="menu" aria-label="Publier">
   <div class="kiko-radial-ring r2"></div>
   <div class="kiko-radial-ring r1"></div>
   <div class="kiko-radial-line vert"   id="krLineTop"></div>
   <div class="kiko-radial-line vert"   id="krLineBottom"></div>
   <div class="kiko-radial-line horiz"  id="krLineLeft"></div>
   <div class="kiko-radial-line horiz"  id="krLineRight"></div>
-  <div class="kiko-radial-center" onclick="event.stopPropagation();kikoClosePublishRadial()">✕</div>
-  <div class="kiko-radial-item" id="krVideo" onclick="event.stopPropagation();kikoRadialAction('video')">
+  <div class="kiko-radial-center" role="menuitem" tabindex="-1" aria-label="Fermer" onclick="event.stopPropagation();kikoClosePublishRadial()">✕</div>
+  <div class="kiko-radial-item" id="krVideo" role="menuitem" tabindex="-1" aria-label="Créer une vidéo" onclick="event.stopPropagation();kikoRadialAction('video')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6.5" width="13" height="11" rx="2.3"/><path d="M15.5 10.2l5-2.8v9.2l-5-2.8"/></svg>
     <span>Créer vidéo</span>
   </div>
-  <div class="kiko-radial-item" id="krPhoto" onclick="event.stopPropagation();kikoRadialAction('photo')">
+  <div class="kiko-radial-item" id="krPhoto" role="menuitem" tabindex="-1" aria-label="Publier une photo" onclick="event.stopPropagation();kikoRadialAction('photo')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.3"/><circle cx="8.3" cy="9.3" r="1.6"/><path d="M21 15.5l-5.4-5.2a2 2 0 0 0-2.7 0L4 19"/></svg>
     <span>Photo</span>
   </div>
-  <div class="kiko-radial-item" id="krProduit" onclick="event.stopPropagation();kikoRadialAction('produit')">
+  <div class="kiko-radial-item" id="krProduit" role="menuitem" tabindex="-1" aria-label="Publier un produit" onclick="event.stopPropagation();kikoRadialAction('produit')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1.2 12.2a2 2 0 0 1-2 2.1H6.8a2 2 0 0 1-2-2.1L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
     <span>Produit</span>
   </div>
-  <div class="kiko-radial-item" id="krOpp" onclick="event.stopPropagation();kikoRadialAction('opportunite')">
+  <div class="kiko-radial-item" id="krOpp" role="menuitem" tabindex="-1" aria-label="Publier une opportunité" onclick="event.stopPropagation();kikoRadialAction('opportunite')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2.2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5"/><path d="M3 12.5h18"/></svg>
     <span>Opportunité</span>
   </div>
@@ -5672,6 +5692,7 @@ document.addEventListener('load', function(e){
         <div class="mprog-label" id="photoProgLabel">Upload en cours...</div>
       </div>
       <button class="btn-gold" id="photoPublishBtn" onclick="publishPhotoPost()">🚀 Publier</button>
+      <button class="btn-ghost" onclick="saveDraftFromCurrentTab()">💾 Enregistrer le brouillon</button>
       <button class="btn-ghost" onclick="closeModal()">Annuler</button>
     </div>
 
@@ -5688,6 +5709,7 @@ document.addEventListener('load', function(e){
         <div class="mprog-label">Publication...</div>
       </div>
       <button class="btn-gold" id="textPublishBtn" onclick="publishTextPost()">🚀 Publier</button>
+      <button class="btn-ghost" onclick="saveDraftFromCurrentTab()">💾 Enregistrer le brouillon</button>
       <button class="btn-ghost" onclick="closeModal()">Annuler</button>
     </div>
 
@@ -6094,6 +6116,30 @@ document.addEventListener('load', function(e){
   </div>
 </div>
 
+<!-- DRAFTS MODAL -->
+<div id="draftsModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="modal-title" style="margin-bottom:0;">📝 Mes brouillons</div>
+      <div class="cclose" onclick="closeDraftsModal()">✕</div>
+    </div>
+    <div id="draftsList" style="max-height:60vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD CRÉATEUR MODAL -->
+<div id="dashboardModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin-bottom:0;">📊 Statistiques</div>
+      <div class="cclose" onclick="closeDashboardModal()">✕</div>
+    </div>
+    <div id="dashboardBody" style="max-height:65vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <!-- STORY VIEWER -->
 <!-- ═══ KIKO RADIAL ACTION MENU ═══ -->
 <div id="kikoRadialOverlay" onclick="kikoCloseRadial()"></div>
@@ -6343,7 +6389,7 @@ document.addEventListener('load', function(e){
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ═══ MODALE EXPLICATIVE AVANT DEMANDE DE PERMISSION ═══ -->
 <div id="permModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:24px;">
@@ -6360,7 +6406,6 @@ document.addEventListener('load', function(e){
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
 // ═══════════════════════════════════════
 //  CONFIG POLLINATIONS (IA texte/image)
@@ -6401,6 +6446,7 @@ function _kikoFakeRef(){
 }
 let db;
 let auth;
+window._kikoUsingFakeDb=false;
 try{
   if(typeof firebase==='undefined') throw new Error('SDK Firebase non chargé (pas de connexion internet ?)');
   firebase.initializeApp({
@@ -6413,12 +6459,52 @@ try{
     appId:"1:641440139975:web:ad794e3e7c0b151dd98ce2"
   });
   db=firebase.database();
-  auth=firebase.auth();
-  auth.languageCode='fr';
 }catch(e){
   console.warn('⚠️ KIKO : Firebase indisponible, mode dégradé activé —', e.message);
+  window._kikoUsingFakeDb=true;
   db=_kikoFakeRef();
-  auth=null;
+}
+
+// ═══════════════════════════════════════
+//  KIKO — chargement DIFFÉRÉ de firebase-auth-compat.js
+//  Ce script (plusieurs centaines de Ko) n'est nécessaire que pour la
+//  connexion/inscription. Le charger en bloquant au démarrage retardait
+//  tout le reste (y compris la connexion RTDB) sur les réseaux lents.
+//  On le charge maintenant uniquement quand l'utilisateur ouvre l'écran
+//  de connexion, ou s'en sert (doAuth / confirmLogout).
+// ═══════════════════════════════════════
+let _kikoAuthLoadPromise=null;
+function kikoEnsureAuth(){
+  if(auth) return Promise.resolve(auth);
+  if(window._kikoUsingFakeDb) return Promise.resolve(null);
+  if(_kikoAuthLoadPromise) return _kikoAuthLoadPromise;
+  _kikoAuthLoadPromise=new Promise((resolve)=>{
+    const s=document.createElement('script');
+    s.src='https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js';
+    s.onload=()=>{
+      try{ auth=firebase.auth(); auth.languageCode='fr'; }catch(e){ auth=null; }
+      resolve(auth);
+    };
+    s.onerror=()=>{ auth=null; resolve(null); };
+    document.head.appendChild(s);
+  });
+  return _kikoAuthLoadPromise;
+}
+
+// ═══════════════════════════════════════
+//  KIKO — garde-fou anti-blocage RTDB
+//  db.ref(...).once('value') ne rejette JAMAIS si la connexion websocket
+//  Firebase ne s'établit pas (elle reste juste en attente indéfiniment).
+//  Sans ça, un souci réseau = spinner qui tourne pour toujours.
+//  On force donc un timeout qui rejette proprement pour déclencher
+//  les écrans "pas de connexion / réessayer" déjà prévus dans le code.
+// ═══════════════════════════════════════
+function kikoWithTimeout(promise, ms){
+  ms = ms || 8000;
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error('Délai de connexion RTDB dépassé')), ms))
+  ]);
 }
 
 // ═══════════════════════════════════════
@@ -6921,8 +7007,8 @@ function kikoShowOnboarding(){
     localStorage.setItem('kiko_onboarded','1');
   }
 
-  render();
   document.body.appendChild(overlay);
+  render();
 }
 
 // ── Compression intégrée directement dans ikUpload (pas de wrapper) ──
@@ -7332,6 +7418,7 @@ function kikoOpenPublishRadial(triggerEl){
   document.getElementById('kikoPublishRadialOverlay').classList.add('active');
   kikoRadialOpen=true;
   kikoLockBodyScroll(true);
+  kikoA11yActivate(document.getElementById('kikoPublishRadialOverlay'), kikoClosePublishRadial);
   if(!window._kikoRadialResizeBound){
     window.addEventListener('resize', kikoRadialReposition);
     window.addEventListener('orientationchange', kikoRadialReposition);
@@ -7340,6 +7427,7 @@ function kikoOpenPublishRadial(triggerEl){
   if(navigator.vibrate) navigator.vibrate(8);
 }
 function kikoClosePublishRadial(){
+  kikoA11yDeactivate(document.getElementById('kikoPublishRadialOverlay'));
   document.getElementById('kikoPublishRadialOverlay').classList.remove('active');
   document.querySelectorAll('.kiko-radial-item').forEach(el=>{ el.style.transform='translate(-50%,-50%) scale(0.3)'; });
   kikoRadialOpen=false;
@@ -7449,6 +7537,112 @@ function updateTextPreview(val){
   c.innerText=val.length+' / 500';
   c.style.color=val.length>450?'var(--red)':'var(--muted)';
 }
+
+// ═══════════════════════════════════════
+//  MODE BROUILLON (sauvegarde locale)
+// ═══════════════════════════════════════
+const KIKO_DRAFTS_KEY='kiko_drafts_v1';
+function kikoLoadDrafts(){
+  try{return JSON.parse(localStorage.getItem(KIKO_DRAFTS_KEY)||'[]');}catch(e){return [];}
+}
+function kikoSaveDraftsList(arr){
+  try{localStorage.setItem(KIKO_DRAFTS_KEY,JSON.stringify(arr));}catch(e){}
+  kikoUpdateDraftsBadge();
+}
+function kikoUpdateDraftsBadge(){
+  const n=kikoLoadDrafts().length;
+  const b=document.getElementById('draftsCountBadge');
+  if(b){ b.style.display=n>0?'flex':'none'; b.innerText=n; }
+}
+function saveDraftFromCurrentTab(){
+  let draft=null;
+  if(currentUploadTab==='text'){
+    const text=document.getElementById('textPostInput').value.trim();
+    if(!text){showToast('⚠️ Rien à sauvegarder');return;}
+    draft={id:'d'+Date.now(),type:'text',text,bgId:(selectedBg&&selectedBg.id)||null,createdAt:Date.now()};
+  } else if(currentUploadTab==='photo'){
+    const desc=document.getElementById('photoDescInput').value.trim();
+    const pCount=(typeof photoFiles!=='undefined'&&photoFiles)?photoFiles.length:0;
+    if(!desc && !pCount){showToast('⚠️ Rien à sauvegarder');return;}
+    draft={id:'d'+Date.now(),type:'photo',text:desc,photoCount:pCount,createdAt:Date.now()};
+  } else {
+    showToast('⚠️ Le brouillon est dispo pour Photo et Texte');return;
+  }
+  const list=kikoLoadDrafts();
+  list.unshift(draft);
+  if(list.length>20) list.length=20;
+  kikoSaveDraftsList(list);
+  showToast('💾 Brouillon enregistré');
+  closeModal();
+}
+function openDraftsModal(){
+  renderDraftsList();
+  document.getElementById('draftsModal').classList.add('active');
+}
+function closeDraftsModal(){
+  document.getElementById('draftsModal').classList.remove('active');
+}
+function kikoTimeAgo(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return 'à l\'instant';
+  if(s<3600)return Math.floor(s/60)+' min';
+  if(s<86400)return Math.floor(s/3600)+' h';
+  return Math.floor(s/86400)+' j';
+}
+function renderDraftsList(){
+  const list=kikoLoadDrafts();
+  const el=document.getElementById('draftsList');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML='<div style="padding:32px 16px;color:var(--muted);font-size:12.5px;text-align:center;">Aucun brouillon pour l\'instant.<br>Tape ✍️ ou 📸 dans "Publier", puis "Enregistrer le brouillon".</div>';
+    return;
+  }
+  el.innerHTML=list.map(d=>{
+    const icon=d.type==='text'?'✍️':'📸';
+    const preview=(d.text||'').slice(0,70)||'(sans légende)';
+    const note=d.photoCount?' · photos non conservées, légende seulement':'';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--border);">
+      <div style="font-size:20px;flex-shrink:0;">${icon}</div>
+      <div style="flex:1;min-width:0;cursor:pointer;" onclick="restoreDraft('${d.id}')">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${preview}</div>
+        <div style="font-size:11px;color:var(--muted);">${kikoTimeAgo(d.createdAt)}${note}</div>
+      </div>
+      <button onclick="event.stopPropagation();deleteDraft('${d.id}')" style="background:none;border:none;color:var(--red,#e53e3e);font-size:17px;cursor:pointer;padding:6px;">🗑</button>
+    </div>`;
+  }).join('');
+}
+function restoreDraft(id){
+  const list=kikoLoadDrafts();
+  const d=list.find(x=>x.id===id);
+  if(!d) return;
+  closeDraftsModal();
+  openModal();
+  if(d.type==='text'){
+    switchUploadTab('text');
+    document.getElementById('textPostInput').value=d.text||'';
+    updateTextPreview(d.text||'');
+    if(d.bgId){
+      const bg=TEXT_BGS.find(b=>b.id===d.bgId);
+      if(bg){ selectedBg=bg; applyBgPreview();
+        document.querySelectorAll('.tbg-chip').forEach((c,i)=>{
+          const isMatch=TEXT_BGS[i]&&TEXT_BGS[i].id===d.bgId;
+          c.classList.toggle('active',isMatch);
+          c.style.borderColor=isMatch?'var(--gold)':'transparent';
+        });
+      }
+    }
+  } else if(d.type==='photo'){
+    switchUploadTab('photo');
+    document.getElementById('photoDescInput').value=d.text||'';
+    if(d.photoCount) showToast('📎 Rajoute tes photos, la légende a été restaurée');
+  }
+}
+function deleteDraft(id){
+  const list=kikoLoadDrafts().filter(x=>x.id!==id);
+  kikoSaveDraftsList(list);
+  renderDraftsList();
+}
+kikoUpdateDraftsBadge();
 
 // ═══════════════════════════════════════
 //  PUBLISH TEXT POST
@@ -7875,7 +8069,7 @@ async function loadFeedMixed(){
 
   // ── 2. Firebase en arrière-plan ──
   try{
-    const vidSnap = await db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value');
+    const vidSnap = await kikoWithTimeout(db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value'));
     const vids = vidSnap.val() ? Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})) : [];
     const viewerCountry = currentUser?.country || null;
     let ranked = vids
@@ -7928,7 +8122,7 @@ let _homeBreakVideos = null;
 async function _getHomeBreakVideos(){
   if(_homeBreakVideos) return _homeBreakVideos;
   try{
-    const snap = await db.ref('videos').orderByChild('createdAt').limitToLast(24).once('value');
+    const snap = await kikoWithTimeout(db.ref('videos').orderByChild('createdAt').limitToLast(24).once('value'));
     _homeBreakVideos = snap.val() ? Object.entries(snap.val()).map(([id,v])=>({id,...v})).reverse() : [];
   }catch(e){ _homeBreakVideos = []; }
   return _homeBreakVideos;
@@ -8011,7 +8205,7 @@ async function loadHomeFeed(){
 
   // ── 2. Firebase en arrière-plan ──
   try{
-    const postSnap = await db.ref('posts').orderByChild('createdAt').limitToLast(60).once('value');
+    const postSnap = await kikoWithTimeout(db.ref('posts').orderByChild('createdAt').limitToLast(60).once('value'));
     const posts = postSnap.val() ? Object.entries(postSnap.val()).map(([id,p])=>({id,...p})) : [];
     const viewerCountry = currentUser?.country || null;
     let ranked = posts
@@ -8043,7 +8237,7 @@ async function refreshHomeFeedSilent(){
   const feed=document.getElementById('homeFeed');
   if(!feed)return;
   try{
-    const postSnap=await db.ref('posts').orderByChild('createdAt').limitToLast(60).once('value');
+    const postSnap=await kikoWithTimeout(db.ref('posts').orderByChild('createdAt').limitToLast(60).once('value'));
     const posts=postSnap.val()?Object.entries(postSnap.val()).map(([id,p])=>({id,...p})):[];
     const viewerCountry=currentUser?.country||null;
     let ranked=posts
@@ -8209,7 +8403,10 @@ function buildPhotoCard(p,i){
   const ago=timeAgo(p.createdAt);
   const photos=p.photoUrls||[];
   const hasManyPhotos=photos.length>1;
-  const slides=photos.map(url=>`<div class="pcard-slide"><div class="pcard-slide-bg" style="background-image:url('${optImg(url,60)}')"></div><div class="pcard-slide-overlay"></div><img src="${optImg(url,1080)}" alt="" loading="lazy" decoding="async" draggable="false" ondragstart="return false"></div>`).join('');
+  const slides=photos.map((url,pi)=>{
+    const isLCP=i===0&&pi===0;
+    return `<div class="pcard-slide"><div class="pcard-slide-bg" style="background-image:url('${optImg(url,60)}')"></div><div class="pcard-slide-overlay"></div><img src="${optImg(url,1080)}" alt="" ${isLCP?'loading="eager" fetchpriority="high"':'loading="lazy"'} decoding="async" draggable="false" ondragstart="return false"></div>`;
+  }).join('');
   const dots=hasManyPhotos?`<div class="pcard-dots">${photos.map((_,idx)=>`<div class="pcard-dot${idx===0?' on':''}" id="dot-${p.id}-${idx}"></div>`).join('')}</div>`:'';
   const canReuseP=p.musicUrl&&p.musicAllowReuse!==false&&!p.musicFromGallery;
   const discContentP=p.musicCover?`<img src="${p.musicCover}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.musicEmoji||'🎵');
@@ -8686,6 +8883,12 @@ async function togglePostLike(postId,type){
   const newCount=Math.max(0,cur+(isNowLiked?1:-1));
   if(isNowLiked){liked.push(postId);}else{liked=liked.filter(x=>x!==postId);}
   await ref.set(newCount);
+  // Sauvegarde l'état "j'aime cette publication" par utilisateur dans Firebase
+  // (avant : uniquement dans le compteur global + localStorage, donc perdu au
+  // changement d'appareil ou après vidage du cache — comme kikoSyncLikedVideosFromCloud
+  // pour les vidéos, mais qui manquait ici pour les publications).
+  if(isNowLiked){ db.ref('likedPosts/'+currentUser.uid+'/'+postId).set(Date.now()); }
+  else{ db.ref('likedPosts/'+currentUser.uid+'/'+postId).remove(); }
   localStorage.setItem('aes_liked',JSON.stringify(liked));
   if(type==='photo'){
     pcardPillUpdate('plk-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
@@ -8901,6 +9104,7 @@ function openAuth(reason){
   if(reason&&typeof reason==='string')document.getElementById('authSubText').innerText=reason;
   document.getElementById('authModal').classList.add('active');
   kikoPrefillPhonePrefix(); // pré-remplit +226/+223/... selon la position GPS, sans bloquer l'ouverture
+  kikoEnsureAuth(); // précharge firebase-auth en arrière-plan pendant que l'utilisateur tape ses infos
 }
 function closeAuth(){document.getElementById('authModal').classList.remove('active');}
 function switchTab(mode){
@@ -8920,6 +9124,7 @@ async function doAuth(){
   if(phone.replace('+','').length<8){errEl.innerText='Numéro invalide';return;}
   const btn=document.getElementById('authBtn');btn.disabled=true;btn.innerText='⏳...';
   try{
+    await kikoEnsureAuth(); // s'assure que le SDK auth est chargé (normalement déjà fait depuis openAuth)
     if(!auth) throw new Error('Connexion au service de compte indisponible, réessaie plus tard');
     // Le numéro sert de pseudo-email interne à Firebase Auth (qui exige un email) —
     // l'utilisateur ne voit jamais cette adresse, elle ne sert qu'en coulisses.
@@ -8986,6 +9191,7 @@ async function doAuth(){
     kikoSyncFavoritesFromCloud(); // migration douce : restaure les favoris si nouvel appareil
     kikoSyncSavedPostsFromCloud(); // idem pour les posts enregistrés
     kikoSyncLikedVideosFromCloud(); // idem pour les vidéos likées
+    kikoSyncLikedPostsFromCloud(); // idem pour les publications aimées
     closeAuth();applyUserUI();
     showToast('👋 Bienvenue '+currentUser.name+' !');
     startNotifListener();loadNotifs();loadDMs();
@@ -9027,7 +9233,7 @@ function copyLogoutCreds(){
 function confirmLogout(){
   document.getElementById('logoutWarnModal').classList.remove('active');
   if(typeof KikoAI!=='undefined') KikoAI.detachUser();
-  if(auth) auth.signOut().catch(()=>{});
+  kikoEnsureAuth().then(a=>{ if(a) a.signOut().catch(()=>{}); });
   currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');
 }
 function needAuth(action){if(currentUser){action();return;}pendingAction=action;openAuth('Crée un compte pour accéder 🔒');}
@@ -9483,7 +9689,7 @@ function loadHomeMarket(){
   if(!row)return;
   // Utiliser le cache si dispo
   if(allProds&&allProds.length){renderHomeMarket(allProds);return;}
-  db.ref('products').orderByChild('createdAt').limitToLast(6).once('value').then(snap=>{
+  kikoWithTimeout(db.ref('products').orderByChild('createdAt').limitToLast(6).once('value')).then(snap=>{
     const raw=snap.val()||{};
     const prods=Object.entries(raw).map(([id,p])=>({id,...p})).reverse().slice(0,4);
     if(!prods.length){row.innerHTML='<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:12px;">Aucun produit pour l\'instant</div>';return;}
@@ -9500,7 +9706,7 @@ function loadHomeSelection(){
   // orderByChild('createdAt') : même champ indexé que le reste de l'app (évite un scan
   // non-indexé côté Firebase sur followersCount, qui serait lent). Tri par abonnés
   // fait ensuite côté client sur un petit lot seulement.
-  db.ref('users').orderByChild('createdAt').limitToLast(25).once('value').then(snap=>{
+  kikoWithTimeout(db.ref('users').orderByChild('createdAt').limitToLast(25).once('value')).then(snap=>{
     const raw=snap.val()||{};
     const users=Object.entries(raw).map(([uid,u])=>({uid,...u}))
       .filter(u=>!u.banned)
@@ -9680,7 +9886,7 @@ function renderFeedByMode(){
 // ═══════════════════════════════════════
 async function refreshFeedSilent(){
   try{
-    const vidSnap=await db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value');
+    const vidSnap=await kikoWithTimeout(db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value'));
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
     const viewerCountry=currentUser?.country||null;
     let ranked=vids
@@ -9948,7 +10154,7 @@ function loadFeed(){loadFeedMixed();loadHomeStories();initFeedPullToRefresh();}
 function loadBuzzHomePreview(){
   const row=document.getElementById('buzzPreviewRow');
   if(!row)return;
-  db.ref('videos').orderByChild('createdAt').limitToLast(8).once('value').then(snap=>{
+  kikoWithTimeout(db.ref('videos').orderByChild('createdAt').limitToLast(8).once('value')).then(snap=>{
     if(!snap.val()){row.innerHTML='<div class="buzz-ph" style="width:100%;color:var(--muted);font-size:13px;">Aucune vidéo pour l\'instant</div>';return;}
     const vids=Object.entries(snap.val()).map(([id,v])=>({id,...v})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,8);
     row.innerHTML=vids.map(v=>{
@@ -10480,7 +10686,7 @@ function buildVCard(v,i){
   return `<div class="vcard" id="vc-${v.id}" ondblclick="doubleTapLike('${v.id}',${i},event)">
     <div class="vcard-bg" style="background-image:url('${optVidThumb(v.thumbnail,60)||''}')"></div>
     <div class="vtop-grad"></div>
-    <video ${vidSrcAttr} poster="${optVidThumb(v.thumbnail,480)||''}" loop playsinline muted preload="${preload}"
+    <video ${vidSrcAttr} poster="${optVidThumb(v.thumbnail,480)||''}" loop playsinline muted preload="${preload}" ${i===0?'fetchpriority="high"':''}
       onclick="tapVid(this,${i})" id="vid-${v.id}"></video>
     <div class="vcontrols" id="vc-ctrl-${i}"><div class="vplay-btn" id="vplay-${i}" role="button" aria-label="Lecture / Pause">⏸</div></div>
     <div class="heart-anim" id="ha-${i}">❤️</div>
@@ -10918,6 +11124,8 @@ function kikoOpenRadial(e, vidId, vidIdx){
 
   // Réinitialise
   menu.innerHTML = '<div class="kiko-radial-origin"></div>';
+  menu.setAttribute('role','menu');
+  menu.setAttribute('aria-label','Actions');
   menu.style.left = cx + 'px';
   menu.style.top  = cy + 'px';
 
@@ -10930,6 +11138,9 @@ function kikoOpenRadial(e, vidId, vidIdx){
 
     const btn = document.createElement('div');
     btn.className = 'kiko-radial-btn' + (a.cls ? ' '+a.cls : '');
+    btn.setAttribute('role','menuitem');
+    btn.setAttribute('tabindex','-1');
+    btn.setAttribute('aria-label',a.label);
     btn.style.left = bx + 'px';
     btn.style.top  = by + 'px';
     btn.style.transitionDelay = (i * 35) + 'ms';
@@ -10952,6 +11163,10 @@ function kikoOpenRadial(e, vidId, vidIdx){
       });
     });
   });
+  kikoA11yActivate(menu, ()=>kikoCloseRadial());
+  if(menu._kikoTimerReset) menu.removeEventListener('keydown', menu._kikoTimerReset);
+  menu._kikoTimerReset=()=>{ clearTimeout(_radialTimeout); _radialTimeout=setTimeout(()=>kikoCloseRadial(),3500); };
+  menu.addEventListener('keydown', menu._kikoTimerReset);
 
   // Auto-fermeture après 3.5s
   clearTimeout(_radialTimeout);
@@ -10963,6 +11178,7 @@ function kikoCloseRadial(instant){
   const menu    = document.getElementById('kikoRadialMenu');
   const overlay = document.getElementById('kikoRadialOverlay');
   if(!menu) return;
+  kikoA11yDeactivate(menu);
   menu.querySelectorAll('.kiko-radial-btn').forEach(b=>{
     b.style.transform = 'translate(-50%,-50%) scale(0)';
   });
@@ -10988,6 +11204,53 @@ function _tagVCard(vidId, data){
 }
 
 // ─── Tag data-* sur les vcards après rendu (appelé depuis renderFeed) ───
+
+// ═══════════════════════════════════════════════════════════
+//  A11Y — NAVIGATION CLAVIER (menus radiaux + bottom sheets)
+// ═══════════════════════════════════════════════════════════
+// Rend un conteneur de menu (radial ou sheet) pilotable au clavier :
+// flèches pour circuler, Entrée/Espace pour activer, Échap pour fermer,
+// Tab piégé à l'intérieur tant que le menu est ouvert, focus restauré
+// sur l'élément déclencheur à la fermeture.
+function kikoA11yGetItems(container){
+  return Array.from(container.querySelectorAll('[role="menuitem"]'));
+}
+function kikoA11yActivate(container, closeFn){
+  if(!container) return;
+  const items=kikoA11yGetItems(container);
+  if(!items.length) return;
+  items.forEach(it=>it.setAttribute('tabindex','-1'));
+  items[0].setAttribute('tabindex','0');
+  container._kikoA11yReturnFocus=document.activeElement;
+  setTimeout(()=>items[0].focus(),30); // laisse l'animation d'ouverture démarrer
+  const keyHandler=(e)=>{
+    const cur=kikoA11yGetItems(container);
+    if(!cur.length) return;
+    const idx=Math.max(0,cur.indexOf(document.activeElement));
+    const focusAt=(i)=>{ cur.forEach(x=>x.setAttribute('tabindex','-1')); cur[i].setAttribute('tabindex','0'); cur[i].focus(); };
+    if(e.key==='Escape'){ e.preventDefault(); closeFn(); }
+    else if(e.key==='ArrowDown'||e.key==='ArrowRight'){ e.preventDefault(); focusAt((idx+1)%cur.length); }
+    else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){ e.preventDefault(); focusAt((idx-1+cur.length)%cur.length); }
+    else if(e.key==='Home'){ e.preventDefault(); focusAt(0); }
+    else if(e.key==='End'){ e.preventDefault(); focusAt(cur.length-1); }
+    else if(e.key==='Tab'){ e.preventDefault(); focusAt((idx+(e.shiftKey?-1:1)+cur.length)%cur.length); }
+    else if(e.key==='Enter'||e.key===' '){
+      if(cur.includes(document.activeElement)){ e.preventDefault(); document.activeElement.click(); }
+    }
+  };
+  container.addEventListener('keydown',keyHandler);
+  container._kikoA11yKeyHandler=keyHandler;
+}
+function kikoA11yDeactivate(container){
+  if(!container) return;
+  if(container._kikoA11yKeyHandler){
+    container.removeEventListener('keydown', container._kikoA11yKeyHandler);
+    container._kikoA11yKeyHandler=null;
+  }
+  const back=container._kikoA11yReturnFocus;
+  container._kikoA11yReturnFocus=null;
+  if(back && typeof back.focus==='function') setTimeout(()=>back.focus(),0);
+}
 
 // ═══════════════════════════════════════════════════════════
 //  KIKO — BOTTOM SHEET "PLUS"
@@ -11020,13 +11283,13 @@ function kikoOpenMoreSheet(vidId, authorName, authorUid, isOwn){
   items.forEach(it=>{
     if(it === 'sep'){ html += '<div class="kiko-sheet-sep"></div>'; return; }
     if(it.__marketVid){
-      html += `<div class="kiko-sheet-item" onclick="kikoCloseMoreSheet();setTimeout(()=>kikoPublishVideoToMarket('${jsStr(vidId)}'),200)">
+      html += `<div class="kiko-sheet-item" role="menuitem" tabindex="-1" aria-label="${esc(it.label)}" onclick="kikoCloseMoreSheet();setTimeout(()=>kikoPublishVideoToMarket('${jsStr(vidId)}'),200)">
         <div class="kiko-sheet-item-icon">${it.icon}</div>
         <div><div class="kiko-sheet-item-label">${it.label}</div><div class="kiko-sheet-item-sub">${it.sub||''}</div></div>
       </div>`;
       return;
     }
-    html += `<div class="kiko-sheet-item${it.danger?' danger':''}" onclick="(${it.action.toString()})()">
+    html += `<div class="kiko-sheet-item${it.danger?' danger':''}" role="menuitem" tabindex="-1" aria-label="${esc(it.label)}" onclick="(${it.action.toString()})()">
       <div class="kiko-sheet-item-icon">${it.icon}</div>
       <div><div class="kiko-sheet-item-label">${it.label}</div><div class="kiko-sheet-item-sub">${it.sub||''}</div></div>
     </div>`;
@@ -11034,9 +11297,14 @@ function kikoOpenMoreSheet(vidId, authorName, authorUid, isOwn){
 
   panel.innerHTML = html;
   document.getElementById('kikoMoreSheet').classList.add('active');
+  panel.setAttribute('role','menu');
+  panel.setAttribute('aria-label','Options');
+  kikoA11yActivate(panel, kikoCloseMoreSheet);
 }
 
 function kikoCloseMoreSheet(){
+  const panel=document.getElementById('kikoMoreSheetPanel');
+  if(panel) kikoA11yDeactivate(panel);
   document.getElementById('kikoMoreSheet')?.classList.remove('active');
 }
 
@@ -11046,13 +11314,16 @@ function openReportSheet(vidId, authorUid){
   const panel = document.getElementById('kikoMoreSheetPanel');
   let html = `<div class="kiko-sheet-handle"></div><div class="kiko-sheet-title">Signaler</div>`;
   reasons.forEach(r=>{
-    html += `<div class="kiko-sheet-item" onclick="kikoSubmitReport('${vidId}','${esc(r)}')">
+    html += `<div class="kiko-sheet-item" role="menuitem" tabindex="-1" aria-label="${esc(r)}" onclick="kikoSubmitReport('${vidId}','${esc(r)}')">
       <div class="kiko-sheet-item-icon">🚨</div>
       <div><div class="kiko-sheet-item-label">${r}</div></div>
     </div>`;
   });
   panel.innerHTML = html;
   document.getElementById('kikoMoreSheet').classList.add('active');
+  panel.setAttribute('role','menu');
+  panel.setAttribute('aria-label','Signaler');
+  kikoA11yActivate(panel, kikoCloseMoreSheet);
 }
 
 // ═══════════════════════════════════════
@@ -11271,6 +11542,29 @@ async function kikoSyncLikedVideosFromCloud(){
   }catch(e){ console.error('kikoSyncLikedVideosFromCloud',e); }
 }
 
+// Même principe pour les publications (photos/textes) likées — jusqu'ici seul le
+// compteur global était sauvegardé dans Firebase, l'état "j'ai aimé" par utilisateur
+// ne vivait qu'en localStorage et disparaissait au changement d'appareil.
+async function kikoSyncLikedPostsFromCloud(){
+  if(!currentUser) return;
+  try{
+    const snap=await db.ref('likedPosts/'+currentUser.uid).once('value');
+    const cloud=snap.val()||{};
+    const cloudIds=Object.keys(cloud);
+    if(!cloudIds.length) return;
+    const before=liked.length;
+    liked=Array.from(new Set([...liked, ...cloudIds]));
+    if(liked.length!==before) localStorage.setItem('aes_liked',JSON.stringify(liked));
+    // Si des cartes de publication sont déjà affichées à l'écran (rendues avant
+    // la fin de cette synchro), on met à jour leur cœur sans attendre un reload.
+    cloudIds.forEach(id=>{
+      pcardPillUpdate('plk-'+id,{icon:'heart',grad:'gRuby',activeClass:'liked',isActive:true});
+      pcardPillUpdate('pfslk-'+id,{icon:'heart',grad:'gRuby',activeClass:'liked',isActive:true});
+      pcardPillUpdate('sflike-'+id,{icon:'heart',grad:'gRuby',activeClass:'liked',isActive:true});
+    });
+  }catch(e){ console.error('kikoSyncLikedPostsFromCloud',e); }
+}
+
 async function kikoSubmitReport(vidId, reason){
   kikoCloseMoreSheet();
   if(!currentUser){ showToast('Connecte-toi pour signaler'); return; }
@@ -11466,7 +11760,7 @@ function initObserver(){
         // Préchargement anticipé : dès que la carte entre dans la marge (avant même d'être
         // pleinement visible), on démarre le téléchargement pour que la lecture soit instantanée
         // quand l'utilisateur y arrive — comme le fait Facebook/TikTok.
-        if(!dataSaverOn&&!v.src&&v.dataset.src){v.src=v.dataset.src;v.load();}
+        if(!dataSaverOn&&!v.src&&v.dataset.src){kikoSetCachedVideoSrc(v,v.dataset.src);}
         if(!chosen||e.target===chosen){
           if(dataSaverOn){
             // Économie de données : on ne télécharge/joue PAS automatiquement.
@@ -11477,7 +11771,7 @@ function initObserver(){
             if(icon) icon.innerText='▶';
             if(ctrl) ctrl.classList.add('show');
           } else {
-            if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.load();}
+            if(!v.src&&v.dataset.src){kikoSetCachedVideoSrc(v,v.dataset.src);}
             v.muted=globalMuted;
             enforceSingleVideoPlayback(v);
             v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});});
@@ -12749,9 +13043,13 @@ async function uploadVideo(){
   kikoUploadPillShow('Optimisation de la vidéo...');
 
   try{
+    const compressedFile = await kikoCompressVideoForUpload(fileToUpload, pct=>{
+      kikoUploadPillSetProgress(pct*0.05, `Optimisation ${pct}%...`);
+    });
+
     const videoUrl = await new Promise((res, rej)=>{
       const fd = new FormData();
-      fd.append('file', fileToUpload);
+      fd.append('file', compressedFile);
       fd.append('upload_preset','Aes-upload');
       const xhr = new XMLHttpRequest();
       _vpsXHR = xhr;
@@ -12922,9 +13220,106 @@ async function renderProfile(){
   document.getElementById('pFollowingCount').innerText=fmt(Object.keys(following).length);
   const totalLikes=mine.reduce((s,v)=>s+(v.likes||0),0);
   const pLikesEl=document.getElementById('pLikes'); if(pLikesEl) pLikesEl.innerText=fmt(totalLikes);
+
+  // Stats créateur complètes (vidéos + posts texte/photo) pour le dashboard et les badges
+  const minePosts=(allPosts||[]).filter(p=>p.authorUid===currentUser.uid);
+  const allMine=[...mine.map(v=>({...v,_kind:'video'})),...minePosts.map(p=>({...p,_kind:p.type||'post'}))];
+  const stats={
+    followers:lkSnap.numChildren(),
+    pubCount:allMine.length,
+    totalViews:allMine.reduce((s,x)=>s+(x.views||0),0),
+    totalLikes:allMine.reduce((s,x)=>s+(x.likes||0),0),
+    totalComments:allMine.reduce((s,x)=>s+(x.commentCount||0),0),
+    totalShares:allMine.reduce((s,x)=>s+(x.shares||0),0),
+    maxViews:allMine.reduce((m,x)=>Math.max(m,x.views||0),0),
+    items:allMine.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))
+  };
+  window._kikoCreatorStats=stats;
+  renderCreatorBadges(stats);
+
   document.getElementById('profileGrid').innerHTML=mine.length
     ?mine.map(v=>`<div class="pgitem" onclick="openProfileVideoViewer('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="pgoverlay"><span class="pgviews">❤️ ${fmt(v.likes||0)}</span><button class="pg-del-btn" onclick="event.stopPropagation();confirmDeleteVideo('${v.id}')">🗑</button></div></div>`).join('')
     :'<div style="padding:28px;color:var(--muted);font-size:12px;text-align:center;grid-column:span 3">Aucune vidéo publiée</div>';
+}
+
+// ═══════════════════════════════════════
+//  BADGES / GAMIFICATION
+// ═══════════════════════════════════════
+const KIKO_BADGE_DEFS=[
+  {id:'active',   icon:'📸', label:'Créateur actif',   desc:'10 publications ou plus', cond:s=>s.pubCount>=10},
+  {id:'popular',  icon:'🔥', label:'Populaire',         desc:'500 J\'aime cumulés',      cond:s=>s.totalLikes>=500},
+  {id:'rising',   icon:'⭐', label:'Étoile montante',   desc:'1 000 vues cumulées',      cond:s=>s.totalViews>=1000},
+  {id:'viral',    icon:'🚀', label:'Viral',             desc:'Une publication à 10 000 vues', cond:s=>s.maxViews>=10000},
+  {id:'icon',     icon:'👑', label:'Icône KIKO',        desc:'5 000 abonnés',            cond:s=>s.followers>=5000},
+];
+function renderCreatorBadges(stats){
+  const el=document.getElementById('profileBadgesRow');
+  if(!el) return;
+  const earned=KIKO_BADGE_DEFS.filter(b=>b.cond(stats));
+  if(!earned.length){ el.innerHTML=''; return; }
+  el.innerHTML=earned.map(b=>
+    `<div class="kiko-badge-pill" title="${b.desc}" style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);padding:5px 10px 5px 8px;border-radius:14px;font-size:11.5px;font-weight:700;">
+      <span style="font-size:14px;">${b.icon}</span>${b.label}
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════
+//  DASHBOARD CRÉATEUR (stats)
+// ═══════════════════════════════════════
+function openDashboardModal(){
+  const stats=window._kikoCreatorStats;
+  if(!stats){ showToast('⏳ Chargement des stats...'); return; }
+  renderDashboard(stats);
+  document.getElementById('dashboardModal').classList.add('active');
+}
+function closeDashboardModal(){
+  document.getElementById('dashboardModal').classList.remove('active');
+}
+function renderDashboard(stats){
+  const wrap=document.getElementById('dashboardBody');
+  if(!wrap) return;
+
+  const cards=[
+    {ic:'👁️',label:'Vues totales',val:stats.totalViews},
+    {ic:'❤️',label:'J\'aime',val:stats.totalLikes},
+    {ic:'💬',label:'Commentaires',val:stats.totalComments},
+    {ic:'🔁',label:'Partages',val:stats.totalShares},
+  ];
+  const cardsHtml=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:18px;">
+    ${cards.map(c=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm,10px);padding:12px;text-align:center;">
+      <div style="font-size:18px;margin-bottom:2px;">${c.ic}</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">${fmt(c.val)}</div>
+      <div style="font-size:10.5px;color:var(--muted);">${c.label}</div>
+    </div>`).join('')}
+  </div>`;
+
+  const top=[...stats.items].sort((a,b)=>
+    ((b.likes||0)+(b.commentCount||0)+(b.shares||0))-((a.likes||0)+(a.commentCount||0)+(a.shares||0))
+  ).slice(0,5);
+  const maxEng=Math.max(1,...top.map(x=>(x.likes||0)+(x.commentCount||0)+(x.shares||0)));
+
+  const barsHtml=top.length?`<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:0.5px;">TES PUBLICATIONS LES PLUS ENGAGEANTES</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:6px;">
+      ${top.map(x=>{
+        const eng=(x.likes||0)+(x.commentCount||0)+(x.shares||0);
+        const pct=Math.max(6,Math.round(eng/maxEng*100));
+        const icon=x._kind==='video'?'🎬':(x._kind==='photo'?'📸':'✍️');
+        const label=(x.text||x.desc||(x._kind==='video'?'Vidéo':'Publication')).toString().slice(0,40);
+        return `<div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;">
+            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;">${icon} ${label}</span>
+            <span style="color:var(--muted);">${fmt(eng)}</span>
+          </div>
+          <div style="background:var(--surface2);border-radius:5px;height:7px;overflow:hidden;">
+            <div style="background:linear-gradient(90deg,var(--gold),var(--gold2));height:100%;width:${pct}%;"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`
+    :'<div style="padding:20px 4px;color:var(--muted);font-size:12.5px;text-align:center;">Publie du contenu pour voir tes statistiques ici 📊</div>';
+
+  wrap.innerHTML=cardsHtml+barsHtml;
 }
 
 // ═══════════════════════════════════════
@@ -14288,6 +14683,100 @@ function kikoPickMime(){
   return '';
 }
 
+// ═══════════════════════════════════════════════════════════
+//  COMPRESSION VIDÉO CÔTÉ CLIENT AVANT UPLOAD
+//  Réduit le poids envoyé à Cloudinary (utile sur connexions
+//  lentes/chères). Réutilise le pipeline canvas + MediaRecorder
+//  déjà en place pour l'export filigrané. Si la compression
+//  échoue, n'est pas supportée, ou n'apporte rien, on republie
+//  simplement le fichier original — jamais bloquant.
+// ═══════════════════════════════════════════════════════════
+async function kikoCompressVideoForUpload(file,onProgress){
+  const supportsExport=!!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream);
+  // Sous ~6 Mo la compression n'apporte quasi rien et coûte du temps/batterie.
+  if(!supportsExport || !file || file.size<6*1024*1024) return file;
+
+  const objUrl=URL.createObjectURL(file);
+  const video=document.createElement('video');
+  video.src=objUrl; video.muted=true; video.playsInline=true;
+  video.style.position='fixed'; video.style.left='-9999px'; video.style.top='-9999px';
+  document.body.appendChild(video);
+
+  try{
+    await new Promise((res,rej)=>{
+      video.onloadedmetadata=res; video.onerror=rej;
+      setTimeout(rej,8000);
+    });
+
+    const srcW=video.videoWidth||720, srcH=video.videoHeight||1280;
+    const saver=isDataSaverActive();
+    const MAX_DIM=saver?480:720;
+    const scaleDown=Math.min(1,MAX_DIM/Math.max(srcW,srcH));
+    const w=Math.round(srcW*scaleDown), h=Math.round(srcH*scaleDown);
+    const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+    const ctx=canvas.getContext('2d');
+
+    let audioSrcStream;
+    try{ audioSrcStream=video.captureStream?video.captureStream():video.mozCaptureStream(); }
+    catch(e){ audioSrcStream=null; }
+
+    const mime=kikoPickMime();
+    const isMp4Mime=mime.startsWith('video/mp4');
+    const fps=(isMp4Mime?30:24)-(saver?6:0);
+
+    const canvasStream=canvas.captureStream(fps);
+    const finalStream=new MediaStream();
+    canvasStream.getVideoTracks().forEach(t=>finalStream.addTrack(t));
+    if(audioSrcStream){ audioSrcStream.getAudioTracks().forEach(t=>finalStream.addTrack(t)); }
+
+    const rawBitrate=Math.round(w*h*fps*0.09);
+    const bitrateCeiling=saver?1_800_000:3_500_000;
+    const bitrateFloor=saver?700_000:1_200_000;
+    const videoBitsPerSecond=Math.min(bitrateCeiling,Math.max(bitrateFloor,rawBitrate));
+    const recorder=new MediaRecorder(finalStream, mime?{mimeType:mime,videoBitsPerSecond}:{});
+    const chunks=[];
+    recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
+    const stopped=new Promise(res=>{ recorder.onstop=res; });
+
+    let rafId, watchdogId, finished=false;
+    function drawFrame(){
+      if(video.paused||video.ended)return;
+      ctx.drawImage(video,0,0,w,h);
+      if(video.duration && onProgress) onProgress(Math.min(90,Math.round(video.currentTime/video.duration*90)));
+      rafId=requestAnimationFrame(drawFrame);
+    }
+    function finishRecording(){
+      if(finished)return; finished=true;
+      clearTimeout(watchdogId); cancelAnimationFrame(rafId);
+      setTimeout(()=>{ if(recorder.state!=='inactive') recorder.stop(); },150);
+    }
+
+    video.currentTime=0;
+    await video.play();
+    drawFrame();
+    recorder.start(250);
+    video.onended=finishRecording;
+    const safetyMs=(isFinite(video.duration)&&video.duration>0?video.duration*1000:60000)+5000;
+    watchdogId=setTimeout(finishRecording,safetyMs);
+
+    await stopped;
+
+    const outMime=mime?mime.split(';')[0]:'video/webm';
+    const outBlob=new Blob(chunks,{type:outMime});
+    // Si le résultat compressé est plus gros que l'original (arrive sur de
+    // très courtes vidéos), on garde l'original plutôt que de pénaliser.
+    if(!outBlob.size || outBlob.size>=file.size) return file;
+    if(onProgress) onProgress(100);
+    const ext=isMp4Mime?'mp4':'webm';
+    return new File([outBlob], 'kiko-compressed.'+ext, {type:outMime});
+  }catch(e){
+    return file; // échec : on publie l'original, jamais bloquant
+  }finally{
+    URL.revokeObjectURL(objUrl);
+    video.remove();
+  }
+}
+
 function trackDownload(id){
   // Compteur de téléchargements par vidéo, affiché comme les vues/likes.
   if(!id)return;
@@ -14935,6 +15424,46 @@ function optImg(url,w){
   return url;
 }
 function optVidThumb(url,w){return optImg(url,w||480);}
+// ═══════════════════════════════════════════════════════════
+//  CACHE LOCAL AGRESSIF — vidéos déjà vues jamais re-téléchargées
+//  Utilise la Cache Storage API (indépendante du service worker).
+//  Une vidéo déjà lue est servie instantanément depuis le disque,
+//  sans repasser par le réseau, même après avoir quitté puis
+//  rouvert l'app. LRU simple : on garde au plus KIKO_VIDEO_CACHE_MAX
+//  vidéos, les plus anciennes sont évincées.
+// ═══════════════════════════════════════════════════════════
+const KIKO_VIDEO_CACHE='kiko-video-cache-v1';
+const KIKO_VIDEO_CACHE_MAX=40;
+async function kikoTrimVideoCache(cache){
+  try{
+    const keys=await cache.keys();
+    const excess=keys.length-KIKO_VIDEO_CACHE_MAX;
+    for(let i=0;i<excess;i++){ await cache.delete(keys[i]); }
+  }catch(e){}
+}
+// Affecte v.src en passant par le cache local si la vidéo y est déjà :
+// relecture instantanée, 0 octet consommé. Sinon, charge normalement
+// (le <video> gère lui-même le streaming) ET met en cache en tâche de
+// fond pour que la prochaine lecture soit gratuite en data.
+function kikoSetCachedVideoSrc(v,url){
+  if(!url)return;
+  if(!('caches' in window)){ v.src=url; v.load(); return; }
+  caches.open(KIKO_VIDEO_CACHE).then(async cache=>{
+    const hit=await cache.match(url);
+    if(hit){
+      const blob=await hit.blob();
+      v.src=URL.createObjectURL(blob);
+      v.load();
+    } else {
+      v.src=url; v.load();
+      fetch(url).then(async res=>{
+        if(!res.ok)return;
+        await cache.put(url,res.clone());
+        kikoTrimVideoCache(cache);
+      }).catch(()=>{});
+    }
+  }).catch(()=>{ v.src=url; v.load(); });
+}
 function optVid(url){
   // Vidéo : force un format/bitrate adaptatif via Cloudinary si possible
   // sp_auto = streaming adaptatif (comme Netflix/YouTube, ajuste la qualité en direct selon le réseau)
@@ -15078,9 +15607,9 @@ setTimeout(()=>loadHomeSelection(), 950);             // sélection KIKO (créat
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
 setTimeout(()=>kikoShowOnboarding(), 1200);           // tour de bienvenue — pour TOUT nouvel utilisateur, même sans compte
 kikoInitNewBadges();
-if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); kikoSyncFavoritesFromCloud(); kikoSyncSavedPostsFromCloud(); kikoSyncLikedVideosFromCloud(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
+if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); kikoSyncFavoritesFromCloud(); kikoSyncSavedPostsFromCloud(); kikoSyncLikedVideosFromCloud(); kikoSyncLikedPostsFromCloud(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
 if(currentUser && !currentUser.country){ setTimeout(()=>kikoBackfillUserCountry(), 1800); }
-setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkWatermarkAdminAccess(); checkBoostsAdminAccess(); kikoWmLoadConfig().catch(()=>{}); initCameraModule(); }, 1500);
+setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkBoostsAdminAccess(); initCameraModule(); }, 1500);
 
 // ═══════════════════════════════════════
 //  MODULE CAMÉRA + FILTRES PREMIUM
@@ -16307,6 +16836,8 @@ async function sfToggleLike(postId){
   const isNowLiked=!liked.includes(postId);
   if(isNowLiked){liked.push(postId);}else{liked=liked.filter(x=>x!==postId);}
   localStorage.setItem('aes_liked',JSON.stringify(liked));
+  if(isNowLiked){ db.ref('likedPosts/'+currentUser.uid+'/'+postId).set(Date.now()); }
+  else{ db.ref('likedPosts/'+currentUser.uid+'/'+postId).remove(); }
   const ref=db.ref('posts/'+postId+'/likes');
   const snap=await ref.once('value');
   const cur=snap.val()||0;
