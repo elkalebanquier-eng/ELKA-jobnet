@@ -10213,7 +10213,11 @@ async function adminLoadReports(){
   if(!list)return;
   list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Chargement...</div>';
   try{
-    const snap=await db.ref('reports').once('value');
+    const timeoutMs = 12000;
+    const snap = await Promise.race([
+      db.ref('reports').once('value'),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), timeoutMs))
+    ]);
     const reportsByVid=snap.val()||{};
     const vidIds=Object.keys(reportsByVid);
     if(!vidIds.length){list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Aucun signalement en attente 👍</div>';return;}
@@ -10242,7 +10246,8 @@ async function adminLoadReports(){
     });
     list.innerHTML=html;
   }catch(e){
-    list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Erreur de chargement</div>';
+    console.error('Chargement signalements échoué:', e);
+    list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">❌ Erreur de chargement'+(e&&e.message==='timeout'?' (connexion trop lente)':' — '+(e&&(e.code||e.message)||''))+'</div>';
   }
 }
 async function adminClearReports(vidId){
