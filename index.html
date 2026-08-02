@@ -16056,6 +16056,21 @@ async function onCamZoom(val){
 }
 
 async function openCamera(mode='photo', calledFrom='post'){
+  // En navigateur web (pas dans l'APK Capacitor), l'aperçu caméra live (getUserMedia)
+  // est peu fiable et, surtout, le clic de secours vers la caméra native perdait son
+  // "contexte utilisateur" après l'attente asynchrone de getUserMedia — résultat : écran
+  // noir puis retour en arrière sans rien ouvrir. On bascule donc directement et de façon
+  // SYNCHRONE (avant tout await) sur l'input caméra natif, qui préserve ce contexte.
+  if(!window.Capacitor?.Plugins?.KikoProCamera){
+    _camCalledFrom = calledFrom;
+    _camMode = mode;
+    if(mode==='video'){
+      document.getElementById('camNativeVideoFallbackInput').click();
+    } else {
+      document.getElementById('camNativeFallbackInput').click();
+    }
+    return;
+  }
   _camCalledFrom = calledFrom;
   _camMode = mode;
   _camFilterIdx = 0;
