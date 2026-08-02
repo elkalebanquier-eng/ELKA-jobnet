@@ -4821,6 +4821,7 @@ document.addEventListener('load', function(e){
     <button class="pr-premium-btn" onclick="event.stopPropagation();openPremiumInfo()">Découvrir</button>
   </div>
 
+  <button class="btn-ghost" id="adminPanelBtn" style="display:none;max-width:220px;margin:0 auto 10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14151A;font-weight:800;" onclick="openAdminPanel()">👑 Panneau admin</button>
   <button class="btn-ghost" id="logoutBtn" style="display:none;max-width:180px;margin:0 auto 18px;" onclick="doLogout()">🚪 Déconnexion</button>
 
   <div class="ptabs" id="profileTabs">
@@ -5125,6 +5126,23 @@ document.addEventListener('load', function(e){
       <button id="settLogoutBtn" onclick="doLogout();closeSettings();" style="display:none;width:100%;background:rgba(255,92,114,0.12);border:1.5px solid rgba(255,92,114,0.3);color:var(--red);padding:14px;border-radius:var(--r-md);font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">🚪 Déconnexion</button>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANNEAU ADMIN — vérification + signalements
+     ═══════════════════════════════════════ -->
+<div id="adminPanel" style="display:none;position:fixed;inset:0;z-index:500;background:var(--bg);overflow-y:auto;flex-direction:column;">
+  <div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:2;">
+    <button onclick="closeAdminPanel()" style="background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;">←</button>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;">👑 Panneau admin</div>
+  </div>
+  <div style="display:flex;gap:6px;padding:12px 16px;">
+    <button onclick="openVerifyAdmin()" style="flex:1;background:var(--gold);border:none;color:#14151A;font-weight:700;padding:9px;border-radius:20px;font-size:12.5px;cursor:pointer;">✓ Vérification</button>
+    <button onclick="adminLoadReports()" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:700;padding:9px;border-radius:20px;font-size:12.5px;cursor:pointer;">🚩 Signalements</button>
+  </div>
+  <div style="padding:0 16px 24px;">
+    <div id="adminReportsList"></div>
   </div>
 </div>
 
@@ -9261,6 +9279,8 @@ function applyUserUI(){
   const loginBtn=document.getElementById('loginTopBtn');
   if(loginBtn)loginBtn.onclick=isLogged?()=>showScreen('profile'):openAuth;
   document.getElementById('logoutBtn').style.display=isLogged?'block':'none';
+  const adminBtn=document.getElementById('adminPanelBtn');
+  if(adminBtn) adminBtn.style.display=(isLogged && currentUser.isAdmin)?'block':'none';
   document.getElementById('editProfileBtn').style.display=isLogged?'flex':'none';
   document.getElementById('feedTabs').style.display=isLogged?'flex':'none';
 
@@ -10167,6 +10187,71 @@ async function _toggleUserBusinessVerified(uid,newVal,btn){
   _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
   if(btn){btn.disabled=false;}
 }
+
+// ═══════════════════════════════════════
+//  PANNEAU ADMIN — accès réservé aux comptes isAdmin
+// ═══════════════════════════════════════
+function openAdminPanel(){
+  if(!currentUser||!currentUser.isAdmin){showToast('⛔ Accès réservé');return;}
+  const panel=document.getElementById('adminPanel');
+  if(panel){panel.style.display='flex';document.getElementById('adminReportsList').innerHTML='';}
+}
+function closeAdminPanel(){
+  const panel=document.getElementById('adminPanel');
+  if(panel)panel.style.display='none';
+}
+async function adminLoadReports(){
+  const list=document.getElementById('adminReportsList');
+  if(!list)return;
+  list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Chargement...</div>';
+  try{
+    const snap=await db.ref('reports').once('value');
+    const reportsByVid=snap.val()||{};
+    const vidIds=Object.keys(reportsByVid);
+    if(!vidIds.length){list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Aucun signalement en attente 👍</div>';return;}
+    const vidSnaps=await Promise.all(vidIds.map(id=>db.ref('videos/'+id).once('value')));
+    let html='';
+    vidIds.forEach((vidId,i)=>{
+      const vid=vidSnaps[i].val();
+      const reasons=Object.values(reportsByVid[vidId]||{});
+      const count=reasons.length;
+      if(!vid){
+        html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;">
+          <div style="font-size:12.5px;color:var(--text2);margin-bottom:8px;">Vidéo déjà supprimée — ${count} signalement(s) orphelin(s)</div>
+          <button onclick="adminClearReports('${vidId}')" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px;border-radius:10px;font-weight:700;font-size:12.5px;">Nettoyer</button>
+        </div>`;
+        return;
+      }
+      html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;">
+        <video src="${vid.videoUrl}" controls preload="metadata" style="width:100%;max-height:280px;border-radius:10px;margin-bottom:10px;background:#000;"></video>
+        <div style="font-size:12.5px;color:var(--text2);margin-bottom:8px;">Par @${esc(vid.auteur||'anonyme')} · ${count} signalement(s)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">${reasons.map(r=>`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:4px 10px;font-size:11.5px;color:var(--text2);">${esc(r.reason||'sans motif')}</span>`).join('')}</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="adminClearReports('${vidId}')" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px;border-radius:10px;font-weight:700;font-size:12.5px;">Ignorer</button>
+          <button onclick="adminDeleteReportedVideo('${vidId}')" style="flex:1;background:var(--red);border:none;color:#fff;padding:10px;border-radius:10px;font-weight:700;font-size:12.5px;">Supprimer</button>
+        </div>
+      </div>`;
+    });
+    list.innerHTML=html;
+  }catch(e){
+    list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Erreur de chargement</div>';
+  }
+}
+async function adminClearReports(vidId){
+  try{await db.ref('reports/'+vidId).remove();showToast('Signalements nettoyés');}
+  catch(e){showToast('⚠️ Erreur');}
+  adminLoadReports();
+}
+async function adminDeleteReportedVideo(vidId){
+  if(!confirm('Supprimer définitivement cette vidéo ?'))return;
+  try{
+    await db.ref('videos/'+vidId).remove();
+    await db.ref('reports/'+vidId).remove();
+    showToast('🗑️ Vidéo supprimée');
+  }catch(e){showToast('⚠️ Erreur');}
+  adminLoadReports();
+}
+
 function loadFeed(){loadFeedMixed();loadHomeStories();initFeedPullToRefresh();}
 
 // ═══════════════════════════════════════
