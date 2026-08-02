@@ -10075,11 +10075,11 @@ async function openVerifyAdmin(){
   overlay.style.display='block';
   overlay.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-family:Syne,sans-serif;font-weight:800;font-size:19px;color:var(--text);">✓ Gestion des badges</div>
-      <div onclick="document.getElementById('verifyAdminOverlay').style.display='none'" style="font-size:22px;color:var(--text2);cursor:pointer;padding:4px 10px;">✕</div>
+      <div style="font-family:Syne,sans-serif;font-weight:800;font-size:19px;color:#fff;">✓ Gestion des badges</div>
+      <div onclick="document.getElementById('verifyAdminOverlay').style.display='none'" style="font-size:22px;color:rgba(255,255,255,0.6);cursor:pointer;padding:4px 10px;">✕</div>
     </div>
     <input id="verifyAdminSearch" oninput="_searchVerifyAdmin(this.value)" placeholder="Rechercher un utilisateur par nom..."
-      style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:14px;margin-bottom:16px;">
+      style="width:100%;background:#1a1a1d;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;color:#fff;font-size:14px;margin-bottom:16px;">
     <div id="verifyAdminList" style="display:flex;flex-direction:column;gap:8px;"></div>`;
   _searchVerifyAdmin('');
 }
@@ -10091,26 +10091,34 @@ function _searchVerifyAdmin(q){
 async function _renderVerifyAdminList(q){
   const list=document.getElementById('verifyAdminList');
   if(!list)return;
-  list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Chargement...</div>';
+  list.innerHTML='<div style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;font-size:13px;">Chargement...</div>';
   try{
-    const snap=await db.ref('users').limitToFirst(200).once('value');
+    // Timeout de sécurité : sur connexion lente, once('value') peut rester en
+    // attente indéfiniment sans jamais résoudre ni rejeter. On force un délai
+    // max pour toujours donner un retour visible à l'utilisateur.
+    const timeoutMs = 12000;
+    const snap = await Promise.race([
+      db.ref('users').limitToFirst(200).once('value'),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), timeoutMs))
+    ]);
     const users=Object.entries(snap.val()||{}).map(([uid,u])=>({uid,...u}));
     const filtered=q?users.filter(u=>(u.name||'').toLowerCase().includes(q.toLowerCase())):users;
     list.innerHTML=filtered.length?filtered.slice(0,40).map(u=>{
       const avH=u.avatar?`<img src="${optImg(u.avatar,80)}" loading="lazy" decoding="async" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(u.name||'?')[0].toUpperCase();
-      return `<div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text2);flex-shrink:0;">${avH}</div>
+      return `<div style="display:flex;align-items:center;gap:10px;background:#1a1a1d;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:10px 12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-weight:700;color:rgba(255,255,255,0.6);flex-shrink:0;">${avH}</div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;">${esc(u.name||'anonyme')}${verifiedBadge(u.verified)}${businessBadge(u.businessVerified)}</div>
+          <div style="font-size:13px;font-weight:600;color:#fff;display:flex;align-items:center;">${esc(u.name||'anonyme')}${verifiedBadge(u.verified)}${businessBadge(u.businessVerified)}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
           <button onclick="_toggleUserVerified('${u.uid}',${!u.verified},this)" style="background:${u.verified?'rgba(255,122,0,0.15)':'var(--gold)'};color:${u.verified?'#ff7a00':'#14151A'};border:${u.verified?'1px solid #ff7a00':'none'};padding:6px 12px;border-radius:20px;font-weight:700;font-size:11px;white-space:nowrap;">${u.verified?'Retirer ✓':'Vérifier ✓'}</button>
           <button onclick="_toggleUserBusinessVerified('${u.uid}',${!u.businessVerified},this)" style="background:${u.businessVerified?'rgba(91,141,239,0.15)':'var(--blue,#5B8DEF)'};color:${u.businessVerified?'#5B8DEF':'#fff'};border:${u.businessVerified?'1px solid #5B8DEF':'none'};padding:6px 12px;border-radius:20px;font-weight:700;font-size:11px;white-space:nowrap;">${u.businessVerified?'Retirer 🏪':'Business 🏪'}</button>
         </div>
       </div>`;
-    }).join(''):'<div style="text-align:center;padding:32px 20px;"><div style="font-size:32px;margin-bottom:8px;">🔍</div><div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:14px;color:var(--text);">Aucun utilisateur trouvé</div></div>';
+    }).join(''):'<div style="text-align:center;padding:32px 20px;"><div style="font-size:32px;margin-bottom:8px;">🔍</div><div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:14px;color:#fff;">Aucun utilisateur trouvé</div></div>';
   }catch(e){
-    list.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:13px;">Erreur de chargement</div>';
+    console.error('Chargement panneau badges échoué:', e);
+    list.innerHTML='<div style="color:rgba(255,255,255,0.7);text-align:center;padding:20px;font-size:13px;">❌ Erreur de chargement'+(e&&e.message==='timeout'?' (connexion trop lente)':'')+'<br><span style="text-decoration:underline;cursor:pointer;" onclick="_renderVerifyAdminList(document.getElementById(\'verifyAdminSearch\')?.value||\'\')">Réessayer</span></div>';
   }
 }
 async function _toggleUserVerified(uid,newVal,btn){
