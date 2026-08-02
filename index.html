@@ -7051,6 +7051,29 @@ function kikoShowOnboarding(){
 //  STATE
 // ═══════════════════════════════════════
 let currentUser=JSON.parse(localStorage.getItem('aes_user')||'null');
+// ⚠️ Le SDK Firebase Auth est chargé à la demande (voir kikoEnsureAuth) pour ne pas
+// ralentir le 1er affichage sur réseau lent. MAIS si un profil est déjà en cache ici,
+// ça veut dire qu'on était connecté lors d'une session précédente — sans ce préchargement
+// en tâche de fond, `auth.currentUser` reste `null` tant que l'utilisateur ne rouvre pas
+// l'écran de connexion, et TOUTE écriture protégée par les règles Firebase (poser un
+// like, publier, etc. — pas seulement le panneau admin) échoue silencieusement en
+// PERMISSION_DENIED alors que l'interface affiche "connecté".
+if(currentUser){
+  setTimeout(()=>{
+    kikoEnsureAuth().then(a=>{
+      // Laisse le SDK Auth un instant pour restaurer la session persistée (IndexedDB),
+      // puis vérifie si ça a marché. Si non → la session est vraiment perdue (pas juste
+      // "pas encore chargée") : mieux vaut prévenir clairement que laisser échouer en
+      // silence toutes les actions protégées (like, publication, badges, etc.).
+      setTimeout(()=>{
+        if(a && !a.currentUser){
+          console.warn('Session Firebase Auth non restaurée malgré un profil en cache — reconnexion nécessaire.');
+          showToast('⚠️ Session expirée — reconnecte-toi pour retrouver toutes tes fonctionnalités');
+        }
+      }, 1500);
+    }).catch(()=>{});
+  }, 300);
+}
 let liked=JSON.parse(localStorage.getItem('aes_liked')||'[]');
 let reactions=JSON.parse(localStorage.getItem('aes_reactions')||'{}'); // {videoId:'like'|'interesting'} — type de réaction affiché au double-tap
 let favorites=JSON.parse(localStorage.getItem('aes_favs')||'[]');
