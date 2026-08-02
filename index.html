@@ -5539,6 +5539,17 @@ document.addEventListener('load', function(e){
     <span>Accueil</span>
   </div>
 
+  <!-- Buzz — accès direct au fil vidéo plein écran -->
+  <div class="nbtn" id="nb-buzz" onclick="showScreen('buzz')">
+    <div class="ni">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.8" fill="none"/>
+        <path d="M10 9L15 12L10 15V9Z" fill="currentColor"/>
+      </svg>
+    </div>
+    <span>GO</span>
+  </div>
+
   <!-- Marché — neon vert/rose comme image -->
   <div class="nbtn" id="nb-market" onclick="showScreen('market')">
     <div class="ni ni-market">
@@ -8099,6 +8110,34 @@ function prefetchBuzzFeed(){
   loadFeed();
 }
 
+// ═══════════════════════════════════════
+//  BADGES SUR VIDÉOS — les vidéos publiées avant l'ajout du badge n'ont pas
+//  de champ authorVerified/authorBusinessVerified enregistré. On complète ici
+//  depuis users/{uid}, en cache mémoire, pour que le badge s'affiche partout
+//  (feed, aperçu Buzz, explore, tendances...) même sur d'anciennes vidéos.
+// ═══════════════════════════════════════
+const _authorBadgeCache={};
+async function enrichVideoAuthors(vids){
+  const missing=[...new Set(vids.filter(v=>v.authorUid&&v.authorVerified===undefined&&!_authorBadgeCache[v.authorUid]).map(v=>v.authorUid))];
+  if(missing.length){
+    await Promise.all(missing.map(async uid=>{
+      try{
+        const snap=await db.ref('users/'+uid).once('value');
+        const u=snap.val()||{};
+        _authorBadgeCache[uid]={verified:!!u.verified,businessVerified:!!u.businessVerified};
+      }catch(e){ _authorBadgeCache[uid]={verified:false,businessVerified:false}; }
+    }));
+  }
+  vids.forEach(v=>{
+    const c=v.authorUid&&_authorBadgeCache[v.authorUid];
+    if(c){
+      if(v.authorVerified===undefined)v.authorVerified=c.verified;
+      if(v.authorBusinessVerified===undefined)v.authorBusinessVerified=c.businessVerified;
+    }
+  });
+  return vids;
+}
+
 async function loadFeedMixed(){
   const feed = document.getElementById('feed');
 
@@ -8128,6 +8167,7 @@ async function loadFeedMixed(){
   try{
     const vidSnap = await kikoWithTimeout(db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value'));
     const vids = vidSnap.val() ? Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})) : [];
+    await enrichVideoAuthors(vids);
     const viewerCountry = currentUser?.country || null;
     let ranked = vids
       .map(item=>({...item,authorTotalViews:0}))
@@ -9324,7 +9364,7 @@ function applyUserUI(){
   if(isLogged){
     // Profil screen
     document.getElementById('profileAvEl').innerHTML=currentUser.avatar?`<img src="${currentUser.avatar}" alt="">`:currentUser.name[0].toUpperCase();
-    document.getElementById('profileNameEl').innerHTML=esc(currentUser.name)+verifiedBadge(currentUser.verified);
+    document.getElementById('profileNameEl').innerHTML=esc(currentUser.name)+verifiedBadge(currentUser.verified)+businessBadge(currentUser.businessVerified);
     document.getElementById('profileHandleEl').innerText='@'+currentUser.name.toLowerCase().replace(/\s/g,'').replace(/[^a-z0-9]/g,'');
     const phn=document.getElementById('profileHeaderName'); if(phn) phn.innerText=currentUser.name;
     document.getElementById('profileBioEl').innerText=currentUser.bio||'Créateur de contenu africain 🌍';
@@ -9676,7 +9716,7 @@ function _doShowScreen(n){
   };
   const navMap = {
     home:'nb-home', market:'nb-market', notif:'nb-notif',
-    dm:'nb-dm', job:'nb-job', profile:'nb-profile'
+    dm:'nb-dm', job:'nb-job', profile:'nb-profile', buzz:'nb-buzz'
   };
   const sid = screenMap[n];
   if(sid){ const el=document.getElementById(sid); if(el) el.classList.add('active'); }
@@ -9953,6 +9993,7 @@ async function refreshFeedSilent(){
   try{
     const vidSnap=await kikoWithTimeout(db.ref('videos').orderByChild('createdAt').limitToLast(20).once('value'));
     const vids=vidSnap.val()?Object.entries(vidSnap.val()).map(([id,v])=>({id,_type:'video',...v})):[];
+    await enrichVideoAuthors(vids);
     const viewerCountry=currentUser?.country||null;
     let ranked=vids
       .map(item=>({...item,_score:computeFeedScore(item,viewerCountry)}))
@@ -10309,6 +10350,7 @@ function loadBuzzHomePreview(){
   kikoWithTimeout(db.ref('videos').orderByChild('createdAt').limitToLast(8).once('value')).then(snap=>{
     if(!snap.val()){row.innerHTML='<div class="buzz-ph" style="width:100%;color:var(--muted);font-size:13px;">Aucune vidéo pour l\'instant</div>';return;}
     const vids=Object.entries(snap.val()).map(([id,v])=>({id,...v})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,8);
+    enrichVideoAuthors(vids).then(()=>{
     row.innerHTML=vids.map(v=>{
       const dur=v.duration?formatDur(v.duration):'';
       const verified=verifiedBadge(v.authorVerified||v.verified);
@@ -10323,6 +10365,7 @@ function loadBuzzHomePreview(){
         </div>
       </div>`;
     }).join('')+`<div class="buzz-card buzz-more" onclick="showScreen('buzz')"><div class="buzz-more-ico">›</div><span>Voir tout</span></div>`;
+    });
   }).catch(()=>{row.innerHTML='<div class="buzz-ph" style="width:100%;color:var(--muted);font-size:13px;">Indisponible</div>';});
 }
 function formatDur(sec){sec=Math.round(sec);const m=Math.floor(sec/60),s=sec%60;return m+':'+(s<10?'0':'')+s;}
@@ -11057,9 +11100,11 @@ function loadMoreVideos(){
       const more=Object.entries(raw).map(([id,v])=>({id,...v})).reverse();
       feedLastKey=more[more.length-1]?.createdAt||null;
       if(more.length<10)feedAllLoaded=true;
-      allVids=[...allVids,...more];
-      appendVideosToFeed(more,allVids.length-more.length);
-      pruneOldFeedCards();
+      enrichVideoAuthors(more).then(()=>{
+        allVids=[...allVids,...more];
+        appendVideosToFeed(more,allVids.length-more.length);
+        pruneOldFeedCards();
+      });
     }).catch(()=>{feedLoading=false;});
 }
 
@@ -12698,7 +12743,7 @@ async function sendTextStatus(){
   if(!text){showToast('⚠️ Écris quelque chose');return;}
   closeTextStatusComposer();showToast('⏳ Publication...');
   try{
-    await db.ref('stories').push({mediaType:'text',text,bgColor:tsCurColor,auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,createdAt:Date.now()});
+    await db.ref('stories').push({mediaType:'text',text,bgColor:tsCurColor,auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,authorVerified:!!currentUser.verified,authorBusinessVerified:!!currentUser.businessVerified,createdAt:Date.now()});
     showToast('✅ Statut publié !');loadStories();
   }catch(e){showToast('❌ '+e.message);}
 }
@@ -12752,7 +12797,7 @@ function showStory(s){
   recordStoryView(s);
   const sv=document.getElementById('storyViewer');sv.classList.add('active');
   document.getElementById('svav').innerHTML=s.authorAvatar?`<img src="${optImg(s.authorAvatar,80)}" alt="" decoding="async">`:(s.auteur||'A')[0].toUpperCase();
-  document.getElementById('svname').innerText=s.auteur||'anonyme';
+  document.getElementById('svname').innerHTML=esc(s.auteur||'anonyme')+verifiedBadge(s.authorVerified)+businessBadge(s.authorBusinessVerified);
   const c=document.getElementById('svcontent');
   let mediaH;
   if(s.mediaType==='text'){
@@ -13004,7 +13049,7 @@ async function uploadStatusFinal(text){
     const url=isVideo
       ? await clUpload(file,p=>showToast(`⏳ Upload vidéo... ${p}%`))
       : await ikUpload(file,'stories',null);
-    await db.ref('stories').push({mediaUrl:url,mediaType:isVideo?'video':'image',text:text||'',auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,createdAt:Date.now()});
+    await db.ref('stories').push({mediaUrl:url,mediaType:isVideo?'video':'image',text:text||'',auteur:currentUser.name,authorAvatar:currentUser.avatar||'',authorUid:currentUser.uid,authorVerified:!!currentUser.verified,authorBusinessVerified:!!currentUser.businessVerified,createdAt:Date.now()});
     showToast('✅ Statut publié !');loadStories();
   }catch(e){showToast('❌ '+e.message);}
 }
@@ -13716,7 +13761,7 @@ function loadChatStories(){
       const allSeen = currentUser && stories.every(st=>st.viewedBy && st.viewedBy[currentUser.uid]);
       const el = document.createElement('div');
       el.className = 'aeschat-story-item';
-      el.innerHTML = `<div class="aeschat-story-ring${allSeen?'':' has-status'}"><div class="aeschat-story-av">${avH}</div></div><span class="aeschat-story-name">${esc(s.auteur||'Anonyme')}</span>`;
+      el.innerHTML = `<div class="aeschat-story-ring${allSeen?'':' has-status'}"><div class="aeschat-story-av">${avH}</div></div><span class="aeschat-story-name">${esc(s.auteur||'Anonyme')}${verifiedBadge(s.authorVerified)}${businessBadge(s.authorBusinessVerified)}</span>`;
       el.onclick = ()=>openStoryGroup(gIdx, 0);
       row.appendChild(el);
     });
