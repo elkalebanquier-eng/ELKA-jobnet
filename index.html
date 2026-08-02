@@ -8118,7 +8118,8 @@ function prefetchBuzzFeed(){
 // ═══════════════════════════════════════
 const _authorBadgeCache={};
 async function enrichVideoAuthors(vids){
-  const missing=[...new Set(vids.filter(v=>v.authorUid&&v.authorVerified===undefined&&!_authorBadgeCache[v.authorUid]).map(v=>v.authorUid))];
+  const uids=[...new Set(vids.filter(v=>v.authorUid).map(v=>v.authorUid))];
+  const missing=uids.filter(uid=>!_authorBadgeCache[uid]);
   if(missing.length){
     await Promise.all(missing.map(async uid=>{
       try{
@@ -8131,8 +8132,11 @@ async function enrichVideoAuthors(vids){
   vids.forEach(v=>{
     const c=v.authorUid&&_authorBadgeCache[v.authorUid];
     if(c){
-      if(v.authorVerified===undefined)v.authorVerified=c.verified;
-      if(v.authorBusinessVerified===undefined)v.authorBusinessVerified=c.businessVerified;
+      // Toujours prioritaire sur le champ stocké : le statut vérifié en direct
+      // depuis users/{uid} est la seule source fiable si la propagation
+      // admin (au moment du toggle) n'a pas pu écrire sur cette vidéo.
+      v.authorVerified=c.verified;
+      v.authorBusinessVerified=c.businessVerified;
     }
   });
   return vids;
