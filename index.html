@@ -10118,8 +10118,8 @@ async function _toggleUserVerified(uid,newVal,btn){
   try{
     await db.ref('users/'+uid+'/verified').set(newVal);
   }catch(e){
-    showToast('⚠️ Erreur — réessaie');
-    if(btn){btn.disabled=false;}
+    showToast('⚠️ Erreur: '+(e.message||e.code||'inconnue'));
+    _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
     return;
   }
   // Propager sur les vidéos, posts et annonces marché existants de cet utilisateur, pour que
@@ -10158,8 +10158,8 @@ async function _toggleUserBusinessVerified(uid,newVal,btn){
   try{
     await db.ref('users/'+uid+'/businessVerified').set(newVal);
   }catch(e){
-    showToast('⚠️ Erreur — réessaie');
-    if(btn){btn.disabled=false;}
+    showToast('⚠️ Erreur: '+(e.message||e.code||'inconnue'));
+    _renderVerifyAdminList(document.getElementById('verifyAdminSearch')?.value||'');
     return;
   }
   // Chaque collection est propagée séparément : une écriture multi-chemins Firebase
