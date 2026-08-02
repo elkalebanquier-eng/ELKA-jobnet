@@ -6516,7 +6516,7 @@ function kikoEnsureAuth(){
 //  les écrans "pas de connexion / réessayer" déjà prévus dans le code.
 // ═══════════════════════════════════════
 function kikoWithTimeout(promise, ms){
-  ms = ms || 8000;
+  ms = ms || 20000;
   return Promise.race([
     promise,
     new Promise((_,reject)=>setTimeout(()=>reject(new Error('Délai de connexion RTDB dépassé')), ms))
@@ -9142,31 +9142,31 @@ async function doAuth(){
   if(!isKikoAdmin && phone.replace('+','').length<8){errEl.innerText='Numéro invalide';return;}
   const btn=document.getElementById('authBtn');btn.disabled=true;btn.innerText='⏳...';
   try{
-    await kikoEnsureAuth(); // s'assure que le SDK auth est chargé (normalement déjà fait depuis openAuth)
+    await kikoWithTimeout(kikoEnsureAuth(), 20000); // s'assure que le SDK auth est chargé (normalement déjà fait depuis openAuth)
     if(!auth) throw new Error('Connexion au service de compte indisponible, réessaie plus tard');
     // Le numéro sert de pseudo-email interne à Firebase Auth (qui exige un email) —
     // l'utilisateur ne voit jamais cette adresse, elle ne sert qu'en coulisses.
     const fakeEmail=isKikoAdmin?'kiko-admin@kiko.app':phone.replace('+','')+'@kiko.app';
     if(authMode==='register'){
       if(!name){errEl.innerText='Entre ton pseudo';btn.disabled=false;btn.innerText="S'inscrire";return;}
-      const snap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
+      const snap=await kikoWithTimeout(db.ref('users').orderByChild('phone').equalTo(phone).once('value'));
       if(snap.exists()){errEl.innerText='Numéro déjà utilisé';btn.disabled=false;btn.innerText="S'inscrire";return;}
-      const cred=await auth.createUserWithEmailAndPassword(fakeEmail,pass);
+      const cred=await kikoWithTimeout(auth.createUserWithEmailAndPassword(fakeEmail,pass), 20000);
       const uid=cred.user.uid;
       // ⚠️ Le mot de passe n'est plus jamais écrit ici : Firebase Auth le gère
       // (haché + salé) de son côté, séparément de la fiche profil ci-dessous.
       // authUid==uid pour un nouveau compte : voir le cas de migration ci-dessous
       // pour comprendre pourquoi les deux champs existent séparément.
       const user={uid,authUid:uid,name,phone,country:_userGeoCountry||'',city:_userGeoCity||'',avatar:'',bio:'Créateur de contenu africain 🌍',createdAt:Date.now()};
-      await db.ref('users/'+uid).set(user);
+      await kikoWithTimeout(db.ref('users/'+uid).set(user));
       currentUser=user;
     } else {
       let authUid, migratedProfile=null;
       try{
-        const cred=await auth.signInWithEmailAndPassword(fakeEmail,pass);
+        const cred=await kikoWithTimeout(auth.signInWithEmailAndPassword(fakeEmail,pass), 20000);
         authUid=cred.user.uid;
       }catch(authErr){
-        if(authErr.code!=='auth/user-not-found') throw authErr;
+        if(authErr.code!=='auth/user-not-found' && authErr.code!=='auth/invalid-credential') throw authErr;
         // ─── MIGRATION DOUCE ───────────────────────────────────────────────
         // Ce compte a été créé avant le passage à Firebase Auth : il n'existe
         // pas encore côté Auth. On vérifie une DERNIÈRE FOIS à l'ancienne
@@ -9174,27 +9174,27 @@ async function doAuth(){
         // Auth et on supprime ce champ pass pour de bon — sans jamais changer
         // son uid d'origine, pour ne perdre aucune donnée (posts, likes, etc.
         // sont tous liés à cet uid).
-        const legacySnap=await db.ref('users').orderByChild('phone').equalTo(phone).once('value');
+        const legacySnap=await kikoWithTimeout(db.ref('users').orderByChild('phone').equalTo(phone).once('value'));
         if(!legacySnap.exists()){errEl.innerText='Numéro introuvable';btn.disabled=false;btn.innerText='Se connecter';return;}
         const [legacyUid,legacyUser]=Object.entries(legacySnap.val())[0];
         if(legacyUser.pass!==pass){errEl.innerText='Mot de passe incorrect';btn.disabled=false;btn.innerText='Se connecter';return;}
         let newCred;
-        try{ newCred=await auth.createUserWithEmailAndPassword(fakeEmail,pass); }
+        try{ newCred=await kikoWithTimeout(auth.createUserWithEmailAndPassword(fakeEmail,pass), 20000); }
         catch(createErr){
           // Cas rare : le compte Auth existe déjà (ex. migration précédente interrompue
           // juste après la création Auth mais avant l'écriture ci-dessous) → on se connecte.
-          if(createErr.code==='auth/email-already-in-use') newCred=await auth.signInWithEmailAndPassword(fakeEmail,pass);
+          if(createErr.code==='auth/email-already-in-use') newCred=await kikoWithTimeout(auth.signInWithEmailAndPassword(fakeEmail,pass), 20000);
           else throw createErr;
         }
         authUid=newCred.user.uid;
-        await db.ref('users/'+legacyUid).update({authUid,pass:null}); // pass:null = supprimé de la base
+        await kikoWithTimeout(db.ref('users/'+legacyUid).update({authUid,pass:null})); // pass:null = supprimé de la base
         migratedProfile={uid:legacyUid,...legacyUser,authUid};
         delete migratedProfile.pass;
       }
       if(migratedProfile){
         currentUser=migratedProfile;
       } else {
-        const snap=await db.ref('users').orderByChild('authUid').equalTo(authUid).once('value');
+        const snap=await kikoWithTimeout(db.ref('users').orderByChild('authUid').equalTo(authUid).once('value'));
         if(!snap.exists()){errEl.innerText='Profil introuvable, contacte le support';btn.disabled=false;btn.innerText='Se connecter';return;}
         const [uid,u]=Object.entries(snap.val())[0];
         currentUser={uid,...u};
@@ -9202,7 +9202,7 @@ async function doAuth(){
       }
     }
     localStorage.setItem('aes_user',JSON.stringify(currentUser));
-    const fSnap=await db.ref('following/'+currentUser.uid).once('value');
+    const fSnap=await kikoWithTimeout(db.ref('following/'+currentUser.uid).once('value'));
     following=fSnap.val()||{};
     localStorage.setItem('aes_following',JSON.stringify(following));
     if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); // sync du profil IA "pour toi" sur le compte
