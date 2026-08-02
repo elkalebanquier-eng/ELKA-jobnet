@@ -10202,7 +10202,16 @@ async function _toggleUserBusinessVerified(uid,newVal,btn){
 function openAdminPanel(){
   if(!currentUser||!currentUser.isAdmin){showToast('⛔ Accès réservé');return;}
   const panel=document.getElementById('adminPanel');
-  if(panel){panel.style.display='flex';document.getElementById('adminReportsList').innerHTML='';}
+  if(panel){
+    panel.style.display='flex';
+    const authUid = (auth && auth.currentUser) ? auth.currentUser.uid : null;
+    const diag = document.getElementById('adminReportsList');
+    diag.innerHTML = '<div style="font-size:11px;color:var(--text2);padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px;">'
+      + 'Session Firebase Auth : ' + (authUid ? ('✅ connecté (' + authUid.slice(0,8) + '…)') : '❌ NON CONNECTÉ (auth.currentUser est null)')
+      + '<br>UID local (cache) : ' + (currentUser.uid||'').slice(0,8) + '…'
+      + '<br>Correspondance : ' + (authUid===currentUser.uid ? '✅' : '❌ MISMATCH')
+      + '</div>';
+  }
 }
 function closeAdminPanel(){
   const panel=document.getElementById('adminPanel');
