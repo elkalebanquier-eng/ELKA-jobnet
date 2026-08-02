@@ -8834,7 +8834,7 @@ function buildTextCard(p,i){
     <div class="tcard-content">
       <div class="tcard-author-row">
         <div class="tcard-av">${avH}</div>
-        <div class="tcard-name" style="color:${tc};">@${esc(p.auteur||'anonyme')}</div>
+        <div class="tcard-name" style="color:${tc};">@${esc(p.auteur||'anonyme')}${verifiedBadge(p.verified)}${businessBadge(p.businessVerified)}</div>
       </div>
       <div class="tcard-quote" style="color:${tc};">${esc(p.text||'')}</div>
       <div class="tcard-actions">
@@ -14281,7 +14281,7 @@ function switchSearchTab(tab,el){
   else if(tab==='map'){ renderCreatorMap(); kikoMarkFeatureSeen('map'); }
   else filterSearch(document.getElementById('searchInput').value);
 }
-function renderExplore(){document.getElementById('exploreGrid').innerHTML=allVids.slice(0,12).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
+function renderExplore(){document.getElementById('exploreGrid').innerHTML=allVids.slice(0,12).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}${businessBadge(v.authorBusinessVerified)}</div></div>`).join('');}
 async function renderAccounts(q){
   const list=document.getElementById('accountsList');list.innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px;">Chargement...</div>';
   const snap=await db.ref('users').limitToFirst(30).once('value');
@@ -14333,7 +14333,7 @@ function useSearchHistory(q){
   addSearchHistory(q);
 }
 function filterSearch(q){
-  if(searchTabCurrent==='videos'){if(!q){renderExplore();return;}document.getElementById('exploreGrid').innerHTML=allVids.filter(v=>(v.auteur||'').toLowerCase().includes(q.toLowerCase())||(v.desc||'').toLowerCase().includes(q.toLowerCase())).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}</div></div>`).join('');}
+  if(searchTabCurrent==='videos'){if(!q){renderExplore();return;}document.getElementById('exploreGrid').innerHTML=allVids.filter(v=>(v.auteur||'').toLowerCase().includes(q.toLowerCase())||(v.desc||'').toLowerCase().includes(q.toLowerCase())).map(v=>`<div class="eitem" onclick="goToVid('${v.id}')"><video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video><div class="ecaption">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}${businessBadge(v.authorBusinessVerified)}</div></div>`).join('');}
   else if(searchTabCurrent==='accounts')renderAccounts(q);
 }
 function searchByTag(tag){showScreen('search');document.getElementById('searchInput').value=tag;switchSearchTab('videos',document.querySelectorAll('.s-tab')[0]);filterSearch(tag);}
@@ -14549,7 +14549,7 @@ function renderTrending(){
       <div class="trend-rank ${rank<=3?'top':''}">${rank<=3?['🥇','🥈','🥉'][rank-1]:rank}</div>
       <div class="trend-thumb">${thumb}</div>
       <div class="trend-info">
-        <div class="trend-author">@${esc(v.auteur||'anonyme')}</div>
+        <div class="trend-author">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}${businessBadge(v.authorBusinessVerified)}</div>
         <div class="trend-desc">${esc(desc)}</div>
         <div class="trend-stats">
           <span class="trend-stat">👁 ${fmt(v.views||0)}</span>
@@ -14638,7 +14638,7 @@ function creatorsForCity(city){
     if(!city.match.some(m=>loc.includes(m)))return;
     const uid=v.authorUid||v.auteur;
     if(!uid)return;
-    if(!creators[uid])creators[uid]={uid:v.authorUid,name:v.auteur||'anonyme',avatar:v.authorAvatar||'',count:0};
+    if(!creators[uid])creators[uid]={uid:v.authorUid,name:v.auteur||'anonyme',avatar:v.authorAvatar||'',verified:v.authorVerified||v.verified||false,businessVerified:v.authorBusinessVerified||false,count:0};
     creators[uid].count++;
   });
   return Object.values(creators).sort((a,b)=>b.count-a.count);
@@ -14672,7 +14672,7 @@ function openCmapSheet(cityKey){
     return `<div class="cmap-creator-row" onclick="closeCmapSheet();openDMWith('${c.uid||''}','${esc(c.name)}','${c.avatar||''}',0)">
       <div class="cmap-creator-av">${avH}</div>
       <div class="cmap-creator-info">
-        <div class="cmap-creator-name">@${esc(c.name)}</div>
+        <div class="cmap-creator-name">@${esc(c.name)}${verifiedBadge(c.verified)}${businessBadge(c.businessVerified)}</div>
         <div class="cmap-creator-sub">${c.count} vidéo${c.count>1?'s':''} depuis ${esc(city.label)}</div>
       </div>
     </div>`;
@@ -14708,7 +14708,7 @@ function renderSoundGrid(){
   grid.innerHTML=vids.length?vids.map(v=>`
     <div class="eitem" onclick="closeSoundPage();goToVid('${v.id}')">
       <video src="${optVid(v.videoUrl)}" poster="${optVidThumb(v.thumbnail,300)||''}" preload="none" muted></video>
-      <div class="ecaption">@${esc(v.auteur||'anonyme')}</div>
+      <div class="ecaption">@${esc(v.auteur||'anonyme')}${verifiedBadge(v.authorVerified||v.verified)}${businessBadge(v.authorBusinessVerified)}</div>
     </div>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:32px 16px;color:var(--muted);font-size:13px;">Aucune autre vidéo avec ce son pour l'instant.</div>`;
 }
 function reuseCurrentSound(){
@@ -15474,13 +15474,13 @@ async function loadArticleComments(artId){
   const snap=await db.ref('artComments/'+artId).orderByChild('at').limitToLast(20).once('value');
   const cmts=Object.values(snap.val()||{});
   document.getElementById('artComCount').innerText=fmt(cmts.length);
-  document.getElementById('artComList').innerHTML=cmts.length?cmts.map(c=>`<div class="citem"><div class="cav">${c.avatar?`<img src="${optImg(c.avatar,60)}" alt="" loading="lazy" decoding="async">`:( c.author||'A')[0].toUpperCase()}</div><div><div class="cname">${esc(c.author||'anonyme')}</div><div class="ctext">${esc(c.text)}</div><div class="ctime">${timeAgo(c.at)}</div></div></div>`).join(''):'<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px;">Sois le premier à commenter 💬</div>';
+  document.getElementById('artComList').innerHTML=cmts.length?cmts.map(c=>`<div class="citem"><div class="cav">${c.avatar?`<img src="${optImg(c.avatar,60)}" alt="" loading="lazy" decoding="async">`:( c.author||'A')[0].toUpperCase()}</div><div><div class="cname">${esc(c.author||'anonyme')}${verifiedBadge(c.verified)}${businessBadge(c.businessVerified)}</div><div class="ctext">${esc(c.text)}</div><div class="ctime">${timeAgo(c.at)}</div></div></div>`).join(''):'<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px;">Sois le premier à commenter 💬</div>';
 }
 function focusArtComment(){document.getElementById('artComInput').focus();}
 async function sendArticleComment(){
   if(!curArticle||!currentUser)return;
   const inp=document.getElementById('artComInput');const txt=inp.value.trim();if(!txt)return;inp.value='';
-  await db.ref('artComments/'+curArticle.id).push({author:currentUser.name,avatar:currentUser.avatar||'',text:txt,at:Date.now(),uid:currentUser.uid});
+  await db.ref('artComments/'+curArticle.id).push({author:currentUser.name,avatar:currentUser.avatar||'',text:txt,at:Date.now(),uid:currentUser.uid,verified:currentUser.verified||false,businessVerified:currentUser.businessVerified||false});
   loadArticleComments(curArticle.id);
 }
 function shareArticle(){
@@ -17140,7 +17140,7 @@ async function openSFComments(postId){
     return `<div class="sfcmt">
       <div class="sfcmt-av">${avH}</div>
       <div class="sfcmt-bubble">
-        <div class="sfcmt-name">@${esc(c.author||'anonyme')}</div>
+        <div class="sfcmt-name">@${esc(c.author||'anonyme')}${verifiedBadge(c.verified)}${businessBadge(c.businessVerified)}</div>
         <div class="sfcmt-text">${esc(c.text||'')}</div>
         <div class="sfcmt-time">${timeAgo(c.at)}</div>
       </div>
