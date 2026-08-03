@@ -15090,12 +15090,23 @@ async function kikoExportWatermarkedFile(url,id,username,onProgress){
     const stopped=new Promise(res=>{ recorder.onstop=res; });
 
     let rafId, watchdogId, finished=false;
+    // Le filigrane (pilule + logo + texte + ombres) est coûteux à redessiner à
+    // 24-30 fps sur un téléphone d'entrée de gamme — c'est ce qui causait les
+    // saccades dans la vidéo exportée (le thread principal n'arrivait pas à
+    // suivre le rythme réel de la vidéo). On le dessine UNE SEULE FOIS par
+    // coin sur un canvas séparé, et on se contente ensuite d'un simple
+    // drawImage() par frame, bien plus léger.
+    const wmCanvases=KIKO_WM.corners.map(corner=>{
+      const wc=document.createElement('canvas');wc.width=w;wc.height=h;
+      kikoDrawWatermark(wc.getContext('2d'),w,h,corner,username);
+      return wc;
+    });
     function drawFrame(){
       if(video.paused||video.ended){ return; }
       ctx.drawImage(video,0,0,w,h);
       const elapsed=video.currentTime*1000;
       const cornerIdx=Math.floor(elapsed/KIKO_WM.rotateMs)%4;
-      kikoDrawWatermark(ctx,w,h,KIKO_WM.corners[cornerIdx],username);
+      ctx.drawImage(wmCanvases[cornerIdx],0,0);
       if(video.duration && onProgress)onProgress(Math.min(99,Math.round(video.currentTime/video.duration*100)));
       rafId=requestAnimationFrame(drawFrame);
     }
