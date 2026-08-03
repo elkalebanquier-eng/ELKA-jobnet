@@ -37,6 +37,11 @@
 <meta name="twitter:description" content="La plateforme sociale africaine : vidéos, marché, opportunités et communauté.">
 <meta name="twitter:image" content="./icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<!-- ═══ ONESIGNAL — notifications push web/PWA (gratuit, sans backend Firebase) ═══
+     1) Remplace ONESIGNAL_APP_ID plus bas (bloc JS "KIKO PUSH WEB") par ton App ID OneSignal.
+     2) Le service worker OneSignal est importé directement dans service-worker.js
+        (un seul SW enregistré pour tout KIKO, pas de conflit de scope). -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════════
    AES👑 — DESIGN SYSTEM PREMIUM "SAHEL PRESTIGE"
@@ -6606,6 +6611,95 @@ async function kikoInitPush(){
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+//  KIKO PUSH WEB — OneSignal (navigateur / PWA installée)
+//  Complète kikoInitPush() : celui-ci gère l'app native (Capacitor/FCM),
+//  celui-là gère tous les autres cas (le gros du trafic KIKO).
+//  100% gratuit, aucun backend Firebase requis.
+// ═══════════════════════════════════════════════════════════
+const ONESIGNAL_APP_ID = '83373280-7a00-4b1b-81ab-210c2bdac2b8';
+// ⚠️ Clé REST OneSignal exposée côté client par simplicité (pas de backend
+// disponible sur le plan gratuit). Elle permet UNIQUEMENT d'envoyer des
+// notifications à ce projet OneSignal — quelqu'un qui la récupère pourrait
+// spammer tes utilisateurs, pas accéder à tes données. Dès que possible,
+// fais transiter cet appel par un petit proxy gratuit (ex: Cloudflare
+// Worker) pour ne plus l'exposer du tout.
+const ONESIGNAL_REST_KEY = 'os_v2_app_qm3tfad2abfrxanleegcxwwcxcadrlzh4wwuf5mtcxcgx5tvnvbecrhun5pb7gbdzwnu4o5t5l2n57mmvfsdp5sm56pzeaixscbpgha';
+
+let _kikoOSInit=false;
+// Initialise OneSignal et relie l'abonné au compte KIKO connecté (external_id
+// = uid Firebase), pour pouvoir cibler précisément une personne à l'envoi.
+async function kikoInitPushWeb(){
+  if(kikoIsNative() || !currentUser || _kikoOSInit) return;
+  if(!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith('REMPLACE')) return; // pas encore configuré
+  if(typeof window.OneSignalDeferred==='undefined') window.OneSignalDeferred=[];
+  _kikoOSInit=true;
+  window.OneSignalDeferred.push(async function(OneSignal){
+    try{
+      await OneSignal.init({
+        appId: ONESIGNAL_APP_ID,
+        serviceWorkerPath: 'service-worker.js',
+        serviceWorkerParam: { scope: '/' },
+        notifyButton: { enable: false } // UI gérée par KIKO (réglages > Notifications push)
+      });
+      await OneSignal.login(currentUser.uid);
+    }catch(e){
+      console.warn('kikoInitPushWeb error:', e);
+      _kikoOSInit=false;
+    }
+  });
+}
+// Demande la permission navigateur — appelé quand l'utilisateur active le
+// toggle "Notifications push" dans les réglages (voir togglePushNotif).
+async function kikoRequestWebPush(){
+  if(kikoIsNative() || typeof window.OneSignalDeferred==='undefined') return false;
+  return new Promise(resolve=>{
+    window.OneSignalDeferred.push(async function(OneSignal){
+      try{
+        await OneSignal.Notifications.requestPermission();
+        resolve(OneSignal.Notifications.permission===true);
+      }catch{ resolve(false); }
+    });
+  });
+}
+// Traduit le type de notif KIKO (voir sendNotif) en titre/message lisibles.
+function _kikoPushCopy(data){
+  const name=data.fromName||'Quelqu\'un';
+  switch(data.type){
+    case 'follow': return ['👤 Nouvel abonné', name+' s\'est abonné à toi'];
+    case 'like': return ['❤️ Nouvelle réaction', name+' a réagi à ton contenu'];
+    case 'reconnaissance': return ['👑 Reconnaissance', name+' a réagi à ta vidéo'];
+    case 'comment': return ['💬 Nouveau commentaire', name+' : '+(data.text||'').slice(0,80)];
+    case 'new_video': return ['🎬 Nouvelle vidéo', name+' vient de publier une vidéo'];
+    case 'dm': return ['✉️ '+name, (data.text||'Nouveau message').slice(0,80)];
+    default: return ['🔔 KIKO', name+' a interagi avec toi'];
+  }
+}
+// Envoie la vraie notification push (appareil verrouillé/app fermée) via
+// l'API REST OneSignal. Échoue silencieusement si pas configuré — l'app
+// continue de fonctionner normalement avec les notifs in-app existantes.
+async function sendWebPush(toUid, data){
+  if(!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith('REMPLACE')) return;
+  if(!ONESIGNAL_REST_KEY || ONESIGNAL_REST_KEY.startsWith('REMPLACE')) return;
+  const [title, message] = _kikoPushCopy(data);
+  try{
+    await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': 'Basic ' + ONESIGNAL_REST_KEY
+      },
+      body: JSON.stringify({
+        app_id: ONESIGNAL_APP_ID,
+        include_external_user_ids: [toUid],
+        headings: { fr: title, en: title },
+        contents: { fr: message, en: message },
+        data: { type: data.type||'', vidId: data.vidId||'' }
+      })
+    });
+  }catch(e){ console.warn('sendWebPush error:', e); }
+}
+
 // Prend une photo via l'appareil photo natif Capacitor (utilisé uniquement
 // en fallback, quand le live-preview getUserMedia échoue — voir startCamStream).
 // Renvoie un objet File exploitable par handleCamFileForPost/handleCamFileForStory,
@@ -9309,6 +9403,7 @@ async function doAuth(){
     startNotifListener();loadNotifs();loadDMs();
     kikoStartPresence(); // démarrer le heartbeat de présence
     kikoInitPush(); // enregistrer les notifications push natives (no-op hors APK)
+    kikoInitPushWeb(); // idem pour le navigateur/PWA via OneSignal (no-op si non configuré)
     if(pendingAction){pendingAction();pendingAction=null;}
     // Onboarding uniquement pour les nouveaux inscrits
     if(authMode==='register') setTimeout(()=>kikoShowOnboarding(), 600);
@@ -9345,6 +9440,8 @@ function copyLogoutCreds(){
 function confirmLogout(){
   document.getElementById('logoutWarnModal').classList.remove('active');
   if(typeof KikoAI!=='undefined') KikoAI.detachUser();
+  if(typeof window.OneSignalDeferred!=='undefined'){ window.OneSignalDeferred.push(OneSignal=>OneSignal.logout().catch(()=>{})); }
+  _kikoOSInit=false;
   kikoEnsureAuth().then(a=>{ if(a) a.signOut().catch(()=>{}); });
   currentUser=null;following={};localStorage.removeItem('aes_user');localStorage.removeItem('aes_following');applyUserUI();showToast('À bientôt ! 👋');
 }
@@ -9678,6 +9775,7 @@ async function togglePushNotif(on){
       localStorage.setItem('aes_notif_off','1');
       return;
     }
+    kikoRequestWebPush(); // demande la permission navigateur OneSignal (no-op si natif/non configuré)
   }
   localStorage.setItem('aes_notif_off',on?'0':'1');
   showToast(on?'🔔 Notifications activées':'🔕 Notifications désactivées');
@@ -12278,7 +12376,18 @@ async function sendComment(){
 // ═══════════════════════════════════════
 //  NOTIFICATIONS — push améliorées
 // ═══════════════════════════════════════
-function sendNotif(toUid,data){if(data.fromUid&&data.fromVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromVerified=currentUser.verified||false;if(data.fromUid&&data.fromBusinessVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromBusinessVerified=currentUser.businessVerified||false;db.ref('notifications/'+toUid).push(data);}
+// Prévient chaque abonné qu'une nouvelle vidéo vient d'être publiée
+// (in-app + push web/native, via sendNotif → sendWebPush).
+async function notifyFollowersNewVideo(vidId){
+  try{
+    const snap = await db.ref('followers/'+currentUser.uid).once('value');
+    const followers = snap.val()||{};
+    Object.keys(followers).forEach(uid=>{
+      sendNotif(uid,{type:'new_video',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',vidId,at:Date.now(),read:false});
+    });
+  }catch(e){ console.warn('notifyFollowersNewVideo error:', e); }
+}
+function sendNotif(toUid,data){if(data.fromUid&&data.fromVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromVerified=currentUser.verified||false;if(data.fromUid&&data.fromBusinessVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromBusinessVerified=currentUser.businessVerified||false;db.ref('notifications/'+toUid).push(data);sendWebPush(toUid,data);}
 function startNotifListener(){
   if(!currentUser||notifListener)return;
   notifListener=db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(1).on('child_added',snap=>{
@@ -13285,13 +13394,14 @@ async function uploadVideo(){
       .replace('/video/upload/','/video/upload/so_0,w_480,f_jpg/')
       .replace(/\.(mp4|mov|avi|webm)$/i,'.jpg');
 
-    await db.ref('videos').push({
+    const newVidRef = await db.ref('videos').push({
       videoUrl, thumbnail, ...musicData,
       auteur:currentUser.name, authorAvatar:currentUser.avatar||'',
       authorUid:currentUser.uid, country:currentUser.country||null,
       authorVerified:currentUser.verified||false, authorBusinessVerified:currentUser.businessVerified||false,
       desc, privacy, location: location||null, likes:0, views:0, createdAt:Date.now()
     });
+    if(privacy!=='private') notifyFollowersNewVideo(newVidRef.key); // prévient les abonnés (in-app + push)
     KIKO_CACHE.clear('videos'); // invalide le cache pour forcer rechargement
 
     kikoUploadPillSetProgress(100, '✅ Publié !');
