@@ -8142,6 +8142,14 @@ async function enrichVideoAuthors(vids){
   return vids;
 }
 
+function refreshVCardBadges(vids){
+  vids.forEach(v=>{
+    if(!v.id) return;
+    const el = document.querySelector('#vc-'+v.id+' .vname');
+    if(el) el.innerHTML = '@'+esc(v.auteur||'anonyme')+verifiedBadge(v.authorVerified)+businessBadge(v.authorBusinessVerified);
+  });
+}
+
 async function loadFeedMixed(){
   const feed = document.getElementById('feed');
 
@@ -8180,6 +8188,7 @@ async function loadFeedMixed(){
     ranked = diversifyFeed(ranked);
     allVids = vids;
     KIKO_CACHE.set('videos', ranked.slice(0, 20)); // sauvegarde pour la prochaine ouverture
+    refreshVCardBadges(vids); // met à jour les badges même si le fil affiché n'est pas reconstruit
 
     if(!ranked.length){
       if(!cached || !cached.length) feed.innerHTML='<div class="feedph"><div class="ph-icon">🎬</div><div class="ph-msg">Aucune vidéo encore</div><div class="ph-sub">Sois le premier !</div></div>';
