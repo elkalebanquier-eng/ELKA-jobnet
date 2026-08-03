@@ -15828,6 +15828,34 @@ applyLang();
 checkDeepLink();
 history.replaceState({screen:'home'},'');
 initStoryTap();
+
+// ═══════════════════════════════════════
+//  SYNC BADGES PROFIL — currentUser vient du cache localStorage et ne
+//  reflète pas un changement de statut vérifié fait par l'admin pendant
+//  que la session est déjà ouverte. On écoute en direct users/{uid}/verified
+//  et /businessVerified pour que le badge apparaisse sur SON PROPRE profil
+//  sans avoir à se déconnecter/reconnecter.
+// ═══════════════════════════════════════
+if(currentUser && currentUser.uid && typeof db!=='undefined'){
+  db.ref('users/'+currentUser.uid+'/verified').on('value', snap=>{
+    if(!currentUser) return;
+    const v=!!snap.val();
+    if(currentUser.verified!==v){
+      currentUser.verified=v;
+      localStorage.setItem('aes_user',JSON.stringify(currentUser));
+      if(typeof applyUserUI==='function') applyUserUI();
+    }
+  });
+  db.ref('users/'+currentUser.uid+'/businessVerified').on('value', snap=>{
+    if(!currentUser) return;
+    const v=!!snap.val();
+    if(currentUser.businessVerified!==v){
+      currentUser.businessVerified=v;
+      localStorage.setItem('aes_user',JSON.stringify(currentUser));
+      if(typeof applyUserUI==='function') applyUserUI();
+    }
+  });
+}
 _kikoUpdateOfflineBanner();
 _kikoMaybeSuggestDataSaver();
 
