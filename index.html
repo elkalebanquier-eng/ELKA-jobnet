@@ -6639,10 +6639,15 @@ async function kikoInitPushWeb(){
       await OneSignal.init({
         appId: ONESIGNAL_APP_ID,
         serviceWorkerPath: 'service-worker.js',
-        serviceWorkerParam: { scope: '/' },
+        serviceWorkerParam: { scope: './' },
         notifyButton: { enable: false } // UI gérée par KIKO (réglages > Notifications push)
       });
       await OneSignal.login(currentUser.uid);
+      // Demande la permission automatiquement si le toggle "Notifications push"
+      // est activé (par défaut) et qu'on n'a encore jamais demandé.
+      if(localStorage.getItem('aes_notif_off')!=='1'){
+        try{ await OneSignal.Notifications.requestPermission(); }catch(_){}
+      }
     }catch(e){
       console.warn('kikoInitPushWeb error:', e);
       _kikoOSInit=false;
