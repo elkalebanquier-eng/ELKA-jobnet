@@ -1403,17 +1403,24 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 
 /* ═══ CAPSULE D'ACTIONS VIDÉO — colonne verticale à droite, façon Reels ═══
-   (translucide, discrète, alignée verticalement — inspirée d'une référence
-   visuelle transmise par l'utilisateur) */
+   Avant : fond plein en pilule (rgba opaque + blur + ombre) qui masquait une
+   partie visible de la vidéo selon son ratio. Maintenant : pas de fond plein,
+   juste les icônes (déjà avec drop-shadow) + un scrim dégradé discret et non
+   cliquable derrière la colonne (comme Reels/TikTok) pour garder la lisibilité
+   sans jamais recouvrir la vidéo d'un bloc opaque. */
 .kiko-vid-actions {
-  position: absolute; right: 10px; bottom: 130px; left: auto; transform: none;
-  display: flex; flex-direction: column; align-items: center; gap: 16px; z-index: 15;
-  background: rgba(30,32,38,0.38);
-  border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  border-radius: 999px;
-  padding: 16px 10px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  position: absolute; right: 8px; bottom: 130px; left: auto; transform: none;
+  display: flex; flex-direction: column; align-items: center; gap: 14px; z-index: 15;
+  background: transparent; border: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+  border-radius: 0; padding: 6px 4px; box-shadow: none;
+}
+/* Scrim non cliquable, uniquement derrière la colonne d'actions (pas toute la vidéo) —
+   assure la lisibilité des icônes sans jamais former un bloc opaque sur le contenu. */
+.kiko-vid-actions::before {
+  content: ''; position: absolute; z-index: -1;
+  top: -10px; bottom: -10px; left: -22px; right: -14px;
+  pointer-events: none; border-radius: 30px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.14) 55%, transparent 80%);
 }
 .kiko-vid-btn {
   width: auto;
@@ -1426,6 +1433,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
   display: flex; align-items: center; justify-content: center;
   font-size: 24px; line-height: 1;
   background: transparent; transition: transform 0.18s;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7)) drop-shadow(0 0 6px rgba(0,0,0,0.45));
 }
 .kiko-vid-btn-ico.active svg {
   filter: drop-shadow(0 0 6px rgba(255,201,77,0.85)) drop-shadow(0 2px 3px rgba(0,0,0,0.4));
@@ -1433,7 +1441,7 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 }
 .kiko-vid-btn.liked .kiko-vid-btn-ico,
 .kiko-vid-btn.reconnu .kiko-vid-btn-ico { transform: scale(1.15); }
-.kiko-vid-btn-lbl { font-size: 10.5px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.kiko-vid-btn-lbl { font-size: 10.5px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.75), 0 0 5px rgba(0,0,0,0.5); }
 .kiko-reco-btn-ico { font-size: 16px; }
 
 /* Le séparateur horizontal n'a plus de sens en colonne verticale */
@@ -9156,20 +9164,30 @@ async function kikoWatermarkImage(imgUrl,username){
 async function togglePostLike(postId,type){
   if(!currentUser)return;
   kikoHaptic(8);
-  const ref=db.ref('posts/'+postId+'/likes');
-  const snap=await ref.once('value');
-  const cur=snap.val()||0;
   const isNowLiked=!liked.includes(postId);
-  const newCount=Math.max(0,cur+(isNowLiked?1:-1));
   if(isNowLiked){liked.push(postId);}else{liked=liked.filter(x=>x!==postId);}
-  await ref.set(newCount);
-  // Sauvegarde l'état "j'aime cette publication" par utilisateur dans Firebase
-  // (avant : uniquement dans le compteur global + localStorage, donc perdu au
-  // changement d'appareil ou après vidage du cache — comme kikoSyncLikedVideosFromCloud
-  // pour les vidéos, mais qui manquait ici pour les publications).
-  if(isNowLiked){ db.ref('likedPosts/'+currentUser.uid+'/'+postId).set(Date.now()); }
-  else{ db.ref('likedPosts/'+currentUser.uid+'/'+postId).remove(); }
   localStorage.setItem('aes_liked',JSON.stringify(liked));
+  let newCount=0;
+  try{
+    // Transaction plutôt que read-then-set : deux likes simultanés sur le même
+    // post pouvaient s'écraser l'un l'autre et faire "perdre" un like/compteur.
+    const res=await db.ref('posts/'+postId+'/likes').transaction(v=>Math.max(0,(v||0)+(isNowLiked?1:-1)));
+    newCount=res.snapshot.val()||0;
+    // Sauvegarde l'état "j'aime cette publication" par utilisateur dans Firebase
+    // (avant : uniquement dans le compteur global + localStorage, donc perdu au
+    // changement d'appareil ou après vidage du cache — comme kikoSyncLikedVideosFromCloud
+    // pour les vidéos, mais qui manquait ici pour les publications).
+    if(isNowLiked){ await db.ref('likedPosts/'+currentUser.uid+'/'+postId).set(Date.now()); }
+    else{ await db.ref('likedPosts/'+currentUser.uid+'/'+postId).remove(); }
+  }catch(e){
+    console.warn('togglePostLike error:', e);
+    // Écriture Firebase échouée → on annule l'état local pour ne pas afficher un like
+    // qui n'a en réalité jamais été enregistré.
+    if(isNowLiked){liked=liked.filter(x=>x!==postId);}else{liked.push(postId);}
+    localStorage.setItem('aes_liked',JSON.stringify(liked));
+    showToast('❌ Action non enregistrée, réessaie');
+    return;
+  }
   // Notifie l'auteur (in-app + push OneSignal via sendNotif → sendWebPush) —
   // manquait ici alors que c'est fait pour comment/follow/dm/story-like/video-like.
   // C'était la cause du bug "OneSignal envoie bien mais rien n'arrive sur like/partage".
@@ -9208,7 +9226,7 @@ function sharePost(postId,auteur){
     const c=res.snapshot.val()||0;
     pcardPillUpdate('psh-'+postId,{count:c});
     pcardPillUpdate('pfssh-'+postId,{count:c});
-  });
+  }).catch(e=>{ console.warn('sharePost error:', e); showToast('❌ Partage non enregistré'); });
   // Notifie l'auteur du partage (in-app + push) — même bug que togglePostLike :
   // aucun sendNotif n'était appelé ici.
   if(currentUser){
@@ -12288,20 +12306,34 @@ function toggleLike(id){
   if(!currentUser)return;
   kikoHaptic(8);
   const isLiked=liked.includes(id);
-  const circle=document.getElementById('lk-'+id);
+  const circle=document.getElementById('lk-'+id)||document.getElementById('lk-compat-'+id);
+  const countEl=document.getElementById('lc-'+id);
   if(isLiked){
     liked=liked.filter(x=>x!==id);
     if(circle){circle.innerText='🤍';circle.classList.remove('liked');}
     db.ref('likedVideos/'+currentUser.uid+'/'+id).remove();
+    // Compteur ❤️ réel de la vidéo — manquait ici : toggleLike ne touchait jamais
+    // videos/{id}/likes, donc le compteur affiché (lc-${id}) ne bougeait jamais.
+    db.ref('videos/'+id+'/likes').transaction(v=>Math.max(0,(v||0)-1)).then(r=>{
+      if(countEl)countEl.textContent=fmt(r.snapshot.val()||0);
+    });
   } else {
     liked.push(id);
     if(circle){circle.innerText='❤️';circle.classList.add('liked');}
     db.ref('likedVideos/'+currentUser.uid+'/'+id).set(Date.now());
+    db.ref('videos/'+id+'/likes').transaction(v=>(v||0)+1).then(r=>{
+      if(countEl)countEl.textContent=fmt(r.snapshot.val()||0);
+    });
     const vid=allVids.find(x=>x.id===id);
     // 🧠 Signal fort pour KikoAI : un like compte plus qu'un simple visionnage (déjà synchronisé
     // via KikoAI.attachUser — voir kikoAiModel) ; la liste elle-même suit aussi le compte désormais.
     const wt=_aiWatch[id];
     recordAiInteraction(vid,{liked:true,watchRatio:wt&&wt.lastTime?Math.min(1,wt.lastTime/(vid?.duration||wt.lastTime||1)):undefined});
+    // Notifie l'auteur (in-app + push OneSignal) — absent jusqu'ici pour le simple
+    // like vidéo (seule la Reconnaissance 👑 le faisait).
+    if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid){
+      sendNotif(vid.authorUid,{type:'like',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',vidId:id,at:Date.now(),read:false});
+    }
   }
   localStorage.setItem('aes_liked',JSON.stringify(liked));
 }
@@ -12461,9 +12493,23 @@ async function sendComment(){
   if(!currentUser){closeComments();needAuth(()=>openComments(curVidId));return;}
   const inp=document.getElementById('cinput');const txt=inp.value.trim();if(!txt)return;
   inp.value='';
-  await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',verified:currentUser.verified||false,businessVerified:currentUser.businessVerified||false,text:txt,at:Date.now(),uid:currentUser.uid});
+  try{
+    await db.ref('comments/'+curVidId).push({author:currentUser.name,avatar:currentUser.avatar||'',verified:currentUser.verified||false,businessVerified:currentUser.businessVerified||false,text:txt,at:Date.now(),uid:currentUser.uid});
+  }catch(e){
+    console.warn('sendComment error:', e);
+    inp.value=txt; // remet le texte pour ne pas le perdre si l'écriture Firebase a échoué
+    showToast('❌ Commentaire non envoyé, réessaie');
+    return;
+  }
+  // curVidId peut être l'id d'une vidéo (allVids) OU d'une publication photo (allPosts) —
+  // avant, seul allVids était vérifié, donc aucune notif n'était envoyée pour un
+  // commentaire sur une publication photo.
   const vid=allVids.find(v=>v.id===curVidId);
-  if(vid&&vid.authorUid&&vid.authorUid!==currentUser.uid)sendNotif(vid.authorUid,{type:'comment',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,vidId:curVidId,at:Date.now(),read:false});
+  const post=!vid?(allPosts||[]).find(p=>p.id===curVidId):null;
+  const authorUid=vid?vid.authorUid:(post?post.authorUid:null);
+  if(authorUid&&authorUid!==currentUser.uid){
+    sendNotif(authorUid,{type:'comment',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',text:txt,vidId:vid?curVidId:undefined,postId:post?curVidId:undefined,at:Date.now(),read:false});
+  }
 }
 
 // ═══════════════════════════════════════
