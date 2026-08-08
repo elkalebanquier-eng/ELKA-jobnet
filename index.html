@@ -6643,7 +6643,7 @@ async function kikoInitPush(){
     OS.Notifications.addEventListener('click', jsonData=>{
       const data = (jsonData.notification && jsonData.notification.additionalData) || {};
       if(data.type==='dm') showScreen('dm');
-      else if(data.type==='like'||data.type==='comment'||data.type==='follow'||data.type==='reconnaissance') showScreen('notif');
+      else if(data.type==='like'||data.type==='comment'||data.type==='follow'||data.type==='reconnaissance'||data.type==='share') showScreen('notif');
       else if(data.type==='new_video'&&data.vidId) showScreen('buzz');
     });
 
@@ -6719,6 +6719,7 @@ function _kikoPushCopy(data){
     case 'follow': return ['👤 Nouvel abonné', name+' s\'est abonné à toi'];
     case 'like': return ['❤️ Nouvelle réaction', name+' a réagi à ton contenu'];
     case 'reconnaissance': return ['👑 Reconnaissance', name+' a réagi à ta vidéo'];
+    case 'share': return ['🔁 Partage', name+' a partagé ta publication'];
     case 'comment': return ['💬 Nouveau commentaire', name+' : '+(data.text||'').slice(0,80)];
     case 'new_video': return ['🎬 Nouvelle vidéo', name+' vient de publier une vidéo'];
     case 'dm': return ['✉️ '+name, (data.text||'Nouveau message').slice(0,80)];
@@ -9169,6 +9170,15 @@ async function togglePostLike(postId,type){
   if(isNowLiked){ db.ref('likedPosts/'+currentUser.uid+'/'+postId).set(Date.now()); }
   else{ db.ref('likedPosts/'+currentUser.uid+'/'+postId).remove(); }
   localStorage.setItem('aes_liked',JSON.stringify(liked));
+  // Notifie l'auteur (in-app + push OneSignal via sendNotif → sendWebPush) —
+  // manquait ici alors que c'est fait pour comment/follow/dm/story-like/video-like.
+  // C'était la cause du bug "OneSignal envoie bien mais rien n'arrive sur like/partage".
+  if(isNowLiked){
+    const p=(allPosts||[]).find(x=>x.id===postId);
+    if(p&&p.authorUid&&p.authorUid!==currentUser.uid){
+      sendNotif(p.authorUid,{type:'like',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',postId,at:Date.now(),read:false});
+    }
+  }
   if(type==='photo'){
     pcardPillUpdate('plk-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
     pcardPillUpdate('pfslk-'+postId,{icon:'heart',grad:isNowLiked?'gRuby':'gGold',activeClass:'liked',isActive:isNowLiked,count:newCount});
@@ -9199,6 +9209,14 @@ function sharePost(postId,auteur){
     pcardPillUpdate('psh-'+postId,{count:c});
     pcardPillUpdate('pfssh-'+postId,{count:c});
   });
+  // Notifie l'auteur du partage (in-app + push) — même bug que togglePostLike :
+  // aucun sendNotif n'était appelé ici.
+  if(currentUser){
+    const p=(allPosts||[]).find(x=>x.id===postId);
+    if(p&&p.authorUid&&p.authorUid!==currentUser.uid){
+      sendNotif(p.authorUid,{type:'share',fromUid:currentUser.uid,fromName:currentUser.name,fromAvatar:currentUser.avatar||'',postId,at:Date.now(),read:false});
+    }
+  }
 }
 
 // ═══════════════════════════════════════
@@ -12468,8 +12486,8 @@ function startNotifListener(){
   notifListener=db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(1).on('child_added',snap=>{
     const n=snap.val();if(!n||n.read)return;
     const dot=document.getElementById('activityDot'); if(dot) dot.style.display='block';
-    const icons={like:'❤️',comment:'💬',follow:'👤',dm:'💬',reconnaissance:'👑'};
-    const msgs={like:`${n.fromName} a aimé ta vidéo`,comment:`${n.fromName} a commenté`,follow:`${n.fromName} s'est abonné(e)`,dm:`${n.fromName} : ${(n.text||'').slice(0,28)}`,reconnaissance:`${n.fromName} a couronné ta vidéo 👑`};
+    const icons={like:'❤️',comment:'💬',follow:'👤',dm:'💬',reconnaissance:'👑',share:'🔁'};
+    const msgs={like:`${n.fromName} a aimé ta publication`,comment:`${n.fromName} a commenté`,follow:`${n.fromName} s'est abonné(e)`,dm:`${n.fromName} : ${(n.text||'').slice(0,28)}`,reconnaissance:`${n.fromName} a couronné ta vidéo 👑`,share:`${n.fromName} a partagé ta publication`};
     if(msgs[n.type]){
       showNotifToast(icons[n.type]||'🔔',msgs[n.type],n.type);
       // Son selon le type
@@ -12503,10 +12521,10 @@ function loadNotifs(){
     document.getElementById('notifList').innerHTML=notifs.length
       ?notifs.map(n=>{
         const avH=n.fromAvatar?`<img src="${optImg(n.fromAvatar,80)}" alt="" loading="lazy" decoding="async">`:( n.fromName||'?')[0].toUpperCase();
-        const icons={like:'❤️',comment:'💬',follow:'👥',dm:'💬',reconnaissance:'👑'};
+        const icons={like:'❤️',comment:'💬',follow:'👥',dm:'💬',reconnaissance:'👑',share:'🔁'};
         const vb=verifiedBadge(n.fromVerified)+businessBadge(n.fromBusinessVerified);
-        const texts={like:`<b>${esc(n.fromName)}</b>${vb} a aimé ta vidéo`,comment:`<b>${esc(n.fromName)}</b>${vb} a commenté : "<i>${esc((n.text||'').slice(0,40))}</i>"`,follow:`<b>${esc(n.fromName)}</b>${vb} s'est abonné(e) à toi 👥`,dm:`<b>${esc(n.fromName)}</b>${vb} t'a envoyé un message`,reconnaissance:`<b>${esc(n.fromName)}</b>${vb} a couronné ta vidéo 👑`};
-        const onclick=n.type==='dm'?`openDMWith('${n.fromUid||''}','${esc(n.fromName||'')}','',${n.fromVerified?1:0},${n.fromBusinessVerified?1:0})`:n.vidId?`goToVid('${n.vidId}')`:''
+        const texts={like:`<b>${esc(n.fromName)}</b>${vb} a aimé ta publication`,comment:`<b>${esc(n.fromName)}</b>${vb} a commenté : "<i>${esc((n.text||'').slice(0,40))}</i>"`,follow:`<b>${esc(n.fromName)}</b>${vb} s'est abonné(e) à toi 👥`,dm:`<b>${esc(n.fromName)}</b>${vb} t'a envoyé un message`,reconnaissance:`<b>${esc(n.fromName)}</b>${vb} a couronné ta vidéo 👑`,share:`<b>${esc(n.fromName)}</b>${vb} a partagé ta publication`};
+        const onclick=n.type==='dm'?`openDMWith('${n.fromUid||''}','${esc(n.fromName||'')}','',${n.fromVerified?1:0},${n.fromBusinessVerified?1:0})`:n.vidId?`goToVid('${n.vidId}')`:n.postId?`openInstaPost('${n.postId}')`:''
         return `<div class="notif-item ${n.read?'':'unread'}" onclick="${onclick}">
           <div class="notif-av">${avH}</div>
           <div class="notif-text">${texts[n.type]||'Nouvelle notification'}</div>
