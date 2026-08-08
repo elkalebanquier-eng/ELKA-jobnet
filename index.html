@@ -16553,6 +16553,31 @@ async function kikoOpenFilePicker(inputId){
       return; // succès OU annulé par l'utilisateur : on ne réouvre pas le sélecteur générique par-dessus
     }
   }
+  // Vidéo seule ou mix photo+vidéo : le plugin Capacitor Camera ne sait pas
+  // choisir de vidéos (uniquement des photos). Si un plugin de sélection de
+  // fichiers natif est disponible (ex: @capawesome/capacitor-file-picker,
+  // à installer côté Manus), on l'utilise pour avoir le vrai picker natif
+  // même pour la vidéo. Sinon, on retombe sur le sélecteur système générique
+  // ci-dessous (comportement actuel, pas une régression).
+  if(kikoIsNative() && (wantsVideo || wantsImage)){
+    const FP = window.Capacitor?.Plugins?.FilePicker;
+    if(FP && FP.pickMedia){
+      try{
+        const res = await FP.pickMedia({ multiple: !!el.multiple, readData: false });
+        if(res?.files?.length){
+          const files = await Promise.all(res.files.map(async (f,idx)=>{
+            const blob = await (await fetch(f.path || f.webPath)).blob();
+            return new File([blob], f.name || ('kiko_media_'+Date.now()+'_'+idx), {type: blob.type || f.mimeType || ''});
+          }));
+          kikoAssignFilesToInput(el, files);
+          return;
+        }
+        if(res && res.files && res.files.length===0) return; // annulé par l'utilisateur
+      }catch(e){
+        console.warn('FilePicker.pickMedia indisponible/échoué, fallback sélecteur système :', e);
+      }
+    }
+  }
   el.click();
 }
 
@@ -16629,8 +16654,8 @@ async function startCamStream(){
     // natif Android (ça, ça marche presque toujours car c'est le même
     // mécanisme que "Sélectionner des photos" qui fonctionne déjà).
     console.warn('getUserMedia a échoué, bascule sur la caméra native :', e.name, e.message);
+    showToast('⚠️ Caméra live indisponible (' + e.name + ') — bascule sur la caméra native');
     if(_camMode==='photo'){
-      showToast('📷 Bascule sur l\'appareil photo du téléphone...');
       closeCamera();
       // Priorité au plugin caméra natif Capacitor (plus fiable en APK que
       // l'input générique) ; si indisponible (web/navigateur) ou annulé,
@@ -16644,7 +16669,6 @@ async function startCamStream(){
         document.getElementById('camNativeFallbackInput').click();
       }
     } else {
-      showToast('🎥 Bascule sur la caméra vidéo du téléphone...');
       closeCamera();
       document.getElementById('camNativeVideoFallbackInput').click();
     }
