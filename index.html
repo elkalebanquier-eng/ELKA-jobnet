@@ -594,7 +594,10 @@ body:not(.screen-home) .logo span { color: var(--gold); }
 .vcard-bg {
   position: absolute; inset: 0; z-index: 0; overflow: hidden;
   background-size: cover; background-position: center;
-  opacity: 0;
+  opacity: 1; /* était à 0 → le fond flou n'était jamais visible, laissant des
+                 bandes noires nues derrière les vidéos pas exactement 9:16 */
+  filter: blur(28px) brightness(0.55) saturate(1.15);
+  transform: scale(1.15); /* masque les bords flous du blur */
   border-radius: var(--r-lg) var(--r-lg) 0 0;
 }
 .vcard video {
@@ -5686,17 +5689,21 @@ document.addEventListener('load', function(e){
   <div class="auth-sheet">
     <div class="auth-handle"></div>
     <div class="auth-logo">AES👑</div>
-    <div class="auth-sub" id="authSubText">Rejoins la communauté africaine 🌍</div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:6px;">
+      <button type="button" onclick="kikoSetLang('fr')" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2);cursor:pointer;">🇫🇷 FR</button>
+      <button type="button" onclick="kikoSetLang('en')" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2);cursor:pointer;">🇬🇧 EN</button>
+    </div>
+    <div class="auth-sub" id="authSubText" data-i18n="auth.joinCommunity">Rejoins la communauté africaine 🌍</div>
     <div class="auth-tabs">
-      <div class="auth-tab active" onclick="switchTab('login')">Connexion</div>
-      <div class="auth-tab" onclick="switchTab('register')">Inscription</div>
+      <div class="auth-tab active" onclick="switchTab('login')" data-i18n="auth.login">Connexion</div>
+      <div class="auth-tab" onclick="switchTab('register')" data-i18n="auth.register">Inscription</div>
     </div>
     <div class="auth-err" id="authErr"></div>
-    <input type="text" class="inp" id="authName" placeholder="Ton pseudo" style="display:none">
-    <input type="tel" class="inp" id="authPhone" placeholder="Numéro (+226...)">
-    <input type="password" class="inp" id="authPass" placeholder="Mot de passe">
-    <button class="btn-gold" id="authBtn" onclick="doAuth()">Se connecter</button>
-    <button class="auth-skip" onclick="closeAuth()">Continuer sans compte →</button>
+    <input type="text" class="inp" id="authName" data-i18n-ph="auth.namePlaceholder" placeholder="Ton pseudo" style="display:none">
+    <input type="tel" class="inp" id="authPhone" data-i18n-ph="auth.phonePlaceholder" placeholder="Numéro (+226...)">
+    <input type="password" class="inp" id="authPass" data-i18n-ph="auth.passPlaceholder" placeholder="Mot de passe">
+    <button class="btn-gold" id="authBtn" onclick="doAuth()" data-i18n="auth.loginBtn">Se connecter</button>
+    <button class="auth-skip" onclick="closeAuth()" data-i18n="auth.skip">Continuer sans compte →</button>
   </div>
 </div>
 
@@ -5705,15 +5712,15 @@ document.addEventListener('load', function(e){
   <div class="modal-sheet" style="text-align:center;">
     <div class="modal-handle"></div>
     <div style="font-size:32px;margin-bottom:8px;">🔐</div>
-    <div class="modal-title" style="margin-bottom:8px;">Sauvegarde ton mot de passe !</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5;">
+    <div class="modal-title" style="margin-bottom:8px;" data-i18n="auth.savePassTitle">Sauvegarde ton mot de passe !</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5;" data-i18n="auth.savePassBody">
       Il n'y a pas d'email de récupération. Copie bien ton numéro et ton mot de passe maintenant : c'est ce qu'il te faudra pour te reconnecter après.
     </div>
     <input type="text" class="inp" id="logoutWarnPhone" readonly style="text-align:center;font-weight:700;margin-bottom:8px;">
     <input type="text" class="inp" id="logoutWarnPass" readonly style="text-align:center;font-weight:700;">
-    <button class="btn-gold" style="margin-top:14px;" onclick="copyLogoutCreds()">📋 Copier numéro + mot de passe</button>
-    <button class="btn-gold" style="margin-top:10px;background:var(--red);" onclick="confirmLogout()">🚪 J'ai copié, me déconnecter</button>
-    <button class="auth-skip" onclick="document.getElementById('logoutWarnModal').classList.remove('active')">Annuler</button>
+    <button class="btn-gold" style="margin-top:14px;" onclick="copyLogoutCreds()" data-i18n="auth.copyCreds">📋 Copier numéro + mot de passe</button>
+    <button class="btn-gold" style="margin-top:10px;background:var(--red);" onclick="confirmLogout()" data-i18n="auth.confirmLogout">🚪 J'ai copié, me déconnecter</button>
+    <button class="auth-skip" onclick="document.getElementById('logoutWarnModal').classList.remove('active')" data-i18n="auth.cancel">Annuler</button>
   </div>
 </div>
 
@@ -5747,13 +5754,46 @@ document.addEventListener('load', function(e){
 
     <!-- TABS -->
     <div class="upload-tabs">
-      <div class="upload-tab active" id="utab-video" onclick="switchUploadTab('video')">🎬 Vidéo</div>
-      <div class="upload-tab" id="utab-photo" onclick="switchUploadTab('photo')">📸 Photos</div>
+      <div class="upload-tab active" id="utab-gallery" onclick="switchUploadTab('gallery')">🖼️ Galerie</div>
       <div class="upload-tab" id="utab-text" onclick="switchUploadTab('text')">✍️ Texte</div>
     </div>
 
-    <!-- PANEL VIDÉO — Flow direct en un écran -->
-    <div class="upload-panel active" id="upanel-video">
+    <!-- PANEL GALERIE — sélection mixte photos+vidéos façon WhatsApp -->
+    <div class="upload-panel active" id="upanel-gallery">
+
+      <input type="file" id="galleryFilesInput" accept="image/*,video/*" multiple style="display:none" onchange="onGallerySelected(this)">
+
+      <div id="galleryEmptyState">
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <button class="cam-open-btn" style="flex:1;" onclick="openKikoProCamera('video')">📹 Filmer</button>
+          <button class="cam-open-btn" style="flex:1;" onclick="openKikoProCamera('photo')">📷 Photo</button>
+        </div>
+        <div onclick="kikoOpenFilePicker('galleryFilesInput')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--surface);border:2px dashed var(--border2);border-radius:var(--r-lg);padding:32px 16px;cursor:pointer;text-align:center;margin-bottom:4px;">
+          <span style="font-size:48px;">🖼️</span>
+          <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text);">Choisir dans la galerie</span>
+          <span style="font-size:12px;color:var(--muted);">Photos et vidéos, jusqu'à 10</span>
+          <span style="background:var(--gold);color:#14151A;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;padding:10px 26px;border-radius:var(--r-lg);margin-top:4px;">📲 Ouvrir la galerie</span>
+        </div>
+        <button class="btn-ghost" onclick="closeModal()" style="margin-top:4px;">Annuler</button>
+      </div>
+
+      <!-- PANIER — grille des médias choisis, façon WhatsApp -->
+      <div id="galleryPanier" style="display:none;">
+        <div id="galleryCountLabel" style="font-size:11px;color:var(--muted);margin:0 0 8px;text-align:right;"></div>
+        <div class="photo-preview-grid" id="galleryPreviewGrid"></div>
+        <div style="margin:10px 0 14px;">
+          <button onclick="kikoOpenFilePicker('galleryFilesInput')" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:9px;border-radius:var(--radius2);font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter d'autres médias</button>
+        </div>
+        <button class="btn-gold" onclick="continueFromGallerySelection()">Continuer →</button>
+        <button class="btn-ghost" onclick="resetGalleryPanel()">↩️ Recommencer</button>
+        <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+      </div>
+
+    </div>
+
+    <!-- PANEL VIDÉO — Flow direct en un écran (atteint depuis le panier galerie
+         quand une seule vidéo est choisie ; conserve tout le flux riche existant) -->
+    <div class="upload-panel" id="upanel-video">
 
       <!-- Input natif SANS capture (ouvre la galerie sur Android) -->
       <input type="file" id="videoInput" accept="video/*" style="display:none" onchange="onFileSelected(this)">
@@ -5775,7 +5815,8 @@ document.addEventListener('load', function(e){
 
     </div>
 
-    <!-- PANEL PHOTO -->
+    <!-- PANEL PHOTO (atteint depuis le panier galerie quand une ou plusieurs
+         photos sont choisies ; conserve tout le flux riche existant) -->
     <div class="upload-panel" id="upanel-photo">
       <button type="button" class="cam-open-btn" onclick="openKikoProCamera('photo')" style="width:100%;margin-bottom:10px;">📷 Prendre une photo (avec filtres)</button>
       <div class="photo-picker-zone" id="photoPickZone" onclick="kikoOpenFilePicker('photoFilesInput')">
@@ -6512,8 +6553,64 @@ document.addEventListener('load', function(e){
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script>
-// ═══════════════════════════════════════
-//  CONFIG POLLINATIONS (IA texte/image)
+// ═══════════════════════════════════════════════════════════
+//  KIKO👑 — SYSTÈME I18N (multilingue FR/EN)
+//  Léger, sans backend, sans lib externe : un dictionnaire de clés,
+//  une fonction t(clé), et un marquage HTML via data-i18n / data-i18n-ph.
+//  Priorité : écran connexion/inscription (1er contact international),
+//  puis on étend écran par écran (accueil, profil, marché...).
+//
+//  UTILISATION DANS LE HTML :
+//    <div data-i18n="auth.login">Connexion</div>           → remplace le texte
+//    <input data-i18n-ph="auth.phonePlaceholder" ...>       → remplace le placeholder
+//  UTILISATION DANS LE JS :
+//    t('auth.login')  → renvoie le texte dans la langue active
+// ═══════════════════════════════════════════════════════════
+const KIKO_I18N = {
+  'auth.joinCommunity':   { fr: 'Rejoins la communauté africaine 🌍', en: 'Join the African community 🌍' },
+  'auth.login':           { fr: 'Connexion', en: 'Log in' },
+  'auth.register':        { fr: 'Inscription', en: 'Sign up' },
+  'auth.namePlaceholder': { fr: 'Ton pseudo', en: 'Your username' },
+  'auth.phonePlaceholder':{ fr: 'Numéro (+226...)', en: 'Phone number (+226...)' },
+  'auth.passPlaceholder': { fr: 'Mot de passe', en: 'Password' },
+  'auth.loginBtn':        { fr: 'Se connecter', en: 'Log in' },
+  'auth.registerBtn':     { fr: "S'inscrire", en: 'Sign up' },
+  'auth.skip':            { fr: 'Continuer sans compte →', en: 'Continue without an account →' },
+  'auth.savePassTitle':   { fr: 'Sauvegarde ton mot de passe !', en: 'Save your password!' },
+  'auth.savePassBody':    { fr: "Il n'y a pas d'email de récupération. Copie bien ton numéro et ton mot de passe maintenant : c'est ce qu'il te faudra pour te reconnecter après.", en: "There's no recovery email. Make sure to copy your number and password now — you'll need them to log back in later." },
+  'auth.copyCreds':       { fr: '📋 Copier numéro + mot de passe', en: '📋 Copy number + password' },
+  'auth.confirmLogout':   { fr: "🚪 J'ai copié, me déconnecter", en: "🚪 I've copied it, log me out" },
+  'auth.cancel':          { fr: 'Annuler', en: 'Cancel' }
+};
+
+function kikoLang(){
+  return localStorage.getItem('aes_lang') || 'fr';
+}
+function t(key){
+  const entry = KIKO_I18N[key];
+  if(!entry) return key; // clé manquante → on l'affiche telle quelle, visible pour debug
+  return entry[kikoLang()] || entry.fr;
+}
+// Parcourt le DOM et applique les traductions sur tout ce qui est marqué.
+// Appelée au chargement ET à chaque changement de langue (kikoSetLang).
+function kikoApplyI18n(root){
+  const scope = root || document;
+  scope.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  scope.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+  });
+}
+// Change la langue active et ré-applique immédiatement (pas de rechargement).
+function kikoSetLang(lang){
+  localStorage.setItem('aes_lang', lang);
+  kikoApplyI18n();
+}
+document.addEventListener('DOMContentLoaded', ()=>kikoApplyI18n());
+</script>
+<script>
+
 //  Va sur https://enter.pollinations.ai pour créer un compte GRATUIT
 //  et générer une clé "publishable" (elle commence par pk_).
 //  Colle-la ci-dessous entre les guillemets.
@@ -6655,8 +6752,15 @@ async function kikoInitPush(){
       else if(data.type==='new_video'&&data.vidId) showScreen('buzz');
     });
 
+    // Aligne l'état réel de l'abonnement OneSignal sur la préférence KIKO stockée —
+    // avant, désactiver le toggle dans les Réglages n'empêchait QUE la prochaine
+    // demande de permission, sans jamais désabonner réellement l'appareil :
+    // l'utilisateur continuait à recevoir des push malgré le toggle "off".
     if(localStorage.getItem('aes_notif_off')!=='1'){
       try{ await OS.Notifications.requestPermission(true); }catch(_){}
+      try{ if(OS.User&&OS.User.pushSubscription) await OS.User.pushSubscription.optIn(); }catch(_){}
+    } else {
+      try{ if(OS.User&&OS.User.pushSubscription) await OS.User.pushSubscription.optOut(); }catch(_){}
     }
   }catch(e){
     console.warn('kikoInitPush error:', e);
@@ -6671,23 +6775,32 @@ async function kikoInitPush(){
 //  100% gratuit, aucun backend Firebase requis.
 // ═══════════════════════════════════════════════════════════
 const ONESIGNAL_APP_ID = '83373280-7a00-4b1b-81ab-210c2bdac2b8';
-// ⚠️ Clé REST OneSignal exposée côté client par simplicité (pas de backend
-// disponible sur le plan gratuit). Elle permet UNIQUEMENT d'envoyer des
-// notifications à ce projet OneSignal — quelqu'un qui la récupère pourrait
-// spammer tes utilisateurs, pas accéder à tes données. Dès que possible,
-// fais transiter cet appel par un petit proxy gratuit (ex: Cloudflare
-// Worker) pour ne plus l'exposer du tout.
-const ONESIGNAL_REST_KEY = 'os_v2_app_qm3tfad2abfrxanleegcxwwcxcadrlzh4wwuf5mtcxcgx5tvnvbecrhun5pb7gbdzwnu4o5t5l2n57mmvfsdp5sm56pzeaixscbpgha';
+// La clé REST OneSignal ne vit plus ici — elle est côté Cloudflare Worker
+// (voir onesignal-push-proxy.js), donc plus jamais exposée côté client.
 
 let _kikoOSInit=false;
 // Initialise OneSignal et relie l'abonné au compte KIKO connecté (external_id
 // = uid Firebase), pour pouvoir cibler précisément une personne à l'envoi.
 async function kikoInitPushWeb(){
-  if(kikoIsNative() || !currentUser || _kikoOSInit) return;
+  // On ne bloque le flux web que si un VRAI plugin natif OneSignal est présent
+  // (sinon, sur un wrapper APK type Manus qui injecte window.Capacitor sans
+  // plugin natif réel, kikoIsNative() renvoyait true → ce flux ET le flux
+  // natif (kikoInitPush, qui exige window.plugins.OneSignal) s'annulaient
+  // tous les deux : aucun push ne s'enregistrait jamais dans l'APK).
+  const hasRealNativePlugin = !!(window.plugins && window.plugins.OneSignal);
+  if((kikoIsNative() && hasRealNativePlugin) || !currentUser || _kikoOSInit) return;
   if(!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith('REMPLACE')) return; // pas encore configuré
   if(typeof window.OneSignalDeferred==='undefined') window.OneSignalDeferred=[];
   _kikoOSInit=true;
+  let _completed=false;
+  // Filet de sécurité : si le SDK OneSignal ne charge jamais (bloqueur de pub,
+  // réseau capricieux au chargement...), la queue OneSignalDeferred ne s'exécute
+  // jamais et _kikoOSInit resterait bloqué à true pour toute la session, sans
+  // aucune nouvelle tentative possible. On réautorise un essai après 8s si rien
+  // ne s'est passé (ex : au retour du réseau, voir écouteur 'online' plus bas).
+  setTimeout(()=>{ if(!_completed) _kikoOSInit=false; }, 8000);
   window.OneSignalDeferred.push(async function(OneSignal){
+    _completed=true;
     try{
       await OneSignal.init({
         appId: ONESIGNAL_APP_ID,
@@ -6696,16 +6809,47 @@ async function kikoInitPushWeb(){
         notifyButton: { enable: false } // UI gérée par KIKO (réglages > Notifications push)
       });
       await OneSignal.login(currentUser.uid);
-      // Demande la permission automatiquement si le toggle "Notifications push"
-      // est activé (par défaut) et qu'on n'a encore jamais demandé.
+      // Aligne l'abonnement réel sur la préférence stockée (même logique que côté
+      // natif ci-dessus) : le toggle "off" doit vraiment couper la réception, pas
+      // juste empêcher une nouvelle demande de permission.
       if(localStorage.getItem('aes_notif_off')!=='1'){
         try{ await OneSignal.Notifications.requestPermission(); }catch(_){}
+        try{ await OneSignal.User.PushSubscription.optIn(); }catch(_){}
+      } else {
+        try{ await OneSignal.User.PushSubscription.optOut(); }catch(_){}
       }
     }catch(e){
       console.warn('kikoInitPushWeb error:', e);
       _kikoOSInit=false;
     }
   });
+}
+// Si le réseau revient après avoir manqué au chargement (SDK jamais chargé),
+// on retente l'initialisation — sans ça, un utilisateur parti sans connexion
+// pouvait rester sans push pour toute la session.
+window.addEventListener('online', ()=>{ if(currentUser) kikoInitPushWeb(); });
+
+// Bascule réellement l'abonnement OneSignal (web + natif) en plus du toggle local —
+// appelé par togglePushNotif. Avant, seul `aes_notif_off` changeait : la
+// désinscription OneSignal elle-même n'était jamais faite, donc désactiver les
+// notifications dans les Réglages KIKO n'empêchait pas vraiment de les recevoir.
+async function kikoSyncPushOptState(enabled){
+  try{
+    if(kikoIsNative()){
+      const OS = window.plugins && window.plugins.OneSignal;
+      if(OS && OS.User && OS.User.pushSubscription){
+        if(enabled) await OS.User.pushSubscription.optIn();
+        else await OS.User.pushSubscription.optOut();
+      }
+    } else if(typeof window.OneSignalDeferred!=='undefined'){
+      window.OneSignalDeferred.push(async function(OneSignal){
+        try{
+          if(enabled) await OneSignal.User.PushSubscription.optIn();
+          else await OneSignal.User.PushSubscription.optOut();
+        }catch(e){ console.warn('kikoSyncPushOptState error:', e); }
+      });
+    }
+  }catch(e){ console.warn('kikoSyncPushOptState error:', e); }
 }
 // Demande la permission navigateur — appelé quand l'utilisateur active le
 // toggle "Notifications push" dans les réglages (voir togglePushNotif).
@@ -6737,35 +6881,57 @@ function _kikoPushCopy(data){
 // Envoie la vraie notification push (appareil verrouillé/app fermée) via
 // l'API REST OneSignal. Échoue silencieusement si pas configuré — l'app
 // continue de fonctionner normalement avec les notifs in-app existantes.
-async function sendWebPush(toUid, data){
+// _isRetry : usage interne, un seul renvoi automatique en cas d'échec réseau/API.
+// ⚠️ Appel désormais routé via un proxy Cloudflare Worker (KIKO_PUSH_PROXY_URL) —
+// l'API REST OneSignal bloque le CORS des appels directs depuis un client
+// (navigateur/WebView), donc l'appel direct échouait silencieusement (catch
+// muet) : c'est pour ça que le test manuel depuis le dashboard OneSignal
+// fonctionnait mais qu'aucune notif d'interaction (like/DM/follow...) ne
+// partait jamais. Voir onesignal-push-proxy.js pour le code du Worker.
+const KIKO_PUSH_PROXY_URL = 'https://kikopush.elkalebanquier.workers.dev'; // proxy Cloudflare Worker (contourne le CORS OneSignal)
+
+async function sendWebPush(toUid, data, _isRetry){
   if(!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith('REMPLACE')) return;
-  if(!ONESIGNAL_REST_KEY || ONESIGNAL_REST_KEY.startsWith('REMPLACE')) return;
+  if(!KIKO_PUSH_PROXY_URL || KIKO_PUSH_PROXY_URL.startsWith('REMPLACE')) return;
+  if(!toUid) return;
   const [title, message] = _kikoPushCopy(data);
   // Groupe les notifs par conversation pour les DM (comme WhatsApp : "3 messages
   // de Fatou"), et par destinataire pour le reste (likes/commentaires/abonnés/
   // nouvelles vidéos empilés ensemble plutôt qu'un pavé de notifs séparées).
   const groupKey = data.type==='dm' ? ('kiko_dm_'+data.fromUid) : ('kiko_activity_'+toUid);
   try{
-    await fetch('https://onesignal.com/api/v1/notifications', {
+    const res = await fetch(KIKO_PUSH_PROXY_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Authorization': 'Basic ' + ONESIGNAL_REST_KEY
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: JSON.stringify({
         app_id: ONESIGNAL_APP_ID,
         include_external_user_ids: [toUid],
         headings: { fr: title, en: title },
         contents: { fr: message, en: message },
-        data: { type: data.type||'', vidId: data.vidId||'' },
+        data: { type: data.type||'', vidId: data.vidId||'', postId: data.postId||'' },
         large_icon: data.fromAvatar || undefined,            // photo de l'expéditeur (Android)
         ios_attachments: data.fromAvatar ? { fromAvatar: data.fromAvatar } : undefined,
         android_group: groupKey,
         android_group_message: { fr: '$[notif_count] nouvelles notifications', en: '$[notif_count] new notifications' },
-        thread_id: groupKey                                  // équivalent iOS du groupement Android
+        thread_id: groupKey,                                 // équivalent iOS du groupement Android
+        priority: 10,                                        // livraison immédiate même appareil en veille (Android)
+        ios_badgeType: 'Increase', ios_badgeCount: 1,
+        mutable_content: true                                // autorise l'appareil à afficher l'avatar en notif riche
       })
     });
-  }catch(e){ console.warn('sendWebPush error:', e); }
+    if(!res.ok){
+      const body = await res.text().catch(()=>'');
+      console.warn('sendWebPush échec HTTP', res.status, body);
+      if(!_isRetry) setTimeout(()=>sendWebPush(toUid,data,true), 2500);
+    }
+  }catch(e){
+    console.warn('sendWebPush error:', e);
+    // Un seul renvoi après une courte pause — filet contre un hoquet réseau ponctuel,
+    // pas de boucle infinie.
+    if(!_isRetry) setTimeout(()=>sendWebPush(toUid,data,true), 2500);
+  }
 }
 
 // Prend une photo via l'appareil photo natif Capacitor (utilisé uniquement
@@ -7562,9 +7728,17 @@ const adInjectedSlots=new Set();
 let currentUploadTab='video';
 function switchUploadTab(tab){
   currentUploadTab=tab;
-  ['video','photo','text'].forEach(t=>{
-    document.getElementById('utab-'+t).classList.toggle('active',t===tab);
-    document.getElementById('upanel-'+t).classList.toggle('active',t===tab);
+  // 'video' et 'photo' n'ont plus de bouton d'onglet dédié (fusionnés dans
+  // "Galerie"), mais gardent leur propre panneau riche (musique, description,
+  // tags...) — on y navigue en interne après sélection dans le panier galerie.
+  const tabKeyForHighlight = (tab==='video'||tab==='photo') ? 'gallery' : tab;
+  ['gallery','text'].forEach(t=>{
+    const tabEl=document.getElementById('utab-'+t);
+    if(tabEl) tabEl.classList.toggle('active', t===tabKeyForHighlight);
+  });
+  ['gallery','video','photo','text'].forEach(t=>{
+    const panelEl=document.getElementById('upanel-'+t);
+    if(panelEl) panelEl.classList.toggle('active', t===tab);
   });
   if(tab==='text')initTextBgPicker();
   const musicBlock=document.getElementById('musicPickerBlock');
@@ -7682,8 +7856,11 @@ function kikoClosePublishRadial(){
 function kikoRadialAction(type){
   kikoClosePublishRadial();
   needAuth(()=>{
-    if(type==='video'){ openModal(); switchUploadTab('video'); }
-    else if(type==='photo'){ openModal(); switchUploadTab('photo'); }
+    // "Créer une vidéo" / "Publier une photo" passent maintenant par le
+    // panier galerie mixte (photos+vidéos) au lieu de sauter directement à
+    // l'ancien écran dédié — cohérent avec le bouton "Publier" principal.
+    if(type==='video'){ openModal(); switchUploadTab('gallery'); }
+    else if(type==='photo'){ openModal(); switchUploadTab('gallery'); }
     else if(type==='produit'){ openAddProduct(); }
     else if(type==='opportunite'){ kikoOpenOpportunityModal(); }
   });
@@ -7738,7 +7915,7 @@ async function kikoSubmitOpportunity(){
 
 function openModal(){
   document.getElementById('uploadModal').classList.add('active');
-  switchUploadTab('video');
+  switchUploadTab('gallery');
 }
 
 // ═══════════════════════════════════════
@@ -8075,6 +8252,106 @@ function clearPhotoMusic(){
   const toggle=document.getElementById('musicAllowReuseToggle');if(toggle)toggle.checked=true;
   const vpsLbl=document.getElementById('vpsMusicLabel');
   if(vpsLbl) vpsLbl.textContent='Optionnel — Choisir un son';
+}
+
+// ═══════════════════════════════════════
+//  PANIER GALERIE — sélection mixte photos+vidéos façon WhatsApp
+//  Étape d'aperçu uniquement : au clic sur "Continuer", on route vers le
+//  flux vidéo riche (1 vidéo) ou le flux photo riche (1+ photos) déjà
+//  existants, sans dupliquer leur logique de publication.
+// ═══════════════════════════════════════
+let galleryFiles=[]; // {file, type:'image'|'video'}
+const MAX_GALLERY=10;
+
+function onGallerySelected(inp){
+  const files=Array.from(inp.files);
+  if(!files.length)return;
+  const placesLeft=MAX_GALLERY-galleryFiles.length;
+  if(placesLeft<=0){
+    showToast(`⚠️ Maximum ${MAX_GALLERY} médias par publication`);
+    inp.value='';
+    return;
+  }
+  const toAdd=files.slice(0,placesLeft).map(f=>({file:f, type:f.type.startsWith('video')?'video':'image'}));
+  if(files.length>placesLeft){
+    showToast(`⚠️ Maximum ${MAX_GALLERY} médias · ${files.length-placesLeft} non ajouté(s)`);
+  }
+  galleryFiles=[...galleryFiles,...toAdd];
+  renderGalleryPreview();
+  inp.value='';
+}
+
+function renderGalleryPreview(){
+  const empty=document.getElementById('galleryEmptyState');
+  const panier=document.getElementById('galleryPanier');
+  const grid=document.getElementById('galleryPreviewGrid');
+  const countLabel=document.getElementById('galleryCountLabel');
+  if(!galleryFiles.length){
+    empty.style.display='block'; panier.style.display='none';
+    return;
+  }
+  empty.style.display='none'; panier.style.display='block';
+  const nbVideos=galleryFiles.filter(g=>g.type==='video').length;
+  const nbPhotos=galleryFiles.length-nbVideos;
+  const parts=[];
+  if(nbPhotos) parts.push(`${nbPhotos} photo${nbPhotos>1?'s':''}`);
+  if(nbVideos) parts.push(`${nbVideos} vidéo${nbVideos>1?'s':''}`);
+  countLabel.innerText=`${parts.join(' · ')} · ${galleryFiles.length}/${MAX_GALLERY}`;
+  grid.innerHTML=galleryFiles.map((g,i)=>{
+    const url=URL.createObjectURL(g.file);
+    if(g.type==='video'){
+      return `<div class="photo-preview-item" style="position:relative;">
+        <video src="${url}" muted preload="metadata" style="width:100%;height:100%;object-fit:cover;"></video>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+          <span style="background:rgba(10,10,12,0.55);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;">▶</span>
+        </div>
+        <div class="photo-preview-remove" onclick="removeGalleryFile(${i})">✕</div>
+      </div>`;
+    }
+    return `<div class="photo-preview-item" style="position:relative;">
+      <img src="${url}" alt="">
+      <div class="photo-preview-remove" onclick="removeGalleryFile(${i})">✕</div>
+    </div>`;
+  }).join('');
+}
+
+function removeGalleryFile(i){
+  galleryFiles.splice(i,1);
+  renderGalleryPreview();
+}
+
+function resetGalleryPanel(){
+  galleryFiles=[];
+  renderGalleryPreview();
+}
+
+// Dispatch vers le flux riche déjà existant selon la composition du panier.
+function continueFromGallerySelection(){
+  if(!galleryFiles.length){ showToast('Choisis au moins une photo ou une vidéo'); return; }
+  const videos=galleryFiles.filter(g=>g.type==='video');
+  const photos=galleryFiles.filter(g=>g.type==='image');
+
+  if(videos.length>0 && photos.length>0){
+    showToast('⚠️ Vidéo et photos ne peuvent pas encore être mélangées — choisis soit des photos, soit une seule vidéo');
+    return;
+  }
+  if(videos.length>1){
+    showToast('⚠️ Une seule vidéo à la fois pour l\'instant — retire les vidéos en trop');
+    return;
+  }
+  if(videos.length===1){
+    // Réutilise tel quel le flux vidéo riche existant (musique, description,
+    // miniature, tags...) — aucune de sa logique n'est dupliquée ici.
+    handleSelectedVideoFile(videos[0].file);
+    galleryFiles=[];
+    return;
+  }
+  // 1+ photos : on alimente le flux photo riche existant et on y navigue.
+  photoFiles=photos.map(p=>p.file);
+  galleryFiles=[];
+  switchUploadTab('photo');
+  renderPhotoPreviews();
+  setTimeout(initMusicLibrary,100);
 }
 
 // ═══════════════════════════════════════
@@ -9424,9 +9701,9 @@ function openAuth(reason){
 function closeAuth(){document.getElementById('authModal').classList.remove('active');}
 function switchTab(mode){
   authMode=mode;
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(mode==='login'&&i===0)||(mode==='register'&&i===1)));
+  document.querySelectorAll('.auth-tab').forEach((tab,i)=>tab.classList.toggle('active',(mode==='login'&&i===0)||(mode==='register'&&i===1)));
   document.getElementById('authName').style.display=mode==='register'?'block':'none';
-  document.getElementById('authBtn').innerText=mode==='login'?'Se connecter':"S'inscrire";
+  document.getElementById('authBtn').innerText=mode==='login'?t('auth.loginBtn'):t('auth.registerBtn');
   document.getElementById('authErr').innerText='';
 }
 function normPhone(p){return p.replace(/[^\d+]/g,'');}
@@ -9889,6 +10166,10 @@ async function togglePushNotif(on){
     kikoRequestWebPush(); // demande la permission navigateur OneSignal (no-op si natif/non configuré)
   }
   localStorage.setItem('aes_notif_off',on?'0':'1');
+  // Désabonne/réabonne réellement OneSignal — avant, ce toggle ne faisait
+  // que bloquer la prochaine demande de permission sans jamais couper la
+  // réception effective des push quand désactivé.
+  kikoSyncPushOptState(on);
   showToast(on?'🔔 Notifications activées':'🔕 Notifications désactivées');
 }
 function toggleMsgSound(on){
@@ -12526,7 +12807,25 @@ async function notifyFollowersNewVideo(vidId){
     });
   }catch(e){ console.warn('notifyFollowersNewVideo error:', e); }
 }
-function sendNotif(toUid,data){if(data.fromUid&&data.fromVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromVerified=currentUser.verified||false;if(data.fromUid&&data.fromBusinessVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromBusinessVerified=currentUser.businessVerified||false;db.ref('notifications/'+toUid).push(data);sendWebPush(toUid,data);}
+// Anti-doublon court terme : évite d'empiler/repousser deux fois la même notif
+// (double-tap, double-clic, requête réseau qui traîne puis relance de l'action).
+const _kikoRecentNotifs = new Map();
+function sendNotif(toUid,data){
+  if(!toUid || !currentUser) return;
+  if(data.fromUid&&data.fromVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromVerified=currentUser.verified||false;
+  if(data.fromUid&&data.fromBusinessVerified===undefined&&currentUser&&data.fromUid===currentUser.uid)data.fromBusinessVerified=currentUser.businessVerified||false;
+  const dedupKey = toUid+'|'+data.type+'|'+(data.vidId||data.postId||data.fromUid||'');
+  const now = Date.now();
+  const last = _kikoRecentNotifs.get(dedupKey);
+  if(last && now-last<8000) return; // même notif envoyée il y a moins de 8s → on ignore
+  _kikoRecentNotifs.set(dedupKey, now);
+  if(_kikoRecentNotifs.size>200){ // purge légère pour éviter une fuite mémoire en session longue
+    const cutoff=now-60000;
+    for(const [k,t] of _kikoRecentNotifs){ if(t<cutoff) _kikoRecentNotifs.delete(k); }
+  }
+  db.ref('notifications/'+toUid).push(data);
+  sendWebPush(toUid,data);
+}
 function startNotifListener(){
   if(!currentUser||notifListener)return;
   notifListener=db.ref('notifications/'+currentUser.uid).orderByChild('at').limitToLast(1).on('child_added',snap=>{
@@ -15938,14 +16237,33 @@ function kikoSetCachedVideoSrc(v,url){
     }
   }).catch(()=>{ v.src=url; v.load(); });
 }
+// Détecte la qualité de connexion en 3 paliers (pas juste lent/pas-lent) :
+// low = déjà couvert par isDataSaverActive (2G/3G/saveData/mode manuel)
+// high = 4G solide ou downlink élevé (≥4 Mbps) → on peut se permettre du 720p
+// medium = tout le reste / API Network Information indisponible (Safari iOS) → valeur sûre par défaut
+function _kikoNetQuality(){
+  if(isDataSaverActive()) return 'low';
+  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if(!c) return 'medium'; // pas d'API réseau (iOS Safari...) → on ne sur-mise pas
+  if(c.effectiveType==='4g' && (c.downlink===undefined || c.downlink>=4)) return 'high';
+  if(c.downlink!==undefined && c.downlink>=4) return 'high';
+  return 'medium';
+}
 function optVid(url){
-  // Vidéo : force un format/bitrate adaptatif via Cloudinary si possible
-  // sp_auto = streaming adaptatif (comme Netflix/YouTube, ajuste la qualité en direct selon le réseau)
+  // Vidéo : qualité Cloudinary adaptée à la connexion détectée (comme TikTok
+  // qui monte en résolution sur bon réseau et redescend sur réseau faible) :
+  //  - low    : w_480, q_auto:low  (connexion lente / économie de données)
+  //  - medium : w_640, q_auto:eco  (par défaut / réseau incertain)
+  //  - high   : w_720, q_auto:good (bonne connexion détectée → 720p qualité correcte)
+  // NB : ceci reste une adaptation "à la demande de lecture" (pas du vrai streaming
+  // adaptatif HLS multi-bitrate qui changerait la qualité EN COURS de lecture selon
+  // le réseau) — pour ça il faudrait activer le streaming HLS de Cloudinary
+  // (eager: sp_hd/sp_auto + servir un .m3u8) plutôt qu'une simple URL mp4 transformée.
   if(!url)return url;
   if(url.includes('res.cloudinary.com')&&url.includes('/upload/')){
-    const saver=isDataSaverActive();
-    const cldQ=saver?'q_auto:low':'q_auto:eco';
-    const w=saver?480:720;
+    const quality=_kikoNetQuality();
+    const cldQ = quality==='high' ? 'q_auto:good' : quality==='low' ? 'q_auto:low' : 'q_auto:eco';
+    const w = quality==='high' ? 720 : quality==='low' ? 480 : 640;
     return url.replace('/upload/',`/upload/f_auto,${cldQ},w_${w},c_limit/`);
   }
   return url;
@@ -16130,7 +16448,7 @@ setTimeout(()=>loadHomeSelection(), 950);             // sélection KIKO (créat
 setTimeout(()=>{ startNewsAutoRefresh(); loadNews(false); }, 2000);
 setTimeout(()=>kikoShowOnboarding(), 1200);           // tour de bienvenue — pour TOUT nouvel utilisateur, même sans compte
 kikoInitNewBadges();
-if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); kikoSyncFavoritesFromCloud(); kikoSyncSavedPostsFromCloud(); kikoSyncLikedVideosFromCloud(); kikoSyncLikedPostsFromCloud(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
+if(currentUser){ setTimeout(()=>{ loadNotifs(); loadDMs(); startNotifListener(); kikoStartPresence(); kikoInitPush(); kikoInitPushWeb(); kikoSyncFavoritesFromCloud(); kikoSyncSavedPostsFromCloud(); kikoSyncLikedVideosFromCloud(); kikoSyncLikedPostsFromCloud(); if(typeof KikoAI!=='undefined') KikoAI.attachUser(currentUser.uid); }, 1000); }
 if(currentUser && !currentUser.country){ setTimeout(()=>kikoBackfillUserCountry(), 1800); }
 setTimeout(()=>{ checkMusicAdminAccess(); checkNewsAdminAccess(); checkBoostsAdminAccess(); initCameraModule(); }, 1500);
 
