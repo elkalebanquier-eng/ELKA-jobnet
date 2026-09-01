@@ -358,26 +358,48 @@
   </button>
 </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* =========================================================
    CONFIGURATION SUPABASE — projet "Kayawoto" déjà créé.
+   Le script Supabase est chargé dynamiquement, avec plusieurs
+   tentatives, pour supporter une connexion faible ou instable.
 ========================================================= */
 const SUPABASE_URL = "https://arelecdnwgdgsbeouyei.supabase.co";
 const SUPABASE_KEY = "sb_publishable_wnRasGC2gsA43VmcoN8d6A_rCx3WzWS";
+const SUPABASE_SCRIPT = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
 
 let db = null;
+let scriptLoading = false;
+
+function loadSupabaseScript(attempt = 1){
+  if(typeof supabase !== "undefined" || scriptLoading) return;
+  scriptLoading = true;
+  const s = document.createElement("script");
+  s.src = SUPABASE_SCRIPT;
+  s.onload = ()=>{ scriptLoading = false; ensureDb(); startRealtimeIfReady(); };
+  s.onerror = ()=>{
+    scriptLoading = false;
+    if(attempt <= 8) setTimeout(()=>loadSupabaseScript(attempt+1), Math.min(2000*attempt, 12000));
+  };
+  document.head.appendChild(s);
+}
+
 function ensureDb(){
   if(db) return db;
   if(typeof supabase !== "undefined" && supabase.createClient){
     try{ db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
     catch(e){ console.warn("Supabase init failed", e); }
+  }else{
+    loadSupabaseScript();
   }
   return db;
 }
-ensureDb();
+loadSupabaseScript();
 window.addEventListener("load", ensureDb);
-document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) ensureDb(); });
+window.addEventListener("online", ()=>{ loadSupabaseScript(); ensureDb(); startRealtimeIfReady(); });
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden){ ensureDb(); startRealtimeIfReady(); } });
+
+
 
 const MONTHS = ["JAN","FÉV","MAR","AVR","MAI","JUIN","JUIL","AOÛT","SEP","OCT","NOV","DÉC"];
 const likedLocal = new Set();
@@ -570,7 +592,11 @@ async function loadActualites(){
   paintPosts(!error && data && data.length ? data : DEMO_POSTS);
 }
 
-if(ensureDb()){
+let realtimeStarted = false;
+function startRealtimeIfReady(){
+  if(realtimeStarted) return;
+  if(!ensureDb()) return;
+  realtimeStarted = true;
   loadEvenements();
   loadActualites().then(refreshCommentCounts);
   db.channel("actualites-live")
@@ -585,10 +611,10 @@ if(ensureDb()){
       if(activeCommentPostId) loadComments(activeCommentPostId);
     })
     .subscribe();
-}else{
-  paintEvents(DEMO_EVENTS);
-  paintPosts(DEMO_POSTS);
 }
+paintEvents(DEMO_EVENTS);
+paintPosts(DEMO_POSTS);
+startRealtimeIfReady();
 
 function switchView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
