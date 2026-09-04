@@ -65,6 +65,21 @@ html,body{background:var(--paper)!important}body{overflow-x:hidden}.wrap{max-wid
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+</style><style id="video-mobile-layout">
+/* Les médias restent dans leur carte et ne recouvrent jamais la zone d’actions. */
+.media{overflow:hidden}
+.media video,.media img{display:block;max-width:100%;height:auto;vertical-align:middle}
+.media video{aspect-ratio:16/9;object-fit:contain}
+.status-grid .card .media video,.status-grid .card .media img{width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+.body{position:relative;z-index:1;background:#11131c}
+.actions{position:relative;z-index:2;clear:both;min-height:32px}
+.action{min-height:32px;touch-action:manipulation}
+@media (max-width:700px){
+  .media video{max-height:none}
+  .body{padding:14px}
+  .actions{gap:16px;margin-top:13px}
+  .action{min-width:40px;justify-content:center}
+}
 </style></head>
 <body>
 <div id="offlineBar" class="offline">Mode hors connexion — les contenus enregistrés restent disponibles.</div>
