@@ -1,0 +1,2423 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101128">
+  <meta name="description" content="KAYAWOTO — créateurs, communautés, impact.">
+  <title>KAYAWOTO — Créateurs en lumière</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #f7f3f4;
+      --muted: #ada8bc;
+      --soft: #77728b;
+      --night: #0d1025;
+      --night-2: #161735;
+      --night-3: #242047;
+      --line: rgba(255, 255, 255, .12);
+      --orange: #ff784e;
+      --orange-2: #ffad60;
+      --pink: #ed527a;
+      --purple: #8f5fe8;
+      --green: #9be0b1;
+      --radius: 22px;
+      --shadow: 0 24px 70px rgba(4, 5, 24, .46);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 50% -10%, #503251 0, transparent 36rem),
+        radial-gradient(circle at 4% 90%, #281c4a 0, transparent 30rem),
+        #07091a;
+      font: 14px/1.45 "DM Sans", sans-serif;
+    }
+    body.modal-open { overflow: hidden; }
+    button, input, textarea { font: inherit; }
+    button { color: inherit; cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--orange-2);
+      outline-offset: 3px;
+    }
+    .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .app-shell {
+      position: relative;
+      width: min(100%, 440px);
+      min-height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(238, 89, 75, .15), transparent 20rem),
+        linear-gradient(160deg, #191735 0%, #10132d 48%, #0b0e22 100%);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 0 100px rgba(35, 25, 92, .3);
+    }
+    @media (min-width: 700px) {
+      body { padding: 28px 0; }
+      .app-shell { min-height: calc(100vh - 56px); border: 1px solid rgba(255,255,255,.1); border-radius: 34px; }
+    }
+
+    .topbar { padding: 24px 22px 0; }
+    .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .wordmark {
+      position: relative;
+      display: inline-block;
+      color: #fff9fa;
+      font: 700 clamp(29px, 8vw, 36px)/.85 "Space Grotesk", sans-serif;
+      letter-spacing: -1.7px;
+    }
+    .wordmark::after {
+      content: "↗";
+      position: absolute;
+      top: -9px;
+      right: -21px;
+      color: var(--orange);
+      font: 700 18px/1 "DM Sans", sans-serif;
+      transform: rotate(-22deg);
+    }
+    .wordmark small {
+      display: block;
+      margin-top: 10px;
+      color: #d0c9d4;
+      font: 500 7px/1 "DM Sans", sans-serif;
+      letter-spacing: 2px;
+    }
+    .official-entry {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      text-align: left;
+    }
+    .official-entry:hover { color: var(--orange-2); }
+    .official-entry:active { transform: none; }
+    .round-button {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: rgba(255,255,255,.07);
+      color: #fff;
+      transition: .2s ease;
+    }
+    .round-button:hover { border-color: var(--orange); background: rgba(255,120,78,.13); transform: translateY(-2px); }
+    .notification-button { position: relative; }
+    .notification-button .badge {
+      position: absolute;
+      top: -3px;
+      right: -2px;
+      display: grid;
+      place-items: center;
+      width: 17px;
+      height: 17px;
+      border: 2px solid #161735;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #fff;
+      font-size: 9px;
+    }
+
+    main { padding: 25px 22px 108px; }
+    .screen { display: none; animation: screen-in .35s ease both; }
+    .screen.active { display: block; }
+    @keyframes screen-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 15px; margin-bottom: 17px; }
+    .eyebrow, .kicker {
+      margin: 0;
+      color: var(--orange-2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: "Space Grotesk", sans-serif; }
+    h1 { margin: 7px 0 0; font-size: clamp(31px, 9vw, 42px); line-height: .98; letter-spacing: -1.6px; }
+    h1 em { color: var(--orange-2); font-style: normal; }
+    h2 { margin-bottom: 7px; font-size: 23px; line-height: 1.08; letter-spacing: -.7px; }
+    h3 { margin-bottom: 4px; font-size: 15px; line-height: 1.1; }
+    .muted { color: var(--muted); }
+
+    .text-button { border: 0; padding: 0; background: none; color: var(--orange-2); font-size: 12px; }
+    .status-section { margin-top: 24px; }
+    .status-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .status-tile {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 16px;
+      padding: 11px;
+      background: linear-gradient(145deg, #d96443, #27214e 72%);
+      color: #fff;
+      text-align: left;
+      box-shadow: 0 12px 24px rgba(5, 6, 25, .2);
+      transition: .2s ease;
+    }
+    .status-tile:hover { transform: translateY(-3px); border-color: rgba(255,173,96,.7); }
+    .status-tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,8,28,.02) 25%, rgba(8,8,28,.82) 100%); }
+    .status-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .status-tile > span, .status-tile > small { position: absolute; right: 10px; left: 10px; z-index: 1; overflow: hidden; }
+    .status-tile > span { bottom: 27px; display: -webkit-box; color: #fff; font-size: 11px; font-weight: 700; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+    .status-tile > small { bottom: 10px; color: rgba(255,255,255,.7); font-size: 9px; white-space: nowrap; text-overflow: ellipsis; }
+    .status-empty { grid-column: 1 / -1; padding: 17px 12px; border: 1px dashed rgba(255,255,255,.18); border-radius: 16px; color: var(--muted); font-size: 12px; text-align: center; }
+
+    .content-section { margin-top: 27px; }
+    .content-section > .section-head { margin-bottom: 12px; }
+    .content-section h2 { margin: 0; font-size: 16px; }
+    .content-section .text-button { color: #e4dfe9; }
+    .primary-button {
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 99px;
+      padding: 10px 13px;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(234, 80, 105, .25);
+      transition: .2s ease;
+    }
+    .primary-button:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+    .page-heading { margin-bottom: 20px; }
+    .page-heading h1 { margin-bottom: 8px; }
+    .page-heading p { max-width: 320px; margin: 0; color: var(--muted); }
+    .go-card, .network-card, .profile-card {
+      margin-bottom: 12px;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(27, 27, 59, .78);
+    }
+    .profile-card { text-align: center; padding: 25px 18px; }
+    .profile-photo { width: 77px; height: 77px; margin: 0 auto 13px; display: grid; place-items: center; border: 3px solid var(--orange); border-radius: 50%; background: linear-gradient(135deg, #e67550, #7e47ba); color: #fff; font: 700 28px "Space Grotesk"; cursor: pointer; transition: .2s ease; }
+    .profile-photo:hover { transform: scale(1.04); box-shadow: 0 0 0 5px rgba(255,120,78,.13); }
+    .profile-card h2 { margin-bottom: 3px; }
+    .profile-card p { margin-bottom: 17px; color: var(--muted); }
+    .auth-actions { display: flex; justify-content: center; gap: 9px; margin-bottom: 17px; }
+    .auth-actions button { min-width: 132px; }
+    .account-actions { display: grid; gap: 8px; margin: 0 auto 17px; max-width: 280px; }
+    .account-actions .secondary-button { width: 100%; }
+    .secondary-button { flex: 0 0 auto; border: 1px solid rgba(255,255,255,.2); border-radius: 99px; padding: 9px 13px; background: transparent; color: var(--orange-2); font-size: 11px; font-weight: 700; transition: .2s ease; }
+    .secondary-button:hover { border-color: var(--orange); background: rgba(255,120,78,.12); transform: translateY(-2px); }
+    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .profile-stats div { padding: 11px 4px; border-radius: 13px; background: rgba(255,255,255,.05); }
+    .profile-stats b, .profile-stats small { display: block; }
+    .profile-stats small { margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .official-profile-card {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 173, 96, .32);
+      border-radius: 26px;
+      background: #191735;
+      box-shadow: 0 18px 42px rgba(5, 6, 25, .28);
+    }
+    .official-cover {
+      height: 126px;
+      background:
+        linear-gradient(135deg, rgba(255,120,78,.72), rgba(143,95,232,.76)),
+        repeating-linear-gradient(135deg, rgba(255,255,255,.08) 0 1px, transparent 1px 18px);
+    }
+    .official-profile-body { position: relative; padding: 0 18px 20px; text-align: center; }
+    .official-avatar {
+      display: grid;
+      place-items: center;
+      width: 82px;
+      height: 82px;
+      margin: -41px auto 12px;
+      border: 4px solid #191735;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff784e, #ed527a 56%, #8f5fe8);
+      color: #fff;
+      font: 700 31px "Space Grotesk", sans-serif;
+    }
+    .official-name-link {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #fff;
+      font: 700 25px/1.1 "Space Grotesk", sans-serif;
+      letter-spacing: -.7px;
+    }
+    .official-name-link:hover { color: var(--orange-2); }
+    .official-verified { color: var(--orange-2); font-size: 14px; }
+    .official-handle { margin: 7px 0 8px; color: var(--muted); }
+    .official-bio { max-width: 330px; margin: 0 auto 16px; color: #ddd5e2; }
+    .official-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 17px;
+      border: 1px solid rgba(255,173,96,.28);
+      border-radius: 99px;
+      padding: 6px 10px;
+      background: rgba(255,120,78,.1);
+      color: var(--orange-2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+    }
+    .social-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 13px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: .2s ease;
+    }
+    .social-link:hover { border-color: var(--orange); background: rgba(255,120,78,.12); transform: translateY(-2px); }
+    .social-logo { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 7px; color: #fff; font-size: 11px; font-weight: 700; }
+    .social-logo.facebook { background: #1877f2; }
+    .social-logo.youtube { background: #ff0033; }
+    .official-note { margin: 12px 0 0; color: var(--soft); font-size: 10px; }
+    .official-home-button { margin-bottom: 16px; }
+    .official-share-heading { margin-top: 25px; }
+    .official-card-link { border: 0; padding: 0; background: none; color: inherit; text-align: left; }
+
+    .bottom-nav {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      background: linear-gradient(180deg, transparent, rgba(7,9,26,.92) 20%);
+      pointer-events: none;
+    }
+    .bottom-nav-inner {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      width: min(440px, 100%);
+      padding: 17px 15px 13px;
+      border-top: 1px solid rgba(255,255,255,.1);
+      background: rgba(11, 14, 36, .88);
+      backdrop-filter: blur(20px);
+      pointer-events: auto;
+    }
+    .nav-item {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      border: 0;
+      padding: 0;
+      background: none;
+      color: #837f9d;
+      font-size: 10px;
+      transition: .2s ease;
+    }
+    .nav-item .icon { width: 19px; height: 19px; }
+    .nav-item.active { color: var(--orange-2); }
+    .nav-item:hover { color: #fff; }
+    .create-nav .create-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin-top: -25px;
+      border: 4px solid #12152f;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      color: #fff;
+      box-shadow: 0 9px 22px rgba(238, 86, 101, .38);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      padding: 15px;
+      background: rgba(4, 5, 18, .68);
+      opacity: 0;
+      visibility: hidden;
+      transition: .25s ease;
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal {
+      width: min(100%, 420px);
+      max-height: min(680px, 90vh);
+      overflow: auto;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 25px;
+      background: #171832;
+      box-shadow: 0 20px 80px rgba(0,0,0,.5);
+      transform: translateY(25px);
+      transition: .25s ease;
+    }
+    .modal-backdrop.open .modal { transform: none; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .modal-head h2 { margin: 0; font-size: 20px; }
+    .close-button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgba(255,255,255,.08); }
+    .search-input { width: 100%; border: 1px solid var(--line); border-radius: 15px; padding: 14px; outline: 0; background: rgba(255,255,255,.06); color: #fff; }
+    .search-results { margin-top: 14px; }
+    .result { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .result:last-child { border-bottom: 0; }
+    .result .icon { color: var(--orange-2); }
+    .composer-text { width: 100%; min-height: 120px; resize: vertical; border: 1px solid var(--line); border-radius: 16px; padding: 14px; outline: 0; background: rgba(255,255,255,.06); color: #fff; }
+    .composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; color: var(--muted); font-size: 11px; }
+    .status-form { display: grid; gap: 10px; }
+    .status-form textarea { width: 100%; min-height: 120px; resize: vertical; border: 1px solid var(--line); border-radius: 16px; padding: 14px; outline: 0; background: rgba(255,255,255,.06); color: #fff; }
+    .profile-actions { display: grid; gap: 9px; }
+    .profile-action { display: flex; align-items: center; gap: 11px; width: 100%; border: 1px solid var(--line); border-radius: 15px; padding: 14px; background: rgba(255,255,255,.05); color: #fff; text-align: left; transition: .2s ease; }
+    .profile-action:hover { border-color: var(--orange); background: rgba(255,120,78,.12); transform: translateY(-2px); }
+    .profile-action .icon { color: var(--orange-2); }
+    .profile-photo-preview { display: block; width: min(100%, 270px); aspect-ratio: 1; margin: 0 auto 14px; border-radius: 22px; object-fit: cover; background: linear-gradient(135deg, #e67550, #7e47ba); }
+    .profile-photo-empty { margin: 0 0 14px; padding: 30px 18px; border: 1px dashed rgba(255,255,255,.2); border-radius: 18px; color: var(--muted); text-align: center; }
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 91px;
+      left: 18px;
+      z-index: 70;
+      max-width: 400px;
+      margin: auto;
+      padding: 12px 15px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      background: #252347;
+      color: #fff;
+      box-shadow: var(--shadow);
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: .25s ease;
+    }
+    .toast.show { opacity: 1; transform: none; }
+    .live-feed { display: grid; gap: 10px; }
+    .live-post {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(27, 27, 59, .78);
+    }
+    .live-post-media { display: block; width: 100%; max-height: 340px; aspect-ratio: 16 / 10; object-fit: cover; background: #11132e; }
+    .live-post-body { padding: 14px; }
+    .live-post-meta { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
+    .live-post-avatar { display: grid; place-items: center; width: 25px; height: 25px; flex: 0 0 25px; overflow: hidden; border-radius: 50%; background: linear-gradient(135deg, var(--orange), var(--purple)); color: #fff; font-size: 10px; font-weight: 700; }
+    img.live-post-avatar { object-fit: cover; }
+    .live-post-body h3 { margin: 11px 0 5px; }
+    .live-post-body p { margin: 0; color: #d6d0df; font-size: 12px; white-space: pre-wrap; }
+    .live-post-actions { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 13px; }
+    .live-action { display: inline-flex; align-items: center; gap: 3px; border: 0; padding: 0; background: none; color: var(--muted); font-size: 11px; line-height: 1.35; white-space: nowrap; }
+    .live-action.liked { color: #ff7b8c; }
+    .empty-feed { padding: 16px; border: 1px dashed rgba(255,255,255,.18); border-radius: 16px; color: var(--muted); font-size: 12px; text-align: center; }
+    .discovery-filters { display: flex; gap: 7px; overflow-x: auto; margin: -5px 0 13px; padding-bottom: 3px; scrollbar-width: none; }
+    .discovery-filters::-webkit-scrollbar { display: none; }
+    .filter-button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 99px; padding: 8px 12px; background: rgba(255,255,255,.05); color: var(--muted); font-size: 11px; }
+    .filter-button.active, .filter-button:hover { border-color: var(--orange); background: rgba(255,120,78,.13); color: #fff; }
+    .discovery-grid, .network-grid { display: grid; gap: 10px; }
+    .discovery-card, .network-card { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(27,27,59,.78); }
+    .discovery-card-media { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #11132e; }
+    .discovery-card-body, .network-card { padding: 14px; }
+    .discovery-card-body h3 { margin: 9px 0 4px; }
+    .discovery-card-body p { display: -webkit-box; overflow: hidden; margin: 0; color: #d6d0df; font-size: 12px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+    .discovery-meta, .network-meta { color: var(--muted); font-size: 11px; }
+    .network-card { display: flex; align-items: center; gap: 11px; }
+    .network-avatar { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; overflow: hidden; border-radius: 50%; background: linear-gradient(135deg, var(--orange), var(--purple)); color: #fff; font-weight: 700; }
+    img.network-avatar { object-fit: cover; }
+    .network-card-content { min-width: 0; flex: 1; }
+    .network-card-content strong, .network-card-content span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .network-card-content strong { font-size: 13px; }
+    .network-card-content span { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .network-card .secondary-button { padding: 8px 10px; }
+    .notification-list { display: grid; gap: 9px; max-height: 390px; overflow: auto; }
+    .notification-row { display: flex; align-items: flex-start; gap: 10px; padding: 11px; border-radius: 14px; background: rgba(255,255,255,.05); }
+    .notification-row .icon { flex: 0 0 auto; color: var(--orange-2); }
+    .notification-row p { margin: 0; color: #ddd7e5; font-size: 12px; }
+    .composer-form { display: grid; gap: 10px; }
+    .composer-title, .composer-select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 12px 13px;
+      outline: 0;
+      background: rgba(255,255,255,.06);
+      color: #fff;
+    }
+    .composer-select option { color: #14152f; }
+    .media-picker {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px dashed rgba(255,255,255,.2);
+      border-radius: 13px;
+      padding: 11px 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .media-picker:hover { border-color: var(--orange); color: #fff; }
+    .media-picker input { display: none; }
+    .upload-progress { display: none; color: var(--orange-2); font-size: 11px; }
+    .upload-progress.show { display: block; }
+    .progress-track { height: 5px; overflow: hidden; margin-top: 6px; border-radius: 99px; background: rgba(255,255,255,.1); }
+    .progress-bar { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange), var(--pink)); transition: width .15s ease; }
+    .profile-form { display: grid; gap: 10px; }
+    .profile-form label { color: var(--muted); font-size: 11px; }
+    .profile-form input { width: 100%; border: 1px solid var(--line); border-radius: 13px; padding: 12px 13px; outline: 0; background: rgba(255,255,255,.06); color: #fff; }
+    .comments-list { display: grid; gap: 10px; max-height: 280px; overflow: auto; margin-bottom: 12px; }
+    .comment-row { padding: 10px 12px; border-radius: 13px; background: rgba(255,255,255,.05); }
+    .comment-row strong { font-size: 11px; }
+    .comment-row p { margin: 3px 0 0; color: #d5d0df; font-size: 12px; }
+    .comment-form { display: flex; gap: 8px; }
+    .comment-form input { min-width: 0; flex: 1; border: 1px solid var(--line); border-radius: 12px; padding: 11px; outline: 0; background: rgba(255,255,255,.06); color: #fff; }
+    .gate-copy { margin: -5px 0 17px; color: var(--muted); font-size: 12px; }
+    .gate-form { display: grid; gap: 11px; }
+    .gate-form label { color: #dcd6e4; font-size: 11px; font-weight: 600; }
+    .gate-form input, .gate-form select { width: 100%; border: 1px solid var(--line); border-radius: 13px; padding: 12px 13px; outline: 0; background: rgba(255,255,255,.06); color: #fff; }
+    .gate-form select option { color: #14152f; }
+    .phone-hint { margin-top: -5px; color: var(--orange-2); font-size: 10px; }
+    .gate-form .primary-button { width: 100%; min-height: 47px; margin-top: 6px; letter-spacing: .15px; }
+    .auth-intro { margin: -5px 0 17px; color: var(--muted); font-size: 12px; }
+    .auth-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-bottom: 17px; padding: 4px; border-radius: 14px; background: rgba(255,255,255,.06); }
+    .auth-tab { border: 0; border-radius: 10px; padding: 10px; background: transparent; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .auth-tab.active { background: linear-gradient(135deg, rgba(255,120,78,.9), rgba(237,82,122,.9)); color: #fff; box-shadow: 0 6px 14px rgba(237,82,122,.2); }
+    .auth-form { display: grid; gap: 11px; }
+    .auth-form[hidden] { display: none; }
+    .auth-form label { color: #dcd6e4; font-size: 11px; font-weight: 600; }
+    .auth-form input, .auth-form select { width: 100%; border: 1px solid var(--line); border-radius: 13px; padding: 12px 13px; outline: 0; background: rgba(255,255,255,.06); color: #fff; }
+    .auth-form select option { color: #14152f; }
+    .auth-form .primary-button { width: 100%; min-height: 47px; margin-top: 5px; }
+    .auth-error { min-height: 16px; margin: 0; color: #ff9e9e; font-size: 11px; }
+    .auth-link { justify-self: end; border: 0; padding: 0; background: transparent; color: var(--orange-2); font-size: 11px; }
+    .google-button { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; min-height: 45px; border: 1px solid rgba(255,255,255,.2); border-radius: 13px; background: #fff; color: #202124; font-size: 12px; font-weight: 700; transition: .2s ease; }
+    .google-button:hover { border-color: #8ab4f8; background: #f8fbff; transform: translateY(-2px); }
+    .google-mark { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #4285f4; font: 700 16px Arial, sans-serif; }
+    .auth-divider { display: flex; align-items: center; gap: 9px; margin: 3px 0; color: var(--soft); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .auth-divider::before, .auth-divider::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+    .terms-check { display: flex !important; align-items: flex-start; gap: 8px; margin: 3px 0; color: var(--muted) !important; font-weight: 400 !important; line-height: 1.35; }
+    .terms-check input { width: auto !important; margin-top: 2px; accent-color: var(--orange); }
+    .gate-error { min-height: 16px; color: #ff9b9b; font-size: 11px; }
+    .settings-card { overflow: hidden; margin-bottom: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(27, 27, 59, .78); }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px; cursor: pointer; }
+    .setting-row h3 { margin-bottom: 5px; }
+    .setting-row p { margin: 0; color: var(--muted); font-size: 12px; }
+    .setting-switch { position: relative; width: 48px; height: 28px; flex: 0 0 auto; }
+    .setting-switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .setting-switch span { position: absolute; inset: 0; border-radius: 99px; background: rgba(255,255,255,.16); transition: .2s ease; }
+    .setting-switch span::after { content: ""; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); transition: .2s ease; }
+    .setting-switch input:checked + span { background: linear-gradient(135deg, var(--orange), var(--pink)); }
+    .setting-switch input:checked + span::after { transform: translateX(20px); }
+    .setting-switch input:focus-visible + span { outline: 3px solid var(--orange-2); outline-offset: 3px; }
+    .settings-note { margin: 0; padding: 13px 18px 16px; border-top: 1px solid var(--line); color: var(--soft); font-size: 11px; }
+    .welcome-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 28px;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(238, 83, 115, .25), transparent 19rem),
+        radial-gradient(circle at 15% 90%, rgba(143, 95, 232, .26), transparent 22rem),
+        #08091d;
+      transition: opacity .7s ease, visibility .7s ease;
+    }
+    .welcome-splash::before, .welcome-splash::after { content: ""; position: absolute; border: 1px solid rgba(255, 173, 96, .23); border-radius: 50%; animation: splash-orbit 8s ease-in-out infinite; }
+    .welcome-splash::before { width: min(92vw, 430px); height: min(92vw, 430px); }
+    .welcome-splash::after { width: min(67vw, 310px); height: min(67vw, 310px); border-color: rgba(237, 82, 122, .22); animation-delay: -2.5s; }
+    .welcome-splash.is-hidden { visibility: hidden; opacity: 0; pointer-events: none; }
+    .splash-content { position: relative; z-index: 1; width: min(100%, 380px); text-align: center; }
+    .splash-mark { display: inline-grid; place-items: center; width: 58px; height: 58px; margin-bottom: 26px; border: 1px solid rgba(255,255,255,.25); border-radius: 18px; background: linear-gradient(135deg, var(--orange), var(--pink) 55%, var(--purple)); box-shadow: 0 0 45px rgba(237, 82, 122, .34); color: #fff; font: 700 26px "Space Grotesk", sans-serif; animation: splash-mark-in .9s .2s both; }
+    .splash-kicker { margin: 0 0 14px; color: var(--orange-2); font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; animation: splash-rise .9s .45s both; }
+    .splash-title { margin: 0; color: #fff8f8; font: 500 clamp(29px, 8vw, 44px)/1.02 "Space Grotesk", sans-serif; letter-spacing: -1.8px; animation: splash-rise 1s .7s both; }
+    .splash-title span, .splash-title strong { display: block; }
+    .splash-title strong { color: var(--orange-2); font-weight: 700; }
+    .splash-rule { width: 0; height: 1px; margin: 25px auto 18px; background: linear-gradient(90deg, transparent, var(--orange), var(--pink), transparent); animation: splash-rule 1.1s 1.3s ease forwards; }
+    .splash-subtitle { margin: 0; color: #c4bdd1; font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase; animation: splash-rise .9s 1.5s both; }
+    .splash-progress { width: min(220px, 70vw); height: 3px; margin: 58px auto 0; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.12); animation: splash-rise .8s 1.8s both; }
+    .splash-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange), var(--pink), var(--purple)); animation: splash-progress 7.7s 0.4s linear forwards; }
+    .splash-skip { margin-top: 19px; border: 1px solid rgba(255,255,255,.22); border-radius: 99px; padding: 8px 15px; background: rgba(255,255,255,.06); color: #d9d2df; font-size: 11px; transition: .2s ease; animation: splash-rise .8s 2s both; }
+    .splash-skip:hover { border-color: var(--orange-2); background: rgba(255,120,78,.12); color: #fff; }
+    @keyframes splash-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    @keyframes splash-mark-in { from { opacity: 0; transform: scale(.65) rotate(-12deg); } to { opacity: 1; transform: none; } }
+    @keyframes splash-rule { to { width: 150px; } }
+    @keyframes splash-progress { to { width: 100%; } }
+    @keyframes splash-orbit { 0%, 100% { transform: scale(.92) rotate(0deg); opacity: .55; } 50% { transform: scale(1.08) rotate(10deg); opacity: 1; } }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .profile-photo.has-photo { background-size: cover; background-position: center; background-repeat: no-repeat; }
+    .result { width: 100%; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+    .result:hover { background: rgba(255,255,255,.05); }
+    button:disabled { cursor: wait; opacity: .6; }
+    @media (prefers-reduced-motion: reduce) {
+      .welcome-splash *, .welcome-splash::before, .welcome-splash::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+      .splash-progress span { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-splash" id="welcomeSplash" role="dialog" aria-modal="true" aria-label="Bienvenue sur KAYAWOTO">
+    <div class="splash-content">
+      <div class="splash-mark" aria-hidden="true">K</div>
+      <p class="splash-kicker">KAYAWOTO présente</p>
+      <h1 class="splash-title"><span>la plateforme</span><strong>des MAOULANDAI</strong></h1>
+      <div class="splash-rule" aria-hidden="true"></div>
+      <p class="splash-subtitle">Crée · Connecte · Rayonne</p>
+      <div class="splash-progress" aria-hidden="true"><span></span></div>
+       <button class="splash-skip" id="skipSplash" type="button">Passer l’introduction</button>
+    </div>
+  </div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-row">
+        <button class="wordmark official-entry" id="officialEntryButton" type="button" aria-label="Ouvrir l’espace officiel KAYAWOTO">KAYAWOTO<small>CRÉATEURS · COMMUNAUTÉS · IMPACT</small></button>
+        <button class="round-button notification-button" id="notificationButton" aria-label="Notifications">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>
+          <span class="badge" aria-hidden="true" style="display:none"></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="screen active" id="homeScreen" data-screen="home">
+        <div class="section-head">
+          <div>
+            <p class="kicker">TON ESPACE CRÉATIF</p>
+            <h1>Crée. Connecte.<br><em>Rayonne.</em></h1>
+          </div>
+          <button class="round-button" id="searchButton" aria-label="Rechercher">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 5 5"/></svg>
+          </button>
+        </div>
+
+        <section class="status-section">
+          <div class="section-head">
+            <div><p class="kicker">COMMUNAUTÉ RÉELLE</p><h2>Statuts récents</h2></div>
+            <button class="text-button" id="createStatusButton">Publier</button>
+          </div>
+          <div class="status-grid" id="statusGrid">
+            <div class="status-empty">Aucun statut pour le moment.<br><span>Publie le premier message de la communauté.</span></div>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <div class="section-head"><h2>La communauté en direct</h2><button class="text-button" id="refreshFeed">Actualiser</button></div>
+          <div class="live-feed" id="liveFeed"><div class="empty-feed">Connexion à la communauté…</div></div>
+        </section>
+        <section class="content-section">
+          <div class="section-head"><h2>Actualités KAYAWOTO</h2><span class="kicker">👑 OFFICIEL</span></div>
+          <div class="live-feed" id="officialFeed"><div class="empty-feed">Les actualités officielles apparaîtront ici.</div></div>
+        </section>
+      </section>
+
+      <section class="screen" id="officialScreen" data-screen="official">
+        <button class="secondary-button official-home-button" type="button" data-nav="home">← Accueil</button>
+        <div class="official-profile-card">
+          <div class="official-cover" aria-hidden="true"></div>
+          <div class="official-profile-body">
+            <div class="official-avatar" aria-hidden="true">K</div>
+            <button class="official-name-link" id="officialProfileName" type="button">KAYAWOTO <span class="official-verified" aria-label="Profil officiel">✓</span></button>
+            <p class="official-handle">@kayawotoofficiel · Artiste burkinabè</p>
+            <span class="official-badge">👑 Espace officiel KAYAWOTO</span>
+            <p class="official-bio">Retrouve ici les contenus partagés par KAYAWOTO avec les MAOULANDAI, les annonces et les rendez-vous de la communauté.</p>
+            <div class="social-links" aria-label="Réseaux sociaux de KAYAWOTO">
+              <a class="social-link" href="https://www.facebook.com/kayawotoofficiel" target="_blank" rel="noopener noreferrer"><span class="social-logo facebook">f</span><span>Facebook officiel</span></a>
+              <a class="social-link" href="https://www.youtube.com/watch?v=mEUQ7E2-TbI" target="_blank" rel="noopener noreferrer"><span class="social-logo youtube">▶</span><span>YouTube · clip officiel</span></a>
+            </div>
+            <p class="official-note">Instagram, TikTok et les autres liens seront ajoutés après validation des comptes officiels.</p>
+          </div>
+        </div>
+        <div class="section-head official-share-heading"><div><p class="kicker">AVEC LES MAOULANDAI</p><h2>Les contenus de KAYAWOTO</h2></div><span class="kicker">OFFICIEL</span></div>
+        <div class="live-feed" id="officialSharedFeed"><div class="empty-feed">Chargement des contenus officiels…</div></div>
+      </section>
+
+      <section class="screen" id="goScreen" data-screen="go">
+        <div class="page-heading"><p class="kicker">DÉCOUVRIR</p><h1>GO.</h1><p>Les contenus qui font vibrer la communauté, classés par énergie.</p></div>
+        <div class="discovery-filters" id="discoveryFilters" aria-label="Filtrer les contenus">
+          <button class="filter-button active" type="button" data-discovery-filter="all">Tout</button>
+          <button class="filter-button" type="button" data-discovery-filter="official">👑 KAYAWOTO</button>
+          <button class="filter-button" type="button" data-discovery-filter="maoulandai">🔥 MAOULANDAI</button>
+          <button class="filter-button" type="button" data-discovery-filter="creator">Créateurs</button>
+          <button class="filter-button" type="button" data-discovery-filter="music">Musique</button>
+          <button class="filter-button" type="button" data-discovery-filter="community">Communauté</button>
+        </div>
+        <div class="discovery-grid" id="discoveryGrid"><div class="empty-feed">Chargement des découvertes…</div></div>
+        <div class="content-section">
+          <div class="section-head"><h2>Événements</h2><span class="kicker">MAOULANDAI</span></div>
+          <div class="discovery-grid" id="eventsGrid"><div class="empty-feed">Chargement des événements…</div></div>
+        </div>
+        <div class="content-section">
+          <div class="section-head"><h2>Partenaires</h2><span class="kicker">À VALIDER</span></div>
+          <div class="network-grid" id="partnersGrid"><div class="empty-feed">Les partenaires officiels seront annoncés ici.</div></div>
+        </div>
+        <div class="go-card" id="liveRoomCard">
+          <p class="kicker">LIVE MAOULANDAI</p>
+          <h3 id="liveRoomTitle">Aucun LIVE en cours</h3>
+          <p class="muted" id="liveRoomDescription">Le prochain LIVE de KAYAWOTO sera annoncé ici. Les commentaires et réactions seront disponibles pendant la diffusion.</p>
+          <button class="primary-button" id="watchLiveButton" type="button" hidden>Regarder le LIVE</button>
+        </div>
+      </section>
+
+      <section class="screen" id="networkScreen" data-screen="network">
+        <div class="page-heading"><p class="kicker">TON RÉSEAU</p><h1>Ton réseau<br><em>commence ici.</em></h1><p>Découvre les personnes qui partagent leurs idées et leurs talents.</p></div>
+        <div class="network-grid" id="networkGrid"><div class="empty-feed">Chargement des profils…</div></div>
+      </section>
+
+      <section class="screen" id="profileScreen" data-screen="profile">
+        <div class="page-heading"><p class="kicker">MON ESPACE</p><h1>Ton impact,<br><em>ton histoire.</em></h1></div>
+        <div class="profile-card"><button class="profile-photo" id="profilePhotoButton" aria-label="Ouvrir les options de ma photo de profil">＋</button><h2>Profil vide</h2><p>Ton espace KAYAWOTO pour participer à la communauté</p><div class="auth-actions" id="profileAuthActions"><button class="primary-button" id="profileAccessButton">Accéder à KAYAWOTO</button></div><button class="primary-button" id="editProfile" hidden>Modifier mon profil</button><button class="secondary-button" id="signOutButton" hidden>Se déconnecter</button><div class="profile-stats"><div><b id="postCount">—</b><small>mes publications récentes</small></div><div><b id="followerCount">0</b><small>abonnés</small></div><div><b id="followingCount">0</b><small>abonnements</small></div></div></div>
+        <div class="go-card"><h3>Ton espace est prêt.</h3><p class="muted">Publie une idée, partage une victoire et construis ton réseau autour de ce qui compte pour toi.</p><button class="primary-button" id="profileCreate">Créer une publication</button></div>
+        <div class="go-card"><h3>Paramètres</h3><p class="muted">Personnalise ton expérience KAYAWOTO.</p><button class="primary-button" data-nav="settings">Ouvrir les paramètres</button></div>
+      </section>
+
+      <section class="screen" id="settingsScreen" data-screen="settings">
+        <div class="page-heading"><p class="kicker">PERSONNALISATION</p><h1>Tes<br><em>paramètres.</em></h1><p>Choisis la façon dont KAYAWOTO t’accueille.</p></div>
+        <div class="settings-card">
+           <label class="setting-row" for="splashToggle">
+          <div><h3>Écran d'accueil animé</h3><p>Afficher l’animation « la plateforme des MAOULANDAI » pendant environ 8 secondes à l’ouverture.</p></div>
+            <span class="setting-switch"><input id="splashToggle" type="checkbox" checked><span aria-hidden="true"></span></span>
+          </label>
+          <p class="settings-note">Ce choix est enregistré sur ton appareil. Tu peux le modifier quand tu veux.</p>
+        </div>
+        <div class="settings-card">
+          <label class="setting-row" for="notificationToggle">
+            <div><h3>Notifications de la communauté</h3><p>Recevoir les nouvelles publications, réactions et annonces importantes de KAYAWOTO.</p></div>
+            <span class="setting-switch"><input id="notificationToggle" type="checkbox" checked><span aria-hidden="true"></span></span>
+          </label>
+          <p class="settings-note">Le choix est enregistré sur ton appareil.</p>
+        </div>
+        <div class="settings-card" id="adminPanel" hidden>
+          <div class="setting-row">
+            <div><h3>Espace KAYAWOTO / Propulsion Prod</h3><p id="adminStatus">Gestion des contenus officiels, événements, LIVE et signalements.</p></div>
+          </div>
+          <div class="profile-actions" style="padding: 0 18px 18px;">
+            <button class="profile-action" data-admin-action="official"><span>👑</span><span>Nouvelle publication officielle</span></button>
+            <button class="profile-action" data-admin-action="event"><span>📅</span><span>Ajouter un événement</span></button>
+            <button class="profile-action" data-admin-action="live"><span>🔴</span><span>Préparer un LIVE</span></button>
+            <button class="profile-action" data-admin-action="reports"><span>⚑</span><span>Voir les signalements</span></button>
+            <button class="profile-action" data-admin-action="partners"><span>🤝</span><span>Gérer les partenaires</span></button>
+          </div>
+        </div>
+        <button class="text-button" data-nav="profile">← Retour à mon espace</button>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Navigation principale">
+    <div class="bottom-nav-inner">
+      <button class="nav-item active" data-nav="home"><svg class="icon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z"/><path d="M9 21v-7h6v7"/></svg><span>Pour toi</span></button>
+      <button class="nav-item" data-nav="go"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19 20 4"/><path d="M12 4h8v8"/><path d="M4 4v.01M4 12v.01M4 20v.01"/></svg><span>Go</span></button>
+      <button class="nav-item create-nav" id="createButton"><span class="create-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Créer</span></button>
+      <button class="nav-item" data-nav="network"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.6-3.5 2.5-5 6-5s5.4 1.5 6 5M15 15c3 .1 4.8 1.4 5.5 4"/></svg><span>Réseau</span></button>
+      <button class="nav-item" data-nav="profile"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.8-4 3.3-6 7.5-6s6.7 2 7.5 6"/></svg><span>Mon espace</span></button>
+    </div>
+  </nav>
+
+  <div class="modal-backdrop" id="searchModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+      <div class="modal-head"><h2 id="searchTitle">Rechercher</h2><button class="close-button" data-close="searchModal" aria-label="Fermer">×</button></div>
+      <input class="search-input" id="searchInput" type="search" placeholder="Créateur, communauté, son..." autocomplete="off">
+      <div class="search-results" id="searchResults"><div class="result"><svg class="icon" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 5 5"/></svg><span>Essaie « afro », « musique » ou « réseau »</span></div></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="notificationsModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="notificationsTitle">
+      <div class="modal-head"><h2 id="notificationsTitle">Notifications</h2><button class="close-button" data-close="notificationsModal" aria-label="Fermer">×</button></div>
+      <div class="notification-list" id="notificationList"><div class="empty-feed">Aucune notification pour le moment.</div></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="reportModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+      <div class="modal-head"><h2 id="reportTitle">Signaler un contenu</h2><button class="close-button" data-close="reportModal" aria-label="Fermer">×</button></div>
+      <p class="gate-copy">Ton signalement sera transmis à l’espace de modération KAYAWOTO / Propulsion Prod.</p>
+      <form class="profile-form" id="reportForm">
+        <label for="reportReason">Motif du signalement</label>
+        <select class="composer-select" id="reportReason" required>
+          <option value="">Choisir un motif</option>
+          <option value="harassment">Harcèlement ou comportement abusif</option>
+          <option value="spam">Spam ou publicité non autorisée</option>
+          <option value="copyright">Droits d’auteur</option>
+          <option value="other">Autre</option>
+        </select>
+        <label for="reportDetails">Détails (facultatif)</label>
+        <textarea class="composer-text" id="reportDetails" maxlength="500" placeholder="Explique brièvement le problème…"></textarea>
+        <button class="primary-button" type="submit">Envoyer le signalement</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="adminModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <div class="modal-head"><h2 id="adminTitle">Administration KAYAWOTO</h2><button class="close-button" data-close="adminModal" aria-label="Fermer">×</button></div>
+      <p class="gate-copy">Espace préparé pour KAYAWOTO / Propulsion Prod. Les contrôles réels doivent être protégés par les règles Firebase.</p>
+      <form class="profile-form" id="eventForm" hidden>
+        <label for="eventName">Nom de l’événement</label>
+        <input id="eventName" maxlength="100" placeholder="Ex. Concert Maoulandai">
+        <label for="eventDate">Date et heure</label>
+        <input id="eventDate" type="datetime-local">
+        <label for="eventPlace">Lieu</label>
+        <input id="eventPlace" maxlength="100" placeholder="Ville, salle ou lien">
+        <label for="eventInfo">Informations</label>
+        <textarea class="composer-text" id="eventInfo" maxlength="500" placeholder="Informations pratiques…"></textarea>
+        <button class="primary-button" type="submit">Enregistrer l’événement</button>
+      </form>
+      <form class="profile-form" id="liveForm" hidden>
+        <label for="liveTitle">Titre du LIVE</label>
+        <input id="liveTitle" maxlength="100" placeholder="LIVE MAOULANDAI">
+        <label for="liveUrl">Lien vidéo Bunny / diffusion</label>
+        <input id="liveUrl" type="url" placeholder="https://...">
+        <label for="liveDescription">Description</label>
+        <textarea class="composer-text" id="liveDescription" maxlength="300" placeholder="Présente ce LIVE à la communauté…"></textarea>
+        <button class="primary-button" type="submit">Préparer le LIVE</button>
+      </form>
+      <div class="empty-feed" id="adminMessage">Choisis une action dans ton espace d’administration.</div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="composerModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="composerTitle">
+      <div class="modal-head"><h2 id="composerTitle">Créer une publication</h2><button class="close-button" data-close="composerModal" aria-label="Fermer">×</button></div>
+      <form class="composer-form" id="composerForm">
+        <input class="composer-title" id="composerTitleInput" maxlength="80" placeholder="Titre de ta publication (facultatif)">
+        <textarea class="composer-text" id="composerText" maxlength="280" placeholder="Partage une idée, une victoire, une image..."></textarea>
+        <select class="composer-select" id="composerCategory" aria-label="Type de publication">
+          <option value="community">Communauté</option>
+          <option value="creator">Créateurs en lumière</option>
+          <option value="music">Musique</option>
+        </select>
+        <select class="composer-select" id="composerAudience" aria-label="Audience de la publication" hidden>
+          <option value="community">Publication Maoulandai</option>
+          <option value="official">Publication officielle KAYAWOTO</option>
+        </select>
+        <label class="media-picker"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><circle cx="9" cy="10" r="1.5"/><path d="m5 17 4-4 3 3 2-2 5 4"/></svg><span id="mediaLabel">Ajouter une photo ou une vidéo</span><input id="mediaFile" type="file" accept="image/*,video/*"></label>
+        <div class="upload-progress" id="uploadProgress"><span id="uploadLabel">Préparation…</span><div class="progress-track"><div class="progress-bar" id="uploadBar"></div></div></div>
+        <div class="composer-footer"><span id="charCount">0 / 280</span><button class="primary-button" id="publishButton" type="submit">Publier</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="statusModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
+      <div class="modal-head"><h2 id="statusTitle">Publier un statut</h2><button class="close-button" data-close="statusModal" aria-label="Fermer">×</button></div>
+      <p class="gate-copy">Ton message apparaîtra sur l’accueil dans une petite carte carrée.</p>
+      <form class="status-form" id="statusForm">
+        <textarea id="statusText" maxlength="140" required placeholder="Qu’est-ce que tu veux partager aujourd’hui ?"></textarea>
+        <div class="composer-footer"><span id="statusCharCount">0 / 140</span><button class="primary-button" type="submit">Publier le statut</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="profileActionsModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileActionsTitle">
+      <div class="modal-head"><h2 id="profileActionsTitle">Ma photo de profil</h2><button class="close-button" data-close="profileActionsModal" aria-label="Fermer">×</button></div>
+      <div class="profile-actions">
+        <button class="profile-action" data-profile-action="view"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg><span>Regarder ma photo de profil</span></button>
+        <button class="profile-action" data-profile-action="change"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><circle cx="9" cy="10" r="1.5"/><path d="m5 17 4-4 3 3 2-2 5 4"/></svg><span>Changer ma photo de profil</span></button>
+        <button class="profile-action" data-profile-action="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z"/><path d="M8 9h8M8 13h5"/></svg><span>Publier un statut</span></button>
+      </div>
+      <input id="profilePhotoFile" type="file" accept="image/*" hidden>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="profilePhotoViewerModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profilePhotoViewerTitle">
+      <div class="modal-head"><h2 id="profilePhotoViewerTitle">Ma photo de profil</h2><button class="close-button" data-close="profilePhotoViewerModal" aria-label="Fermer">×</button></div>
+      <img class="profile-photo-preview" id="profilePhotoPreview" alt="Ma photo de profil">
+      <p class="profile-photo-empty" id="profilePhotoEmpty">Tu n’as pas encore ajouté de photo de profil.</p>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="profileModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <div class="modal-head"><h2 id="profileTitle">Ton profil KAYAWOTO</h2><button class="close-button" data-close="profileModal" aria-label="Fermer">×</button></div>
+      <form class="profile-form" id="profileForm">
+        <label for="profileNickname">Nom ou pseudo</label>
+        <input id="profileNickname" required maxlength="40" placeholder="Ex. Ibrahim KAYAWOTOais">
+        <label for="profileCountry">Ville ou pays</label>
+        <input id="profileCountry" maxlength="60" placeholder="Ex. Ouagadougou, Burkina Faso">
+        <div class="composer-footer"><span class="muted">Profil synchronisé avec Firebase</span><button class="primary-button" type="submit">Enregistrer</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="commentsModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="commentsTitle">
+      <div class="modal-head"><h2 id="commentsTitle">Commentaires</h2><button class="close-button" data-close="commentsModal" aria-label="Fermer">×</button></div>
+      <div class="comments-list" id="commentsList"><div class="empty-feed">Chargement…</div></div>
+      <form class="comment-form" id="commentForm">
+        <input id="commentInput" maxlength="280" placeholder="Écrire un commentaire…" autocomplete="off">
+        <button class="primary-button" type="submit">Envoyer</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="profileGateModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileGateTitle">
+      <div class="modal-head"><div><p class="kicker">PROFIL UNIQUE</p><h2 id="profileGateTitle">Votre profil KAYAWOTO</h2></div><button class="close-button" data-close="profileGateModal" aria-label="Fermer">×</button></div>
+      <p class="gate-copy">Renseigne tes informations une seule fois pour accéder à ton espace et participer à la communauté.</p>
+      <form class="gate-form" id="profileGateForm">
+        <label for="gateName">Nom ou pseudo</label>
+        <input id="gateName" required maxlength="40" autocomplete="name" placeholder="Ex. Ibrahim KAYAWOTOais">
+        <label for="gateCountry">Pays</label>
+        <select id="gateCountry" required>
+          <option value="">Choisir ton pays</option>
+          <option value="BF|Burkina Faso|+226">Burkina Faso (+226)</option>
+          <option value="BJ|Bénin|+229">Bénin (+229)</option>
+          <option value="CI|Côte d’Ivoire|+225">Côte d’Ivoire (+225)</option>
+          <option value="GH|Ghana|+233">Ghana (+233)</option>
+          <option value="GN|Guinée|+224">Guinée (+224)</option>
+          <option value="ML|Mali|+223">Mali (+223)</option>
+          <option value="NE|Niger|+227">Niger (+227)</option>
+          <option value="NG|Nigeria|+234">Nigeria (+234)</option>
+          <option value="SN|Sénégal|+221">Sénégal (+221)</option>
+          <option value="TG|Togo|+228">Togo (+228)</option>
+          <option value="FR|France|+33">France (+33)</option>
+          <option value="BE|Belgique|+32">Belgique (+32)</option>
+          <option value="CA|Canada|+1">Canada (+1)</option>
+        </select>
+        <label for="gatePhone">Numéro de téléphone</label>
+        <input id="gatePhone" required type="tel" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="Ex. 70 00 00 00">
+        <span class="phone-hint" id="gatePhoneHint">L’indicatif de ton pays sera ajouté automatiquement.</span>
+        <label class="terms-check"><input id="gateTerms" type="checkbox" required><span>J’accepte les conditions d’utilisation et la politique de confidentialité de KAYAWOTO.</span></label>
+        <div class="gate-error" id="gateError" aria-live="polite"></div>
+        <button class="primary-button" type="submit">Continuer vers KAYAWOTO</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="accessModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+      <div class="modal-head"><div><p class="kicker">ACCÈS SÉCURISÉ</p><h2 id="accessTitle">Ton espace KAYAWOTO</h2></div><button class="close-button" data-close="accessModal" aria-label="Fermer">×</button></div>
+      <p class="auth-intro">Utilise ton adresse e-mail pour retrouver ton profil et tes publications sur chaque appareil.</p>
+      <div class="auth-tabs" role="tablist" aria-label="Accès au compte">
+        <button class="auth-tab active" id="loginTab" type="button" role="tab" aria-selected="true" data-auth-tab="login">Connexion</button>
+        <button class="auth-tab" id="signupTab" type="button" role="tab" aria-selected="false" data-auth-tab="signup">Inscription</button>
+      </div>
+      <form class="auth-form" id="loginForm">
+        <button class="google-button" type="button" data-google-auth><span class="google-mark">G</span>Continuer avec Google</button>
+        <div class="auth-divider">ou avec ton e-mail</div>
+        <label for="loginEmail">Adresse e-mail</label>
+        <input id="loginEmail" type="email" required autocomplete="email" placeholder="nom@exemple.com">
+        <label for="loginPassword">Mot de passe</label>
+        <input id="loginPassword" type="password" required minlength="6" autocomplete="current-password" placeholder="••••••••">
+        <button class="auth-link" id="forgotPasswordButton" type="button">Mot de passe oublié ?</button>
+        <p class="auth-error" id="loginError" aria-live="polite"></p>
+        <button class="primary-button" type="submit">Accéder à mon compte</button>
+      </form>
+      <form class="auth-form" id="signupForm" hidden>
+        <button class="google-button" type="button" data-google-auth><span class="google-mark">G</span>Créer un compte avec Google</button>
+        <div class="auth-divider">ou avec ton e-mail</div>
+        <label for="signupName">Nom ou pseudo</label>
+        <input id="signupName" required maxlength="40" autocomplete="name" placeholder="Ex. Kalilo">
+        <label for="signupEmail">Adresse e-mail</label>
+        <input id="signupEmail" type="email" required autocomplete="email" placeholder="nom@exemple.com">
+        <label for="signupCountry">Pays</label>
+        <select id="signupCountry" required>
+          <option value="">Choisir ton pays</option>
+          <option value="BF|Burkina Faso|+226">Burkina Faso (+226)</option>
+          <option value="BJ|Bénin|+229">Bénin (+229)</option>
+          <option value="CI|Côte d’Ivoire|+225">Côte d’Ivoire (+225)</option>
+          <option value="GH|Ghana|+233">Ghana (+233)</option>
+          <option value="GN|Guinée|+224">Guinée (+224)</option>
+          <option value="ML|Mali|+223">Mali (+223)</option>
+          <option value="NE|Niger|+227">Niger (+227)</option>
+          <option value="NG|Nigeria|+234">Nigeria (+234)</option>
+          <option value="SN|Sénégal|+221">Sénégal (+221)</option>
+          <option value="TG|Togo|+228">Togo (+228)</option>
+          <option value="FR|France|+33">France (+33)</option>
+          <option value="BE|Belgique|+32">Belgique (+32)</option>
+          <option value="CA|Canada|+1">Canada (+1)</option>
+        </select>
+        <label for="signupPhone">Numéro de téléphone</label>
+        <input id="signupPhone" required type="tel" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="Ex. 70 00 00 00">
+        <label for="signupPassword">Mot de passe</label>
+        <input id="signupPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="6 caractères minimum">
+        <label for="signupPasswordConfirm">Confirmer le mot de passe</label>
+        <input id="signupPasswordConfirm" type="password" required minlength="6" autocomplete="new-password" placeholder="Retape ton mot de passe">
+        <label class="terms-check"><input id="signupTerms" type="checkbox" required><span>J’accepte les conditions d’utilisation et la politique de confidentialité de KAYAWOTO.</span></label>
+        <p class="auth-error" id="signupError" aria-live="polite"></p>
+        <button class="primary-button" type="submit">Créer mon compte KAYAWOTO</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const screens = [...document.querySelectorAll(".screen")];
+      const navItems = [...document.querySelectorAll("[data-nav]")];
+      const toast = document.getElementById("toast");
+      const welcomeSplash = document.getElementById("welcomeSplash");
+      const splashSettingKey = "kayawotoSplashEnabled";
+      const notificationSettingKey = "kayawotoNotificationsEnabled";
+      let toastTimer;
+
+      function hideWelcomeSplash() {
+        if (!welcomeSplash || welcomeSplash.classList.contains("is-hidden")) return;
+        welcomeSplash.classList.add("is-hidden");
+        welcomeSplash.setAttribute("aria-hidden", "true");
+        setTimeout(() => welcomeSplash.remove(), 750);
+      }
+
+      if (welcomeSplash) {
+        welcomeSplash.setAttribute("aria-hidden", "false");
+        if (localStorage.getItem(splashSettingKey) === "false") {
+          hideWelcomeSplash();
+        } else {
+          setTimeout(hideWelcomeSplash, 8200);
+        }
+        document.getElementById("skipSplash")?.addEventListener("click", hideWelcomeSplash);
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+      }
+
+      window.syncKayawotoModalState = () => {
+        document.body.classList.toggle("modal-open", Boolean(document.querySelector(".modal-backdrop.open")));
+      };
+
+      function navigate(name, updateHistory = true) {
+        screens.forEach(screen => screen.classList.toggle("active", screen.dataset.screen === name));
+        navItems.forEach(item => item.classList.toggle("active", item.dataset.nav === name));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (updateHistory && location.hash !== "#" + name) history.pushState(null, "", "#" + name);
+      }
+      window.navigateKayawoto = navigate;
+
+      navItems.forEach(item => {
+        item.addEventListener("click", () => {
+          if (item.id === "createButton") return openModal("composerModal");
+          navigate(item.dataset.nav);
+        });
+      });
+      document.getElementById("officialEntryButton")?.addEventListener("click", () => navigate("official"));
+      document.getElementById("officialProfileName")?.addEventListener("click", () => navigate("official"));
+
+      function openModal(id) {
+        const modal = document.getElementById(id);
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+        window.syncKayawotoModalState();
+        const focusTarget = modal.querySelector("input, textarea");
+        if (focusTarget) setTimeout(() => focusTarget.focus(), 100);
+      }
+      function closeModal(modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+        window.syncKayawotoModalState();
+      }
+      document.querySelectorAll("[data-close]").forEach(button => {
+        button.addEventListener("click", () => closeModal(document.getElementById(button.dataset.close)));
+      });
+      document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
+        backdrop.addEventListener("click", event => {
+          if (event.target === backdrop) closeModal(backdrop);
+        });
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") document.querySelectorAll(".modal-backdrop.open").forEach(closeModal);
+      });
+
+      document.getElementById("searchButton").addEventListener("click", () => openModal("searchModal"));
+
+      const searchInput = document.getElementById("searchInput");
+      const searchResults = document.getElementById("searchResults");
+      function getSearchableContent() {
+        return [...document.querySelectorAll("#liveFeed .live-post, #statusGrid .status-tile")].map(item => [
+          item.textContent.trim(),
+          "home"
+        ]);
+      }
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.trim().toLowerCase();
+        const results = getSearchableContent().filter(item => !query || item[0].toLowerCase().includes(query));
+        searchResults.innerHTML = results.length
+          ? results.map(item => `<button class="result" data-result="${item[1]}"><svg class="icon" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 5 5"/></svg><span>${item[0].replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]))}</span></button>`).join("")
+          : `<div class="result"><span>${query ? "Aucun contenu correspondant." : "Aucun contenu publié pour le moment."}</span></div>`;
+        searchResults.querySelectorAll("[data-result]").forEach(result => {
+          result.addEventListener("click", () => {
+            closeModal(document.getElementById("searchModal"));
+            navigate(result.dataset.result);
+          });
+        });
+      });
+
+      const composer = document.getElementById("composerText");
+      const charCount = document.getElementById("charCount");
+      composer.addEventListener("input", () => charCount.textContent = `${composer.value.length} / 280`);
+      document.getElementById("mediaFile").addEventListener("change", event => {
+        const file = event.target.files[0];
+        document.getElementById("mediaLabel").textContent = file ? file.name : "Ajouter une photo ou une vidéo";
+      });
+      document.getElementById("profileCreate").addEventListener("click", () => openModal("composerModal"));
+      document.getElementById("profileAccessButton").addEventListener("click", () => window.openAccessModal?.());
+      document.getElementById("editProfile").addEventListener("click", () => {
+        let profile = {};
+        try { profile = JSON.parse(localStorage.getItem("kayawotoProfile") || "{}"); } catch {}
+        const complete = Boolean(profile.nickname && profile.phone && profile.country && profile.termsAccepted === true);
+        if (complete) openModal("profileModal");
+        else if (window.openProfileGate) window.openProfileGate();
+      });
+      document.getElementById("splashToggle").checked = localStorage.getItem(splashSettingKey) !== "false";
+      document.getElementById("splashToggle").addEventListener("change", event => {
+        localStorage.setItem(splashSettingKey, String(event.target.checked));
+        showToast(event.target.checked ? "L’écran animé sera affiché à la prochaine ouverture" : "Écran animé désactivé");
+      });
+      const notificationToggle = document.getElementById("notificationToggle");
+      notificationToggle.checked = localStorage.getItem(notificationSettingKey) !== "false";
+      notificationToggle.addEventListener("change", event => {
+        localStorage.setItem(notificationSettingKey, String(event.target.checked));
+        showToast(event.target.checked ? "Notifications activées" : "Notifications désactivées");
+      });
+
+      const initial = location.hash.replace("#", "");
+       if (["home", "official", "go", "network", "profile", "settings"].includes(initial)) navigate(initial);
+      window.addEventListener("popstate", () => {
+        const name = location.hash.replace("#", "");
+         navigate(["home", "official", "go", "network", "profile", "settings"].includes(name) ? name : "home", false);
+      });
+      window.addEventListener("hashchange", () => {
+        const name = location.hash.replace("#", "");
+         navigate(["home", "official", "go", "network", "profile", "settings"].includes(name) ? name : "home", false);
+      });
+    })();
+  </script>
+
+  <!-- Firebase + Cloudinary : authentification anonyme, profils, publications et médias -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot,
+      updateDoc, doc, setDoc, deleteDoc, increment, serverTimestamp, getDoc, getDocs, runTransaction
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7yBcLyWhpNwxX31-6vN5nKNZ4I_a2_yg",
+      authDomain: "kayawoto-6843c.firebaseapp.com",
+      databaseURL: "https://kayawoto-6843c-default-rtdb.firebaseio.com",
+      projectId: "kayawoto-6843c",
+      storageBucket: "kayawoto-6843c.firebasestorage.app",
+      messagingSenderId: "805107345346",
+      appId: "1:805107345346:web:005d84f14d74e84600185b",
+      measurementId: "G-F02KV17E1X"
+    };
+    const CLOUDINARY_CLOUD_NAME = "dnj3c2mlj";
+    const CLOUDINARY_UPLOAD_PRESET = "kayawoto_public";
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    let currentUser = null;
+    let unsubscribePosts = null;
+    let posts = [];
+    let events = [];
+    let partners = [];
+    let liveRoom = null;
+    const likedPosts = new Set();
+    let activeDiscoveryFilter = "all";
+    const notificationSeenKey = "kayawotoNotificationsSeenAt";
+    const OFFICIAL_PROFILE = {
+      uid: "kayawoto-official",
+      name: "KAYAWOTO",
+      bio: "Artiste · Créateur de MAOULANDAI · Profil officiel",
+      verified: true
+    };
+    const DEMO_CONTENT = [
+      {
+        id: "demo-official-news",
+        data: {
+          demo: true, isOfficial: true, isStatus: false, type: "status", category: "community",
+          title: "[DÉMO À VALIDER] Actualité KAYAWOTO",
+          body: "Exemple de contenu officiel à remplacer par une actualité validée de KAYAWOTO.",
+          authorNickname: "KAYAWOTO", authorName: "KAYAWOTO", authorUid: OFFICIAL_PROFILE.uid,
+          likes: 0, commentsCount: 0, createdAt: "2026-09-01T12:00:00.000Z"
+        }
+      },
+      {
+        id: "demo-maoulandai-post",
+        data: {
+          demo: true, isOfficial: false, isStatus: false, type: "status", category: "community",
+          title: "[DÉMO] Énergie MAOULANDAI",
+          body: "Exemple de publication communautaire à remplacer par les contenus réels des fans.",
+          authorNickname: "Fan MAOULANDAI — démo", authorName: "Fan MAOULANDAI",
+          authorUid: "demo-maoulandai", likes: 0, commentsCount: 0, createdAt: "2026-09-02T12:00:00.000Z"
+        }
+      }
+    ];
+    const DEMO_EVENTS = [
+      { id: "demo-event-1", demo: true, title: "[DÉMO À VALIDER] Prochain événement KAYAWOTO", date: "Date à confirmer", place: "Lieu à confirmer", info: "Les informations officielles seront publiées par l’équipe." }
+    ];
+    const DEMO_PARTNERS = [
+      { id: "demo-partner-1", demo: true, name: "Partenaire officiel à confirmer", description: "Aucun partenariat réel n’est présenté dans cette version de démonstration." }
+    ];
+    const ADMIN_UIDS = [];
+    let activeReportPostId = null;
+
+    const toast = document.getElementById("toast");
+    let toastTimer;
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+    function escapeHTML(value) {
+      return String(value || "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      }[character]));
+    }
+    function modal(id, open) {
+      const element = document.getElementById(id);
+      element.classList.toggle("open", open);
+      element.setAttribute("aria-hidden", String(!open));
+      window.syncKayawotoModalState?.();
+    }
+    function formatDate(timestamp) {
+      const date = timestamp?.toDate ? timestamp.toDate() : (timestamp ? new Date(timestamp) : null);
+      return date && !Number.isNaN(date.getTime())
+        ? date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
+        : "à l'instant";
+    }
+    function updateProfileView(profile = {}) {
+      const hasProfile = Boolean(profile.nickname || profile.firstName);
+      const name = hasProfile ? (profile.nickname || profile.firstName) : "Profil vide";
+      const profileName = document.querySelector("#profileScreen .profile-card h2");
+      const profileLine = document.querySelector("#profileScreen .profile-card p");
+      const profilePhoto = document.querySelector("#profileScreen .profile-photo");
+      const profileAuthActions = document.getElementById("profileAuthActions");
+      const editProfile = document.getElementById("editProfile");
+      const signOutButton = document.getElementById("signOutButton");
+      const isSignedIn = Boolean(currentUser && !currentUser.isAnonymous && currentUser.email);
+      if (profileName) profileName.textContent = name;
+      if (profileLine) profileLine.textContent = hasProfile
+        ? `@${name.toLowerCase().replace(/[^a-z0-9]+/g, "") || "membre"} · Créateur en mouvement`
+        : "Crée ton espace pour participer à la communauté";
+      if (profilePhoto) {
+        const hasPhoto = Boolean(profile.photoUrl);
+        profilePhoto.textContent = hasPhoto ? "" : (hasProfile ? name.charAt(0).toUpperCase() : "＋");
+        profilePhoto.style.backgroundImage = hasPhoto ? `url("${String(profile.photoUrl).replace(/["\\)]/g, character => encodeURIComponent(character))}")` : "";
+        profilePhoto.classList.toggle("has-photo", hasPhoto);
+      }
+      if (profileAuthActions) profileAuthActions.hidden = isSignedIn;
+      if (editProfile) editProfile.hidden = !hasProfile;
+      if (signOutButton) signOutButton.hidden = !isSignedIn;
+      const accessButton = document.getElementById("profileAccessButton");
+      if (accessButton) accessButton.textContent = hasProfile ? "Accéder à mon compte" : "Accéder à KAYAWOTO";
+      document.getElementById("profileNickname").value = profile.nickname || profile.firstName || "";
+      document.getElementById("profileCountry").value = profile.country || "";
+      updateAdminPanel();
+    }
+    function saveProfileLocally(profile) {
+      localStorage.setItem("kayawotoProfile", JSON.stringify(profile));
+      updateProfileView(profile);
+    }
+    function getLocalProfile() {
+      try { return JSON.parse(localStorage.getItem("kayawotoProfile") || "{}"); }
+      catch { return {}; }
+    }
+    function isAdmin() {
+      const profile = getLocalProfile();
+      return Boolean(currentUser && (ADMIN_UIDS.includes(currentUser.uid) || profile.role === "admin" || profile.role === "propulsion-prod"));
+    }
+    function updateAdminPanel() {
+      const panel = document.getElementById("adminPanel");
+      if (!panel) return;
+      panel.hidden = !isAdmin();
+    }
+
+    async function ensureUser() {
+      if (currentUser) return currentUser;
+      const result = await signInAnonymously(auth);
+      currentUser = result.user;
+      return currentUser;
+    }
+
+    function authMessage(error) {
+      return {
+        "auth/invalid-credential": "Adresse e-mail ou mot de passe incorrect.",
+        "auth/invalid-login-credentials": "Adresse e-mail ou mot de passe incorrect.",
+        "auth/email-already-in-use": "Cette adresse e-mail possède déjà un compte.",
+        "auth/weak-password": "Choisis un mot de passe d’au moins 6 caractères.",
+        "auth/invalid-email": "Vérifie le format de ton adresse e-mail.",
+        "auth/too-many-requests": "Trop de tentatives. Réessaie dans quelques instants.",
+        "auth/network-request-failed": "Connexion impossible. Vérifie ton réseau.",
+        "auth/operation-not-allowed": "Cette méthode de connexion n’est pas encore activée dans Firebase.",
+        "auth/popup-blocked": "Le navigateur a bloqué la fenêtre Google. Autorise les fenêtres pop-up puis réessaie.",
+        "auth/cancelled-popup-request": "La connexion Google a été annulée."
+      }[error?.code] || "Une erreur est survenue. Réessaie dans quelques instants.";
+    }
+    function openAccessModal(tab = "login") {
+      document.querySelectorAll("[data-auth-tab]").forEach(button => {
+        const active = button.dataset.authTab === tab;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+      });
+      document.getElementById("loginForm").hidden = tab !== "login";
+      document.getElementById("signupForm").hidden = tab !== "signup";
+      document.getElementById("loginError").textContent = "";
+      document.getElementById("signupError").textContent = "";
+      modal("accessModal", true);
+    }
+    window.openAccessModal = openAccessModal;
+    window.kayawotoIsAuthenticated = () => Boolean(currentUser && !currentUser.isAnonymous && currentUser.email);
+    async function saveAccountProfile(user, profile) {
+      await setDoc(doc(db, "users", user.uid), {
+        ...profile,
+        email: user.email || profile.email || "",
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      saveProfileLocally(profile);
+    }
+    async function signInWithGoogleAccount() {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      try {
+        const result = await signInWithPopup(auth, provider);
+        let storedProfile = {};
+        try {
+          const profileSnap = await getDoc(doc(db, "users", result.user.uid));
+          storedProfile = profileSnap.exists() ? profileSnap.data() : {};
+        } catch {}
+        const profile = {
+          ...storedProfile,
+          firstName: storedProfile.firstName || result.user.displayName || "",
+          nickname: storedProfile.nickname || result.user.displayName || "",
+          email: result.user.email || storedProfile.email || ""
+        };
+        saveProfileLocally(profile);
+        modal("accessModal", false);
+        notify("Connexion Google réussie. Bienvenue dans KAYAWOTO ✨");
+        if (!profile.nickname || !profile.country || !profile.phone || profile.termsAccepted !== true) {
+          window.openProfileGate?.();
+        } else {
+          window.replayKayawotoAction?.();
+        }
+      } catch (authError) {
+        if (authError?.code === "auth/popup-closed-by-user") return;
+        const message = authMessage(authError);
+        document.getElementById("loginError").textContent = message;
+        document.getElementById("signupError").textContent = message;
+      }
+    }
+
+    async function uploadToCloudinary(file, folder = "maouland/posts") {
+      if (!file || !/^(image|video)\//.test(file.type)) {
+        throw new Error("Format de fichier non pris en charge.");
+      }
+      const maxSize = file.type.startsWith("video/") ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+      if (file.size > maxSize) {
+        const limit = file.type.startsWith("video/") ? "50 Mo" : "10 Mo";
+        throw new Error(`Le fichier dépasse la limite de ${limit}.`);
+      }
+      return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("folder", folder);
+        const resourceType = file.type.startsWith("video/") ? "video" : "image";
+        const request = new XMLHttpRequest();
+        request.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`);
+        request.timeout = 120000;
+        request.upload.addEventListener("progress", event => {
+          if (!event.lengthComputable) return;
+          const percentage = Math.round(event.loaded / event.total * 100);
+          document.getElementById("uploadBar").style.width = `${percentage}%`;
+          document.getElementById("uploadLabel").textContent = `Envoi sur Cloudinary… ${percentage}%`;
+        });
+        request.addEventListener("load", () => {
+          if (request.status >= 200 && request.status < 300) {
+            try {
+              resolve(JSON.parse(request.responseText));
+            } catch {
+              reject(new Error("Réponse Cloudinary invalide."));
+            }
+          } else {
+            reject(new Error("Cloudinary a refusé le fichier"));
+          }
+        });
+        request.addEventListener("error", () => reject(new Error("Cloudinary est indisponible")));
+        request.addEventListener("timeout", () => reject(new Error("L’envoi a pris trop de temps.")));
+        request.send(formData);
+      });
+    }
+
+    function displayPosts() {
+      if (!posts.length) return DEMO_CONTENT;
+      return posts.some(post => post.data?.isOfficial === true)
+        ? posts
+        : [DEMO_CONTENT.find(post => post.data?.isOfficial === true), ...posts];
+    }
+    function contentLabel(data) {
+      if (data.isOfficial) return data.demo ? "👑 OFFICIEL · DÉMO À VALIDER" : "👑 OFFICIEL KAYAWOTO";
+      return "🔥 MAOULANDAI";
+    }
+    function isDemoPost(post) {
+      return post.data?.demo === true;
+    }
+
+    function renderStatuses() {
+      const grid = document.getElementById("statusGrid");
+      const statuses = posts.filter(post => post.data?.isStatus === true).slice(0, 6);
+      if (!statuses.length) {
+        grid.innerHTML = `<div class="status-empty">Aucun statut pour le moment.<br><span>Publie le premier message de la communauté.</span></div>`;
+        return;
+      }
+      grid.innerHTML = statuses.map(post => {
+        const data = post.data || {};
+        const author = data.authorNickname || data.authorName || "Membre";
+        const media = data.mediaUrl
+          ? `<img src="${escapeHTML(data.mediaUrl)}" alt="" loading="lazy">`
+          : "";
+        return `<button class="status-tile" type="button" data-status-post="${escapeHTML(post.id)}" aria-label="Voir le statut de ${escapeHTML(author)}">
+          ${media}
+          <span>${escapeHTML(data.body || "Nouveau statut")}</span>
+          <small>${escapeHTML(author)} · ${formatDate(data.createdAt)}</small>
+        </button>`;
+      }).join("");
+      grid.querySelectorAll("[data-status-post]").forEach(tile => {
+        tile.addEventListener("click", () => {
+          openComments(tile.dataset.statusPost);
+        });
+      });
+    }
+
+    function renderLiveFeed() {
+      const feed = document.getElementById("liveFeed");
+      const regularPosts = displayPosts().filter(post => post.data?.isStatus !== true && post.data?.isOfficial !== true);
+      if (!regularPosts.length) {
+        feed.innerHTML = `<div class="empty-feed">Aucune publication pour le moment.<br><span>Sois le premier à partager ton énergie.</span></div>`;
+        return;
+      }
+      feed.innerHTML = regularPosts.slice(0, 8).map(post => {
+        const data = post.data || {};
+        const author = data.authorNickname || data.authorName || "KAYAWOTOais";
+        const media = data.mediaUrl
+          ? (data.type === "video"
+            ? `<video class="live-post-media" controls playsinline preload="metadata" src="${escapeHTML(data.mediaUrl)}"></video>`
+            : `<img class="live-post-media" loading="lazy" src="${escapeHTML(data.mediaUrl)}" alt="Publication de ${escapeHTML(author)}">`)
+          : "";
+        const liked = likedPosts.has(post.id);
+        const avatar = data.authorPhotoUrl
+          ? `<img class="live-post-avatar" loading="lazy" src="${escapeHTML(data.authorPhotoUrl)}" alt="">`
+          : `<span class="live-post-avatar">${escapeHTML(author.charAt(0).toUpperCase())}</span>`;
+        return `<article class="live-post" data-post-id="${escapeHTML(post.id)}">
+          ${media}
+          <div class="live-post-body">
+            <div class="live-post-meta">${avatar}<span><b>${escapeHTML(author)}</b> · ${escapeHTML(contentLabel(data))} · ${formatDate(data.createdAt)}</span></div>
+            ${data.title ? `<h3>${escapeHTML(data.title)}</h3>` : ""}
+            ${data.body ? `<p>${escapeHTML(data.body)}</p>` : ""}
+            <div class="live-post-actions">
+              <button class="live-action ${liked ? "liked" : ""}" data-like="${escapeHTML(post.id)}">${liked ? "♥" : "♡"} <span>${Number(data.likes || 0).toLocaleString("fr-FR")}</span> J'aime</button>
+              <button class="live-action" data-comment="${escapeHTML(post.id)}">◌ ${Number(data.commentsCount || 0)} Commenter</button>
+              <button class="live-action" data-share="${escapeHTML(post.id)}">↗ Partager</button>
+              <button class="live-action" data-report="${escapeHTML(post.id)}">⚑ Signaler</button>
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+
+      feed.querySelectorAll("[data-like]").forEach(button => {
+        button.addEventListener("click", () => toggleLike(button.dataset.like, button));
+      });
+      feed.querySelectorAll("[data-comment]").forEach(button => {
+        button.addEventListener("click", () => openComments(button.dataset.comment));
+      });
+      feed.querySelectorAll("[data-share]").forEach(button => {
+        button.addEventListener("click", () => sharePost(button.dataset.share));
+      });
+      feed.querySelectorAll("[data-report]").forEach(button => {
+        button.addEventListener("click", () => openReport(button.dataset.report));
+      });
+    }
+
+    function renderOfficialFeed(targetId = "officialFeed") {
+      const feed = document.getElementById(targetId);
+      if (!feed) return;
+      const officialPosts = displayPosts().filter(post => post.data?.isOfficial === true).slice(0, 4);
+      if (!officialPosts.length) {
+        feed.innerHTML = `<div class="empty-feed">Aucune actualité officielle publiée pour le moment.</div>`;
+        return;
+      }
+      feed.innerHTML = officialPosts.map(post => {
+        const data = post.data || {};
+        const author = data.authorNickname || "KAYAWOTO";
+        const media = data.mediaUrl
+          ? (data.type === "video"
+            ? `<video class="live-post-media" controls playsinline preload="metadata" src="${escapeHTML(data.mediaUrl)}"></video>`
+            : `<img class="live-post-media" loading="lazy" src="${escapeHTML(data.mediaUrl)}" alt="Publication officielle de KAYAWOTO">`)
+          : "";
+        return `<article class="live-post">
+          ${media}
+          <div class="live-post-body">
+            <div class="live-post-meta"><span class="live-post-avatar">K</span><span><button class="official-card-link" type="button" data-official-entry><b>${escapeHTML(author)}</b></button> · ${escapeHTML(contentLabel(data))} · ${formatDate(data.createdAt)}</span></div>
+            ${data.title ? `<h3>${escapeHTML(data.title)}</h3>` : ""}
+            ${data.body ? `<p>${escapeHTML(data.body)}</p>` : ""}
+            <div class="live-post-actions">
+              <button class="live-action" data-like="${escapeHTML(post.id)}">♡ <span>${Number(data.likes || 0).toLocaleString("fr-FR")}</span> J'aime</button>
+              <button class="live-action" data-comment="${escapeHTML(post.id)}">◌ ${Number(data.commentsCount || 0)} Commenter</button>
+              <button class="live-action" data-share="${escapeHTML(post.id)}">↗ Partager</button>
+              <button class="live-action" data-report="${escapeHTML(post.id)}">⚑ Signaler</button>
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+      feed.querySelectorAll("[data-like]").forEach(button => button.addEventListener("click", () => toggleLike(button.dataset.like, button)));
+      feed.querySelectorAll("[data-comment]").forEach(button => button.addEventListener("click", () => openComments(button.dataset.comment)));
+      feed.querySelectorAll("[data-share]").forEach(button => button.addEventListener("click", () => sharePost(button.dataset.share)));
+      feed.querySelectorAll("[data-report]").forEach(button => button.addEventListener("click", () => openReport(button.dataset.report)));
+      feed.querySelectorAll("[data-official-entry]").forEach(button => button.addEventListener("click", () => { location.hash = "#official"; }));
+    }
+
+    function categoryLabel(category) {
+      return { creator: "Créateurs", music: "Musique", community: "Communauté", status: "Statut" }[category] || "Communauté";
+    }
+
+    function renderDiscovery() {
+      const grid = document.getElementById("discoveryGrid");
+      if (!grid) return;
+      const regularPosts = displayPosts()
+        .filter(post => post.data?.isStatus !== true)
+        .filter(post => activeDiscoveryFilter === "all"
+          || (activeDiscoveryFilter === "official" && post.data?.isOfficial === true)
+          || (activeDiscoveryFilter === "maoulandai" && post.data?.isOfficial !== true)
+          || post.data?.category === activeDiscoveryFilter)
+        .sort((a, b) => Number(b.data?.likes || 0) - Number(a.data?.likes || 0));
+      if (!regularPosts.length) {
+        grid.innerHTML = `<div class="empty-feed">Aucun contenu dans cette catégorie pour le moment.</div>`;
+        return;
+      }
+      grid.innerHTML = regularPosts.slice(0, 12).map(post => {
+        const data = post.data || {};
+        const author = data.authorNickname || data.authorName || "KAYAWOTOais";
+        const media = data.mediaUrl
+          ? (data.type === "video"
+            ? `<video class="discovery-card-media" controls playsinline preload="metadata" src="${escapeHTML(data.mediaUrl)}"></video>`
+            : `<img class="discovery-card-media" loading="lazy" src="${escapeHTML(data.mediaUrl)}" alt="Publication de ${escapeHTML(author)}">`)
+          : "";
+        return `<article class="discovery-card">
+          ${media}
+          <div class="discovery-card-body">
+            <div class="discovery-meta">${escapeHTML(contentLabel(data))} · ${escapeHTML(categoryLabel(data.category))} · ${escapeHTML(author)} · ${formatDate(data.createdAt)}</div>
+            ${data.title ? `<h3>${escapeHTML(data.title)}</h3>` : ""}
+            ${data.body ? `<p>${escapeHTML(data.body)}</p>` : ""}
+            <div class="live-post-actions"><span class="live-action">♡ ${Number(data.likes || 0).toLocaleString("fr-FR")} J’aime</span><span class="live-action">◌ ${Number(data.commentsCount || 0)} Commentaires</span></div>
+          </div>
+        </article>`;
+      }).join("");
+    }
+
+    function readFollowing() {
+      try {
+        const value = JSON.parse(localStorage.getItem("kayawotoFollowing") || "[]");
+        return new Set(Array.isArray(value) ? value : []);
+      } catch {
+        return new Set();
+      }
+    }
+    const followingProfiles = readFollowing();
+
+    function saveFollowing() {
+      localStorage.setItem("kayawotoFollowing", JSON.stringify([...followingProfiles]));
+      const count = document.getElementById("followingCount");
+      if (count) count.textContent = followingProfiles.size;
+    }
+
+    function renderNetwork() {
+      const grid = document.getElementById("networkGrid");
+      if (!grid) return;
+      const authors = new Map();
+      displayPosts().forEach(post => {
+        const data = post.data || {};
+        if (data.isStatus === true) return;
+        const uid = data.authorUid || data.authorNickname || data.authorName || "unknown";
+        if (uid === currentUser?.uid) return;
+        const existing = authors.get(uid) || {
+          uid,
+          name: data.authorNickname || data.authorName || "KAYAWOTOais",
+          photo: data.authorPhotoUrl || "",
+          posts: 0,
+          categories: new Set()
+        };
+        existing.posts += 1;
+        if (data.category) existing.categories.add(categoryLabel(data.category));
+        if (data.authorPhotoUrl) existing.photo = data.authorPhotoUrl;
+        authors.set(uid, existing);
+      });
+      const profiles = [...authors.values()];
+      profiles.unshift({
+        uid: OFFICIAL_PROFILE.uid,
+        name: OFFICIAL_PROFILE.name,
+        photo: "",
+        posts: displayPosts().filter(post => post.data?.isOfficial === true).length,
+        categories: new Set(["Officiel"]),
+        official: true
+      });
+      if (!profiles.length) {
+        grid.innerHTML = `<div class="empty-feed">Les profils apparaîtront ici dès que la communauté publiera.</div>`;
+        saveFollowing();
+        return;
+      }
+      grid.innerHTML = profiles.map(profile => {
+        const avatar = profile.photo
+          ? `<img class="network-avatar" loading="lazy" src="${escapeHTML(profile.photo)}" alt="">`
+          : `<span class="network-avatar">${escapeHTML(profile.name.charAt(0).toUpperCase())}</span>`;
+        const following = followingProfiles.has(profile.uid);
+        return `<article class="network-card">
+          ${avatar}
+          <div class="network-card-content">${profile.official ? `<button class="official-name-link official-card-link" type="button" data-official-entry>👑 ${escapeHTML(profile.name)} <span class="official-verified">✓</span></button>` : `<strong>${escapeHTML(profile.name)}</strong>`}<span>${profile.official ? escapeHTML(OFFICIAL_PROFILE.bio) : `${profile.posts} publication${profile.posts > 1 ? "s" : ""} · ${escapeHTML([...profile.categories].join(" · ") || "Communauté")}`}</span></div>
+          <button class="secondary-button" type="button" data-follow="${escapeHTML(profile.uid)}">${following ? "Suivi" : "Suivre"}</button>
+        </article>`;
+      }).join("");
+      grid.querySelectorAll("[data-follow]").forEach(button => {
+        button.addEventListener("click", () => toggleFollow(button.dataset.follow, button));
+      });
+      grid.querySelectorAll("[data-official-entry]").forEach(button => {
+        button.addEventListener("click", () => { location.hash = "#official"; });
+      });
+      saveFollowing();
+    }
+
+    function renderEvents() {
+      const grid = document.getElementById("eventsGrid");
+      if (!grid) return;
+      const list = events.length ? events : DEMO_EVENTS;
+      grid.innerHTML = list.slice(0, 8).map(event => `
+        <article class="discovery-card">
+          <div class="discovery-card-body">
+            <div class="discovery-meta">📅 ${event.demo ? "DÉMO À VALIDER" : "ÉVÉNEMENT MAOULANDAI"}</div>
+            <h3>${escapeHTML(event.title || "Événement KAYAWOTO")}</h3>
+            <p>${escapeHTML(event.info || "Informations à venir.")}</p>
+            <div class="live-post-actions"><span class="live-action">🗓 ${escapeHTML(event.date || "Date à confirmer")}</span><span class="live-action">📍 ${escapeHTML(event.place || "Lieu à confirmer")}</span></div>
+            ${event.contactUrl && !event.demo ? `<a class="secondary-button" href="${escapeHTML(event.contactUrl)}" target="_blank" rel="noopener">Réserver / contacter</a>` : ""}
+          </div>
+        </article>`).join("");
+    }
+
+    function renderPartners() {
+      const grid = document.getElementById("partnersGrid");
+      if (!grid) return;
+      const list = partners.length ? partners : DEMO_PARTNERS;
+      grid.innerHTML = list.map(partner => `
+        <article class="network-card">
+          <span class="network-avatar">🤝</span>
+          <div class="network-card-content"><strong>${escapeHTML(partner.name)}</strong><span>${escapeHTML(partner.description || "Partenaire officiel KAYAWOTO")}</span></div>
+        </article>`).join("");
+    }
+
+    function renderLiveRoom() {
+      const title = document.getElementById("liveRoomTitle");
+      const description = document.getElementById("liveRoomDescription");
+      const watchButton = document.getElementById("watchLiveButton");
+      if (!title || !description || !watchButton) return;
+      const active = liveRoom?.status === "live";
+      title.textContent = active ? `🔴 ${liveRoom.title || "LIVE MAOULANDAI"}` : "Aucun LIVE en cours";
+      description.textContent = active
+        ? liveRoom.description || "KAYAWOTO est en direct avec les MAOULANDAI."
+        : "Le prochain LIVE de KAYAWOTO sera annoncé ici. Les commentaires et réactions seront disponibles pendant la diffusion.";
+      watchButton.hidden = !active;
+      watchButton.onclick = active && liveRoom.url ? () => window.open(liveRoom.url, "_blank", "noopener") : null;
+    }
+
+    async function toggleFollow(uid, button) {
+      if (!uid || uid === currentUser?.uid) return;
+      if (!currentUser) {
+        try { await ensureUser(); } catch { notify("Connexion Firebase indisponible"); return; }
+      }
+      const isFollowing = followingProfiles.has(uid);
+      try {
+        const followRef = doc(db, "users", currentUser.uid, "following", uid);
+        if (isFollowing) {
+          await deleteDoc(followRef);
+          followingProfiles.delete(uid);
+        } else {
+          await setDoc(followRef, { followedUid: uid, createdAt: serverTimestamp() });
+          followingProfiles.add(uid);
+        }
+        saveFollowing();
+        button.textContent = followingProfiles.has(uid) ? "Suivi" : "Suivre";
+        notify(followingProfiles.has(uid) ? "Profil ajouté à ton réseau" : "Profil retiré de ton réseau");
+      } catch {
+        notify("Impossible de mettre à jour ton réseau");
+      }
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById("notificationList");
+      const badge = document.querySelector("#notificationButton .badge");
+      if (!list || !badge) return;
+      if (localStorage.getItem("kayawotoNotificationsEnabled") === "false") {
+        badge.style.display = "none";
+        list.innerHTML = `<div class="empty-feed">Les notifications sont désactivées dans les paramètres.</div>`;
+        return;
+      }
+      let seenAt = 0;
+      try { seenAt = Number(localStorage.getItem(notificationSeenKey) || 0); } catch {}
+      const notifications = posts
+        .filter(post => post.data?.isStatus !== true && post.data?.authorUid !== currentUser?.uid)
+        .filter(post => {
+          const date = post.data?.createdAt?.toDate ? post.data.createdAt.toDate().getTime() : new Date(post.data?.createdAt || 0).getTime();
+          return date > seenAt;
+        })
+        .slice(0, 9);
+      badge.textContent = notifications.length > 9 ? "9+" : String(notifications.length);
+      badge.style.display = notifications.length ? "grid" : "none";
+      list.innerHTML = notifications.length
+        ? notifications.map(post => {
+          const data = post.data || {};
+          const author = data.authorNickname || data.authorName || "Un membre";
+          return `<div class="notification-row"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z"/><path d="M8 9h8M8 13h5"/></svg><p><strong>${escapeHTML(author)}</strong> a partagé une nouvelle publication dans ${escapeHTML(categoryLabel(data.category))}.</p></div>`;
+        }).join("")
+        : `<div class="empty-feed">Tu es à jour. Les nouvelles publications de la communauté apparaîtront ici.</div>`;
+    }
+
+    async function sharePost(postId) {
+      const post = displayPosts().find(item => item.id === postId);
+      if (!post) return;
+      const data = post.data || {};
+      const text = `${data.title || "Publication KAYAWOTO"} — ${data.body || ""}`.trim();
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: data.title || "KAYAWOTO · MAOULANDAI", text, url: location.href.split("#")[0] });
+          return;
+        }
+        await navigator.clipboard.writeText(text);
+        notify("Publication copiée pour le partage");
+      } catch {
+        notify("Partage annulé");
+      }
+    }
+
+    function openReport(postId) {
+      activeReportPostId = postId;
+      document.getElementById("reportForm").reset();
+      modal("reportModal", true);
+    }
+
+    document.getElementById("reportForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!activeReportPostId) return;
+      const button = event.target.querySelector("button[type='submit']");
+      button.disabled = true;
+      try {
+        const user = await ensureUser();
+        const profile = getLocalProfile();
+        await addDoc(collection(db, "reports"), {
+          postId: activeReportPostId,
+          reason: document.getElementById("reportReason").value,
+          details: document.getElementById("reportDetails").value.trim(),
+          reporterUid: user.uid,
+          reporterName: profile.nickname || profile.firstName || "Membre MAOULANDAI",
+          status: "pending",
+          createdAt: serverTimestamp()
+        });
+        modal("reportModal", false);
+        notify("Signalement transmis à la modération");
+      } catch {
+        notify("Le signalement n’a pas pu être transmis");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    let activeCommentPostId = null;
+    async function openComments(postId) {
+      const post = displayPosts().find(item => item.id === postId);
+      if (post?.data?.demo) return notify("Les commentaires seront activés sur les contenus validés.");
+      activeCommentPostId = postId;
+      modal("commentsModal", true);
+      const list = document.getElementById("commentsList");
+      list.innerHTML = `<div class="empty-feed">Chargement des commentaires…</div>`;
+      try {
+        const snapshot = await getDocs(query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc"), limit(50)));
+        const comments = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+        list.innerHTML = comments.length
+          ? comments.map(comment => `<div class="comment-row"><strong>${escapeHTML(comment.author || "KAYAWOTOais")}</strong><p>${escapeHTML(comment.text)}</p></div>`).join("")
+          : `<div class="empty-feed">Sois le premier à réagir à cette publication.</div>`;
+      } catch {
+        list.innerHTML = `<div class="empty-feed">Les commentaires ne sont pas disponibles pour le moment.</div>`;
+      }
+    }
+
+    document.getElementById("commentForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const input = document.getElementById("commentInput");
+      const text = input.value.trim();
+      if (!activeCommentPostId || !text) return;
+      try {
+        const user = await ensureUser();
+        const profile = getLocalProfile();
+        await addDoc(collection(db, "posts", activeCommentPostId, "comments"), {
+          text,
+          author: profile.nickname || profile.firstName || "KAYAWOTOais",
+          uid: user.uid,
+          likes: 0,
+          createdAt: serverTimestamp()
+        });
+        await updateDoc(doc(db, "posts", activeCommentPostId), { commentsCount: increment(1) });
+        input.value = "";
+        await openComments(activeCommentPostId);
+        notify("Commentaire publié");
+      } catch {
+        notify("Commentaire impossible : vérifie ta connexion Firebase");
+      }
+    });
+
+    function updateLikeButton(button, liked, count) {
+      if (!button) return;
+      button.classList.toggle("liked", liked);
+      button.innerHTML = `${liked ? "♥" : "♡"} <span>${Number(count).toLocaleString("fr-FR")}</span> J'aime`;
+    }
+
+    async function hydrateLikes() {
+      if (!currentUser || !posts.length) return;
+      await Promise.all(posts.filter(post => post.data?.isStatus !== true).map(async post => {
+        try {
+          const likeSnap = await getDoc(doc(db, "posts", post.id, "likes", currentUser.uid));
+          if (likeSnap.exists()) likedPosts.add(post.id);
+          else likedPosts.delete(post.id);
+        } catch {}
+      }));
+      renderLiveFeed();
+    }
+
+    async function toggleLike(postId, button) {
+      if (!currentUser) {
+        try { await ensureUser(); } catch { notify("Connexion Firebase indisponible"); return; }
+      }
+      const post = posts.find(item => item.id === postId) || displayPosts().find(item => item.id === postId);
+      if (!post) return;
+      if (post.data?.demo) return notify("Les réactions seront activées sur les contenus validés.");
+      const wasLiked = likedPosts.has(postId);
+      const delta = wasLiked ? -1 : 1;
+      const previous = Number(post.data.likes || 0);
+      try {
+        const postRef = doc(db, "posts", postId);
+        const likeRef = doc(db, "posts", postId, "likes", currentUser.uid);
+        await runTransaction(db, async transaction => {
+          const likeSnap = await transaction.get(likeRef);
+          const postSnap = await transaction.get(postRef);
+          const remoteLiked = likeSnap.exists();
+          if (remoteLiked === !wasLiked) return;
+          const currentLikes = Number(postSnap.data()?.likes || 0);
+          if (wasLiked) {
+            transaction.delete(likeRef);
+            transaction.update(postRef, { likes: Math.max(0, currentLikes - 1) });
+          } else {
+            transaction.set(likeRef, { uid: currentUser.uid, createdAt: serverTimestamp() });
+            transaction.update(postRef, { likes: currentLikes + 1 });
+          }
+        });
+        post.data.likes = Math.max(0, previous + delta);
+        wasLiked ? likedPosts.delete(postId) : likedPosts.add(postId);
+        updateLikeButton(button, !wasLiked, post.data.likes);
+      } catch {
+        notify("Le like n'a pas pu être synchronisé");
+      }
+    }
+
+    function updatePostCount() {
+      const count = document.getElementById("postCount");
+      if (!count) return;
+      count.textContent = posts.filter(post =>
+        post.data?.isStatus !== true && (!currentUser || post.data?.authorUid === currentUser.uid)
+      ).length;
+    }
+
+    function subscribeToEvents() {
+      onSnapshot(collection(db, "events"), snapshot => {
+        events = snapshot.docs.map(item => ({ id: item.id, ...item.data(), demo: false }));
+        renderEvents();
+      }, () => renderEvents());
+      onSnapshot(collection(db, "partners"), snapshot => {
+        partners = snapshot.docs.map(item => ({ id: item.id, ...item.data(), demo: false }));
+        renderPartners();
+      }, () => renderPartners());
+      onSnapshot(doc(db, "liveRooms", "current"), snapshot => {
+        liveRoom = snapshot.exists() ? snapshot.data() : null;
+        renderLiveRoom();
+      }, () => renderLiveRoom());
+    }
+
+    function subscribeToPosts() {
+      if (unsubscribePosts) unsubscribePosts();
+      const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(20));
+      unsubscribePosts = onSnapshot(postsQuery, snapshot => {
+        posts = snapshot.docs.map(item => ({ id: item.id, data: item.data() }));
+        renderStatuses();
+        renderLiveFeed();
+        renderOfficialFeed();
+        renderOfficialFeed("officialSharedFeed");
+        renderDiscovery();
+        renderNetwork();
+        renderEvents();
+        renderPartners();
+        renderLiveRoom();
+        renderNotifications();
+        updatePostCount();
+      }, () => {
+        document.getElementById("liveFeed").innerHTML = `<div class="empty-feed">Firebase n'est pas accessible pour le moment.<br><span>Vérifie les règles Firestore et ta connexion.</span></div>`;
+      });
+    }
+
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
+      updateProfileView(getLocalProfile());
+      updateAdminPanel();
+      if (!user) return;
+      try {
+        const profileSnap = await getDoc(doc(db, "users", user.uid));
+        const profile = profileSnap.exists() ? { ...getLocalProfile(), ...profileSnap.data() } : getLocalProfile();
+        saveProfileLocally(profile);
+        updatePostCount();
+        hydrateLikes();
+        renderNetwork();
+        renderNotifications();
+      } catch {
+        updateProfileView(getLocalProfile());
+        updatePostCount();
+      }
+    });
+    signInAnonymously(auth).catch(() => notify("Mode hors connexion activé"));
+    subscribeToPosts();
+    subscribeToEvents();
+    renderStatuses();
+    renderLiveFeed();
+    renderOfficialFeed();
+    renderOfficialFeed("officialSharedFeed");
+    renderDiscovery();
+    renderNetwork();
+    renderEvents();
+    renderPartners();
+    renderLiveRoom();
+    updateProfileView(getLocalProfile());
+
+    document.getElementById("notificationButton").addEventListener("click", () => {
+      renderNotifications();
+      modal("notificationsModal", true);
+      try { localStorage.setItem(notificationSeenKey, String(Date.now())); } catch {}
+      setTimeout(() => {
+        const badge = document.querySelector("#notificationButton .badge");
+        if (badge) badge.style.display = "none";
+      }, 500);
+    });
+    document.querySelectorAll("[data-discovery-filter]").forEach(button => {
+      button.addEventListener("click", () => {
+        activeDiscoveryFilter = button.dataset.discoveryFilter;
+        document.querySelectorAll("[data-discovery-filter]").forEach(item => item.classList.toggle("active", item === button));
+        renderDiscovery();
+      });
+    });
+    document.querySelectorAll("[data-admin-action]").forEach(button => {
+      button.addEventListener("click", async () => {
+        if (!isAdmin()) return notify("Cet espace est réservé à KAYAWOTO / Propulsion Prod.");
+        const action = button.dataset.adminAction;
+        if (action === "official") {
+          document.getElementById("composerAudience").hidden = false;
+          document.getElementById("composerAudience").value = "official";
+          modal("adminModal", false);
+          modal("composerModal", true);
+          return;
+        }
+        modal("adminModal", true);
+        document.getElementById("eventForm").hidden = action !== "event";
+        document.getElementById("liveForm").hidden = action !== "live";
+        const message = document.getElementById("adminMessage");
+        message.hidden = action === "event" || action === "live";
+        if (action === "reports") {
+          try {
+            const snapshot = await getDocs(query(collection(db, "reports"), orderBy("createdAt", "desc"), limit(50)));
+            message.hidden = false;
+            message.textContent = `${snapshot.size} signalement(s) en attente ou récent(s).`;
+          } catch {
+            message.hidden = false;
+            message.textContent = "Les signalements seront disponibles après la connexion de la collection Firebase.";
+          }
+        }
+        if (action === "partners") {
+          message.hidden = false;
+          message.textContent = "La section partenaires est prête. Aucun partenaire réel n’est affiché sans validation de l’équipe.";
+        }
+      });
+    });
+    document.getElementById("eventForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!isAdmin()) return;
+      try {
+        await addDoc(collection(db, "events"), {
+          title: document.getElementById("eventName").value.trim(),
+          date: document.getElementById("eventDate").value,
+          place: document.getElementById("eventPlace").value.trim(),
+          info: document.getElementById("eventInfo").value.trim(),
+          createdAt: serverTimestamp(),
+          demo: false
+        });
+        event.target.reset();
+        modal("adminModal", false);
+        notify("Événement enregistré");
+      } catch {
+        notify("Impossible d’enregistrer l’événement");
+      }
+    });
+    document.getElementById("liveForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!isAdmin()) return;
+      try {
+        await setDoc(doc(db, "liveRooms", "current"), {
+          status: "live",
+          provider: "bunny",
+          title: document.getElementById("liveTitle").value.trim() || "LIVE MAOULANDAI",
+          url: document.getElementById("liveUrl").value.trim(),
+          description: document.getElementById("liveDescription").value.trim(),
+          startedAt: serverTimestamp(),
+          startedBy: currentUser.uid
+        }, { merge: true });
+        event.target.reset();
+        modal("adminModal", false);
+        notify("LIVE préparé pour la communauté");
+      } catch {
+        notify("Impossible de préparer le LIVE");
+      }
+    });
+    document.querySelectorAll("[data-auth-tab]").forEach(button => {
+      button.addEventListener("click", () => openAccessModal(button.dataset.authTab));
+    });
+    document.querySelectorAll("[data-google-auth]").forEach(button => {
+      button.addEventListener("click", async () => {
+        document.querySelectorAll("[data-google-auth]").forEach(item => item.disabled = true);
+        await signInWithGoogleAccount();
+        document.querySelectorAll("[data-google-auth]").forEach(item => item.disabled = false);
+      });
+    });
+    document.getElementById("loginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const button = event.target.querySelector("button[type='submit']");
+      const error = document.getElementById("loginError");
+      error.textContent = "";
+      button.disabled = true;
+      try {
+        const result = await signInWithEmailAndPassword(
+          auth,
+          document.getElementById("loginEmail").value.trim(),
+          document.getElementById("loginPassword").value
+        );
+        let profile = getLocalProfile();
+        try {
+          const profileSnap = await getDoc(doc(db, "users", result.user.uid));
+          if (profileSnap.exists()) profile = { ...profile, ...profileSnap.data() };
+        } catch {}
+        saveProfileLocally(profile);
+        modal("accessModal", false);
+        notify("Connexion réussie. Bienvenue dans KAYAWOTO ✨");
+        if (!profile.nickname || !profile.country || !profile.phone || profile.termsAccepted !== true) {
+          window.openProfileGate?.();
+        } else {
+          window.replayKayawotoAction?.();
+        }
+      } catch (authError) {
+        error.textContent = authMessage(authError);
+      } finally {
+        button.disabled = false;
+      }
+    });
+    document.getElementById("forgotPasswordButton").addEventListener("click", async () => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const error = document.getElementById("loginError");
+      if (!email) {
+        error.textContent = "Indique d’abord ton adresse e-mail.";
+        document.getElementById("loginEmail").focus();
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        error.textContent = "";
+        notify("Un lien de réinitialisation a été envoyé par e-mail.");
+      } catch (authError) {
+        error.textContent = authMessage(authError);
+      }
+    });
+    document.getElementById("signupForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const button = event.target.querySelector("button[type='submit']");
+      const error = document.getElementById("signupError");
+      const password = document.getElementById("signupPassword").value;
+      const confirmation = document.getElementById("signupPasswordConfirm").value;
+      const selected = document.getElementById("signupCountry").value.split("|");
+      error.textContent = "";
+      if (password !== confirmation) {
+        error.textContent = "Les deux mots de passe ne correspondent pas.";
+        return;
+      }
+      if (!selected[1]) {
+        error.textContent = "Choisis ton pays.";
+        return;
+      }
+      button.disabled = true;
+      try {
+        const result = await createUserWithEmailAndPassword(
+          auth,
+          document.getElementById("signupEmail").value.trim(),
+          password
+        );
+        const now = new Date().toISOString();
+        const profile = {
+          firstName: document.getElementById("signupName").value.trim(),
+          nickname: document.getElementById("signupName").value.trim(),
+          country: selected[1],
+          countryCode: selected[0],
+          countryCallingCode: selected[2],
+          phone: document.getElementById("signupPhone").value.trim(),
+          phoneInternational: `${selected[2]} ${document.getElementById("signupPhone").value.trim()}`,
+          termsAccepted: true,
+          termsAcceptedAt: now,
+          email: result.user.email || "",
+          createdAt: now
+        };
+        try {
+          await saveAccountProfile(result.user, profile);
+        } catch {
+          saveProfileLocally(profile);
+        }
+        modal("accessModal", false);
+        notify("Compte créé. Bienvenue dans KAYAWOTO ✨");
+        window.replayKayawotoAction?.();
+      } catch (authError) {
+        error.textContent = authMessage(authError);
+      } finally {
+        button.disabled = false;
+      }
+    });
+    document.getElementById("signOutButton").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        notify("Tu es déconnecté de KAYAWOTO");
+      } catch {
+        notify("La déconnexion n’a pas pu être effectuée");
+      }
+    });
+
+    document.getElementById("createStatusButton").addEventListener("click", () => modal("statusModal", true));
+    const statusText = document.getElementById("statusText");
+    statusText.addEventListener("input", () => {
+      document.getElementById("statusCharCount").textContent = `${statusText.value.length} / 140`;
+    });
+    document.getElementById("statusForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const text = statusText.value.trim();
+      if (!text) return notify("Écris un message avant de publier");
+      const button = event.target.querySelector("button[type='submit']");
+      button.disabled = true;
+      try {
+        const user = await ensureUser();
+        const profile = getLocalProfile();
+        await addDoc(collection(db, "posts"), {
+          title: "",
+          body: text,
+          mediaUrl: "",
+          type: "status",
+          isStatus: true,
+          isStory: false,
+          isOfficial: false,
+          category: "status",
+          likes: 0,
+          commentsCount: 0,
+          authorUid: user.uid,
+          authorName: profile.firstName || "KAYAWOTOais",
+          authorNickname: profile.nickname || "Membre",
+          authorPhotoUrl: profile.photoUrl || "",
+          createdAt: serverTimestamp()
+        });
+        event.target.reset();
+        document.getElementById("statusCharCount").textContent = "0 / 140";
+        modal("statusModal", false);
+        notify("Statut publié sur l’accueil ✨");
+      } catch (error) {
+        console.error(error);
+        notify("Statut impossible : vérifie Firebase et ta connexion");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("profilePhotoButton").addEventListener("click", () => modal("profileActionsModal", true));
+    document.querySelectorAll("[data-profile-action]").forEach(button => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.profileAction;
+        if (action === "view") {
+          modal("profileActionsModal", false);
+          const profile = getLocalProfile();
+          const preview = document.getElementById("profilePhotoPreview");
+          const empty = document.getElementById("profilePhotoEmpty");
+          const hasPhoto = Boolean(profile.photoUrl);
+          preview.hidden = !hasPhoto;
+          empty.hidden = hasPhoto;
+          if (hasPhoto) preview.src = profile.photoUrl;
+          modal("profilePhotoViewerModal", true);
+        }
+        if (action === "change") document.getElementById("profilePhotoFile").click();
+        if (action === "status") {
+          modal("profileActionsModal", false);
+          modal("statusModal", true);
+        }
+      });
+    });
+    document.getElementById("profilePhotoFile").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      modal("profileActionsModal", false);
+      notify("Envoi de ta photo de profil…");
+      try {
+        const media = await uploadToCloudinary(file, "maouland/profiles");
+        const profile = { ...getLocalProfile(), photoUrl: media.secure_url };
+        saveProfileLocally(profile);
+        try {
+          const user = await ensureUser();
+          await setDoc(doc(db, "users", user.uid), { photoUrl: media.secure_url, updatedAt: serverTimestamp() }, { merge: true });
+          notify("Photo de profil synchronisée ✨");
+        } catch {
+          notify("Photo enregistrée sur cet appareil");
+        }
+      } catch (error) {
+        console.error(error);
+        notify(error.message || "La photo n’a pas pu être envoyée");
+      } finally {
+        event.target.value = "";
+      }
+    });
+
+    document.getElementById("refreshFeed").addEventListener("click", () => {
+      subscribeToPosts();
+      notify("Fil en cours d'actualisation…");
+    });
+    document.getElementById("composerForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const titleInput = document.getElementById("composerTitleInput");
+      const bodyInput = document.getElementById("composerText");
+      const fileInput = document.getElementById("mediaFile");
+      const categoryInput = document.getElementById("composerCategory");
+      const audienceInput = document.getElementById("composerAudience");
+      const file = fileInput.files[0];
+      const body = bodyInput.value.trim();
+      if (!body && !file) return notify("Ajoute un texte, une photo ou une vidéo");
+      const button = document.getElementById("publishButton");
+      const progress = document.getElementById("uploadProgress");
+      button.disabled = true;
+      progress.classList.add("show");
+      document.getElementById("uploadLabel").textContent = "Connexion à Firebase…";
+      try {
+        const user = await ensureUser();
+        const profile = getLocalProfile();
+        const isOfficial = audienceInput.value === "official" && isAdmin();
+        let media = { secure_url: "", resource_type: "" };
+        if (file) media = await uploadToCloudinary(file);
+        await addDoc(collection(db, "posts"), {
+          title: titleInput.value.trim() || "Moment KAYAWOTO",
+          body,
+          mediaUrl: media.secure_url || "",
+          type: file ? (media.resource_type === "video" ? "video" : "image") : "status",
+          category: categoryInput.value,
+          isOfficial,
+          isStory: categoryInput.value === "creator",
+          likes: 0,
+          commentsCount: 0,
+          authorUid: isOfficial ? OFFICIAL_PROFILE.uid : user.uid,
+          authorName: isOfficial ? OFFICIAL_PROFILE.name : (profile.firstName || "KAYAWOTOais"),
+          authorNickname: isOfficial ? OFFICIAL_PROFILE.name : (profile.nickname || "Membre"),
+          authorPhotoUrl: isOfficial ? "" : (profile.photoUrl || ""),
+          createdAt: serverTimestamp()
+        });
+        event.target.reset();
+        audienceInput.hidden = true;
+        audienceInput.value = "community";
+        document.getElementById("mediaLabel").textContent = "Ajouter une photo ou une vidéo";
+        document.getElementById("charCount").textContent = "0 / 280";
+        modal("composerModal", false);
+        notify("Publication mise en ligne ✨");
+      } catch (error) {
+        console.error(error);
+        notify(error.message || "Publication impossible : vérifie Firebase, Cloudinary et ta connexion");
+      } finally {
+        button.disabled = false;
+        progress.classList.remove("show");
+        document.getElementById("uploadBar").style.width = "0";
+      }
+    });
+
+    document.getElementById("profileForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const nickname = document.getElementById("profileNickname").value.trim();
+      const country = document.getElementById("profileCountry").value.trim();
+      if (!nickname) return notify("Ajoute un nom ou un pseudo");
+      const profile = { ...getLocalProfile(), firstName: nickname, nickname, country, updatedAt: new Date().toISOString() };
+      try {
+        const user = await ensureUser();
+        await setDoc(doc(db, "users", user.uid), { ...profile, updatedAt: serverTimestamp() }, { merge: true });
+        saveProfileLocally(profile);
+        modal("profileModal", false);
+        notify("Profil synchronisé avec Firebase");
+      } catch {
+        saveProfileLocally(profile);
+        modal("profileModal", false);
+        notify("Profil enregistré sur cet appareil");
+      }
+    });
+  </script>
+
+  <script>
+    (() => {
+      const gate = document.getElementById("profileGateModal");
+      const gateForm = document.getElementById("profileGateForm");
+      const country = document.getElementById("gateCountry");
+      const phoneHint = document.getElementById("gatePhoneHint");
+      let pendingAction = null;
+
+      function readProfile() {
+        try { return JSON.parse(localStorage.getItem("kayawotoProfile") || "{}"); }
+        catch { return {}; }
+      }
+      function profileIsComplete() {
+        const profile = readProfile();
+        return Boolean(profile.nickname && profile.phone && profile.country && profile.termsAccepted === true);
+      }
+      function openGate() {
+        const profile = readProfile();
+        document.getElementById("gateName").value = profile.nickname || profile.firstName || "";
+        document.getElementById("gatePhone").value = profile.phone || "";
+        document.getElementById("gateTerms").checked = profile.termsAccepted === true;
+        if (profile.countryCode && profile.countryCallingCode) {
+          country.value = `${profile.countryCode}|${profile.country}|${profile.countryCallingCode}`;
+        }
+        document.getElementById("gateError").textContent = "";
+        gate.classList.add("open");
+        gate.setAttribute("aria-hidden", "false");
+        window.syncKayawotoModalState?.();
+        setTimeout(() => document.getElementById("gateName").focus(), 80);
+      }
+      function closeGate() {
+        gate.classList.remove("open");
+        gate.setAttribute("aria-hidden", "true");
+        window.syncKayawotoModalState?.();
+      }
+      function blockUntilProfile(event, action = "composer") {
+        const isAuthenticated = window.kayawotoIsAuthenticated?.() === true;
+        if (profileIsComplete() && isAuthenticated) return false;
+        pendingAction = action;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!isAuthenticated) window.openAccessModal?.("login");
+        else openGate();
+        return true;
+      }
+      function replayPendingAction() {
+        const action = pendingAction;
+        pendingAction = null;
+        if (action === "photo") {
+          const photoModal = document.getElementById("profileActionsModal");
+          photoModal.classList.add("open");
+          photoModal.setAttribute("aria-hidden", "false");
+          window.syncKayawotoModalState?.();
+          return;
+        }
+        if (action === "status" || action === "composer") {
+          const modalId = action === "status" ? "statusModal" : "composerModal";
+          const targetModal = document.getElementById(modalId);
+          targetModal.classList.add("open");
+          targetModal.setAttribute("aria-hidden", "false");
+          window.syncKayawotoModalState?.();
+          setTimeout(() => document.getElementById(action === "status" ? "statusText" : "composerText")?.focus(), 80);
+        }
+      }
+      window.replayKayawotoAction = replayPendingAction;
+      window.openProfileGate = openGate;
+
+      country.addEventListener("change", () => {
+        const parts = country.value.split("|");
+        phoneHint.textContent = parts[2] ? `Indicatif sélectionné : ${parts[2]}` : "L’indicatif de ton pays sera ajouté automatiquement.";
+      });
+      document.addEventListener("click", event => {
+        const target = event.target.closest("#createButton, #profileCreate, #createStatusButton, #profilePhotoButton, [data-profile-action='status'], [data-like], [data-comment]");
+        if (target) {
+          const action = target.matches("#createStatusButton, [data-profile-action='status']") ? "status"
+            : target.matches("#profilePhotoButton") ? "photo"
+            : target.matches("[data-like], [data-comment]") ? null
+            : "composer";
+          if (blockUntilProfile(event, action)) return;
+        }
+      }, true);
+      document.addEventListener("submit", event => {
+        const form = event.target;
+        if ((form.id === "composerForm" || form.id === "commentForm") && blockUntilProfile(event, form.id === "commentForm" ? "comment" : "composer")) return;
+      }, true);
+      gate.addEventListener("click", event => {
+        if (event.target === gate) closeGate();
+      });
+      gateForm.addEventListener("submit", event => {
+        event.preventDefault();
+        const name = document.getElementById("gateName").value.trim();
+        const selected = country.value.split("|");
+        const phone = document.getElementById("gatePhone").value.trim();
+        const error = document.getElementById("gateError");
+        if (!name || !selected[1] || !phone || !/^[0-9\s().+-]{6,20}$/.test(phone)) {
+          error.textContent = "Entre un nom, un pays et un numéro valide.";
+          return;
+        }
+        if (!document.getElementById("gateTerms").checked) {
+          error.textContent = "Tu dois accepter les conditions d’utilisation pour continuer.";
+          return;
+        }
+        const profile = {
+          ...readProfile(),
+          firstName: name,
+          nickname: name,
+          phone,
+          phoneInternational: `${selected[2]} ${phone}`,
+          country: selected[1],
+          countryCode: selected[0],
+          countryCallingCode: selected[2],
+          termsAccepted: true,
+          termsAcceptedAt: new Date().toISOString()
+        };
+        localStorage.setItem("kayawotoProfile", JSON.stringify(profile));
+        const profileForm = document.getElementById("profileForm");
+        if (profileForm) {
+          document.getElementById("profileNickname").value = name;
+          document.getElementById("profileCountry").value = selected[1];
+          if (profileForm.requestSubmit) profileForm.requestSubmit();
+        }
+        closeGate();
+        replayPendingAction();
+        document.getElementById("toast").textContent = "Profil validé. Tu peux maintenant participer à la communauté.";
+        document.getElementById("toast").classList.add("show");
+        clearTimeout(window.profileGateToastTimer);
+        window.profileGateToastTimer = setTimeout(() => document.getElementById("toast").classList.remove("show"), 3200);
+      });
+    })();
+  </script>
+</body>
+</html>
