@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#f8f6fc">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="KAYAWOTO">
+  <meta name="apple-mobile-web-app-title" content="FLOBY">
   <meta name="format-detection" content="telephone=no">
-  <meta name="description" content="KAYAWOTO — créateurs, communautés, impact.">
-  <title>KAYAWOTO — Créateurs en lumière</title>
+  <meta name="description" content="FLOBY — créateurs, communautés, impact.">
+  <title>FLOBY — L’univers officiel de Floby</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -879,16 +879,31 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
     }
+
+    .floby-showcase { margin-top: 30px; padding: 18px; border: 1px solid rgba(255,173,96,.18); border-radius: 26px; background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.025)); box-shadow: 0 18px 45px rgba(5,6,25,.22); }
+    .showcase-header { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+    .showcase-header h2 { margin:4px 0 0; font-size:21px; }
+    .showcase-live { padding:6px 9px; border:1px solid rgba(155,224,177,.25); border-radius:99px; color:var(--green); font-size:9px; font-weight:800; white-space:nowrap; }
+    .showcase-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .showcase-card { min-height:166px; padding:14px; border:1px solid rgba(255,255,255,.12); border-radius:19px; color:#fff; text-align:left; cursor:pointer; transition:.2s ease; }
+    .showcase-card:hover { transform:translateY(-3px); border-color:rgba(255,255,255,.42); }
+    .showcase-card--gold { background:linear-gradient(145deg,#765528,#272044); }.showcase-card--rose { background:linear-gradient(145deg,#71364a,#251d43); }.showcase-card--violet { background:linear-gradient(145deg,#453875,#181a3b); }.showcase-card--green { background:linear-gradient(145deg,#295b54,#171d3b); }
+    .showcase-icon { display:grid; place-items:center; width:32px; height:32px; margin-bottom:14px; border-radius:11px; background:rgba(255,255,255,.15); font-size:18px; }
+    .showcase-card strong,.showcase-card small,.showcase-card b { display:block; }.showcase-card strong { font:700 14px "Space Grotesk",sans-serif; }.showcase-card small { min-height:43px; margin-top:6px; color:rgba(255,255,255,.7); font-size:10px; line-height:1.35; }.showcase-card b { margin-top:9px; color:var(--orange-2); font-size:10px; }
+    .floby-credit-demo { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:14px; padding:16px 17px; border:1px solid rgba(255,255,255,.12); border-radius:20px; background:rgba(27,27,59,.78); }.floby-credit-demo h2 { margin:5px 0; font-size:17px; }.floby-credit-demo h2 strong { color:var(--orange-2); }.floby-credit-demo p:last-child { margin:0; color:var(--muted); font-size:10px; }
+    .official-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin:16px 0; }.official-stats span { padding:10px 5px; border-radius:13px; background:rgba(255,255,255,.06); }.official-stats b,.official-stats small { display:block; }.official-stats small { margin-top:2px; color:var(--muted); font-size:9px; }.official-tabs { display:flex; gap:6px; overflow-x:auto; margin:0 0 16px; padding-bottom:3px; scrollbar-width:none; }.official-tabs button { flex:0 0 auto; border:1px solid var(--line); border-radius:99px; padding:8px 10px; background:transparent; color:var(--muted); font-size:10px; font-weight:700; }.official-tabs button.active { border-color:var(--orange); background:rgba(255,120,78,.14); color:var(--orange-2); }
+    .admin-dashboard { margin:14px 18px; padding:14px; border-radius:18px; background:linear-gradient(145deg,rgba(255,120,78,.14),rgba(143,95,232,.12)); }.admin-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px; }.admin-metrics span { padding:9px 4px; border-radius:10px; background:rgba(0,0,0,.16); text-align:center; }.admin-metrics b,.admin-metrics small { display:block; }.admin-metrics b { font-size:13px; }.admin-metrics small { margin-top:2px; color:var(--muted); font-size:8px; }.admin-note { margin:11px 0 0; color:var(--muted); font-size:10px; }
+    @media (max-width:370px) { .floby-credit-demo { display:block; }.floby-credit-demo .secondary-button { width:100%; margin-top:12px; }.showcase-card { min-height:180px; } }
   </style>
 </head>
 <body>
-  <div class="welcome-splash" id="welcomeSplash" role="dialog" aria-modal="true" aria-label="Bienvenue sur la plateforme des MAOULANDAI">
+  <div class="welcome-splash" id="welcomeSplash" role="dialog" aria-modal="true" aria-label="Bienvenue sur la plateforme des FLOBY">
     <div class="splash-content">
       <div class="splash-mark" aria-hidden="true">K</div>
-       <h1 class="splash-title" aria-label="Bienvenue sur la plateforme des MAOULANDAI" aria-live="polite">
+       <h1 class="splash-title" aria-label="Bienvenue sur la plateforme des FLOBY" aria-live="polite">
          <span class="splash-line"><span class="splash-word" style="animation-delay:.25s">Bienvenue</span></span>
          <span class="splash-line"><span class="splash-word" style="animation-delay:.8s">sur</span><span class="splash-word" style="animation-delay:1.35s">la</span><span class="splash-word" style="animation-delay:1.9s">plateforme</span></span>
-         <span class="splash-line"><strong class="splash-word" style="animation-delay:2.45s">des</strong><strong class="splash-word" style="animation-delay:3s">MAOULANDAI</strong></span>
+         <span class="splash-line"><strong class="splash-word" style="animation-delay:2.45s">des</strong><strong class="splash-word" style="animation-delay:3s">FLOBY</strong></span>
        </h1>
       <div class="splash-rule" aria-hidden="true"></div>
       <p class="splash-subtitle">Une nouvelle façon de créer, connecter et rayonner</p>
@@ -898,7 +913,7 @@
   <div class="app-shell">
     <header class="topbar">
       <div class="brand-row">
-        <button class="wordmark official-entry" id="homeBrandButton" type="button" aria-label="Retourner à l’accueil KAYAWOTO">KAYAWOTO</button>
+        <button class="wordmark official-entry" id="homeBrandButton" type="button" aria-label="Retourner à l’accueil FLOBY">FLOBY</button>
         <button class="round-button notification-button" id="notificationButton" aria-label="Notifications">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>
           <span class="badge" aria-hidden="true" style="display:none"></span>
@@ -910,16 +925,16 @@
       <section class="screen active" id="homeScreen" data-screen="home">
         <div class="section-head">
           <div>
-            <p class="kicker">TON ESPACE CRÉATIF</p>
-            <h1>Crée. Connecte.<br><em>Rayonne.</em></h1>
+            <p class="kicker">UNIVERS OFFICIEL</p>
+            <h1>Bienvenue dans<br><em>l’univers de FLOBY.</em></h1>
           </div>
           <button class="round-button" id="searchButton" aria-label="Rechercher">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 5 5"/></svg>
           </button>
         </div>
         <div class="hero-actions" aria-label="Actions rapides">
-          <button class="primary-button hero-cta" id="heroCreateButton" type="button">Partager une idée</button>
-          <button class="secondary-button" type="button" data-nav="go">Découvrir la communauté</button>
+          <button class="primary-button hero-cta" id="heroCreateButton" type="button">Découvrir l’univers de FLOBY</button>
+          <button class="secondary-button" type="button" data-nav="go">Contenus exclusifs</button>
         </div>
         <div class="home-pulse" aria-label="Aperçu de la communauté">
           <div class="pulse-card"><strong>Créer</strong><span>Ton espace d’expression</span></div>
@@ -937,12 +952,27 @@
           </div>
         </section>
 
+
+        <section class="floby-showcase" aria-label="Univers officiel de FLOBY">
+          <div class="showcase-header"><div><p class="kicker">À LA UNE</p><h2>L’univers officiel de FLOBY</h2></div><span class="showcase-live">● Mise à jour</span></div>
+          <div class="showcase-grid">
+            <button class="showcase-card showcase-card--gold" type="button" data-demo-action="exclusive"><span class="showcase-icon">✦</span><strong>Exclusivités FLOBY</strong><small>Coulisses, avant-premières et messages réservés aux fans.</small><b>Accéder aux contenus →</b></button>
+            <button class="showcase-card showcase-card--rose" type="button" data-demo-action="music"><span class="showcase-icon">♫</span><strong>Musique de FLOBY</strong><small>Retrouve les morceaux, durées et accès premium.</small><b>Écouter maintenant →</b></button>
+            <button class="showcase-card showcase-card--violet" type="button" data-nav="go"><span class="showcase-icon">▶</span><strong>Vidéos</strong><small>Clips officiels, scènes et moments inédits.</small><b>Voir les vidéos →</b></button>
+            <button class="showcase-card showcase-card--green" type="button" data-demo-action="events"><span class="showcase-icon">◷</span><strong>Prochains événements</strong><small>Concerts et rendez-vous de la communauté FLOBY.</small><b>Voir l’agenda →</b></button>
+          </div>
+        </section>
+        <section class="floby-credit-demo" aria-label="Crédits et offre premium">
+          <div><p class="kicker">ACCÈS PREMIUM · DÉMO</p><h2>Mon solde <strong>2 500 FCFA</strong></h2><p>Débloque les contenus premium de FLOBY avec un système de crédits prêt pour le mobile money.</p></div>
+          <button class="secondary-button" type="button" data-demo-action="credits">Recharger mes crédits</button>
+        </section>
+
         <section class="content-section">
-          <div class="section-head"><h2>La communauté en direct</h2><button class="text-button" id="refreshFeed">Actualiser</button></div>
+          <div class="section-head"><h2>Actualités de FLOBY</h2><button class="text-button" id="refreshFeed">Actualiser</button></div>
           <div class="live-feed" id="liveFeed" aria-live="polite"><div class="empty-feed">Connexion à la communauté…</div></div>
         </section>
         <section class="content-section">
-          <div class="section-head"><h2>Actualités KAYAWOTO</h2><span class="kicker">👑 OFFICIEL</span></div>
+          <div class="section-head"><h2>Actualités de FLOBY</h2><span class="kicker">👑 OFFICIEL</span></div>
           <div class="live-feed" id="officialFeed"><div class="empty-feed">Les actualités officielles apparaîtront ici.</div></div>
         </section>
       </section>
@@ -953,23 +983,26 @@
           <div class="official-cover" aria-hidden="true"></div>
           <div class="official-profile-body">
             <div class="official-avatar" aria-hidden="true">K</div>
-            <button class="official-name-link" id="officialProfileName" type="button">KAYAWOTO <span class="official-verified" aria-label="Profil officiel">✓</span></button>
-            <p class="official-handle">@kayawotoofficiel · Artiste burkinabè</p>
-            <span class="official-badge">👑 Espace officiel KAYAWOTO</span>
-            <p class="official-bio">Retrouve ici les contenus partagés par KAYAWOTO avec les MAOULANDAI, les annonces et les rendez-vous de la communauté.</p>
-            <div class="social-links" aria-label="Réseaux sociaux de KAYAWOTO">
-              <a class="social-link" href="https://www.facebook.com/kayawotoofficiel" target="_blank" rel="noopener noreferrer"><span class="social-logo facebook">f</span><span>Facebook officiel</span></a>
+            <button class="official-name-link" id="officialProfileName" type="button">FLOBY <span class="official-verified" aria-label="Profil officiel">✓</span></button>
+            <p class="official-handle">@flobyofficiel · Artiste burkinabè</p>
+            <span class="official-badge">👑 Espace officiel FLOBY</span>
+
+            <div class="official-stats" aria-label="Statistiques du profil officiel"><span><b>128</b><small>publications</small></span><span><b>84,6 k</b><small>fans</small></span><span><b>12</b><small>événements</small></span></div>
+            <div class="official-tabs" role="tablist" aria-label="Sections du profil officiel"><button class="active" type="button">Publications</button><button type="button" data-nav="go">Musique</button><button type="button" data-nav="go">Vidéos</button><button type="button" data-demo-action="events">Événements</button><button type="button" data-demo-action="exclusive">Exclusivités</button></div>
+            <p class="official-bio">Retrouve ici les contenus partagés par FLOBY avec les FLOBY, les annonces et les rendez-vous de la communauté.</p>
+            <div class="social-links" aria-label="Réseaux sociaux de FLOBY">
+              <a class="social-link" href="https://www.facebook.com/flobyofficiel" target="_blank" rel="noopener noreferrer"><span class="social-logo facebook">f</span><span>Facebook officiel</span></a>
               <a class="social-link" href="https://www.youtube.com/watch?v=mEUQ7E2-TbI" target="_blank" rel="noopener noreferrer"><span class="social-logo youtube">▶</span><span>YouTube · clip officiel</span></a>
             </div>
             <p class="official-note">Instagram, TikTok et les autres liens seront ajoutés après validation des comptes officiels.</p>
           </div>
         </div>
-        <div class="section-head official-share-heading"><div><p class="kicker">AVEC LES MAOULANDAI</p><h2>Les contenus de KAYAWOTO</h2></div><span class="kicker">OFFICIEL</span></div>
+        <div class="section-head official-share-heading"><div><p class="kicker">UNIVERS OFFICIEL</p><h2>Les contenus de FLOBY</h2></div><span class="kicker">OFFICIEL</span></div>
         <div class="live-feed" id="officialSharedFeed"><div class="empty-feed">Chargement des contenus officiels…</div></div>
       </section>
 
       <section class="screen" id="goScreen" data-screen="go">
-        <div class="page-heading"><p class="kicker">VIDÉOS</p><h1>GO.</h1><p>Découvre les créations qui font avancer la communauté.</p></div>
+        <div class="page-heading"><p class="kicker">VIDÉOS FLOBY</p><h1>Les images<br><em>en mouvement.</em></h1><p>Clips, coulisses et contenus exclusifs de l’univers FLOBY.</p></div>
         <div class="go-intro"><span><strong>Un fil, une énergie.</strong> Fais défiler pour découvrir.</span><span class="go-intro-badge">● Lecture automatique</span></div>
         <div class="go-feature-strip" aria-label="Thématiques GO"><span class="go-feature-chip"><b>★</b> Pour toi</span><span class="go-feature-chip">Talents locaux</span><span class="go-feature-chip">Musique</span><span class="go-feature-chip">Tendances</span></div>
         <div class="video-tabs" role="tablist" aria-label="Choisir le fil vidéo">
@@ -980,31 +1013,31 @@
       </section>
 
       <section class="screen" id="networkScreen" data-screen="network">
-        <div class="page-heading"><p class="kicker">TON RÉSEAU</p><h1>Ton réseau<br><em>commence ici.</em></h1><p>Découvre les personnes qui partagent leurs idées et leurs talents.</p></div>
+        <div class="page-heading"><p class="kicker">COMMUNAUTÉ FLOBY</p><h1>La communauté<br><em>de FLOBY.</em></h1><p>Suis FLOBY, aime ses contenus et découvre les rendez-vous officiels.</p></div>
         <div class="network-grid" id="networkGrid"><div class="empty-feed">Chargement des profils…</div></div>
       </section>
 
       <section class="screen" id="profileScreen" data-screen="profile">
-        <div class="page-heading profile-heading-row"><div><p class="kicker">MON ESPACE</p><h1>Ton impact,<br><em>ton histoire.</em></h1></div><button class="profile-settings-button" type="button" data-nav="settings" aria-label="Ouvrir les paramètres"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3h-.2a1.8 1.8 0 0 0-.9 3Z"/></svg><span>Paramètres</span></button></div>
-         <div class="profile-card"><button class="profile-photo" id="profilePhotoButton" aria-label="Ouvrir les options de ma photo de profil">＋</button><h2>Profil vide</h2><p>Ton espace KAYAWOTO pour suivre tes créations.</p><div class="profile-identity-line"><span>Construis ton identité créative</span><span class="profile-identity-badge">● Espace créateur</span></div><div class="profile-stats"><div><b id="postCount">0</b><small>vidéos publiées</small></div><div><b id="profileLikeCount">0</b><small>likes reçus</small></div><div><b id="followingCount">0</b><small>abonnements</small></div></div></div>
+        <div class="page-heading profile-heading-row"><div><p class="kicker">MON ESPACE</p><h1>Ton espace<br><em>FLOBY.</em></h1></div><button class="profile-settings-button" type="button" data-nav="settings" aria-label="Ouvrir les paramètres"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3h-.2a1.8 1.8 0 0 0-.9 3Z"/></svg><span>Paramètres</span></button></div>
+         <div class="profile-card"><button class="profile-photo" id="profilePhotoButton" aria-label="Ouvrir les options de ma photo de profil">＋</button><h2>Profil vide</h2><p>Ton espace pour suivre les publications et les exclusivités de FLOBY.</p><div class="profile-identity-line"><span>Construis ton identité créative</span><span class="profile-identity-badge">● Espace créateur</span></div><div class="profile-stats"><div><b id="postCount">0</b><small>vidéos publiées</small></div><div><b id="profileLikeCount">0</b><small>likes reçus</small></div><div><b id="followingCount">0</b><small>abonnements</small></div></div></div>
         <div class="profile-content-card"><div class="profile-tabs" role="tablist" aria-label="Contenu de mon profil"><button class="profile-tab active" type="button" role="tab" aria-selected="true" data-profile-tab="videos">Mes vidéos</button><button class="profile-tab" type="button" role="tab" aria-selected="false" data-profile-tab="likes">Mes likes</button><button class="profile-tab" type="button" role="tab" aria-selected="false" data-profile-tab="performance">Performances</button></div><div class="profile-panel" id="profileVideosPanel"><div class="profile-media-grid" id="profileVideosGrid"><div class="empty-feed">Tes vidéos apparaîtront ici.</div></div></div><div class="profile-panel" id="profileLikesPanel" hidden><div class="profile-media-grid" id="profileLikesGrid"><div class="empty-feed">Les contenus que tu aimes apparaîtront ici.</div></div></div><div class="profile-panel" id="profilePerformancePanel" hidden><div class="profile-performance"><div class="profile-performance-item"><b id="profilePerformanceVideos">0</b><small>vidéos publiées</small></div><div class="profile-performance-item"><b id="profilePerformanceLikes">0</b><small>likes reçus</small></div><div class="profile-performance-item"><b id="profilePerformanceComments">0</b><small>commentaires reçus</small></div><div class="profile-performance-item"><b id="profilePerformanceFollowers">0</b><small>abonnements</small></div></div></div></div>
-        <div class="go-card"><h3>Créer une nouvelle vidéo</h3><p class="muted">Partage ton énergie avec la communauté.</p><button class="primary-button" id="profileCreate">Publier une vidéo</button></div>
+        <div class="go-card"><h3>Partager une nouvelle vidéo</h3><p class="muted">Partage un moment de l’univers officiel de FLOBY.</p><button class="primary-button" id="profileCreate">Publier une vidéo</button></div>
       </section>
 
       <section class="screen" id="settingsScreen" data-screen="settings">
-        <div class="page-heading"><p class="kicker">CENTRE DE CONTRÔLE</p><h1>Tes<br><em>paramètres.</em></h1><p>Gère ton compte, ton confort et la qualité de ton expérience KAYAWOTO.</p></div>
+        <div class="page-heading"><p class="kicker">ESPACE FAN</p><h1>Ton compte<br><em>et tes accès.</em></h1><p>Gère tes notifications, ton thème et ton accès aux contenus premium de FLOBY.</p></div>
         <p class="settings-section-label">Mon compte</p>
         <div class="settings-card">
-          <div class="settings-card-head"><div><h3 id="settingsAccountName">Ton compte KAYAWOTO</h3><p id="settingsAccountStatus">Connecte-toi pour synchroniser ton espace.</p></div><span class="performance-status" id="settingsSyncStatus">Hors ligne</span></div>
+          <div class="settings-card-head"><div><h3 id="settingsAccountName">Ton compte FLOBY</h3><p id="settingsAccountStatus">Connecte-toi pour synchroniser ton espace.</p></div><span class="performance-status" id="settingsSyncStatus">Hors ligne</span></div>
           <div class="settings-actions"><button class="primary-button" id="settingsAccountButton" type="button">Accéder à mon compte</button><button class="secondary-button" id="settingsEditProfileButton" type="button">Modifier mon profil</button></div>
         </div>
         <p class="settings-section-label">Apparence et confort</p>
         <div class="settings-card">
-          <label class="setting-row" for="splashToggle"><div><h3>Écran d’accueil animé</h3><p>Afficher l’introduction KAYAWOTO à l’ouverture.</p></div><span class="setting-switch"><input id="splashToggle" type="checkbox" checked><span aria-hidden="true"></span></span></label>
+          <label class="setting-row" for="splashToggle"><div><h3>Introduction FLOBY</h3><p>Afficher l’introduction officielle à l’ouverture.</p></div><span class="setting-switch"><input id="splashToggle" type="checkbox" checked><span aria-hidden="true"></span></span></label>
           <div class="setting-row"><div><h3>Thème de l’application</h3><p>Adapte l’affichage à ton confort visuel.</p></div><select class="theme-select" id="themeSelect" aria-label="Choisir le thème de l’application"><option value="dark">Noir</option><option value="light">Clair</option></select></div>
         </div>
         <div class="settings-card">
-          <label class="setting-row" for="notificationToggle"><div><h3>Notifications de la communauté</h3><p>Recevoir les nouvelles publications et annonces importantes.</p></div><span class="setting-switch"><input id="notificationToggle" type="checkbox" checked><span aria-hidden="true"></span></span></label>
+          <label class="setting-row" for="notificationToggle"><div><h3>Notifications de FLOBY</h3><p>Recevoir les nouvelles publications et annonces importantes.</p></div><span class="setting-switch"><input id="notificationToggle" type="checkbox" checked><span aria-hidden="true"></span></span></label>
         </div>
         <p class="settings-section-label">Sécurité</p>
         <div class="settings-card settings-danger">
@@ -1013,14 +1046,14 @@
         </div>
         <div class="settings-card" id="adminPanel" hidden>
           <div class="setting-row">
-            <div><h3>Espace KAYAWOTO / Propulsion Prod</h3><p id="adminStatus">Gestion des contenus officiels, événements, LIVE et signalements.</p></div>
+            <div><h3>Espace FLOBY / l'équipe officielle de FLOBY</h3><p id="adminStatus">Publications, musiques, vidéos, exclusivités, événements, notifications et statistiques.</p></div>
           </div>
           <div class="profile-actions" style="padding: 0 18px 18px;">
             <button class="profile-action" data-admin-action="official"><span>👑</span><span>Nouvelle publication officielle</span></button>
             <button class="profile-action" data-admin-action="event"><span>📅</span><span>Ajouter un événement</span></button>
             <button class="profile-action" data-admin-action="live"><span>🔴</span><span>Préparer un LIVE</span></button>
             <button class="profile-action" data-admin-action="reports"><span>⚑</span><span>Voir les signalements</span></button>
-            <button class="profile-action" data-admin-action="partners"><span>🤝</span><span>Gérer les partenaires</span></button>
+            <button class="profile-action" data-admin-action="partners"><span>🤝</span><span>Gérer les notifications</span></button>
           </div>
         </div>
         <button class="text-button" data-nav="profile">← Retour à mon espace</button>
@@ -1056,7 +1089,7 @@
   <div class="modal-backdrop" id="reportModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
       <div class="modal-head"><h2 id="reportTitle">Signaler un contenu</h2><button class="close-button" data-close="reportModal" aria-label="Fermer">×</button></div>
-      <p class="gate-copy">Ton signalement sera transmis à l’espace de modération KAYAWOTO / Propulsion Prod.</p>
+      <p class="gate-copy">Ton signalement sera transmis à l’espace de modération FLOBY / l'équipe officielle de FLOBY.</p>
       <form class="profile-form" id="reportForm">
         <label for="reportReason">Motif du signalement</label>
         <select class="composer-select" id="reportReason" required>
@@ -1075,11 +1108,11 @@
 
   <div class="modal-backdrop" id="adminModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
-      <div class="modal-head"><h2 id="adminTitle">Administration KAYAWOTO</h2><button class="close-button" data-close="adminModal" aria-label="Fermer">×</button></div>
-       <p class="gate-copy">Espace préparé pour KAYAWOTO / Propulsion Prod. Les contrôles réels sont protégés par les règles de sécurité de l’espace.</p>
+      <div class="modal-head"><h2 id="adminTitle">Administration FLOBY</h2><button class="close-button" data-close="adminModal" aria-label="Fermer">×</button></div>
+       <p class="gate-copy">Espace préparé pour FLOBY / l'équipe officielle de FLOBY. Les contrôles réels sont protégés par les règles de sécurité de l’espace.</p>
       <form class="profile-form" id="eventForm" hidden>
         <label for="eventName">Nom de l’événement</label>
-        <input id="eventName" maxlength="100" placeholder="Ex. Concert Maoulandai">
+        <input id="eventName" maxlength="100" placeholder="Ex. Concert FLOBY">
         <label for="eventDate">Date et heure</label>
         <input id="eventDate" type="datetime-local">
         <label for="eventPlace">Lieu</label>
@@ -1090,7 +1123,7 @@
       </form>
       <form class="profile-form" id="liveForm" hidden>
         <label for="liveTitle">Titre du LIVE</label>
-        <input id="liveTitle" maxlength="100" placeholder="LIVE MAOULANDAI">
+        <input id="liveTitle" maxlength="100" placeholder="LIVE FLOBY">
         <label for="liveUrl">Lien vidéo Bunny / diffusion</label>
         <input id="liveUrl" type="url" placeholder="https://...">
         <label for="liveDescription">Description</label>
@@ -1111,12 +1144,12 @@
         <p class="draft-note" id="composerDraftNote">Ton texte est enregistré automatiquement sur cet appareil.</p>
         <select class="composer-select" id="composerCategory" aria-label="Type de publication">
           <option value="community">Communauté</option>
-          <option value="creator">Créateurs en lumière</option>
+          <option value="creator">L’univers officiel de Floby</option>
           <option value="music">Musique</option>
         </select>
         <select class="composer-select" id="composerAudience" aria-label="Audience de la publication" hidden>
-          <option value="community">Publication Maoulandai</option>
-          <option value="official">Publication officielle KAYAWOTO</option>
+          <option value="community">Publication FLOBY</option>
+          <option value="official">Publication officielle FLOBY</option>
         </select>
         <label class="media-picker"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><circle cx="9" cy="10" r="1.5"/><path d="m5 17 4-4 3 3 2-2 5 4"/></svg><span id="mediaLabel">Ajouter une photo ou une vidéo</span><input id="mediaFile" type="file" accept="image/*,video/*"></label>
         <div class="media-preview" id="mediaPreview" hidden>
@@ -1165,10 +1198,10 @@
 
   <div class="modal-backdrop" id="profileModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
-      <div class="modal-head"><h2 id="profileTitle">Ton profil KAYAWOTO</h2><button class="close-button" data-close="profileModal" aria-label="Fermer">×</button></div>
+      <div class="modal-head"><h2 id="profileTitle">Ton profil FLOBY</h2><button class="close-button" data-close="profileModal" aria-label="Fermer">×</button></div>
       <form class="profile-form" id="profileForm">
         <label for="profileNickname">Nom ou pseudo</label>
-        <input id="profileNickname" required maxlength="40" placeholder="Ex. Ibrahim KAYAWOTOais">
+        <input id="profileNickname" required maxlength="40" placeholder="Ex. Ibrahim FLOBYais">
         <label for="profileCountry">Ville ou pays</label>
         <input id="profileCountry" maxlength="60" placeholder="Ex. Ouagadougou, Burkina Faso">
          <label for="profilePhone">Numéro associé au compte</label>
@@ -1194,11 +1227,11 @@
 
   <div class="modal-backdrop" id="profileGateModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileGateTitle">
-      <div class="modal-head"><div><p class="kicker">PROFIL UNIQUE</p><h2 id="profileGateTitle">Votre profil KAYAWOTO</h2></div><button class="close-button" data-close="profileGateModal" aria-label="Fermer">×</button></div>
+      <div class="modal-head"><div><p class="kicker">PROFIL UNIQUE</p><h2 id="profileGateTitle">Votre profil FLOBY</h2></div><button class="close-button" data-close="profileGateModal" aria-label="Fermer">×</button></div>
       <p class="gate-copy">Renseigne tes informations une seule fois pour accéder à ton espace et participer à la communauté.</p>
       <form class="gate-form" id="profileGateForm">
         <label for="gateName">Nom ou pseudo</label>
-        <input id="gateName" required maxlength="40" autocomplete="name" placeholder="Ex. Ibrahim KAYAWOTOais">
+        <input id="gateName" required maxlength="40" autocomplete="name" placeholder="Ex. Ibrahim FLOBYais">
         <label for="gateCountry">Pays</label>
         <select id="gateCountry" required>
           <option value="">Choisir ton pays</option>
@@ -1219,16 +1252,16 @@
         <label for="gatePhone">Numéro de téléphone</label>
         <input id="gatePhone" required type="tel" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="Ex. 70 00 00 00">
         <span class="phone-hint" id="gatePhoneHint">L’indicatif de ton pays sera ajouté automatiquement.</span>
-        <label class="terms-check"><input id="gateTerms" type="checkbox" required><span>J’accepte les conditions d’utilisation et la politique de confidentialité de KAYAWOTO.</span></label>
+        <label class="terms-check"><input id="gateTerms" type="checkbox" required><span>J’accepte les conditions d’utilisation et la politique de confidentialité de FLOBY.</span></label>
         <div class="gate-error" id="gateError" aria-live="polite"></div>
-        <button class="primary-button" type="submit">Continuer vers KAYAWOTO</button>
+        <button class="primary-button" type="submit">Continuer vers FLOBY</button>
       </form>
     </div>
   </div>
 
   <div class="modal-backdrop" id="accessModal" aria-hidden="true">
     <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
-      <div class="modal-head"><div><p class="kicker">ACCÈS SÉCURISÉ</p><h2 id="accessTitle">Ton espace KAYAWOTO</h2></div><button class="close-button" data-close="accessModal" aria-label="Fermer">×</button></div>
+      <div class="modal-head"><div><p class="kicker">ACCÈS SÉCURISÉ</p><h2 id="accessTitle">Ton espace FLOBY</h2></div><button class="close-button" data-close="accessModal" aria-label="Fermer">×</button></div>
       <p class="auth-intro">Retrouve ton profil, tes publications et toute ton activité sur chaque appareil.</p>
       <div class="auth-tabs" role="tablist" aria-label="Accès au compte">
         <button class="auth-tab active" id="loginTab" type="button" role="tab" aria-selected="true" data-auth-tab="login">Connexion</button>
@@ -1275,9 +1308,9 @@
         <input id="signupPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="6 caractères minimum">
         <label for="signupPasswordConfirm">Confirmer le mot de passe</label>
         <input id="signupPasswordConfirm" type="password" required minlength="6" autocomplete="new-password" placeholder="Retape ton mot de passe">
-        <label class="terms-check"><input id="signupTerms" type="checkbox" required><span>J’accepte les conditions d’utilisation et la politique de confidentialité de KAYAWOTO.</span></label>
+        <label class="terms-check"><input id="signupTerms" type="checkbox" required><span>J’accepte les conditions d’utilisation et la politique de confidentialité de FLOBY.</span></label>
         <p class="auth-error" id="signupError" aria-live="polite"></p>
-        <button class="primary-button" type="submit">Créer mon compte KAYAWOTO</button>
+        <button class="primary-button" type="submit">Créer mon compte FLOBY</button>
       </form>
     </div>
   </div>
@@ -1291,9 +1324,9 @@
       const navItems = [...document.querySelectorAll("[data-nav]")];
       const toast = document.getElementById("toast");
       const welcomeSplash = document.getElementById("welcomeSplash");
-      const splashSettingKey = "kayawotoSplashEnabled";
-      const notificationSettingKey = "kayawotoNotificationsEnabled";
-      const themeSettingKey = "kayawotoTheme";
+      const splashSettingKey = "flobySplashEnabled";
+      const notificationSettingKey = "flobyNotificationsEnabled";
+      const themeSettingKey = "flobyTheme";
       let toastTimer;
 
       function applyTheme(theme) {
@@ -1321,6 +1354,8 @@
         document.getElementById("skipSplash")?.addEventListener("click", hideWelcomeSplash);
       }
 
+      window.showFlobyToast = (message) => showToast(message);
+
       function showToast(message) {
         toast.textContent = message;
         toast.classList.add("show");
@@ -1328,7 +1363,7 @@
         toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
       }
 
-      window.syncKayawotoModalState = () => {
+      window.syncFlobyModalState = () => {
         document.body.classList.toggle("modal-open", Boolean(document.querySelector(".modal-backdrop.open")));
       };
 
@@ -1338,7 +1373,7 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
         if (updateHistory && location.hash !== "#" + name) history.pushState(null, "", "#" + name);
       }
-      window.navigateKayawoto = navigate;
+      window.navigateFloby = navigate;
 
       navItems.forEach(item => {
         item.addEventListener("click", () => {
@@ -1354,7 +1389,7 @@
         if (!modal) return;
         modal.classList.add("open");
         modal.setAttribute("aria-hidden", "false");
-        window.syncKayawotoModalState();
+        window.syncFlobyModalState();
         const focusTarget = modal.querySelector("input, textarea");
         if (focusTarget) setTimeout(() => focusTarget.focus(), 100);
       }
@@ -1364,12 +1399,12 @@
         openModal("composerModal");
         window.setCreatorMode?.("status");
       }
-      window.openKayawotoComposer = openCreateComposer;
+      window.openFlobyComposer = openCreateComposer;
       document.getElementById("createButton")?.addEventListener("pointerup", openCreateComposer);
       function closeModal(modal) {
         modal.classList.remove("open");
         modal.setAttribute("aria-hidden", "true");
-        window.syncKayawotoModalState();
+        window.syncFlobyModalState();
       }
       document.querySelectorAll("[data-close]").forEach(button => {
         button.addEventListener("click", () => closeModal(document.getElementById(button.dataset.close)));
@@ -1412,7 +1447,7 @@
       const charCount = document.getElementById("charCount");
       composer.addEventListener("input", () => charCount.textContent = `${composer.value.length} / 280`);
       let mediaPreviewUrl = "";
-      window.clearKayawotoMediaPreview = () => {
+      window.clearFlobyMediaPreview = () => {
         if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
         mediaPreviewUrl = "";
         const preview = document.getElementById("mediaPreview");
@@ -1425,7 +1460,7 @@
       document.getElementById("mediaFile").addEventListener("change", event => {
         const file = event.target.files[0];
         document.getElementById("mediaLabel").textContent = file ? file.name : "Ajouter une photo ou une vidéo";
-        window.clearKayawotoMediaPreview();
+        window.clearFlobyMediaPreview();
         if (!file) return;
         mediaPreviewUrl = URL.createObjectURL(file);
         const preview = document.getElementById("mediaPreview");
@@ -1499,16 +1534,16 @@
 
     const firebaseConfig = {
       apiKey: "AIzaSyC7yBcLyWhpNwxX31-6vN5nKNZ4I_a2_yg",
-      authDomain: "kayawoto-6843c.firebaseapp.com",
-      databaseURL: "https://kayawoto-6843c-default-rtdb.firebaseio.com",
-      projectId: "kayawoto-6843c",
-      storageBucket: "kayawoto-6843c.firebasestorage.app",
+      authDomain: "floby-6843c.firebaseapp.com",
+      databaseURL: "https://floby-6843c-default-rtdb.firebaseio.com",
+      projectId: "floby-6843c",
+      storageBucket: "floby-6843c.firebasestorage.app",
       messagingSenderId: "805107345346",
       appId: "1:805107345346:web:005d84f14d74e84600185b",
       measurementId: "G-F02KV17E1X"
     };
     const CLOUDINARY_CLOUD_NAME = "dnj3c2mlj";
-    const CLOUDINARY_UPLOAD_PRESET = "kayawoto_public";
+    const CLOUDINARY_UPLOAD_PRESET = "floby_public";
     const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
     const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 
@@ -1524,11 +1559,11 @@
     const likedPosts = new Set();
     let activeDiscoveryFilter = "all";
     let activeVideoTab = "recommended";
-    const notificationSeenKey = "kayawotoNotificationsSeenAt";
+    const notificationSeenKey = "flobyNotificationsSeenAt";
     const OFFICIAL_PROFILE = {
-      uid: "kayawoto-official",
-      name: "KAYAWOTO",
-      bio: "Artiste · Créateur de MAOULANDAI · Profil officiel",
+      uid: "floby-official",
+      name: "FLOBY",
+      bio: "Artiste · Créateur de FLOBY · Profil officiel",
       verified: true
     };
     const DEMO_CONTENT = [
@@ -1536,25 +1571,25 @@
         id: "demo-official-news",
         data: {
           demo: true, isOfficial: true, isStatus: false, type: "status", category: "community",
-          title: "[DÉMO À VALIDER] Actualité KAYAWOTO",
-          body: "Exemple de contenu officiel à remplacer par une actualité validée de KAYAWOTO.",
-          authorNickname: "KAYAWOTO", authorName: "KAYAWOTO", authorUid: OFFICIAL_PROFILE.uid,
+          title: "[DÉMO À VALIDER] Actualité FLOBY",
+          body: "Exemple de contenu officiel à remplacer par une actualité validée de FLOBY.",
+          authorNickname: "FLOBY", authorName: "FLOBY", authorUid: OFFICIAL_PROFILE.uid,
           likes: 0, commentsCount: 0, createdAt: "2026-09-01T12:00:00.000Z"
         }
       },
       {
-        id: "demo-maoulandai-post",
+        id: "demo-floby-post",
         data: {
           demo: true, isOfficial: false, isStatus: false, type: "status", category: "community",
-          title: "[DÉMO] Énergie MAOULANDAI",
+          title: "[DÉMO] Énergie FLOBY",
           body: "Exemple de publication communautaire à remplacer par les contenus réels des fans.",
-          authorNickname: "Fan MAOULANDAI — démo", authorName: "Fan MAOULANDAI",
-          authorUid: "demo-maoulandai", likes: 0, commentsCount: 0, createdAt: "2026-09-02T12:00:00.000Z"
+          authorNickname: "Fan FLOBY — démo", authorName: "Fan FLOBY",
+          authorUid: "demo-floby", likes: 0, commentsCount: 0, createdAt: "2026-09-02T12:00:00.000Z"
         }
       }
     ];
     const DEMO_EVENTS = [
-      { id: "demo-event-1", demo: true, title: "[DÉMO À VALIDER] Prochain événement KAYAWOTO", date: "Date à confirmer", place: "Lieu à confirmer", info: "Les informations officielles seront publiées par l’équipe." }
+      { id: "demo-event-1", demo: true, title: "[DÉMO À VALIDER] Prochain événement FLOBY", date: "Date à confirmer", place: "Lieu à confirmer", info: "Les informations officielles seront publiées par l’équipe." }
     ];
     const DEMO_PARTNERS = [
       { id: "demo-partner-1", demo: true, name: "Partenaire officiel à confirmer", description: "Aucun partenariat réel n’est présenté dans cette version de démonstration." }
@@ -1579,7 +1614,7 @@
       const element = document.getElementById(id);
       element.classList.toggle("open", open);
       element.setAttribute("aria-hidden", String(!open));
-      window.syncKayawotoModalState?.();
+      window.syncFlobyModalState?.();
     }
     function formatDate(timestamp) {
       const date = timestamp?.toDate ? timestamp.toDate() : (timestamp ? new Date(timestamp) : null);
@@ -1611,12 +1646,12 @@
       if (editProfile) editProfile.hidden = !hasProfile;
       if (signOutButton) signOutButton.hidden = !isSignedIn;
       const accessButton = document.getElementById("profileAccessButton");
-      if (accessButton) accessButton.textContent = hasProfile ? "Accéder à mon compte" : "Accéder à KAYAWOTO";
+      if (accessButton) accessButton.textContent = hasProfile ? "Accéder à mon compte" : "Accéder à FLOBY";
       const settingsName = document.getElementById("settingsAccountName");
       const settingsStatus = document.getElementById("settingsAccountStatus");
       const settingsSync = document.getElementById("settingsSyncStatus");
       const settingsAccountButton = document.getElementById("settingsAccountButton");
-      if (settingsName) settingsName.textContent = isSignedIn ? name : "Ton compte KAYAWOTO";
+      if (settingsName) settingsName.textContent = isSignedIn ? name : "Ton compte FLOBY";
       if (settingsStatus) settingsStatus.textContent = isSignedIn ? (currentUser.email || "Compte synchronisé") : "Connecte-toi pour synchroniser ton espace.";
       if (settingsSync) { settingsSync.textContent = isSignedIn ? "Synchronisé" : "Hors ligne"; settingsSync.style.color = isSignedIn ? "var(--green)" : "var(--muted)"; }
       if (settingsAccountButton) settingsAccountButton.textContent = isSignedIn ? "Gérer mon compte" : "Accéder à mon compte";
@@ -1628,11 +1663,11 @@
       updateAdminPanel();
     }
     function saveProfileLocally(profile) {
-      localStorage.setItem("kayawotoProfile", JSON.stringify(profile));
+      localStorage.setItem("flobyProfile", JSON.stringify(profile));
       updateProfileView(profile);
     }
     function getLocalProfile() {
-      try { return JSON.parse(localStorage.getItem("kayawotoProfile") || "{}"); }
+      try { return JSON.parse(localStorage.getItem("flobyProfile") || "{}"); }
       catch { return {}; }
     }
     function applyPostBackgrounds(root = document) {
@@ -1657,7 +1692,7 @@
     }
     function isAdmin() {
       const profile = getLocalProfile();
-      return Boolean(currentUser && (ADMIN_UIDS.includes(currentUser.uid) || profile.role === "admin" || profile.role === "propulsion-prod"));
+      return Boolean(currentUser && (ADMIN_UIDS.includes(currentUser.uid) || profile.role === "admin" || profile.role === "floby-admin"));
     }
     function updateAdminPanel() {
       const panel = document.getElementById("adminPanel");
@@ -1704,7 +1739,7 @@
       modal("accessModal", true);
     }
     window.openAccessModal = openAccessModal;
-    window.kayawotoIsAuthenticated = () => Boolean(currentUser && !currentUser.isAnonymous && currentUser.email);
+    window.flobyIsAuthenticated = () => Boolean(currentUser && !currentUser.isAnonymous && currentUser.email);
     async function saveAccountProfile(user, profile) {
       await setDoc(doc(db, "users", user.uid), {
         ...profile,
@@ -1753,11 +1788,11 @@
         };
         saveProfileLocally(profile);
         modal("accessModal", false);
-        notify("Connexion Google réussie. Bienvenue dans KAYAWOTO ✨");
+        notify("Connexion Google réussie. Bienvenue dans FLOBY ✨");
         if (!profile.nickname || !profile.country || !profile.phone || profile.termsAccepted !== true) {
           window.openProfileGate?.();
         } else {
-          window.replayKayawotoAction?.();
+          window.replayFlobyAction?.();
         }
       } catch (authError) {
         if (authError?.code === "auth/popup-closed-by-user") return;
@@ -1775,7 +1810,7 @@
       return "";
     }
 
-    async function uploadToCloudinary(file, folder = "maouland/posts") {
+    async function uploadToCloudinary(file, folder = "floby/posts") {
       const resourceType = mediaResourceType(file);
       if (!file || !resourceType) {
         throw new Error("Format de fichier non pris en charge.");
@@ -1840,8 +1875,8 @@
     }
 
     function contentLabel(data) {
-      if (data.isOfficial) return data.demo ? "👑 OFFICIEL · DÉMO À VALIDER" : "👑 OFFICIEL KAYAWOTO";
-      return "🔥 MAOULANDAI";
+      if (data.isOfficial) return data.demo ? "👑 OFFICIEL · DÉMO À VALIDER" : "👑 OFFICIEL FLOBY";
+      return "🔥 FLOBY";
     }
     function isDemoPost(post) {
       return post.data?.demo === true;
@@ -1885,7 +1920,7 @@
       }
       feed.innerHTML = regularPosts.slice(0, 8).map(post => {
         const data = post.data || {};
-        const author = data.authorNickname || data.authorName || "KAYAWOTOais";
+        const author = data.authorNickname || data.authorName || "FLOBYais";
         const media = data.mediaUrl
           ? (data.type === "video"
             ? `<video class="live-post-media" controls playsinline preload="metadata"${videoPosterAttr(data.mediaUrl)} src="${escapeHTML(data.mediaUrl)}"></video>`
@@ -1936,11 +1971,11 @@
       }
       feed.innerHTML = officialPosts.map(post => {
         const data = post.data || {};
-        const author = data.authorNickname || "KAYAWOTO";
+        const author = data.authorNickname || "FLOBY";
         const media = data.mediaUrl
           ? (data.type === "video"
             ? `<video class="live-post-media" controls playsinline preload="metadata"${videoPosterAttr(data.mediaUrl)} src="${escapeHTML(data.mediaUrl)}"></video>`
-            : `<img class="live-post-media" loading="lazy" src="${escapeHTML(data.mediaUrl)}" alt="Publication officielle de KAYAWOTO">`)
+            : `<img class="live-post-media" loading="lazy" src="${escapeHTML(data.mediaUrl)}" alt="Publication officielle de FLOBY">`)
           : "";
         return `<article class="live-post"${postBackgroundAttr(data)}>
           ${media}
@@ -1975,7 +2010,7 @@
         .filter(post => post.data?.isStatus !== true)
         .filter(post => activeDiscoveryFilter === "all"
           || (activeDiscoveryFilter === "official" && post.data?.isOfficial === true)
-          || (activeDiscoveryFilter === "maoulandai" && post.data?.isOfficial !== true)
+          || (activeDiscoveryFilter === "floby" && post.data?.isOfficial !== true)
           || post.data?.category === activeDiscoveryFilter)
         .sort((a, b) => Number(b.data?.likes || 0) - Number(a.data?.likes || 0));
       if (!regularPosts.length) {
@@ -1984,7 +2019,7 @@
       }
       grid.innerHTML = regularPosts.slice(0, 12).map(post => {
         const data = post.data || {};
-        const author = data.authorNickname || data.authorName || "KAYAWOTOais";
+        const author = data.authorNickname || data.authorName || "FLOBYais";
         const media = data.mediaUrl
           ? (data.type === "video"
             ? `<video class="discovery-card-media" controls playsinline preload="metadata"${videoPosterAttr(data.mediaUrl)} src="${escapeHTML(data.mediaUrl)}"></video>`
@@ -2150,7 +2185,7 @@
 
     function readFollowing() {
       try {
-        const value = JSON.parse(localStorage.getItem("kayawotoFollowing") || "[]");
+        const value = JSON.parse(localStorage.getItem("flobyFollowing") || "[]");
         return new Set(Array.isArray(value) ? value : []);
       } catch {
         return new Set();
@@ -2159,7 +2194,7 @@
     const followingProfiles = readFollowing();
 
     function saveFollowing() {
-      localStorage.setItem("kayawotoFollowing", JSON.stringify([...followingProfiles]));
+      localStorage.setItem("flobyFollowing", JSON.stringify([...followingProfiles]));
       const count = document.getElementById("followingCount");
       if (count) count.textContent = followingProfiles.size;
     }
@@ -2175,7 +2210,7 @@
         if (uid === currentUser?.uid) return;
         const existing = authors.get(uid) || {
           uid,
-          name: data.authorNickname || data.authorName || "KAYAWOTOais",
+          name: data.authorNickname || data.authorName || "FLOBYais",
           photo: data.authorPhotoUrl || "",
           posts: 0,
           categories: new Set()
@@ -2226,8 +2261,8 @@
       grid.innerHTML = list.slice(0, 8).map(event => `
         <article class="discovery-card">
           <div class="discovery-card-body">
-            <div class="discovery-meta">📅 ${event.demo ? "DÉMO À VALIDER" : "ÉVÉNEMENT MAOULANDAI"}</div>
-            <h3>${escapeHTML(event.title || "Événement KAYAWOTO")}</h3>
+            <div class="discovery-meta">📅 ${event.demo ? "DÉMO À VALIDER" : "ÉVÉNEMENT FLOBY"}</div>
+            <h3>${escapeHTML(event.title || "Événement FLOBY")}</h3>
             <p>${escapeHTML(event.info || "Informations à venir.")}</p>
             <div class="live-post-actions"><span class="live-action">🗓 ${escapeHTML(event.date || "Date à confirmer")}</span><span class="live-action">📍 ${escapeHTML(event.place || "Lieu à confirmer")}</span></div>
             ${event.contactUrl && !event.demo ? `<a class="secondary-button" href="${escapeHTML(event.contactUrl)}" target="_blank" rel="noopener">Réserver / contacter</a>` : ""}
@@ -2242,7 +2277,7 @@
       grid.innerHTML = list.map(partner => `
         <article class="network-card">
           <span class="network-avatar">🤝</span>
-          <div class="network-card-content"><strong>${escapeHTML(partner.name)}</strong><span>${escapeHTML(partner.description || "Partenaire officiel KAYAWOTO")}</span></div>
+          <div class="network-card-content"><strong>${escapeHTML(partner.name)}</strong><span>${escapeHTML(partner.description || "Partenaire officiel FLOBY")}</span></div>
         </article>`).join("");
     }
 
@@ -2252,10 +2287,10 @@
       const watchButton = document.getElementById("watchLiveButton");
       if (!title || !description || !watchButton) return;
       const active = liveRoom?.status === "live";
-      title.textContent = active ? `🔴 ${liveRoom.title || "LIVE MAOULANDAI"}` : "Aucun LIVE en cours";
+      title.textContent = active ? `🔴 ${liveRoom.title || "LIVE FLOBY"}` : "Aucun LIVE en cours";
       description.textContent = active
-        ? liveRoom.description || "KAYAWOTO est en direct avec les MAOULANDAI."
-        : "Le prochain LIVE de KAYAWOTO sera annoncé ici. Les commentaires et réactions seront disponibles pendant la diffusion.";
+        ? liveRoom.description || "FLOBY est en direct avec les FLOBY."
+        : "Le prochain LIVE de FLOBY sera annoncé ici. Les commentaires et réactions seront disponibles pendant la diffusion.";
       watchButton.hidden = !active;
       watchButton.onclick = active && liveRoom.url ? () => window.open(liveRoom.url, "_blank", "noopener") : null;
     }
@@ -2287,7 +2322,7 @@
       const list = document.getElementById("notificationList");
       const badge = document.querySelector("#notificationButton .badge");
       if (!list || !badge) return;
-      if (localStorage.getItem("kayawotoNotificationsEnabled") === "false") {
+      if (localStorage.getItem("flobyNotificationsEnabled") === "false") {
         badge.style.display = "none";
         list.innerHTML = `<div class="empty-feed">Les notifications sont désactivées dans les paramètres.</div>`;
         return;
@@ -2316,10 +2351,10 @@
       const post = displayPosts().find(item => item.id === postId);
       if (!post) return;
       const data = post.data || {};
-      const text = `${data.title || "Publication KAYAWOTO"} — ${data.body || ""}`.trim();
+      const text = `${data.title || "Publication FLOBY"} — ${data.body || ""}`.trim();
       try {
         if (navigator.share) {
-          await navigator.share({ title: data.title || "KAYAWOTO · MAOULANDAI", text, url: location.href.split("#")[0] });
+          await navigator.share({ title: data.title || "FLOBY · FLOBY", text, url: location.href.split("#")[0] });
           return;
         }
         await navigator.clipboard.writeText(text);
@@ -2348,7 +2383,7 @@
           reason: document.getElementById("reportReason").value,
           details: document.getElementById("reportDetails").value.trim(),
           reporterUid: user.uid,
-          reporterName: profile.nickname || profile.firstName || "Membre MAOULANDAI",
+          reporterName: profile.nickname || profile.firstName || "Membre FLOBY",
           status: "pending",
           createdAt: serverTimestamp()
         });
@@ -2377,7 +2412,7 @@
         if (count) count.textContent = comments.length.toLocaleString("fr-FR");
         list.innerHTML = comments.length
           ? comments.map(comment => {
-            const author = comment.author || "KAYAWOTOais";
+            const author = comment.author || "FLOBYais";
             return `<article class="comment-row"><span class="comment-avatar" aria-hidden="true">${escapeHTML(author.charAt(0).toUpperCase())}</span><div class="comment-bubble"><div class="comment-meta"><strong>${escapeHTML(author)}</strong><time class="comment-time">${formatDate(comment.createdAt)}</time></div><p>${escapeHTML(comment.text)}</p></div></article>`;
           }).join("")
           : `<div class="comments-empty"><strong>La discussion commence ici</strong><span>Sois le premier à réagir à cette publication.</span></div>`;
@@ -2404,7 +2439,7 @@
         const batch = writeBatch(db);
         batch.set(commentRef, {
           text,
-          author: profile.nickname || profile.firstName || "KAYAWOTOais",
+          author: profile.nickname || profile.firstName || "FLOBYais",
           uid: user.uid,
           likes: 0,
           createdAt: serverTimestamp()
@@ -2526,9 +2561,9 @@
       const renderCards = (items, emptyText) => items.length ? items.slice(0, 12).map(post => {
         const data = post.data || {};
         const media = data.type === "video"
-          ? `<video controls playsinline preload="metadata" src="${escapeHTML(data.mediaUrl)}" aria-label="Vidéo publiée sur KAYAWOTO"></video>`
-          : `<img loading="lazy" src="${escapeHTML(data.mediaUrl)}" alt="Publication KAYAWOTO">`;
-        return `<article class="profile-media-card">${media}<div class="profile-media-info"><strong>${escapeHTML(data.title || "Publication KAYAWOTO")}</strong><small>♥ ${Number(data.likes || 0).toLocaleString("fr-FR")} · ${formatDate(data.createdAt)}</small></div></article>`;
+          ? `<video controls playsinline preload="metadata" src="${escapeHTML(data.mediaUrl)}" aria-label="Vidéo publiée sur FLOBY"></video>`
+          : `<img loading="lazy" src="${escapeHTML(data.mediaUrl)}" alt="Publication FLOBY">`;
+        return `<article class="profile-media-card">${media}<div class="profile-media-info"><strong>${escapeHTML(data.title || "Publication FLOBY")}</strong><small>♥ ${Number(data.likes || 0).toLocaleString("fr-FR")} · ${formatDate(data.createdAt)}</small></div></article>`;
       }).join("") : `<div class="empty-feed">${emptyText}</div>`;
       videosGrid.innerHTML = renderCards(ownVideos, authenticated ? "Tu n’as pas encore publié de vidéo." : "Connecte-toi pour retrouver tes vidéos.");
       likesGrid.innerHTML = renderCards(likedContent, authenticated ? "Tu n’as pas encore aimé de contenu." : "Connecte-toi pour retrouver tes likes.");
@@ -2663,7 +2698,7 @@
     });
     document.querySelectorAll("[data-admin-action]").forEach(button => {
       button.addEventListener("click", async () => {
-        if (!isAdmin()) return notify("Cet espace est réservé à KAYAWOTO / Propulsion Prod.");
+        if (!isAdmin()) return notify("Cet espace est réservé à FLOBY / l'équipe officielle de FLOBY.");
         const action = button.dataset.adminAction;
         if (action === "official") {
           document.getElementById("composerAudience").hidden = false;
@@ -2719,7 +2754,7 @@
         await setDoc(doc(db, "liveRooms", "current"), {
           status: "live",
           provider: "bunny",
-          title: document.getElementById("liveTitle").value.trim() || "LIVE MAOULANDAI",
+          title: document.getElementById("liveTitle").value.trim() || "LIVE FLOBY",
           url: document.getElementById("liveUrl").value.trim(),
           description: document.getElementById("liveDescription").value.trim(),
           startedAt: serverTimestamp(),
@@ -2761,11 +2796,11 @@
         } catch {}
         saveProfileLocally(profile);
         modal("accessModal", false);
-        notify("Connexion réussie. Bienvenue dans KAYAWOTO ✨");
+        notify("Connexion réussie. Bienvenue dans FLOBY ✨");
         if (!profile.nickname || !profile.country || !profile.phone || profile.termsAccepted !== true) {
           window.openProfileGate?.();
         } else {
-          window.replayKayawotoAction?.();
+          window.replayFlobyAction?.();
         }
       } catch (authError) {
         error.textContent = authMessage(authError);
@@ -2832,8 +2867,8 @@
           saveProfileLocally(profile);
         }
         modal("accessModal", false);
-        notify("Compte créé. Bienvenue dans KAYAWOTO ✨");
-        window.replayKayawotoAction?.();
+        notify("Compte créé. Bienvenue dans FLOBY ✨");
+        window.replayFlobyAction?.();
       } catch (authError) {
         error.textContent = authMessage(authError);
       } finally {
@@ -2843,7 +2878,7 @@
     document.getElementById("settingsSignOutButton")?.addEventListener("click", async () => {
       try {
         await signOut(auth);
-        notify("Tu es déconnecté de KAYAWOTO");
+        notify("Tu es déconnecté de FLOBY");
       } catch {
         notify("La déconnexion n’a pas pu être effectuée");
       }
@@ -2888,10 +2923,10 @@
         if (storyFile) {
           document.getElementById("storyUploadLabel").textContent = "Envoi de ta story…";
           document.getElementById("storyUploadProgress").classList.add("show");
-          media = await uploadToCloudinary(storyFile, "maouland/stories");
+          media = await uploadToCloudinary(storyFile, "floby/stories");
         }
         await addDoc(collection(db, "posts"), {
-          title: storyFile ? "Story MAOULANDAI" : "",
+          title: storyFile ? "Story FLOBY" : "",
           body: text,
           mediaUrl: media.secure_url || "",
           type: storyFile ? (media.resource_type === "video" ? "video" : "image") : "status",
@@ -2902,7 +2937,7 @@
           likes: 0,
           commentsCount: 0,
           authorUid: user.uid,
-          authorName: profile.firstName || "KAYAWOTOais",
+          authorName: profile.firstName || "FLOBYais",
           authorNickname: profile.nickname || "Membre",
           authorPhotoUrl: profile.photoUrl || "",
           authorBackgroundUrl: profile.backgroundUrl || "",
@@ -2965,7 +3000,7 @@
       modal("profileActionsModal", false);
       notify("Envoi de ta photo de profil…");
       try {
-        const media = await uploadToCloudinary(file, "maouland/profiles");
+        const media = await uploadToCloudinary(file, "floby/profiles");
         const profile = { ...getLocalProfile(), photoUrl: media.secure_url };
         saveProfileLocally(profile);
         try {
@@ -2987,7 +3022,7 @@
       subscribeToPosts();
       notify("Fil en cours d'actualisation…");
     });
-    const composerDraftKey = "kayawotoComposerDraft";
+    const composerDraftKey = "flobyComposerDraft";
     const composerDraftNote = document.getElementById("composerDraftNote");
     const composerText = document.getElementById("composerText");
     const composerTitleInput = document.getElementById("composerTitleInput");
@@ -3041,7 +3076,7 @@
         let media = { secure_url: "", resource_type: "" };
         if (file) media = await uploadToCloudinary(file);
         await addDoc(collection(db, "posts"), {
-          title: titleInput.value.trim() || "Moment KAYAWOTO",
+          title: titleInput.value.trim() || "Moment FLOBY",
           body,
           hashtags: tagsInput.value.trim(),
           mediaUrl: media.secure_url || "",
@@ -3052,7 +3087,7 @@
           likes: 0,
           commentsCount: 0,
           authorUid: isOfficial ? OFFICIAL_PROFILE.uid : user.uid,
-          authorName: isOfficial ? OFFICIAL_PROFILE.name : (profile.firstName || "KAYAWOTOais"),
+          authorName: isOfficial ? OFFICIAL_PROFILE.name : (profile.firstName || "FLOBYais"),
           authorNickname: isOfficial ? OFFICIAL_PROFILE.name : (profile.nickname || "Membre"),
           authorPhotoUrl: isOfficial ? "" : (profile.photoUrl || ""),
           authorBackgroundUrl: isOfficial ? "" : (profile.backgroundUrl || ""),
@@ -3064,7 +3099,7 @@
         audienceInput.hidden = true;
         audienceInput.value = "community";
         document.getElementById("mediaLabel").textContent = "Ajouter une photo ou une vidéo";
-        window.clearKayawotoMediaPreview?.();
+        window.clearFlobyMediaPreview?.();
         document.getElementById("charCount").textContent = "0 / 280";
         modal("composerModal", false);
         notify("Publication mise en ligne ✨");
@@ -3101,7 +3136,7 @@
         const user = await ensureUser();
         const backgroundFile = document.getElementById("profileBackgroundFile")?.files?.[0];
         if (backgroundFile) {
-          const media = await uploadToCloudinary(backgroundFile, "maouland/profiles/backgrounds");
+          const media = await uploadToCloudinary(backgroundFile, "floby/profiles/backgrounds");
           profile.backgroundUrl = media.secure_url;
         }
         await setDoc(doc(db, "users", user.uid), { ...profile, updatedAt: serverTimestamp() }, { merge: true });
@@ -3127,7 +3162,7 @@
       let pendingAction = null;
 
       function readProfile() {
-        try { return JSON.parse(localStorage.getItem("kayawotoProfile") || "{}"); }
+        try { return JSON.parse(localStorage.getItem("flobyProfile") || "{}"); }
         catch { return {}; }
       }
       function profileIsComplete() {
@@ -3145,16 +3180,16 @@
         document.getElementById("gateError").textContent = "";
         gate.classList.add("open");
         gate.setAttribute("aria-hidden", "false");
-        window.syncKayawotoModalState?.();
+        window.syncFlobyModalState?.();
         setTimeout(() => document.getElementById("gateName").focus(), 80);
       }
       function closeGate() {
         gate.classList.remove("open");
         gate.setAttribute("aria-hidden", "true");
-        window.syncKayawotoModalState?.();
+        window.syncFlobyModalState?.();
       }
       function blockUntilProfile(event, action = "composer") {
-        const isAuthenticated = window.kayawotoIsAuthenticated?.() === true;
+        const isAuthenticated = window.flobyIsAuthenticated?.() === true;
         if (profileIsComplete() && isAuthenticated) return false;
         pendingAction = action;
         event.preventDefault();
@@ -3170,7 +3205,7 @@
           const photoModal = document.getElementById("profileActionsModal");
           photoModal.classList.add("open");
           photoModal.setAttribute("aria-hidden", "false");
-          window.syncKayawotoModalState?.();
+          window.syncFlobyModalState?.();
           return;
         }
         if (action === "status" || action === "story" || action === "composer") {
@@ -3178,12 +3213,12 @@
           const targetModal = document.getElementById(modalId);
           targetModal.classList.add("open");
           targetModal.setAttribute("aria-hidden", "false");
-          window.syncKayawotoModalState?.();
+          window.syncFlobyModalState?.();
           if (action === "story") window.setCreatorMode?.("story");
           setTimeout(() => document.getElementById(action === "status" || action === "story" ? "statusText" : "composerText")?.focus(), 80);
         }
       }
-      window.replayKayawotoAction = replayPendingAction;
+      window.replayFlobyAction = replayPendingAction;
       window.openProfileGate = openGate;
 
       country.addEventListener("change", () => {
@@ -3233,7 +3268,7 @@
           termsAccepted: true,
           termsAcceptedAt: new Date().toISOString()
         };
-        localStorage.setItem("kayawotoProfile", JSON.stringify(profile));
+        localStorage.setItem("flobyProfile", JSON.stringify(profile));
         const profileForm = document.getElementById("profileForm");
         if (profileForm) {
           document.getElementById("profileNickname").value = name;
@@ -3248,6 +3283,21 @@
         window.profileGateToastTimer = setTimeout(() => document.getElementById("toast").classList.remove("show"), 3200);
       });
     })();
+  </script>
+
+  <script>
+    document.addEventListener('click', (event) => {
+      const action = event.target.closest('[data-demo-action]')?.dataset.demoAction;
+      if (!action) return;
+      const messages = {
+        exclusive: 'Les exclusivités FLOBY sont prêtes à être enrichies par l’équipe officielle.',
+        music: 'La bibliothèque musicale de FLOBY sera disponible ici.',
+        events: 'L’agenda des prochains concerts de FLOBY sera publié ici.',
+        credits: 'Démo uniquement : aucun paiement réel n’est déclenché.'
+      };
+      if (window.showFlobyToast) window.showFlobyToast(messages[action] || 'Fonctionnalité de démonstration.');
+      else alert(messages[action] || 'Fonctionnalité de démonstration.');
+    });
   </script>
 </body>
 </html>

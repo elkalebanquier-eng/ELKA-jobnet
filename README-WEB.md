@@ -1,4 +1,4 @@
-# KAYAWOTO — Version web
+# FLOBY — Version web
 
 Le fichier `index.html` est une version web responsive de l’application. Il peut être ouvert depuis Safari sur iPhone après publication sur un hébergement HTTPS.
 
