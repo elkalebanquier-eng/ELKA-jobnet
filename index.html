@@ -1640,7 +1640,11 @@
       toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
     }
     function escapeHTML(value) {
-      return String(value || "").replace(/[&<>"']/g, character => ({
+      let text = String(value || "");
+      if (!/^https?:\/\//i.test(text)) {
+        text = text.replace(/kayawoto/gi, "FLOBY").replace(/maoulandai/gi, "FLOBY").replace(/propulsion\s*prod/gi, "l’équipe officielle de FLOBY");
+      }
+      return text.replace(/[&<>"']/g, character => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
       }[character]));
     }
