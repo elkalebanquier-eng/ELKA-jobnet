@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://elka-jobnet.vercel.app/sitemap.xml
