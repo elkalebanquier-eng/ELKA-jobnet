@@ -8,6 +8,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Projet Numérique du Faso">
   <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
   <meta name="description" content="Découvrez les projets numériques, applications et solutions technologiques développés au Burkina Faso par des créateurs et entrepreneurs locaux.">
   <meta name="robots" content="index, follow">
   <meta name="google-site-verification" content="hCFDkGhQmRPYN8zzCgXmnGoG389dACql2D8Xpmx-h34">
@@ -3416,21 +3419,6 @@
       const action = event.target.closest('[data-demo-action]')?.dataset.demoAction;
       if (!action) return;
       const messages = {
-        exclusive: 'Les exclusivités FLOBY sont prêtes à être enrichies par l’équipe officielle.',
-        music: 'La bibliothèque musicale de FLOBY sera disponible ici.',
-        events: 'L’agenda des prochains concerts de FLOBY sera publié ici.',
-        credits: 'Démo uniquement : aucun paiement réel n’est déclenché.'
-      };
-      if (window.showFlobyToast) window.showFlobyToast(messages[action] || 'Fonctionnalité de démonstration.');
-      else alert(messages[action] || 'Fonctionnalité de démonstration.');
-    });
-  </script>
-
-  <script>
-    document.addEventListener('click', (event) => {
-      const action = event.target.closest('[data-demo-action]')?.dataset.demoAction;
-      if (!action) return;
-      const messages = {
         play: 'Lecture démo : ajoute un extrait audio officiel pour activer le lecteur.',
         music: 'Bibliothèque musicale FLOBY ouverte : morceaux gratuits et premium.',
         premium: 'Démo uniquement : aucun paiement réel. Le contenu sera débloqué après intégration Mobile Money.',
@@ -3439,10 +3427,31 @@
         ticket: 'Réservation démo uniquement : aucun billet ni paiement réel n’est émis.',
         live: 'Rappel enregistré sur cet appareil pour le prochain LIVE FLOBY.',
         poll: 'Merci ! Ton vote démo a été enregistré.',
-        fanwall: 'La messagerie fan sera modérée par l’équipe officielle de FLOBY.'
+        fanwall: 'La messagerie fan sera modérée par l’équipe officielle de FLOBY.',
+        credits: 'Démo uniquement : aucun paiement réel n’est déclenché.'
       };
       if (window.showFlobyToast) window.showFlobyToast(messages[action] || 'Fonctionnalité de démonstration.');
     });
+  </script>
+  <script>
+    (() => {
+      if (!('serviceWorker' in navigator)) return;
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(registration => {
+          registration.addEventListener('updatefound', () => {
+            const worker = registration.installing;
+            if (!worker) return;
+            worker.addEventListener('statechange', () => {
+              if (worker.state === 'installed' && navigator.serviceWorker.controller && window.showFlobyToast) {
+                window.showFlobyToast('Nouvelle version disponible. Recharge la page pour continuer.');
+              }
+            });
+          });
+        }).catch(() => {
+          // L’application reste pleinement utilisable sans le mode PWA.
+        });
+      });
+    })();
   </script>
 </body>
 </html>
