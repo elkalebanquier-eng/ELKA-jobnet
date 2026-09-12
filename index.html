@@ -932,6 +932,10 @@
     .seo-intro p:last-child { margin-bottom: 0; }
     .site-footer { width: min(100%, 440px); margin: 0 auto; padding: 20px 22px calc(108px + env(safe-area-inset-bottom)); color: var(--muted); font-size: 11px; text-align: center; }
     .site-footer p { margin: 4px 0; }.site-footer strong { color: var(--ink); }
+    .admin-dashboard { margin: 0 18px 14px; padding: 13px; border: 1px solid rgba(255,173,96,.18); border-radius: 18px; background: linear-gradient(145deg,rgba(255,120,78,.12),rgba(143,95,232,.12)); }
+    .admin-dashboard h4 { margin: 0; font: 700 13px "Space Grotesk", sans-serif; }.admin-dashboard p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .admin-dashboard-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-top: 10px; }.admin-dashboard-metric { padding: 8px 4px; border-radius: 10px; background: rgba(0,0,0,.16); text-align: center; }.admin-dashboard-metric b,.admin-dashboard-metric small { display:block; }.admin-dashboard-metric b { font-size: 14px; }.admin-dashboard-metric small { margin-top: 2px; color: var(--muted); font-size: 8px; }
+    .connection-status { display:flex; align-items:center; gap:7px; margin: 0 18px 12px; color:var(--muted); font-size:10px; }.connection-status::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(155,224,177,.12); }.connection-status.is-offline::before { background:#ed6b6b; box-shadow:0 0 0 4px rgba(237,107,107,.12); }
   </style>
 </head>
 <body>
@@ -1119,6 +1123,16 @@
         <div class="settings-card" id="adminPanel" hidden>
           <div class="setting-row">
             <div><h3>Espace FLOBY / l'équipe officielle de FLOBY</h3><p id="adminStatus">Publications, musiques, vidéos, exclusivités, événements, notifications et statistiques.</p></div>
+          </div>
+          <div class="connection-status" id="adminConnectionStatus">Synchronisation Firebase active</div>
+          <div class="admin-dashboard" aria-label="Résumé de l’activité FLOBY">
+            <h4>Vue d’ensemble</h4><p>Indicateurs calculés à partir des contenus synchronisés.</p>
+            <div class="admin-dashboard-grid">
+              <div class="admin-dashboard-metric"><b id="adminMetricPosts">0</b><small>publications</small></div>
+              <div class="admin-dashboard-metric"><b id="adminMetricVideos">0</b><small>vidéos</small></div>
+              <div class="admin-dashboard-metric"><b id="adminMetricLikes">0</b><small>likes</small></div>
+              <div class="admin-dashboard-metric"><b id="adminMetricEvents">0</b><small>événements</small></div>
+            </div>
           </div>
           <div class="profile-actions" style="padding: 0 18px 18px;">
             <button class="profile-action" data-admin-action="official"><span>👑</span><span>Nouvelle publication officielle</span></button>
@@ -1506,18 +1520,24 @@
           "home"
         ]);
       }
+      let searchTimer;
+      searchInput.setAttribute("aria-controls", "searchResults");
+      searchResults.setAttribute("aria-live", "polite");
       searchInput.addEventListener("input", () => {
-        const query = searchInput.value.trim().toLowerCase();
-        const results = getSearchableContent().filter(item => !query || item[0].toLowerCase().includes(query));
-        searchResults.innerHTML = results.length
-          ? results.map(item => `<button class="result" data-result="${item[1]}"><svg class="icon" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 5 5"/></svg><span>${item[0].replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]))}</span></button>`).join("")
-          : `<div class="result"><span>${query ? "Aucun contenu correspondant." : "Aucun contenu publié pour le moment."}</span></div>`;
-        searchResults.querySelectorAll("[data-result]").forEach(result => {
-          result.addEventListener("click", () => {
-            closeModal(document.getElementById("searchModal"));
-            navigate(result.dataset.result);
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          const query = searchInput.value.trim().toLowerCase();
+          const results = getSearchableContent().filter(item => !query || item[0].toLowerCase().includes(query));
+          searchResults.innerHTML = results.length
+            ? results.slice(0, 12).map(item => `<button type="button" class="result" data-result="${item[1]}"><svg class="icon" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 5 5"/></svg><span>${item[0].replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]))}</span></button>`).join("")
+            : `<div class="result"><span>${query ? "Aucun contenu correspondant." : "Aucun contenu publié pour le moment."}</span></div>`;
+          searchResults.querySelectorAll("[data-result]").forEach(result => {
+            result.addEventListener("click", () => {
+              closeModal(document.getElementById("searchModal"));
+              navigate(result.dataset.result);
+            });
           });
-        });
+        }, 120);
       });
 
       const composer = document.getElementById("composerText");
@@ -1682,6 +1702,7 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
     }
+    window.showFlobyToast = notify;
     function escapeHTML(value) {
       let text = String(value || "");
       if (!/^https?:\/\//i.test(text)) {
@@ -1779,6 +1800,25 @@
       const panel = document.getElementById("adminPanel");
       if (!panel) return;
       panel.hidden = !isAdmin();
+      renderAdminDashboard();
+    }
+    function renderAdminDashboard() {
+      const metrics = {
+        adminMetricPosts: posts.filter(post => post.data?.isStatus !== true).length,
+        adminMetricVideos: posts.filter(post => post.data?.type === "video").length,
+        adminMetricLikes: posts.reduce((total, post) => total + Number(post.data?.likes || 0), 0),
+        adminMetricEvents: events.length || DEMO_EVENTS.length
+      };
+      Object.entries(metrics).forEach(([id, value]) => {
+        const node = document.getElementById(id);
+        if (node) node.textContent = Number(value).toLocaleString("fr-FR");
+      });
+      const status = document.getElementById("adminConnectionStatus");
+      if (status) {
+        const online = navigator.onLine !== false;
+        status.textContent = online ? "Synchronisation Firebase active" : "Hors connexion · actions mises en attente";
+        status.classList.toggle("is-offline", !online);
+      }
     }
 
     async function ensureUser() {
@@ -1919,13 +1959,15 @@
           if (request.status >= 200 && request.status < 300) {
             try {
               const response = JSON.parse(request.responseText);
-              if (!response.secure_url) throw new Error("URL média manquante");
+              if (!response.secure_url) throw new Error(response.error?.message || "URL média manquante");
               resolve(response);
-            } catch {
-               reject(new Error("Le fichier n’a pas pu être traité."));
+            } catch (error) {
+               reject(new Error(error.message || "Le fichier n’a pas pu être traité."));
             }
           } else {
-             reject(new Error("Le fichier n’a pas pu être envoyé. Vérifie son format et ta connexion."));
+             let message = "Le fichier n’a pas pu être envoyé. Vérifie son format et ta connexion.";
+             try { message = JSON.parse(request.responseText)?.error?.message || message; } catch {}
+             reject(new Error(message));
           }
         });
          request.addEventListener("error", () => reject(new Error("Le transfert média est indisponible")));
@@ -2659,6 +2701,7 @@
       onSnapshot(collection(db, "events"), snapshot => {
         events = snapshot.docs.map(item => ({ id: item.id, ...item.data(), demo: false }));
         renderEvents();
+        renderAdminDashboard();
       }, () => renderEvents());
       onSnapshot(collection(db, "partners"), snapshot => {
         partners = snapshot.docs.map(item => ({ id: item.id, ...item.data(), demo: false }));
@@ -2688,6 +2731,7 @@
         renderNotifications();
         updatePostCount();
         renderProfileDashboard();
+        renderAdminDashboard();
         setupExclusiveVideoPlayback();
       }, () => {
         const feed = document.getElementById("liveFeed");
@@ -2718,8 +2762,8 @@
     });
     const offlineBanner = document.getElementById("offlineBanner");
     const syncNetworkState = () => offlineBanner?.classList.toggle("show", navigator.onLine === false);
-    window.addEventListener("online", syncNetworkState, { passive: true });
-    window.addEventListener("offline", syncNetworkState, { passive: true });
+    window.addEventListener("online", () => { syncNetworkState(); renderAdminDashboard(); }, { passive: true });
+    window.addEventListener("offline", () => { syncNetworkState(); renderAdminDashboard(); }, { passive: true });
     syncNetworkState();
     subscribeToPosts();
     subscribeToEvents();
@@ -2735,6 +2779,7 @@
     renderLiveRoom();
     updateProfileView(getLocalProfile());
     renderProfileDashboard();
+    renderAdminDashboard();
 
     document.getElementById("notificationButton").addEventListener("click", () => {
       renderNotifications();
