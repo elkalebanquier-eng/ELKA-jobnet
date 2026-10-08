@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/index.html?build=9697767" }
+    { "source": "/", "destination": "/index.html?build=89958de" }
   ],
   "headers": [
     {
