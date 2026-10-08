@@ -14,9 +14,9 @@ KUMA est un prototype mobile-first qui transforme une histoire écrite en storyb
 - Route serverless Speechify optionnelle : la clé reste côté serveur.
 - Interface responsive pensée comme une application mobile.
 
-## Choix technique du personnage
+## Architecture hybride Python + Canvas
 
-Le personnage est dessiné directement en JavaScript Canvas avec des formes vectorielles, puis animé image par image par `requestAnimationFrame`. Cette approche est plus légère et plus rapide que charger Pyodide/Python dans chaque navigateur : aucune IA, aucun service externe et aucun gros runtime ne sont nécessaires pour l'animation. Python pourra être ajouté plus tard comme outil de rendu hors ligne pour produire des exports avancés, sans alourdir l'application mobile.
+Pour les animations avancées, KUMA charge Pyodide à la demande et exécute un petit moteur Python local. Python découpe l'histoire, détecte l'action, calcule le tempo, l'intensité et les battements de chaque scène. Canvas reste responsable du rendu image par image du personnage vectoriel. Il n'y a toujours aucune IA ni API nécessaire : Pyodide est un runtime local chargé uniquement quand l'utilisateur crée sa première histoire, avec un mode de secours JavaScript si le chargement échoue.
 
 ## Développement local
 
