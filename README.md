@@ -12,6 +12,7 @@ KUMA est un prototype mobile-first qui transforme une histoire écrite en storyb
 - Rig 2D articulé avec os virtuels, épaules, coudes, hanches, genoux et interpolation de poses.
 - Clignement, expressions, bouche rythmée et gestes indépendants du corps.
 - Lecture, navigation scène par scène et export vidéo WebM depuis le navigateur.
+- Export vidéo robuste par capture image par image, avec sélection automatique du codec WebM compatible.
 - Voix locale avec `SpeechSynthesis` en secours.
 - Route serverless Speechify optionnelle : la clé reste côté serveur.
 - Interface responsive pensée comme une application mobile.
