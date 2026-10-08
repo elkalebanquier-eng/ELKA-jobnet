@@ -9,6 +9,8 @@ KUMA est un prototype mobile-first qui transforme une histoire écrite en storyb
 - Détection locale d'actions : courir, tomber, sourire, parler, sauter.
 - Personnage vectoriel dessiné sur Canvas : visage expressif, cheveux, vêtements, mains et chaussures.
 - Poses animées locales synchronisées avec la scène : courir, tomber, sourire, parler et sauter.
+- Rig 2D articulé avec os virtuels, épaules, coudes, hanches, genoux et interpolation de poses.
+- Clignement, expressions, bouche rythmée et gestes indépendants du corps.
 - Lecture, navigation scène par scène et export vidéo WebM depuis le navigateur.
 - Voix locale avec `SpeechSynthesis` en secours.
 - Route serverless Speechify optionnelle : la clé reste côté serveur.
