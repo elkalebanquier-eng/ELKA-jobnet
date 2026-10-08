@@ -7,11 +7,16 @@ KUMA est un prototype mobile-first qui transforme une histoire écrite en storyb
 - Saisie d'une histoire en français.
 - Découpage automatique en scènes à partir de la ponctuation.
 - Détection locale d'actions : courir, tomber, sourire, parler, sauter.
-- Personnage canvas animé avec bouche synchronisée sur le rythme de la scène.
+- Personnage vectoriel dessiné sur Canvas : visage expressif, cheveux, vêtements, mains et chaussures.
+- Poses animées locales synchronisées avec la scène : courir, tomber, sourire, parler et sauter.
 - Lecture, navigation scène par scène et export vidéo WebM depuis le navigateur.
 - Voix locale avec `SpeechSynthesis` en secours.
 - Route serverless Speechify optionnelle : la clé reste côté serveur.
 - Interface responsive pensée comme une application mobile.
+
+## Choix technique du personnage
+
+Le personnage est dessiné directement en JavaScript Canvas avec des formes vectorielles, puis animé image par image par `requestAnimationFrame`. Cette approche est plus légère et plus rapide que charger Pyodide/Python dans chaque navigateur : aucune IA, aucun service externe et aucun gros runtime ne sont nécessaires pour l'animation. Python pourra être ajouté plus tard comme outil de rendu hors ligne pour produire des exports avancés, sans alourdir l'application mobile.
 
 ## Développement local
 
