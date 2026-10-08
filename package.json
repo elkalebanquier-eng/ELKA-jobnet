@@ -1,0 +1,8 @@
+{
+  "name": "kuma-animated-stories",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

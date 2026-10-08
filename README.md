@@ -30,12 +30,14 @@ Ne jamais écrire la clé dans `index.html`, dans un fichier JavaScript client o
 - `SPEECHIFY_API_KEY`
 - `SPEECHIFY_VOICE_ID` (optionnel, valeur par défaut `henry`)
 
-La route `api/speechify.js` lit ces variables côté serveur. Si elle n'est pas disponible (GitHub Pages statique), le bouton utilise automatiquement la voix native du navigateur.
+La route `api/speechify.js` lit ces variables côté serveur. Si elle n'est pas disponible, le bouton utilise automatiquement la voix native du navigateur.
 
 Pour GitHub Actions, enregistrer la clé dans **Settings → Secrets and variables → Actions**, jamais dans le dépôt. GitHub Pages peut héberger l'interface statique, mais il ne peut pas exécuter directement la route serverless Speechify ; il faudra alors garder la route sur un hébergeur de fonctions et configurer l'URL d'API côté déploiement.
 
-## Déploiement GitHub Pages
+## Déploiement GitHub + Vercel
 
-Le site est composé de fichiers statiques et peut être servi par GitHub Pages. `manus-routes.json` déclare la route principale pour les outils de preview. Le workflow `.github/workflows/pages.yml` publie automatiquement chaque push sur `main`.
+GitHub reste le dépôt source et Vercel déploie automatiquement chaque push sur `main`. L'application est pensée pour Vercel : les fichiers statiques sont servis à la racine et `api/speechify.js` devient une fonction serverless.
 
-Lors du premier déploiement, ouvrir **Settings → Pages → Build and deployment → Source: GitHub Actions** dans le dépôt. Le token GitHub disponible pour cette session n'a pas le droit d'activer Pages par API ; cette étape doit donc être faite une seule fois par le propriétaire du dépôt. Après activation, relancer le workflow `Deploy KUMA to GitHub Pages` si nécessaire.
+Projet Vercel : https://elka-jobnet.vercel.app/
+
+Dans **Vercel → Project Settings → Environment Variables**, ajouter `SPEECHIFY_API_KEY` et, facultativement, `SPEECHIFY_VOICE_ID`. Ne jamais mettre la clé dans GitHub ou dans le navigateur. Après ajout d'une variable, relancer un déploiement Vercel.
