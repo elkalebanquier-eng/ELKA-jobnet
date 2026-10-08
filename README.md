@@ -36,4 +36,6 @@ Pour GitHub Actions, enregistrer la clé dans **Settings → Secrets and variabl
 
 ## Déploiement GitHub Pages
 
-Le site est composé de fichiers statiques et peut être servi par GitHub Pages. `manus-routes.json` déclare la route principale pour les outils de preview.
+Le site est composé de fichiers statiques et peut être servi par GitHub Pages. `manus-routes.json` déclare la route principale pour les outils de preview. Le workflow `.github/workflows/pages.yml` publie automatiquement chaque push sur `main`.
+
+Lors du premier déploiement, ouvrir **Settings → Pages → Build and deployment → Source: GitHub Actions** dans le dépôt. Le token GitHub disponible pour cette session n'a pas le droit d'activer Pages par API ; cette étape doit donc être faite une seule fois par le propriétaire du dépôt. Après activation, relancer le workflow `Deploy KUMA to GitHub Pages` si nécessaire.
