@@ -1,0 +1,9 @@
+# Secrets locaux
+.env
+.env.*
+!.env.example
+
+# dépendances / builds
+node_modules/
+dist/
+.DS_Store

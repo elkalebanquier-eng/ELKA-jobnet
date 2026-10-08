@@ -1,15 +1,15 @@
 {
-  "name": "Projet Numérique du Faso",
-  "short_name": "PNF",
-  "description": "Découvrez les projets numériques, applications et innovations technologiques développés au Burkina Faso.",
+  "name": "KUMA — Histoires animées",
+  "short_name": "KUMA",
+  "description": "Crée des histoires animées directement dans ton navigateur.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#07091a",
-  "theme_color": "#f8f6fc",
+  "background_color": "#fbfaf7",
+  "theme_color": "#17171c",
   "categories": ["social", "video", "entertainment"],
   "icons": [
     {
