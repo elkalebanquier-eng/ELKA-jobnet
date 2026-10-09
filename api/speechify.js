@@ -1,25 +1,21 @@
-// Endpoint serverless compatible Vercel/Netlify-style runtimes.
-// La clé est fournie uniquement par SPEECHIFY_API_KEY côté serveur.
+// Proxy serverless Vercel : la clé Speechify ne quitte jamais le serveur.
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   const apiKey = process.env.SPEECHIFY_API_KEY;
-  if (!apiKey) return res.status(503).json({ error: 'Speechify non configuré' });
+  if (!apiKey) return res.status(503).json({ error: 'Speechify non configuré dans Vercel' });
   try {
-    const { text, voiceId = process.env.SPEECHIFY_VOICE_ID || 'henry' } = req.body || {};
-    if (typeof text !== 'string' || text.trim().length < 1 || text.length > 5000) {
-      return res.status(400).json({ error: 'Le texte doit contenir entre 1 et 5000 caractères' });
-    }
-    const upstream = await fetch('https://api.sws.speechify.com/v1/audio/speech', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input: text.trim(), voice_id: voiceId, audio_format: 'mp3' })
+    const { path = '/v1/audio/speech', method = 'GET', body } = req.body || {};
+    if (!/^\/v1\/(audio\/speech|voices)(\?.*)?$/.test(path)) return res.status(400).json({ error: 'Route Speechify non autorisée' });
+    const upstream = await fetch(`https://api.speechify.ai${path}`, {
+      method: method === 'GET' ? 'GET' : 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, ...(method !== 'GET' ? { 'Content-Type': 'application/json' } : {}) },
+      ...(method !== 'GET' && body ? { body: typeof body === 'string' ? body : JSON.stringify(body) } : {})
     });
-    if (!upstream.ok) return res.status(upstream.status).json({ error: 'Speechify a refusé la génération audio' });
-    const audio = Buffer.from(await upstream.arrayBuffer());
-    res.setHeader('Content-Type', 'audio/mpeg');
+    const payload = Buffer.from(await upstream.arrayBuffer());
+    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/json');
     res.setHeader('Cache-Control', 'no-store');
-    return res.status(200).send(audio);
+    return res.status(upstream.status).send(payload);
   } catch (error) {
-    return res.status(500).json({ error: 'Erreur de génération audio' });
+    return res.status(502).json({ error: 'Impossible de joindre Speechify' });
   }
 }

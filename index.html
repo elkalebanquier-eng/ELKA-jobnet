@@ -334,8 +334,7 @@
             <div class="form-group"><label>Personnage : coiffure</label><select id="settingCharHair"><option value="short">Cheveux courts</option><option value="bald">Rasé</option><option value="wrap">Foulard</option><option value="long">Cheveux longs</option></select></div>
             <div class="form-group"><label>Personnage : peau</label><select id="settingCharSkin"><option value="#4a2c1a">Ébène</option><option value="#6b4226">Brun foncé</option><option value="#8d5524">Brun</option><option value="#c68642">Caramel</option><option value="#f1c27d">Clair</option></select></div>
             <div class="form-group"><label>Personnage : couleur de la tenue</label><input type="color" id="settingCharColor" value="#1f3a5f"></div>
-            <div class="form-group"><label>Clé API Speechify</label><input type="password" id="settingSpeechifyKey" placeholder="Colle ta clé API Speechify ici" autocomplete="off" onchange="saveSpeechifyFields()"><p class="speechify-note">Crée-la sur platform.speechify.ai → API Keys. Elle s’enregistre toute seule quand tu quittes le champ, et reste uniquement dans ce navigateur.</p></div>
-            <div class="form-group"><label>Adresse du proxy Speechify</label><input type="url" id="settingSpeechifyProxy" placeholder="https://mon-proxy.workers.dev" autocomplete="off" onchange="saveSpeechifyFields()"><p class="speechify-note">Speechify refuse les appels directs depuis un navigateur ou une WebView (« connexion impossible »). Un petit proxy gratuit règle ça : voir le fichier speechify-proxy-worker.js.</p></div>
+            <div class="form-group"><label>Speechify sécurisé</label><input type="hidden" id="settingSpeechifyKey" value=""><input type="hidden" id="settingSpeechifyProxy" value=""><p class="speechify-note" id="settingVoiceStatus">La clé est protégée côté serveur Vercel. Elle n’est jamais enregistrée dans ce navigateur ni dans GitHub.</p></div>
             <div class="form-group"><label>Modèle</label><select id="settingSpeechifyModel" onchange="saveSpeechifyFields()"><option value="simba-3.0">simba-3.0 · français et multilingue</option><option value="simba-3.2">simba-3.2 · anglais seulement</option></select></div>
             <div class="form-group"><label>Voix</label><button type="button" class="btn-secondary" onclick="loadSpeechifyVoices()">🎙️ Charger mes voix</button><select id="settingSpeechifyPick" style="display:none; margin-top:8px" onchange="pickSpeechifyVoice(this.value)"></select><input type="text" id="settingSpeechifyVoice" placeholder="george" value="george" autocomplete="off" style="margin-top:8px" onchange="saveSpeechifyFields()"><p class="speechify-note">Appuie sur « Charger mes voix » pour choisir une voix française dans la liste de ton compte, ou tape son identifiant.</p></div>
             <div class="form-group"><button type="button" class="btn-secondary" onclick="testSpeechifyVoice()">▶ Tester la voix Speechify</button><p class="speechify-note" id="settingVoiceStatus"></p></div>
@@ -1252,9 +1251,9 @@ const VoiceStudio = (() => {
     let exportSources = [];
     let queue = Promise.resolve();
     const cfg = () => Settings.get();
-    // On accepte la clé collée avec « Bearer », des espaces, des guillemets ou un retour à la ligne
+    // La clé reste côté Vercel : le navigateur ne la lit plus et n'appelle jamais Speechify directement.
     const cleanKey = k => String(k || '').replace(/^\s*(?:authorization:?\s*)?bearer\s+/i, '').replace(/["'\s]/g, '');
-    const apiKey = () => cleanKey(cfg().speechifyKey);
+    const apiKey = () => '';
     const voiceFor = () => String(cfg().speechifyVoice || 'george').trim() || 'george';
     // Speechify ne propose plus que simba-3.0 (multilingue, français inclus) et simba-3.2 (anglais seulement)
     const modelFor = () => cfg().speechifyModel === 'simba-3.2' ? 'simba-3.2' : 'simba-3.0';
@@ -1276,24 +1275,11 @@ const VoiceStudio = (() => {
         const err = new Error('Speechify : ' + t); err.status = S; return err;
     }
     async function api(path, opt) {
-        const list = proxy() ? [proxy()] : BASES;
-        for (let i = 0; i < list.length; i++) {
-            const b = (baseIdx + i) % list.length;
-            let res;
-            try {
-                res = await fetch(list[b] + path, { method: opt.method || 'GET', body: opt.body, headers: Object.assign({ 'Authorization': 'Bearer ' + apiKey() }, opt.body ? { 'Content-Type': 'application/json' } : {}) });
-            } catch (e) { continue; }                     // pas de réseau / adresse bloquée : on essaie l'autre adresse
-            baseIdx = b;
-            if (!res.ok) throw await apiError(res);
-            return res;
-        }
-        if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new Error('Pas de connexion internet.');
-        throw new Error(proxy()
-            ? 'Ton proxy Speechify ne répond pas : vérifie son adresse dans Paramètres.'
-            : 'Le navigateur bloque l’appel direct à Speechify (sécurité CORS), ce n’est pas ta connexion. Ajoute l’adresse du proxy dans Paramètres.');
+        const res = await fetch('/api/speechify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path, method: opt.method || 'GET', body: opt.body || null }) });
+        if (!res.ok) throw await apiError(res);
+        return res;
     }
     async function listVoices() {
-        if (!apiKey()) throw new Error('Colle d’abord ta clé API Speechify.');
         const lang = (langFor() || 'fr-FR').slice(0, 2);
         let out = [];
         for (const q of ['?locale=' + lang + '&limit=200', '?limit=200']) {
@@ -1310,7 +1296,7 @@ const VoiceStudio = (() => {
         return out;
     }
     const proxy = () => String(cfg().speechifyProxy || '').trim().replace(/\/+$/, '');
-    const engineOn = () => !!apiKey();
+    const engineOn = () => true;
     const supported = () => !!(window.AudioContext || window.webkitAudioContext);
     const clean = t => String(t || '').replace(/\s+/g, ' ').trim().slice(0, 2000);
     function b64ToArrayBuffer(b64) {
@@ -1322,7 +1308,6 @@ const VoiceStudio = (() => {
         const input = clean(text), key = modelFor() + '|' + voiceFor() + '|' + input;
         if (!input) return null;
         if (cache.has(key)) return cache.get(key);
-        if (!apiKey()) throw new Error('Ajoute ta clé API Speechify dans Paramètres.');
         const job = queue.then(async () => {
             if (cache.has(key)) return cache.get(key);
             const lang = langFor();
@@ -2624,7 +2609,7 @@ async function loadSpeechifyVoices() {
 function pickSpeechifyVoice(id) { document.getElementById('settingSpeechifyVoice').value = id; saveSpeechifyFields(); }
 
 function settingsProject() { return state.project || { language: 'fr', voice: 'female' }; }
-function refreshVoiceStatus() { const el = document.getElementById('settingVoiceStatus'); if (el) el.textContent = Settings.get().speechifyKey ? '✅ Clé Speechify enregistrée' : '⚠️ Colle ta clé API Speechify puis enregistre'; }
+function refreshVoiceStatus() { const el = document.getElementById('settingVoiceStatus'); if (el) el.textContent = '✅ Speechify passe par le proxy serveur sécurisé Vercel'; }
 
 // ===== MUSIQUE GÉNÉRÉE (WebAudio, aucun fichier, aucune licence) =====
 const MUSIC_MOODS = {
