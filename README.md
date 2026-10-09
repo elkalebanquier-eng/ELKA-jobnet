@@ -1,6 +1,6 @@
-# KUMA — histoires animées
+# VideoStory — créateur de vidéos
 
-KUMA est un prototype mobile-first qui transforme une histoire écrite en storyboard animé **sans IA obligatoire** : le texte est découpé localement en scènes, les actions sont détectées par mots-clés et le personnage est dessiné/animé sur un canvas.
+VideoStory est l'application mobile-first fournie dans `onevo-explainer-rive-speechify.html`. Elle propose un éditeur de scènes, un personnage Rive, une narration Speechify optionnelle, une timeline et un export vidéo.
 
 ## Fonctions incluses
 

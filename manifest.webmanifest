@@ -1,7 +1,7 @@
 {
-  "name": "KUMA — Histoires animées",
-  "short_name": "KUMA",
-  "description": "Crée des histoires animées directement dans ton navigateur.",
+  "name": "VideoStory — Créateur de vidéos",
+  "short_name": "VideoStory",
+  "description": "Crée des vidéos animées avec narration, personnage et export vidéo.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "/?source=pwa",
