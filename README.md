@@ -52,6 +52,6 @@ Pour GitHub Actions, enregistrer la clé dans **Settings → Secrets and variabl
 
 GitHub reste le dépôt source et Vercel déploie automatiquement chaque push sur `main`. L'application est pensée pour Vercel : les fichiers statiques sont servis à la racine et `api/speechify.js` devient une fonction serverless.
 
-Projet Vercel : https://elka-jobnet.vercel.app/
+Projet Vercel : https://videos-plus-elkalebanquier-engs-projects.vercel.app/
 
 Dans **Vercel → Project Settings → Environment Variables**, ajouter `SPEECHIFY_API_KEY` et, facultativement, `SPEECHIFY_VOICE_ID`, pour les environnements Production et Preview. Ne jamais mettre la clé dans GitHub ou dans le navigateur. Après ajout d'une variable, relancer un déploiement Vercel. La clé déjà envoyée dans un message doit idéalement être révoquée puis remplacée après configuration, car un secret ne doit jamais circuler dans une conversation.

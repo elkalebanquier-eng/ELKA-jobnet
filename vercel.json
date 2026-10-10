@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/index.html?build=videos-plus-seo-v1" }
+    { "source": "/", "destination": "/index.html?build=videos-plus-public-v2" }
   ],
   "headers": [
     {
