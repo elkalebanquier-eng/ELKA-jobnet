@@ -1,6 +1,6 @@
-# VideoStory — créateur de vidéos
+# Vidéos Plus — créateur de vidéos
 
-VideoStory est l'application mobile-first fournie dans `onevo-explainer-rive-speechify.html`. Elle propose un éditeur de scènes, un personnage Rive, une narration Speechify optionnelle, une timeline et un export vidéo.
+Vidéos Plus est l'application mobile-first fournie dans `onevo-explainer-rive-speechify.html`. Elle propose un éditeur de scènes, un personnage Rive, une narration Speechify optionnelle, une timeline et un export vidéo.
 
 L’export social utilise le format vertical 9:16 en 1080×1920 par défaut. Quand le navigateur produit du WebM, FFmpeg WebAssembly le convertit automatiquement en MP4 H.264/AAC, plus adapté au partage TikTok et WhatsApp. Si le téléphone manque de mémoire, le fichier WebM est conservé comme solution de secours.
 
@@ -23,7 +23,7 @@ Le parcours de création fonctionne en mode local sans clé IA. La narration Spe
 
 ## Architecture hybride Python + Canvas
 
-Pour les animations avancées, KUMA charge Pyodide à la demande et exécute un petit moteur Python local. Python découpe l'histoire, détecte l'action, calcule le tempo, l'intensité et les battements de chaque scène. Canvas reste responsable du rendu image par image du personnage vectoriel. Il n'y a toujours aucune IA ni API nécessaire : Pyodide est un runtime local chargé uniquement quand l'utilisateur crée sa première histoire, avec un mode de secours JavaScript si le chargement échoue.
+Pour les animations avancées, Vidéos Plus charge Pyodide à la demande et exécute un petit moteur Python local. Python découpe l'histoire, détecte l'action, calcule le tempo, l'intensité et les battements de chaque scène. Canvas reste responsable du rendu image par image du personnage vectoriel. Il n'y a toujours aucune IA ni API nécessaire : Pyodide est un runtime local chargé uniquement quand l'utilisateur crée sa première histoire, avec un mode de secours JavaScript si le chargement échoue.
 
 ## Développement local
 

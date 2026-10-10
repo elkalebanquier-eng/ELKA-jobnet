@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="videostory-build" content="2.6-download-safe-public">
-    <title>VideoStory - Créateur de vidéos</title>
+    <title>Vidéos Plus - Créateur de vidéos</title>
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -182,7 +182,7 @@
     <!-- HOME SCREEN -->
     <div id="homeScreen" class="screen active">
         <header class="header">
-            <div class="logo"><div class="logo-icon">🎬</div><h1>VideoStory</h1></div>
+            <div class="logo"><div class="logo-icon">🎬</div><h1>Vidéos Plus</h1></div>
             <button class="header-btn" onclick="showScreen('settingsScreen')">⚙️</button>
         </header>
         <main>
@@ -560,7 +560,7 @@ const stemMatch = (t, s) => s.length < 4 ? t === s : t.startsWith(s);
 const hit = (tokens, stem) => tokens.some(t => stemMatch(t, stem));
 const countHits = (tokens, stems) => stems.reduce((n, s) => n + (hit(tokens, s) ? 1 : 0), 0);
 
-const BUILD_INFO = Object.freeze({ app: 'VideoStory', version: '2.6', channel: 'debug', publicBuildId: 'videostory-2.6-download-safe' });
+const BUILD_INFO = Object.freeze({ app: 'Vidéos Plus', version: '2.6', channel: 'debug', publicBuildId: 'videos-plus-2.6' });
 
 const Settings = {
     get() { try { return JSON.parse(localStorage.getItem('vs_settings') || '{}'); } catch (e) { return {}; } },
