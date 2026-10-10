@@ -2,6 +2,8 @@
 
 Vidéos Plus est l'application mobile-first fournie dans `onevo-explainer-rive-speechify.html`. Elle propose un éditeur de scènes, un personnage Rive, une narration Speechify optionnelle, une timeline et un export vidéo.
 
+Le site contient maintenant les métadonnées SEO, Open Graph, Twitter Card, données structurées, URL canonique, sitemap et robots.txt associés à **Vidéos Plus**. Google doit encore recrawler la page : le changement de nom dans les résultats peut prendre de quelques jours à plusieurs semaines.
+
 L’export social utilise le format vertical 9:16 en 1080×1920 par défaut. Quand le navigateur produit du WebM, FFmpeg WebAssembly le convertit automatiquement en MP4 H.264/AAC, plus adapté au partage TikTok et WhatsApp. Si le téléphone manque de mémoire, le fichier WebM est conservé comme solution de secours.
 
 Le parcours de création fonctionne en mode local sans clé IA. La narration Speechify passe par `/api/speechify` : la clé reste dans les variables d'environnement Vercel et n'est jamais enregistrée dans le navigateur, le HTML ou GitHub.

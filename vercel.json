@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/index.html?build=isolation-mp4-v2" }
+    { "source": "/", "destination": "/index.html?build=videos-plus-seo-v1" }
   ],
   "headers": [
     {
